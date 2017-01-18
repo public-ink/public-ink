@@ -28,7 +28,8 @@ class Home(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
   ('/', Home),
-  ('/author', AuthorEndpoint),
+  (r'/author/(.+)?', AuthorEndpoint),
+  #('/author', AuthorEndpoint),
   ('/blog', BlogEndpoint),
   ('/article', ArticleEndpoint)
   # the unique identifier for a blog
