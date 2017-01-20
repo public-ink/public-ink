@@ -1,6 +1,7 @@
 from google.appengine.ext import ndb
-from shared import RequestHandler, return_json
+from shared import RequestHandler, return_json, return_404
 from slugify import slugify
+import json
 
 
 class Author(ndb.Model):
@@ -26,7 +27,12 @@ class Author(ndb.Model):
     def create(cls, name, email, about=None):
         """
         creates an auther with a given name, email, and (optional) about.
-        returns the newly created author's key.
+        returns the newly created author ndb entitiy
+
+        :param name: The name of the Author
+        :param email: The email of the Author
+        :param about (optional): An text snippet about the Author
+        :rtype: Author :class:`ndb.Entitiy <Author>`
         """
         author_key = cls(
             id=slugify(name),
@@ -71,6 +77,9 @@ class AuthorEndpoint(RequestHandler):
         endpoint for retrieving an author by their id
         """
         author = Author.get(id)
+        if not author: 
+            return_404(self)
+            return
         author_data = author.data()
         return_json(self, author_data)
 
