@@ -124,7 +124,12 @@ export class BackendService {
    * PUBLICATIONS
    */
   createPublication(name: string) {
-    let url = this.BACKEND_URL + ''
+    // only works if you've identified yourself
+    let url = this.BACKEND_URL + 'author/' + this.userIdentity.id + '/publication/' + name.toLowerCase().replace(/ /g, '-')
+    let data = {name: name}
+    this.http.post(url, data, this.defaultOptions()).map(res => res.json()).subscribe(publication => {
+      console.log('created publication', publication)
+    })
   }
 
   getPublication(authorID: string, publicationID: string) {

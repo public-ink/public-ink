@@ -65,8 +65,7 @@ class Author(ndb.Model):
             email=email,
             about=about
         ).put()
-        author = author_key.get()
-        return author
+        return author_key.get()
 
     @classmethod
     def update(cls, id, name, about):
@@ -104,6 +103,9 @@ class Author(ndb.Model):
             'about': self.about
         }
 
+"""
+AUTHOR ENDPOINTS
+"""
 
 class AuthorEndpoint(RequestHandler):
     """
