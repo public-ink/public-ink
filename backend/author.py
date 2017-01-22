@@ -1,12 +1,13 @@
 from google.appengine.ext import ndb
 from google.appengine.api import users
-from shared import RequestHandler, allow_cors, return_json, return_404
+from shared import RequestHandler, allow_cors, return_json, return_404, return_error
 from slugify import slugify
 import json
 import webapp2
 
 """
 Decorator function to allow cross-origin requests.
+TODO: move to shared, generalize for any number of arguments
 """
 def cross_origin(fn):
     def decorated_request(request, id):
@@ -19,8 +20,9 @@ Decorator function to guard against unauthorized access.
 """
 def owner_required(fn):
     def decorated_request(request, id):
-        owner = ndb.Key('Author', id).get()
-        if owner == users.get_current_user() or users.is_current_user_admin():
+        author = ndb.Key('Author', id).get()
+        author_email = author.email
+        if author_email == users.get_current_user().email() or users.is_current_user_admin():
             return fn(request, id)
         else:
             request.error(401)
@@ -62,9 +64,24 @@ class Author(ndb.Model):
         """
         returns the requested author entity, or None if she does not exist
         """
-        user = users.get_current_user()
         author = ndb.Key('Author', id).get()
         return author
+
+    @classmethod
+    def get_by_session(cls):
+        """
+        Returns a list of authors associated with the current sessions,
+        or an empty list
+        """
+        user = users.get_current_user()
+        author_list = []
+        if not user:
+            return author_list
+        authors = cls.query(Author.email == user.email(), Author.deleted == False).fetch()
+        for author in authors:
+            author_list.append(author.data())
+        return author_list
+
 
     @classmethod
     def create(cls, name, email, about=None):
@@ -75,10 +92,11 @@ class Author(ndb.Model):
         :param name: The name of the author
         :param email: The email of the author
         :param about (optional): An text snippet about the author
-        :rtype: Author :class:`ndb.Entitiy <Author>`
-
-        todo: check duplicate
+        :rtype: Author :class:`ndb.Entitiy <Author>` or None
         """
+        author = ndb.Key(cls, slugify(name)).get()
+        if author:
+            return None
         author_key = cls(
             id=slugify(name),
             name=name,
@@ -133,7 +151,6 @@ class AuthorEndpoint(RequestHandler):
         """
         Endpoint for retrieving an author by their id
         """
-        print 'GET HERE'
         author = Author.get(id)
         if not author: 
             return_404(self)
@@ -151,9 +168,13 @@ class AuthorEndpoint(RequestHandler):
         name = data.get('name')
         email = users.get_current_user().email()
         author = Author.create(name, email)
+        if not author: # duplicate error
+            return_error(self, 409, 'an author with this id already exists')
+            return
         author_data = author.data()
         return_json(self, author_data)
 
+    @cross_origin
     @owner_required
     def post(self, id):
         """
@@ -168,6 +189,7 @@ class AuthorEndpoint(RequestHandler):
         author_data = author.data()
         return_json(self, author_data)
 
+    @cross_origin
     @owner_required
     def delete(self, id):
         """
@@ -177,3 +199,11 @@ class AuthorEndpoint(RequestHandler):
         author_data = author.data()
         return_json(self, author_data)
 
+class MeEndpoint(RequestHandler):
+    """
+    Endpoint for querying information about the current user
+    """
+    def get(self):
+        author_list = Author.get_by_session()
+        allow_cors(self)
+        return_json(self, author_list)

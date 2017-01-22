@@ -16,26 +16,29 @@ class RequestHandler(webapp2.RequestHandler):
         allow_cors(self)
 
 
-def allow_cors(handler):
+def allow_cors(request):
     """
-    set the appropriate headers for cross-origin requests
+    set the appropriate response headers for cross-origin requests
     """
-    handler.response.headers['Access-Control-Allow-Credentials'] = 'true'
-    handler.response.headers['Access-Control-Allow-Origin']  = 'http://localhost:4200'
-    handler.response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
-    handler.response.headers['Access-Control-Allow-Methods'] = 'POST, GET, PUT, DELETE'
+    request.response.headers['Access-Control-Allow-Credentials'] = 'true'
+    request.response.headers['Access-Control-Allow-Origin']  = 'http://localhost:4200'
+    request.response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
+    request.response.headers['Access-Control-Allow-Methods'] = 'POST, GET, PUT, DELETE'
 
 def return_json(handler, data):
     """
-    returns CORS-friendly json
+    returns JSON
     """
-    #allow_cors(handler)
     handler.response.headers['Content-Type'] = 'application/json; charset=utf-8'
     handler.response.out.write(json.dumps(data))
 
 def return_404(handler):
     handler.error(404)
     return_json(handler, {'status': 404, 'message': 'this resouces could not be found, sorry!'})
+
+def return_error(handler, code, message):
+    handler.error(code)
+    return_json(handler, {'message': message})
 
 """
 Ninja Environment

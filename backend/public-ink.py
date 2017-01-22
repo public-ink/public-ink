@@ -14,7 +14,7 @@ from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext import blobstore
 """
 
-from author  import AuthorEndpoint
+from author  import AuthorEndpoint, MeEndpoint
 from blog    import BlogEndpoint
 from article import ArticleEndpoint
 from shared  import ninja
@@ -32,6 +32,7 @@ class Home(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
   ('/', Home),
   (r'/author/(.+)?', AuthorEndpoint),
+  ('/me', MeEndpoint),
   #('/author', AuthorEndpoint),
   ('/blog', BlogEndpoint),
   ('/article', ArticleEndpoint)

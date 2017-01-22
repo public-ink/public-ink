@@ -1,4 +1,24 @@
-<h1>
-  {{title}}
-</h1>
+<h1>{{ title }} </h1>
+<input type="text" [(ngModel)]="backend.newAuthorName" placeholder="your name or pseudonym" />
+<button (click)="backend.createAuthor(backend.newAuthorName)">create author</button>
+<hr>
 
+<h2>The authors that you are</h2>
+<div *ngFor="let author of backend.userAuthors">
+  id: {{ author.id }}<br>
+  name: <input type="text" [(ngModel)]="author.name">
+  <br>
+  email: {{ author.email }}
+  <br>
+  about: <textarea [(ngModel)]="author.about"></textarea>
+  <button (click)="backend.updateAuthor(author)">update {{ author.name }}</button>
+  <button (click)="backend.deleteAuthor(author)">delete {{ author.name }}</button>
+  <button (click)="backend.assumeIdentity(author)">assume {{ author.name }}'s identity</button>
+</div>
+
+<div *ngIf="backend.userIdentity">
+  <h2>create a publication!</h2>
+  name: <input type="text" [(ngModel)]="backend.newPublicationName" placeholder="name of your publication" />
+  <button (click)="backend.createPublication(backend.newPublicationName)">create</button>
+
+</div>
