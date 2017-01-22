@@ -4,10 +4,11 @@ import json
 import jinja2
 import time
 
+from google.appengine.api import users
+
+
 """
-from slugify import slugify
 from google.appengine.api import images
-from google.appengine.api import users 
 from google.appengine.ext import ndb
 from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext import blobstore
@@ -22,7 +23,9 @@ from shared  import ninja
 class Home(webapp2.RequestHandler):
     def get(self):
         template = ninja.get_template('home.html')
-        template_values = {}
+        user = users.get_current_user()
+        login_url = users.create_login_url("/")
+        template_values = {'login_url': login_url}
         self.response.write(template.render(template_values))
 
 

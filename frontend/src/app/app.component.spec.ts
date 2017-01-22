@@ -1,14 +1,22 @@
 /* tslint:disable:no-unused-variable */
 
 import { TestBed, async } from '@angular/core/testing';
-import { AppComponent } from './app.component';
+import { AppComponent } from './app.component'
+import { BackendService } from './backend.service'
+import { HttpModule } from '@angular/http'
 
 describe('AppComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [
-        AppComponent
+      imports: [
+        HttpModule,
       ],
+      declarations: [
+        AppComponent,
+      ],
+      providers: [
+        BackendService,
+      ]
     });
     TestBed.compileComponents();
   });
