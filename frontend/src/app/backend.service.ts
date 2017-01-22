@@ -34,6 +34,7 @@ export class BackendService {
     private http: Http
   ) {
     this.me()
+    this.getPublication('hoff', 'atomic-angular')
   }
 
   /**
@@ -56,6 +57,9 @@ export class BackendService {
     let url = this.BACKEND_URL + 'me'
     this.http.get(url, this.defaultOptions()).map(res => res.json()).subscribe((authors: Author[]) => {
       this.userAuthors = authors
+      if (this.userAuthors.length === 1) {
+        this.assumeIdentity(this.userAuthors[0])
+      }
     })
   }
 
@@ -121,6 +125,18 @@ export class BackendService {
    */
   createPublication(name: string) {
     let url = this.BACKEND_URL + ''
+  }
+
+  getPublication(authorID: string, publicationID: string) {
+    let url = this.BACKEND_URL + 'author/' + authorID + '/publication/' + publicationID
+    this.http.get(url, this.defaultOptions()).map(res => res.json()).subscribe(
+      (publication) => {
+        console.log('loaded publication', publication)
+      }, 
+      (error) => {
+        console.log('error loading publication', error)
+      }
+    )
   }
 
 }

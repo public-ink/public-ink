@@ -1,48 +1,10 @@
 from google.appengine.ext import ndb
 from google.appengine.api import users
-from shared import RequestHandler, allow_cors, return_json, return_404, return_error
+from shared import RequestHandler, allow_cors, return_json, return_error, cross_origin, owner_required, login_required
 from slugify import slugify
 import json
 import webapp2
 
-"""
-Decorator function to allow cross-origin requests.
-TODO: move to shared, generalize for any number of arguments
-"""
-def cross_origin(fn):
-    def decorated_request(request, id):
-        allow_cors(request)
-        return fn(request, id)
-    return decorated_request
-
-"""
-Decorator function to guard against unauthorized access.
-"""
-def owner_required(fn):
-    def decorated_request(request, id):
-        author = ndb.Key('Author', id).get()
-        author_email = author.email
-        if author_email == users.get_current_user().email() or users.is_current_user_admin():
-            return fn(request, id)
-        else:
-            request.error(401)
-            request.response.write("You don't have permission to alter this resource.")
-            return
-    return decorated_request
-
-"""
-Decorator function to ensure request is logged in.
-"""
-def login_required(fn):
-    def decorated_request(request, id):
-        user = users.get_current_user()
-        if user:
-            return fn(request, id)
-        else:
-            request.error(401)
-            request.response.write("You need to be logged in to perfom this request")
-            return
-    return decorated_request
 
 
 class Author(ndb.Model):
@@ -153,7 +115,7 @@ class AuthorEndpoint(RequestHandler):
         """
         author = Author.get(id)
         if not author: 
-            return_404(self)
+            return_error(self, 404, 'this author does not exist')
             return
         author_data = author.data()
         return_json(self, author_data)
@@ -185,7 +147,7 @@ class AuthorEndpoint(RequestHandler):
         about = data.get('about')
         author = Author.update(id, name, about)
         if not author:
-            return_404(self)
+            return_error(self, 404, 'this author does not exist')
         author_data = author.data()
         return_json(self, author_data)
 
