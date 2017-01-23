@@ -8,6 +8,14 @@ interface Author {
   name: string;
   email: string;
   about: string | null;
+  publications: Publication[];
+}
+
+// expand
+interface Publication {
+  id: string;
+  name: string;
+  url: string;
 }
 
 interface ServerError {
@@ -15,10 +23,11 @@ interface ServerError {
 }
 
 
+
 @Injectable()
 export class BackendService {
 
-  BACKEND_URL = 'http://localhost:8080/'
+  BACKEND_URL = 'http://localhost:8080'
 
   // new author name, for creating a new author
   newAuthorName: string = ''
@@ -34,7 +43,7 @@ export class BackendService {
     private http: Http
   ) {
     this.me()
-    this.getPublication('hoff', 'atomic-angular')
+    //this.getPublication('hoff', 'atomic-angular')
   }
 
   /**
@@ -54,7 +63,7 @@ export class BackendService {
    * retrieves a list of authors which belong to the current user
    */
   me() {
-    let url = this.BACKEND_URL + 'me'
+    let url = this.BACKEND_URL + '/me'
     this.http.get(url, this.defaultOptions()).map(res => res.json()).subscribe((authors: Author[]) => {
       this.userAuthors = authors
       if (this.userAuthors.length === 1) {
@@ -68,7 +77,7 @@ export class BackendService {
    */
   createAuthor(name: string) {
     let id = name.toLowerCase().replace(/ /g, '-')
-    let url = this.BACKEND_URL + 'author/' + id
+    let url = this.BACKEND_URL + '/author/' + id
     let data = { name: name }
     this.http.put(url, data, this.defaultOptions()).map(res => res.json()).subscribe(
       (author: Author) => {
@@ -85,7 +94,7 @@ export class BackendService {
    * Delete and author
    */
   deleteAuthor(author: Author) {
-    let url = this.BACKEND_URL + 'author/' + author.id
+    let url = this.BACKEND_URL + '/author/' + author.id
     this.http.delete(url, this.defaultOptions()).map(res => res.json()).subscribe((deletedAuthor: Author) => {
       author = deletedAuthor
       console.log('deleted author')
@@ -96,7 +105,7 @@ export class BackendService {
    * Update an author's details
    */
   updateAuthor(author: Author) {
-    let url = this.BACKEND_URL + 'author/' + author.id
+    let url = this.BACKEND_URL + '/author/' + author.id
     let data = {
       name: author.name,
       about: author.about,
@@ -125,15 +134,50 @@ export class BackendService {
    */
   createPublication(name: string) {
     // only works if you've identified yourself
-    let url = this.BACKEND_URL + 'author/' + this.userIdentity.id + '/publication/' + name.toLowerCase().replace(/ /g, '-')
+    let url = this.BACKEND_URL + '/author/' + this.userIdentity.id + '/publication/' + name.toLowerCase().replace(/ /g, '-')
     let data = {name: name}
-    this.http.post(url, data, this.defaultOptions()).map(res => res.json()).subscribe(publication => {
+    this.http.put(url, data, this.defaultOptions()).map(res => res.json()).subscribe(publication => {
       console.log('created publication', publication)
     })
   }
 
+  /**
+   * Update Publication
+   */
+  updatePublication(publication:Publication) {
+    let url = this.BACKEND_URL + publication.url
+    let data = {
+      // expand, add about
+      name: publication.name,
+    }
+    this.http.post(url, data, this.defaultOptions()).map(res => res.json()).subscribe(
+      (publication:Publication) => {
+        console.log('update publication', publication)
+      },
+      (error) => {
+        alert('error updating publication!')
+      }
+    )
+  }
+
+  /**
+   * Delete Publication
+   */
+  deletePublication(publication: Publication) {
+    let url = this.BACKEND_URL + publication.url
+    console.log(url)
+    this.http.delete(url, this.defaultOptions()).map(res => res.json()).subscribe(
+      (publication) => {
+        console.log('deleted publication', publication)
+      },
+      (error) => {
+        alert('error deleting publication')
+      }
+    )
+  }
+
   getPublication(authorID: string, publicationID: string) {
-    let url = this.BACKEND_URL + 'author/' + authorID + '/publication/' + publicationID
+    let url = this.BACKEND_URL + '/author/' + authorID + '/publication/' + publicationID
     this.http.get(url, this.defaultOptions()).map(res => res.json()).subscribe(
       (publication) => {
         console.log('loaded publication', publication)

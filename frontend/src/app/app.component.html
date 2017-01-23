@@ -14,6 +14,14 @@
   <button (click)="backend.updateAuthor(author)">update {{ author.name }}</button>
   <button (click)="backend.deleteAuthor(author)">delete {{ author.name }}</button>
   <button (click)="backend.assumeIdentity(author)">assume {{ author.name }}'s identity</button>
+
+  <h3>This author has the following publications</h3>
+  <div *ngFor="let publication of author.publications">
+    name: <input type="text" [(ngModel)]="publication.name" /> 
+    <button (click)="backend.updatePublication(publication)">update publication</button>
+    <button (click)="backend.deletePublication(publication)">delete publication</button>
+  </div>
+
 </div>
 
 <div *ngIf="backend.userIdentity">

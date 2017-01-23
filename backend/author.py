@@ -5,6 +5,7 @@ from slugify import slugify
 import json
 import webapp2
 
+from publication import Publication
 
 
 class Author(ndb.Model):
@@ -32,7 +33,7 @@ class Author(ndb.Model):
     @classmethod
     def get_by_session(cls):
         """
-        Returns a list of authors associated with the current sessions,
+        Returns a list of author data associated with the current sessions,
         or an empty list
         """
         user = users.get_current_user()
@@ -94,13 +95,21 @@ class Author(ndb.Model):
 
     def data(self):
         """
-        returns a dictionary containing information about an author
+        returns a dictionary containing information about an author,
+        and her publications
         """
+        publications = Publication.query(Publication.deleted == False, ancestor = self.key).fetch()
+        publication_list = []
+        for publication in publications:
+            publication_list.append(publication.data())
+        author_id = self.key.id()
         return {
-            'id': self.key.id(),
+            'id': author_id,
+            'url': '/author/{}'.format(author_id),
             'name': self.name,
             'email': self.email,
-            'about': self.about
+            'about': self.about,
+            'publications': publication_list
         }
 
 """
