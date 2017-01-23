@@ -20,7 +20,18 @@
     name: <input type="text" [(ngModel)]="publication.name" /> 
     <button (click)="backend.updatePublication(publication)">update publication</button>
     <button (click)="backend.deletePublication(publication)">delete publication</button>
+
+    <h4>These are the publication's articles</h4>
+    <div *ngFor="let article of publication.articles">
+      <b (click)="backend.getArticle(article.url)">{{ article.title }}</b> (click to get)
+      <i>{{ article.teaser }}</i>
+    </div>
+
+    <h4>create an article for this publication {{ publication.name }}</h4>
+    <input type="text" [(ngModel)]="backend.newArticle.title" />
+    <button (click)="backend.createArticle(publication, backend.newArticle)">create article!</button>
   </div>
+  <hr>
 
 </div>
 

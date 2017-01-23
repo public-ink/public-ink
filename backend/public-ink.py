@@ -32,6 +32,9 @@ class Home(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
   # renders the home template, for now
   ('/', Home),
+  # Article Endpoint 
+  # /author/hoff/publication/atomic-angular/article/how-this-blog-was-made
+  (r'/author/(.+)?/publication/(.+)?/article/(.+)?', ArticleEndpoint),
   # Publication Endpoint
   (r'/author/(.+)?/publication/(.+)?', PublicationEndpoint),
   # Author and Me Endpoints

@@ -2,7 +2,7 @@ from google.appengine.ext import ndb
 from shared import RequestHandler, return_error, return_json, allow_cors, cross_origin, owner_required
 from slugify import slugify
 import json
-
+from article import Article
 
 """
 The Publication Model
@@ -37,10 +37,18 @@ class Publication(ndb.Model):
     def data(self):
         author_id = self.key.parent().id()
         publication_id = self.key.id()
+
+        # get your articles included
+        articles = Article.query(Article.deleted == False, ancestor = self.key).fetch()
+        article_list = []
+        for article in articles:
+            article_list.append(article.data())
+
         return {
             'id': publication_id,
             'author_id': author_id,
             'name': self.name,
+            'articles': article_list,
             'deleted': self.deleted,
             'url': '/author/{}/publication/{}'.format(author_id, publication_id)
         }
@@ -51,22 +59,26 @@ PUBLICATION ENDPOINT
 class PublicationEndpoint(RequestHandler):
 
     @cross_origin
-    def get(self, author_id, publication_id):
-        publication = ndb.Key('Author', author_id, 'Publication', publication_id).get()
-        if not publication:
-            return_error(self, 404, 'this publication could not be found.')
-            return
-        return_json(self, publication.data())
-
-    @cross_origin
     @owner_required
     def put(self, author_id, publication_id):
+        """
+        create a new publication
+        TODO: duplicate check
+        """
         data = json.loads(self.request.body)
         name = data.get('name')
         publication = Publication.create(
             author_id,
             name
         )
+        return_json(self, publication.data())
+
+    @cross_origin
+    def get(self, author_id, publication_id):
+        publication = ndb.Key('Author', author_id, 'Publication', publication_id).get()
+        if not publication:
+            return_error(self, 404, 'this publication could not be found.')
+            return
         return_json(self, publication.data())
 
     @cross_origin
@@ -79,7 +91,6 @@ class PublicationEndpoint(RequestHandler):
         publication.deleted = True
         publication.put()
         return_json(self, publication.data())
-
 
     @cross_origin
     @owner_required
@@ -96,4 +107,3 @@ class PublicationEndpoint(RequestHandler):
         publication.name = name
         publication.put()
         return_json(self, publication.data())
-

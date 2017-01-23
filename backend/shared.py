@@ -89,7 +89,7 @@ def allow_cors(request):
     request.response.headers['Access-Control-Allow-Credentials'] = 'true'
     request.response.headers['Access-Control-Allow-Origin']  = 'http://localhost:4200'
     request.response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
-    request.response.headers['Access-Control-Allow-Methods'] = 'POST, GET, PUT, DELETE'
+    request.response.headers['Access-Control-Allow-Methods'] = 'PUT, GET, POST, DELETE'
 
 
 def return_json(handler, data):

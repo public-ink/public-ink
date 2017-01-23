@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-import { Http, Headers, RequestOptions } from '@angular/http'
+import { Http, Headers, RequestOptions, Response } from '@angular/http'
 import { Observable } from 'rxjs/Observable'
 import 'rxjs/add/operator/map'
 
@@ -18,6 +18,15 @@ interface Publication {
   url: string;
 }
 
+interface Article {
+  id: string;
+  title: string;
+  teaser: string;
+  body: string;
+  url?: string;
+  deleted: boolean;
+}
+
 interface ServerError {
   message: string;
 }
@@ -26,6 +35,13 @@ interface ServerError {
 
 @Injectable()
 export class BackendService {
+
+  newArticle: Article = {
+    id: 'new',
+    title: 'a title!',
+    teaser: 'and a teaser',
+    body: 'such a body',
+  }
 
   BACKEND_URL = 'http://localhost:8080'
 
@@ -135,7 +151,7 @@ export class BackendService {
   createPublication(name: string) {
     // only works if you've identified yourself
     let url = this.BACKEND_URL + '/author/' + this.userIdentity.id + '/publication/' + name.toLowerCase().replace(/ /g, '-')
-    let data = {name: name}
+    let data = { name: name }
     this.http.put(url, data, this.defaultOptions()).map(res => res.json()).subscribe(publication => {
       console.log('created publication', publication)
     })
@@ -144,14 +160,14 @@ export class BackendService {
   /**
    * Update Publication
    */
-  updatePublication(publication:Publication) {
+  updatePublication(publication: Publication) {
     let url = this.BACKEND_URL + publication.url
     let data = {
       // expand, add about
       name: publication.name,
     }
     this.http.post(url, data, this.defaultOptions()).map(res => res.json()).subscribe(
-      (publication:Publication) => {
+      (publication: Publication) => {
         console.log('update publication', publication)
       },
       (error) => {
@@ -181,11 +197,85 @@ export class BackendService {
     this.http.get(url, this.defaultOptions()).map(res => res.json()).subscribe(
       (publication) => {
         console.log('loaded publication', publication)
-      }, 
+      },
       (error) => {
         console.log('error loading publication', error)
       }
     )
+  }
+
+  /**
+   * Articles, the last missing piece, for now :)
+   * 
+   */
+  createArticle(publication: Publication, article: Article) {
+    // try using new if the id is not enforced anyway
+    let url = this.BACKEND_URL + publication.url + '/article/new'
+    let data = {
+      title: article.title,
+      teaser: article.teaser,
+      body: article.body,
+    }
+    this.http.put(url, data, this.defaultOptions()).map(res => res.json()).subscribe(
+      (article: Article) => {
+        console.log('created article!', article)
+      },
+      (error) => {
+        this.handleError(error)
+        //alert('error creating article')
+      }
+    )
+  }
+
+  getArticle(articleURL: string) {
+    /**
+     * Retrievs an article from a given url
+     */
+    let url = this.BACKEND_URL + articleURL
+    this.http.get(url).map(res=>res.json()).subscribe(
+      (article: Article) => {
+        console.log('loaded article', article)
+      },
+      (error) => {
+        this.handleError(error)
+      }
+    )
+  }
+
+  updateArticle(article: Article) {
+    let url = this.BACKEND_URL + article.url
+    let data = article
+    this.http.post(url, article, this.defaultOptions()).map(res => res.json()).subscribe(
+      (article: Article) => {
+        console.log('update article', article)
+      },
+      (error) => {
+        this.handleError(error)
+      } 
+    )
+  }
+
+  deleteArticle(article: Article) {
+    article.deleted = true
+    this.updateArticle(article)
+  }
+
+
+  /**
+   * Helpers
+   */
+  private handleError(error: Response | any) {
+    let errMsg: string;
+    if (error instanceof Response) {
+      const body = error.json() || '';
+      const err = body.error || JSON.stringify(body);
+      errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
+    } else {
+      errMsg = error.message ? error.message : error.toString();
+    }
+    console.error(errMsg)
+    alert(errMsg)
+    
   }
 
 }
