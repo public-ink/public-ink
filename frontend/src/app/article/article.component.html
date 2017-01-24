@@ -1,7 +1,15 @@
-<p>
-  article works!
-</p>
+<h2>an article</h2>
 
 <div *ngIf="article">
+  this article is part of the publication <a [routerLink]="['/', article.author.id, article.publication.id]">{{ article.publication.name}}</a>
+
   <h1>{{ article.title }}</h1>
+  <input type="text" [(ngModel)]="article.title" />
+  <h2>{{ article.teaser }}</h2>
+  <input type="text" [(ngModel)]="article.teaser" />
+  <p>{{ article.body }}</p>
+  <textarea [(ngModel)]="article.body"></textarea>
+  written by <a [routerLink]="['/', article.author.id]">{{ article.author.name }}</a>
+
+  <button (click)="backend.updateArticle(article)">save changes</button>
 </div>

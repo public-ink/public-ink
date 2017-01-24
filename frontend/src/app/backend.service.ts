@@ -23,8 +23,8 @@ interface Article {
   title: string;
   teaser: string;
   body: string;
-  url?: string;
-  deleted?: boolean; // let backend send it
+  url?: string; // only optional because of newArticle...
+  deleted?: boolean; // only optional because of new...
 }
 
 interface ServerError {
@@ -58,7 +58,7 @@ export class BackendService {
   constructor(
     private http: Http
   ) {
-    this.me()
+    //this.me()
     //this.getPublication('hoff', 'atomic-angular')
   }
 
@@ -107,7 +107,7 @@ export class BackendService {
   }
 
   /**
-   * Delete and author
+   * Delete an author
    */
   deleteAuthor(author: Author) {
     let url = this.BACKEND_URL + '/author/' + author.id
@@ -115,6 +115,14 @@ export class BackendService {
       author = deletedAuthor
       console.log('deleted author')
     })
+  }
+
+  /**
+   * GET by id
+   */
+  getAuthorByID(authorID: string): Observable<Author> {
+    let url = this.BACKEND_URL + '/author/' + authorID
+    return this.http.get(url).map(res => res.json())
   }
 
   /**
@@ -141,7 +149,7 @@ export class BackendService {
   /**
    * Become the given author
    */
-  assumeIdentity(author: Author) {
+  assumeIdentity(author: Author): void {
     this.userIdentity = author
   }
 
@@ -152,9 +160,10 @@ export class BackendService {
     // only works if you've identified yourself
     let url = this.BACKEND_URL + '/author/' + this.userIdentity.id + '/publication/' + name.toLowerCase().replace(/ /g, '-')
     let data = { name: name }
-    this.http.put(url, data, this.defaultOptions()).map(res => res.json()).subscribe(publication => {
-      console.log('created publication', publication)
-    })
+    this.http.put(url, data, this.defaultOptions()).map(res => res.json()).subscribe(
+      (publication: Publication) => {
+        console.log('created publication', publication)
+      })
   }
 
   /**
@@ -195,7 +204,7 @@ export class BackendService {
   getPublication(publication: Publication) {
     let url = this.BACKEND_URL + publication.url
     this.http.get(url, this.defaultOptions()).map(res => res.json()).subscribe(
-      (publication) => {
+      (publication: Publication) => {
         console.log('loaded publication', publication)
       },
       (error) => {
@@ -204,15 +213,15 @@ export class BackendService {
     )
   }
 
-  getPublicationByIDs(authorID: string, publicationID: string) {
+  getPublicationByIDs(authorID: string, publicationID: string): Observable<Publication> {
     let url = this.BACKEND_URL + '/author/' + authorID + '/publication/' + publicationID
     return this.http.get(url).map(res => res.json())
   }
 
   // NEW: get multiple publications for Home Page
-  getPublications() {
+  getPublications():Observable<Publication> {
     let url = this.BACKEND_URL + '/publications'
-    return this.http.get(url).map(res=>res.json())
+    return this.http.get(url).map(res => res.json())
   }
 
   /**
@@ -243,7 +252,7 @@ export class BackendService {
      * Retrievs an article from a given url
      */
     let url = this.BACKEND_URL + articleURL
-    this.http.get(url).map(res=>res.json()).subscribe(
+    this.http.get(url).map(res => res.json()).subscribe(
       (article: Article) => {
         console.log('loaded article', article)
       },
@@ -253,7 +262,7 @@ export class BackendService {
     )
   }
 
-  getArticleByIDs(authorID: string, publicationID: string, articleID: string):Observable<any>{
+  getArticleByIDs(authorID: string, publicationID: string, articleID: string): Observable<Article> {
     let url = this.BACKEND_URL + `/author/${authorID}/publication/${publicationID}/article/${articleID}`
     return this.http.get(url).map(res => res.json())
   }
@@ -268,7 +277,7 @@ export class BackendService {
       },
       (error) => {
         this.handleError(error)
-      } 
+      }
     )
   }
 
@@ -292,7 +301,7 @@ export class BackendService {
     }
     console.error(errMsg)
     alert(errMsg)
-    
+
   }
 
 }

@@ -1,11 +1,12 @@
-<p>
-  publication works!
-</p>
+<div *ngIf="error">
+  there has been an error, I'll know the reason soon too.
+</div>
 
 <div *ngIf="publication">
-  <h1>{{ publication.name }}</h1>
+  <h1>{{ publication.name }} {{ publication.deleted }}</h1>
+  <h2>a publication by <a [routerLink]="['/', publication.author.id]">{{ publication.author.name }}</a></h2>
   <div *ngFor="let article of publication.articles">
-    {{ article.title }}
     <a [routerLink]="['/', authorID, publicationID, article.id]">{{ article.title }}</a>
   </div>
+  <button (click)="backend.deletePublication(publication)">delete this publication</button>
 </div>

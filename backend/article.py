@@ -15,7 +15,6 @@ class Article(ndb.Model):
 
 
     def data(self):
-        print self.key.parent()
         publication_key = self.key.parent()
         publication_id = publication_key.id()
 
@@ -26,8 +25,14 @@ class Article(ndb.Model):
         return {
             'id': article_id,
             'title': self.title,
+            'teaser': self.teaser,
+            'body': self.body,
             'deleted': self.deleted,
-            'url': '/author/{}/publication/{}/article/{}'.format(author_id, publication_id, article_id)
+            'url': '/author/{}/publication/{}/article/{}'.format(author_id, publication_id, article_id),
+            # related: author
+            'author': author_key.get().data(include_publications = False),
+            # related: publication
+            'publication': publication_key.get().data(include_articles = False)
         }
 
 """
@@ -107,6 +112,8 @@ class ArticleEndpoint(RequestHandler):
         """
         data = json.loads(self.request.body)
         title = data.get('title')
+        teaser = data.get('teaser')
+        body = data.get('body')
         article = ndb.Key(
             'Author', author_id, 
             'Publication', publication_id,
@@ -115,5 +122,7 @@ class ArticleEndpoint(RequestHandler):
             return_error(self, 404, 'this article could not be found.')
             return
         article.title = title
+        article.teaser = teaser
+        article.body = body
         article.put()
         return_json(self, article.data())

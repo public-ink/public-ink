@@ -34,19 +34,21 @@ class Publication(ndb.Model):
         """
         pass
 
-    def data(self):
+    def data(self, include_articles = True):
         author_id = self.key.parent().id()
+        author = self.key.parent().get()
         publication_id = self.key.id()
 
         # get your articles included
-        articles = Article.query(Article.deleted == False, ancestor = self.key).fetch()
         article_list = []
-        for article in articles:
-            article_list.append(article.data())
+        if include_articles:
+            articles = Article.query(Article.deleted == False, ancestor = self.key).fetch()
+            for article in articles:
+                article_list.append(article.data())
 
         return {
             'id': publication_id,
-            'author_id': author_id,
+            'author': author.data(include_publications = False),
             'name': self.name,
             'articles': article_list,
             'deleted': self.deleted,
@@ -76,7 +78,7 @@ class PublicationEndpoint(RequestHandler):
     @cross_origin
     def get(self, author_id, publication_id):
         publication = ndb.Key('Author', author_id, 'Publication', publication_id).get()
-        if not publication:
+        if not publication or publication.deleted:
             return_error(self, 404, 'this publication could not be found.')
             return
         return_json(self, publication.data())
@@ -112,7 +114,7 @@ class PublicationsEndpoint(RequestHandler):
 
     @cross_origin
     def get(self):
-        publications = Publication.query().fetch()
+        publications = Publication.query(Publication.deleted == False).fetch()
         publication_list = []
         for publication in publications:
             publication_list.append(publication.data())

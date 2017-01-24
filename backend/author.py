@@ -93,23 +93,24 @@ class Author(ndb.Model):
         author.put()
         return author
 
-    def data(self):
+    def data(self, include_publications=True):
         """
         returns a dictionary containing information about an author,
-        and her publications
+        and her publications, unless specified otherwise, to prevent infinite loops
         """
-        publications = Publication.query(Publication.deleted == False, ancestor = self.key).fetch()
+        author_id = self.key.id() # still needed?
         publication_list = []
-        for publication in publications:
-            publication_list.append(publication.data())
-        author_id = self.key.id()
+        if include_publications:
+            publications = Publication.query(Publication.deleted == False, ancestor = self.key).fetch()
+            for publication in publications:
+                publication_list.append(publication.data())
         return {
             'id': author_id,
             'url': '/author/{}'.format(author_id),
             'name': self.name,
             'email': self.email,
             'about': self.about,
-            'publications': publication_list
+            'publications': publication_list # exclude altogether
         }
 
 """
@@ -120,6 +121,7 @@ class AuthorEndpoint(RequestHandler):
     """
     The Author Endpoint
     """
+    @cross_origin
     def get(self, id):
         """
         Endpoint for retrieving an author by their id

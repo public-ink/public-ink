@@ -6,17 +6,14 @@ import { Observable } from 'rxjs/Observable'
 import { BackendService } from '../backend.service'
 
 @Component({
-  selector: 'app-publication',
-  templateUrl: './publication.component.html',
-  styleUrls: ['./publication.component.css']
+  selector: 'app-author',
+  templateUrl: './author.component.html',
+  styleUrls: ['./author.component.css']
 })
-export class PublicationComponent implements OnInit {
+export class AuthorComponent implements OnInit {
 
-  publication: any
+  author: any
   authorID: string
-  publicationID: string
-
-  error
 
   constructor(
     private backend: BackendService,
@@ -28,15 +25,10 @@ export class PublicationComponent implements OnInit {
 
     this.route.params.subscribe(params => {
       this.authorID = params['authorID']
-      this.publicationID = params['publicationID']
-      return this.backend.getPublicationByIDs(this.authorID, this.publicationID).subscribe(
-        (publication) => {
-          this.publication = publication
-        }, (error) => {
-          this.error = error
-        }
-        
-        )
+      return this.backend.getAuthorByID(this.authorID).subscribe((author) => {
+        this.author = author
+      })
     })
   }
+
 }

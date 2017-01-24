@@ -12,11 +12,12 @@ import { BackendService } from './backend.service'
 // routing
 import { RouterModule, Routes } from '@angular/router'
 import { PublicationComponent } from './publication/publication.component';
-import { ArticleComponent } from './article/article.component'
+import { ArticleComponent } from './article/article.component';
+import { AuthorComponent } from './author/author.component'
 
 const appRoutes: Routes = [
   { path: '', component: HomeComponent },
-  //{ path: ':authorID',   component: AuthorComponent },
+  { path: ':authorID',   component: AuthorComponent },
   { path: ':authorID/:publicationID',   component: PublicationComponent },
   { path: ':authorID/:publicationID/:articleID', component: ArticleComponent },
   //{ path: '**', component: PageNotFoundComponent }
@@ -28,6 +29,7 @@ const appRoutes: Routes = [
     HomeComponent,
     PublicationComponent,
     ArticleComponent,
+    AuthorComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),
