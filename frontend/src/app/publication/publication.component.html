@@ -1,0 +1,11 @@
+<p>
+  publication works!
+</p>
+
+<div *ngIf="publication">
+  <h1>{{ publication.name }}</h1>
+  <div *ngFor="let article of publication.articles">
+    {{ article.title }}
+    <a [routerLink]="['/', authorID, publicationID, article.id]">{{ article.title }}</a>
+  </div>
+</div>

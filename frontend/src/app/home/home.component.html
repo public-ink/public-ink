@@ -1,0 +1,8 @@
+<p>
+  home works!
+</p>
+
+<div *ngFor="let publication of publications">
+  <h2>{{ publication.name }}</h2>
+  <a [routerLink]="[publication.author_id, publication.id]">go to {{ publication.name }}</a>
+</div>

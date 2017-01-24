@@ -1,3 +1,7 @@
+
+<router-outlet></router-outlet>
+
+<div *ngIf="0">
 <h1>{{ title }} </h1>
 <input type="text" [(ngModel)]="backend.newAuthorName" placeholder="your name or pseudonym" />
 <button (click)="backend.createAuthor(backend.newAuthorName)">create author</button>
@@ -40,4 +44,5 @@
   name: <input type="text" [(ngModel)]="backend.newPublicationName" placeholder="name of your publication" />
   <button (click)="backend.createPublication(backend.newPublicationName)">create</button>
 
+</div>
 </div>

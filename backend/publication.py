@@ -107,3 +107,13 @@ class PublicationEndpoint(RequestHandler):
         publication.name = name
         publication.put()
         return_json(self, publication.data())
+
+class PublicationsEndpoint(RequestHandler):
+
+    @cross_origin
+    def get(self):
+        publications = Publication.query().fetch()
+        publication_list = []
+        for publication in publications:
+            publication_list.append(publication.data())
+        return_json(self, publication_list)

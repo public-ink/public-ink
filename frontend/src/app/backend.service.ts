@@ -24,7 +24,7 @@ interface Article {
   teaser: string;
   body: string;
   url?: string;
-  deleted: boolean;
+  deleted?: boolean; // let backend send it
 }
 
 interface ServerError {
@@ -192,8 +192,8 @@ export class BackendService {
     )
   }
 
-  getPublication(authorID: string, publicationID: string) {
-    let url = this.BACKEND_URL + '/author/' + authorID + '/publication/' + publicationID
+  getPublication(publication: Publication) {
+    let url = this.BACKEND_URL + publication.url
     this.http.get(url, this.defaultOptions()).map(res => res.json()).subscribe(
       (publication) => {
         console.log('loaded publication', publication)
@@ -202,6 +202,17 @@ export class BackendService {
         console.log('error loading publication', error)
       }
     )
+  }
+
+  getPublicationByIDs(authorID: string, publicationID: string) {
+    let url = this.BACKEND_URL + '/author/' + authorID + '/publication/' + publicationID
+    return this.http.get(url).map(res => res.json())
+  }
+
+  // NEW: get multiple publications for Home Page
+  getPublications() {
+    let url = this.BACKEND_URL + '/publications'
+    return this.http.get(url).map(res=>res.json())
   }
 
   /**
@@ -241,6 +252,12 @@ export class BackendService {
       }
     )
   }
+
+  getArticleByIDs(authorID: string, publicationID: string, articleID: string):Observable<any>{
+    let url = this.BACKEND_URL + `/author/${authorID}/publication/${publicationID}/article/${articleID}`
+    return this.http.get(url).map(res => res.json())
+  }
+
 
   updateArticle(article: Article) {
     let url = this.BACKEND_URL + article.url

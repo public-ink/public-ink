@@ -15,7 +15,7 @@ from google.appengine.ext import blobstore
 """
 
 from author      import AuthorEndpoint, MeEndpoint
-from publication import PublicationEndpoint
+from publication import PublicationEndpoint, PublicationsEndpoint
 from article     import ArticleEndpoint
 from shared      import ninja
 
@@ -39,6 +39,9 @@ app = webapp2.WSGIApplication([
   (r'/author/(.+)?/publication/(.+)?', PublicationEndpoint),
   # Author and Me Endpoints
   (r'/author/(.+)?', AuthorEndpoint),
+
+  # here come listing of anythings!
+  ('/publications', PublicationsEndpoint),
   ('/me', MeEndpoint),
   
 
