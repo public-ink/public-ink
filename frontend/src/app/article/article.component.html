@@ -3,6 +3,20 @@
 <div *ngIf="article">
   this article is part of the publication <a [routerLink]="['/', article.author.id, article.publication.id]">{{ article.publication.name}}</a>
 
+
+  <button (click)="makeQuill()">make quill</button>
+  <button (click)="saveQuill()">save quill</button>
+  <!-- quill test -->
+  <div id="toolbar">
+      <button class="ql-bold">Bold</button>
+      <button class="ql-italic">Italic</button>
+    </div>
+    
+    <!-- Create the editor container -->
+    <div id="editor" #editor>
+      <p>Hello World!</p>
+    </div>
+
   <h1>{{ article.title }}</h1>
   <input type="text" [(ngModel)]="article.title" />
   <h2>{{ article.teaser }}</h2>

@@ -9,7 +9,7 @@ import { BackendService } from '../backend.service'
 })
 export class HomeComponent implements OnInit {
 
-  publications: any[] = []
+  publications: any = []
 
   constructor(private backend: BackendService) {
     this.backend.getPublications().subscribe((publications) => { // todo: use interface
