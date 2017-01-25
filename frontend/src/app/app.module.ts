@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
@@ -8,6 +8,7 @@ import { HomeComponent } from './home/home.component'
 
 // services
 import { BackendService } from './backend.service'
+import { StyleService } from './style.service'
 
 // routing
 import { RouterModule, Routes } from '@angular/router'
@@ -38,7 +39,11 @@ const appRoutes: Routes = [
     HttpModule
   ],
   providers: [
-    BackendService
+    BackendService,
+    StyleService,
+  ],
+  schemas: [
+    CUSTOM_ELEMENTS_SCHEMA
   ],
   bootstrap: [
     AppComponent

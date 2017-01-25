@@ -1,29 +1,47 @@
-<h2>an article</h2>
-
-<div *ngIf="article">
-  this article is part of the publication <a [routerLink]="['/', article.author.id, article.publication.id]">{{ article.publication.name}}</a>
+<flex-row-center #app style="width: 100%; " >
 
 
-  <button (click)="makeQuill()">make quill</button>
-  <button (click)="saveQuill()">save quill</button>
-  <!-- quill test -->
-  <div id="toolbar">
+<div #container [ngStyle]="style.s.container()">
+
+  <div *ngIf="article">
+
+    <div #titleEditorTools [hidden]="!editing">
+      <button class="ql-bold">Bold</button>‹
+      <button class="ql-italic">Italic</button>
+    </div>
+    <div 
+      #titleEditor 
+      (dblclick)="toggelToolbar('title')"
+      [ngStyle]="style.s.article.h1()"
+    >title goes here</div>
+
+    <!-- teaser editor -->
+    <div #teaserEditorTools [hidden]="!editing">
       <button class="ql-bold">Bold</button>
       <button class="ql-italic">Italic</button>
     </div>
-    
-    <!-- Create the editor container -->
-    <div id="editor" #editor>
-      <p>Hello World!</p>
+    <div #teaserEditor [ngStyle]="style.s.teaser.copy()">teaser goes here</div>
+
+    <!-- body editor -->
+    <div id="icanhide">
+      <div #bodyEditorTools >
+        
+      </div>
     </div>
+    <!-- editor tool bar appears here -->
+    <div #bodyEditor 
+      (dblclick)="toggleToolbar('body')"
+    [ngStyle]="style.s.article.copy()">body goes here</div>
 
-  <h1>{{ article.title }}</h1>
-  <input type="text" [(ngModel)]="article.title" />
-  <h2>{{ article.teaser }}</h2>
-  <input type="text" [(ngModel)]="article.teaser" />
-  <p>{{ article.body }}</p>
-  <textarea [(ngModel)]="article.body"></textarea>
-  written by <a [routerLink]="['/', article.author.id]">{{ article.author.name }}</a>
 
-  <button (click)="backend.updateArticle(article)">save changes</button>
+
+
+
+    this article is part of the publication <a [routerLink]="['/', article.author.id, article.publication.id]">{{ article.publication.name}}</a>    written by <a [routerLink]="['/', article.author.id]">{{ article.author.name }}</a>
+
+    <button (click)="saveArticle()">save changes</button>
+  </div>
+
 </div>
+
+</flex-row-center>

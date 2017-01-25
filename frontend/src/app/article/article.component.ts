@@ -1,9 +1,10 @@
-import { Component, OnInit, ViewChild } from '@angular/core'
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
 import { Router, ActivatedRoute, Params } from '@angular/router'
 import 'rxjs/add/operator/switchMap'
 import { Observable } from 'rxjs/Observable'
 
 import { BackendService } from '../backend.service'
+import { StyleService } from '../style.service'
 
 //import { Quill } from 'quill'
 
@@ -14,29 +15,49 @@ import { BackendService } from '../backend.service'
 })
 export class ArticleComponent implements OnInit {
 
-  @ViewChild('editor') editor
+  // title editor
+  @ViewChild('titleEditorTools') titleEditorTools: ElementRef
+  @ViewChild('titleEditor') titleEditor: ElementRef
+  // teaser editor
+  @ViewChild('teaserEditorTools') teaserEditorTools: ElementRef
+  @ViewChild('teaserEditor') teaserEditor: ElementRef
+  // body editor
+  @ViewChild('bodyEditorTools') bodyEditorTools: ElementRef
+  @ViewChild('bodyEditor') bodyEditor: ElementRef
 
   // quill in town!
-  quill: any
+  titleQuill: any
+  teaserQuill: any
+  bodyQuill: any
 
-  // what we want
+  // get from backend
   article: any
-
+  // incoming url params
   authorID: string
   publicationID: string
   articleID: string
 
-  //jsonContents = `{"ops":[{"insert":"Hello World!\n"}]}`
-  
+  // local state
+  editing: boolean
+
+  bodyToolbar: boolean = false
 
   constructor(
     private backend: BackendService,
+    private style: StyleService,
+
     private route: ActivatedRoute,
     private router: Router
   ) { }
 
-  ngOnInit() {
 
+  imageHandler() {
+    var range = this.bodyQuill.getSelection();
+    var value = prompt('What is the image URL')
+    this.bodyQuill.insertEmbed(range.index, 'image', value, 'user')
+  }
+
+  ngOnInit() {
     this.route.params.subscribe(params => {
       this.authorID = params['authorID']
       this.publicationID = params['publicationID']
@@ -47,23 +68,116 @@ export class ArticleComponent implements OnInit {
     })
   }
   makeQuill() {
-    console.log('editor element', this.editor.nativeElement)
-    this.quill = new Quill(this.editor.nativeElement, {
-        modules: { toolbar: '#toolbar' },
+    let titleEditorEl = this.titleEditor.nativeElement
+    let titleEditorToolsEL = this.titleEditorTools.nativeElement
+    this.titleQuill = new Quill(
+      titleEditorEl, {
+        modules: { toolbar: titleEditorToolsEL },
         theme: 'snow'
-      });
-    let contents = JSON.parse(this.article.body)
-    this.quill.setContents(contents)
+      }
+    )
+    let titleContents = JSON.parse(this.article.title)
+    this.titleQuill.setContents(titleContents)
+
+
+    let teaserEditorEl = this.teaserEditor.nativeElement
+    let teaserEditorToolsEL = this.teaserEditorTools.nativeElement
+    this.teaserQuill = new Quill(
+      teaserEditorEl, {
+        modules: {
+          toolbar: teaserEditorToolsEL,
+
+          /*handlers: {
+            //image: this.imageHandler
+          },*/
+        },
+
+        theme: 'snow'
+      }
+    )
+    let teaserContents = JSON.parse(this.article.teaser)
+    this.teaserQuill.setContents(teaserContents)
+
+
+    let bodyToolbarOptions = [
+      ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+      ['blockquote', 'code-block'],
+
+      ['link', 'image', 'video', 'formula'],          // add's image support
+
+/*
+
+      [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
+      [{ 'indent': '-1' }, { 'indent': '+1' }],          // outdent/indent
+      //[{ 'direction': 'rtl' }],                         // text direction
+
+      [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+      */
+      [{ 'header': [1, 2, false] }],
+/*
+      [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+      [{ 'font': [] }],
+      [{ 'align': [] }],*/
+
+      ['clean']                                         // remove formatting button
+    ]
+
+    let bodyEditorEl = this.bodyEditor.nativeElement
+    let bodyEditorToolsEL = this.bodyEditorTools.nativeElement
+    this.bodyQuill = new Quill(
+      bodyEditorEl, {
+        modules: { toolbar: bodyToolbarOptions /*bodyEditorToolsEL*/ },
+        theme: 'snow'
+      }
+    )
+    let bodyContents = JSON.parse(this.article.body)
+    this.bodyQuill.setContents(bodyContents)
+
   }
-  saveQuill() {
-    this.article.body = JSON.stringify(this.quill.getContents())
+
+
+  ngAfterViewChecked() {
+    if (!this.titleQuill && this.titleEditor) {
+      this.makeQuill()
+    }
+  }
+
+  saveArticle() {
+    this.article.title = JSON.stringify(this.titleQuill.getContents())
+    this.article.teaser = JSON.stringify(this.teaserQuill.getContents())
+    this.article.body = JSON.stringify(this.bodyQuill.getContents())
     this.backend.updateArticle(this.article)
   }
 
-  ngAfterViewChecked() {
-    if (!this.quill && this.editor) {
-      this.makeQuill()
+  toggleToolbar(editor: string) {
+    if (editor === 'title') {
+
+      this.titleQuill.getModule('toolbar').container.style.display = 'none'
+    } else if (editor == 'body') {
+
+      let next
+      if (this.bodyToolbar) {
+        next = 'none'
+        this.bodyToolbar = false
+      } else {
+        next = 'block'
+        this.bodyToolbar = true
+      }
+
+      this.bodyQuill.getModule('toolbar').container.style.display = next
+      this.bodyQuill.getModule('toolbar').container.style.background = 'white'
+
+      let containerStyle = this.bodyQuill.getModule('toolbar').container.style
+      containerStyle.width = '100%'
+      containerStyle.maxWidth = this.style.theme.contentWidth + 'px'
     }
+
+
+  }
+  isHidden(el) {
+    return (el.offsetParent === null)
   }
 
 }

@@ -1,12 +1,20 @@
+flex-row {
+    display: flex;
+}
+flex-row-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
 /* You can add global styles to this file, and also import other style files */
 body {
     font-family: monospace;
-    background-color: #ddd;
+    background-color: #fff;
     color:#333;
 }
-* {
-    font-weight: normal;
-}
+
 
 a {
     color: #333;

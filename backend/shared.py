@@ -34,6 +34,12 @@ def owner_required(fn):
         pass
     """
     def decorated_request(*args):
+        request = args[0]
+        user = users.get_current_user()
+        if not user:
+            request.error(401)
+            request.response.write("You don't have permission to alter this resource.")
+            return
         author_id = args[1]
         author = ndb.Key('Author', author_id).get()
         author_email = author.email
