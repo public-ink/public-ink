@@ -6,7 +6,12 @@
   <h1>{{ publication.name }} {{ publication.deleted }}</h1>
   <h2>a publication by <a [routerLink]="['/', publication.author.id]">{{ publication.author.name }}</a></h2>
   <div *ngFor="let article of publication.articles">
-    <a [routerLink]="['/', authorID, publicationID, article.id]">{{ article.title }}</a>
+    <a [routerLink]="['/', authorID, publicationID, article.id]">{{ article.titleText }}</a>
   </div>
   <button (click)="backend.deletePublication(publication)">delete this publication</button>
-</div>
+</div> 
+
+
+
+
+

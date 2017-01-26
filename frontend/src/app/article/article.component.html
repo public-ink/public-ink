@@ -16,7 +16,7 @@
     >title goes here</div>
 
     <!-- teaser editor -->
-    <div #teaserEditorTools [hidden]="!editing">
+    <div #teaserEditorTools>
       <button class="ql-bold">Bold</button>
       <button class="ql-italic">Italic</button>
     </div>
@@ -36,9 +36,9 @@
 
 
 
-
+<!--
     this article is part of the publication <a [routerLink]="['/', article.author.id, article.publication.id]">{{ article.publication.name}}</a>    written by <a [routerLink]="['/', article.author.id]">{{ article.author.name }}</a>
-
+-->
     <button (click)="saveArticle()">save changes</button>
   </div>
 

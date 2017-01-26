@@ -813,8 +813,8 @@ strong {
 }
 /* edit */
 .ql-toolbar.ql-snow {
-  position: fixed;
-  top: 0px;
+  /*position: fixed;
+  top: 0px;*/
   border: 0px solid #ccc;
   box-sizing: border-box;
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;

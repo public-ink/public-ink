@@ -51,10 +51,17 @@ export class ArticleComponent implements OnInit {
   ) { }
 
 
+  // to prevent this.quill error
+  quill
+
   imageHandler() {
-    var range = this.bodyQuill.getSelection();
-    var value = prompt('What is the image URL')
-    this.bodyQuill.insertEmbed(range.index, 'image', value, 'user')
+    let quill = this.quill
+    console.log(quill, 'rock! custom handler here!')
+    var range = quill.getSelection()
+    if (!range) { return }
+    let value = prompt('What is the image URL')
+    //let value = 'http://placehold.it/300'
+    quill.insertEmbed(range.index, 'image', value, 'user')
   }
 
   ngOnInit() {
@@ -62,18 +69,36 @@ export class ArticleComponent implements OnInit {
       this.authorID = params['authorID']
       this.publicationID = params['publicationID']
       this.articleID = params['articleID']
+
+      if (this.articleID === 'new') {
+        this.article = this.backend.newArticle
+        this.article.url = `/author/${this.authorID}/publication/${this.publicationID}/article/new`
+        return
+      }
+
       return this.backend.getArticleByIDs(this.authorID, this.publicationID, this.articleID).subscribe((article) => {
         this.article = article
       })
     })
+
+    // set up quill (needed?)
+    let coreModule = Quill.import('core/module')
+    Quill.register('modules/modules', coreModule)
+
+
+    
   }
+
+  
+
   makeQuill() {
     let titleEditorEl = this.titleEditor.nativeElement
     let titleEditorToolsEL = this.titleEditorTools.nativeElement
     this.titleQuill = new Quill(
       titleEditorEl, {
         modules: { toolbar: titleEditorToolsEL },
-        theme: 'snow'
+        theme: 'snow',
+        placeholder: 'Title goes here',        
       }
     )
     let titleContents = JSON.parse(this.article.title)
@@ -82,19 +107,22 @@ export class ArticleComponent implements OnInit {
 
     let teaserEditorEl = this.teaserEditor.nativeElement
     let teaserEditorToolsEL = this.teaserEditorTools.nativeElement
+    let teaserToolbarOptions = [['image']]
     this.teaserQuill = new Quill(
       teaserEditorEl, {
         modules: {
-          toolbar: teaserEditorToolsEL,
-
-          /*handlers: {
-            //image: this.imageHandler
-          },*/
+          modules: { toolbar: teaserToolbarOptions /*bodyEditorToolsEL*/ },
+          
         },
 
-        theme: 'snow'
+        theme: 'snow',
+        placeholder: 'Teaser goes here',
       }
     )
+
+    var toolbar = this.teaserQuill.getModule('toolbar')
+    toolbar.addHandler('image', this.imageHandler)
+
     let teaserContents = JSON.parse(this.article.teaser)
     this.teaserQuill.setContents(teaserContents)
 
@@ -129,9 +157,15 @@ export class ArticleComponent implements OnInit {
     this.bodyQuill = new Quill(
       bodyEditorEl, {
         modules: { toolbar: bodyToolbarOptions /*bodyEditorToolsEL*/ },
-        theme: 'snow'
+        theme: 'snow',
+        placeholder: 'Body goes here',
+        
       }
     )
+
+    var toolbar = this.bodyQuill.getModule('toolbar')
+    toolbar.addHandler('image', this.imageHandler)
+
     let bodyContents = JSON.parse(this.article.body)
     this.bodyQuill.setContents(bodyContents)
 
@@ -145,9 +179,15 @@ export class ArticleComponent implements OnInit {
   }
 
   saveArticle() {
+    
     this.article.title = JSON.stringify(this.titleQuill.getContents())
     this.article.teaser = JSON.stringify(this.teaserQuill.getContents())
     this.article.body = JSON.stringify(this.bodyQuill.getContents())
+    if (this.article.id === 'new') {
+      this.article.titleText = this.titleQuill.getText()
+      this.backend.createArticle(this.article)
+      return
+    }
     this.backend.updateArticle(this.article)
   }
 
@@ -167,11 +207,13 @@ export class ArticleComponent implements OnInit {
       }
 
       this.bodyQuill.getModule('toolbar').container.style.display = next
-      this.bodyQuill.getModule('toolbar').container.style.background = 'white'
+      this.bodyQuill.getModule('toolbar').container.style.backgroundColor = 'white'
 
       let containerStyle = this.bodyQuill.getModule('toolbar').container.style
       containerStyle.width = '100%'
       containerStyle.maxWidth = this.style.theme.contentWidth + 'px'
+      containerStyle.backgroundColor = 'lime'
+      containerStyle.zIndex = 3
     }
 
 

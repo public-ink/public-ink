@@ -14,15 +14,25 @@ import { StyleService } from './style.service'
 import { RouterModule, Routes } from '@angular/router'
 import { PublicationComponent } from './publication/publication.component';
 import { ArticleComponent } from './article/article.component';
-import { AuthorComponent } from './author/author.component'
+import { AuthorComponent } from './author/author.component';
+import { UniverseComponent } from './universe/universe.component';
+import { AllComponent } from './all/all.component'
 
-const appRoutes: Routes = [
+/*const appRoutes: Routes = [
   { path: '', component: HomeComponent },
   { path: ':authorID',   component: AuthorComponent },
   { path: ':authorID/:publicationID',   component: PublicationComponent },
   { path: ':authorID/:publicationID/:articleID', component: ArticleComponent },
   //{ path: '**', component: PageNotFoundComponent }
-];
+]*/
+const appRoutes: Routes = [
+  { path: '', component: AllComponent },
+  { path: ':authorID',   component: AllComponent },
+  { path: ':authorID/:publicationID',   component: AllComponent },
+  { path: ':authorID/:publicationID/:articleID', component: AllComponent },
+  //{ path: '**', component: PageNotFoundComponent }
+]
+
 
 @NgModule({
   declarations: [
@@ -31,6 +41,8 @@ const appRoutes: Routes = [
     PublicationComponent,
     ArticleComponent,
     AuthorComponent,
+    UniverseComponent,
+    AllComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),
@@ -46,7 +58,8 @@ const appRoutes: Routes = [
     CUSTOM_ELEMENTS_SCHEMA
   ],
   bootstrap: [
-    AppComponent
+    /*AppComponent*/
+    UniverseComponent
   ]
 })
 export class AppModule { }

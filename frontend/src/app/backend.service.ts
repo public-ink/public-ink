@@ -21,6 +21,7 @@ interface Publication {
 interface Article {
   id: string;
   title: string;
+  titleText: string;
   teaser: string;
   body: string;
   url?: string; // only optional because of newArticle...
@@ -38,9 +39,10 @@ export class BackendService {
 
   newArticle: Article = {
     id: 'new',
-    title: 'a title!',
-    teaser: 'and a teaser',
-    body: 'such a body',
+    title: '{}',
+    titleText: 'jo new title text',
+    teaser: '{}',
+    body: '{}',
   }
 
   BACKEND_URL = 'http://localhost:8080'
@@ -58,7 +60,7 @@ export class BackendService {
   constructor(
     private http: Http
   ) {
-    //this.me()
+    this.me()
     //this.getPublication('hoff', 'atomic-angular')
   }
 
@@ -82,6 +84,7 @@ export class BackendService {
     let url = this.BACKEND_URL + '/me'
     this.http.get(url, this.defaultOptions()).map(res => res.json()).subscribe((authors: Author[]) => {
       this.userAuthors = authors
+      console.log('your authors', authors)
       if (this.userAuthors.length === 1) {
         this.assumeIdentity(this.userAuthors[0])
       }
@@ -151,6 +154,7 @@ export class BackendService {
    */
   assumeIdentity(author: Author): void {
     this.userIdentity = author
+
   }
 
   /**
@@ -228,10 +232,11 @@ export class BackendService {
    * Articles, the last missing piece, for now :)
    * 
    */
-  createArticle(publication: Publication, article: Article) {
+  createArticle(article: Article) {
     // try using new if the id is not enforced anyway
-    let url = this.BACKEND_URL + publication.url + '/article/new'
+    let url = this.BACKEND_URL  + article.url
     let data = {
+      titleText: article.titleText,
       title: article.title,
       teaser: article.teaser,
       body: article.body,

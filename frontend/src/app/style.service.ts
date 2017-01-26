@@ -10,14 +10,16 @@ export class StyleService {
     prime: 'Raleway',
     article: {
       h1: {
-         'fontSize.px': 40, 
-         'fontWeight': 700,
+        'fontSize.px': 40,
+        'fontWeight': 700,
       },
       paper: {
         'backgroundColor': '#fff'
       }
     }
   }
+
+
 
   s = {
     container: () => {
@@ -50,10 +52,25 @@ export class StyleService {
           'fontFamily': 'Raleway'
         }
       }
+    },
+    topBar: {
+      editor: () => {
+        return {
+          'height.px': 50,
+          display: 'flex',
+          alignItems: 'center',
+        }
+      },
+      home: () => {
+        return {
+          backgroundColor: '#000',
+          color: '#fff',
+          'height.px': 50,
+          display: 'flex',
+          alignItems: 'center',
+          textDecoration: 'none',
+        }
+      }
     }
   }
-
-  
-
-
 }

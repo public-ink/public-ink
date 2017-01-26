@@ -9,6 +9,7 @@ The Article Model
 class Article(ndb.Model):
     # id is set at time of creation, and consists of the author's id (root / parent), and article id
     title = ndb.StringProperty()
+    title_text = ndb.StringProperty()
     teaser = ndb.TextProperty()
     body = ndb.TextProperty()
     deleted = ndb.BooleanProperty(default=False)
@@ -25,6 +26,7 @@ class Article(ndb.Model):
         return {
             'id': article_id,
             'title': self.title,
+            'titleText': self.title_text,
             'teaser': self.teaser,
             'body': self.body,
             'deleted': self.deleted,
@@ -51,6 +53,9 @@ class ArticleEndpoint(RequestHandler):
         # incoming data
         data = json.loads(self.request.body)
         article_title = data.get('title')
+        article_title_text = data.get('titleText')
+        article_body = data.get('body')
+        article_teaser = data.get('teaser')
         
         # parent: publication
         publication_key = ndb.Key('Author', author_id, 'Publication', publication_id)
@@ -62,10 +67,12 @@ class ArticleEndpoint(RequestHandler):
             return
         
         article = Article(
-            id = slugify(article_title), 
+            id = slugify(article_title_text), 
             parent = publication_key,
             title = article_title,
-            teaser = 'so teasy'
+            title_text = article_title_text,
+            teaser = article_teaser,
+            body = article_body
         ).put().get()
         return_json(self, article.data())
 
