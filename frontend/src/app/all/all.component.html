@@ -1,80 +1,103 @@
-<!-- header -->
-<flex-row-center style="position:fixed; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); z-index: 3; top: 0; left:0; width: 100%; height: 50px; background-color: white;">
+<!-- new header! -->
+<flex-col  style="align-items: center; position:fixed; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); z-index: 3; top: 0; left:0; width: 100%; background-color: white;">
 
+  <!-- row 1 -->
+  <div [style.height.px]="50" style="width: 100%;">
+    <div [style.width.%]="100" [style.max-width.px]="style.theme.contentWidth" style="margin:0px auto;">
+      <div [style.height.px]="50" style="background-color:transparent;">
+        <flex-row-100 style="justify-content: space-between;">
 
-<!-- inner content width -->
-<flex-row [style.width.px]="style.theme.contentWidth" style="justify-content: space-between">
-  
-  <!-- left / home -->
-  <flex-row>
-    <a [ngStyle]="style.s.topBar.home()" [routerLink]="['/']" style="font-size: 24px;">⌂</a>
-  </flex-row>
+          <!-- home link -->
+          <flex-row>
+            <a [ngStyle]="style.s.topBar.home()" [routerLink]="['/']" style="font-size: 24px;">⌂</a>
+          </flex-row>
 
+          <!-- edit button -->
+          <flex-row-center (click)="toggleEdit()"><i class="fa fa-pencil" aria-hidden="true"></i></flex-row-center>
+          
+          <!-- save -->
+          <flex-row-center [ngStyle]="style.s.topBar.button(backend.saving ? 'blue': 'white')" (click)="saveArticle(article)">
+          <i class="fa fa-cloud-upload" aria-hidden="true"></i>
+          </flex-row-center>
 
-  <!-- center -->
-  <flex-row>
-    <div id="bodyToolbar" [ngStyle]="style.s.topBar.editor()">
-      <button class="ql-bold">Bold</button>
-      <button class="ql-italic">Italic</button>
-      <button class="ql-underline">under</button>
-      <button class="ql-strike">strike</button>
-      <button class="ql-blockquote"></button>
-      <button class="ql-image">img</button>
-      <button class="ql-link">link</button>
-      <button class="ql-header" value="1" type="button"></button>
-      <button class="ql-header" value="2" type="button"></button>
-      <button class="ql-clean">clean</button>
-      
+          <!-- publish -->
+          <flex-row-center (click)="publishArticle()"><i class="fa fa-paper-plane" aria-hidden="true"></i></flex-row-center>
+
+          <!-- trash -->
+          <flex-row-center (click)="deleteArticle()"><i class="fa fa-trash" aria-hidden="true"></i></flex-row-center>
+
+          <!-- user bubble -->
+          <flex-row-center [ngStyle]="style.s.topBar.button('black')">
+            <flex-row-center style="font-size: 10px; width: 40px; height: 40px; border-radius: 20px; color: gray; background-color: black;">you</flex-row-center>
+          </flex-row-center>
+        </flex-row-100>
+      </div>
     </div>
-  </flex-row>
-  
-  <flex-row-center 
-    [ngStyle]="style.s.topBar.button(backend.saving ? 'blue': 'white')"
-    (click)="saveArticle(article)" >
-    save ∨
-  </flex-row-center>
+  </div>
+  <!-- row 2 -->
+  <div [style.height.px]="50" [@editState]="editState" style="width: 100%; overflow: hidden;">
+    <div [style.width.%]="100" [style.max-width.px]="style.theme.contentWidth" style="margin:0px auto;" >
+      <div [style.height.px]="50" style=" background-color:beige;">
 
-  <flex-row-center 
-    [ngStyle]="style.s.topBar.button('white')"
-    (click)="saveArticle(article)" >
-    <span style="color: black;">new ...</span>
-  </flex-row-center>
+        <div id="bodyToolbar" >
+          <button class="ql-bold">Bold</button>
+          <button class="ql-italic">Italic</button>
+          <button class="ql-underline">under</button>
+          <button class="ql-strike">strike</button>
+          <button class="ql-blockquote"></button>
+          <button class="ql-image">img</button>
+          <button class="ql-link">link</button>
+          <button class="ql-header" value="1" type="button"></button>
+          <button class="ql-header" value="2" type="button"></button>
+          <button class="ql-clean">clean</button>
+        </div>
 
-  <!-- user bubble -->
-  <flex-row-center 
-    [ngStyle]="style.s.topBar.button('white')"
-     >
-    <flex-row-center style="width: 40px; height: 40px; border-radius: 20px; color: white; background-color: black;">👤</flex-row-center>
-  </flex-row-center>
-
-
-  <!-- right -->
-  <!--<flex-row>
-    <div *ngFor="let publication of backend.userIdentity?.publications">
-      <a [routerLink]="['/', publication.author.id, publication.id, 'new']"> new article in {{ publication.name }}</a>
+      </div>
     </div>
-  </flex-row>-->
-<!-- end right -->
+  </div>
 
-</flex-row>
-<!-- end inner -->
+</flex-col>
+<!-- end of header -->
 
-</flex-row-center>
+
+
+
+
+
+<!-- CONTENT -->
 
 <div [style.height.px]="50"></div>
 
-<!-- end of header -->
+<!-- extra, animated space -->
+<div [style.height.px]="50" [@editState]="editState"></div>
+
 <!-- global container -->
 <flex-100-center>
-  <div #container [ngStyle]="style.s.container()">
+  
 
     <!-- Home Page -->
     <div [hidden]="location != 'home'">
+
+      <flex-row-center style="height:50vh; width: 100vw; background-color:aqua;">
+        <h1>public.ink</h1>
+      </flex-row-center>
+
+      
+      <div [ngStyle]="style.s.container()">
+
       <div *ngFor="let publication of homePublications">
         <h2><a [routerLink]="['/', publication.author.id, publication.id]">{{ publication.name }}</a></h2>
         by <a [routerLink]="['/', publication.author.id]">{{ publication.author.name }}</a>
+        <div *ngFor="let article of publication.articles">
+          <h1>{{ article.titleText }}</h1>
+          <h2>{{ article.teaser }}</h2>
+        </div>
+      </div>
+
       </div>
     </div>
+
+    <div #container [ngStyle]="style.s.container()">
 
     <!-- Author Page -->
     <div [hidden]="location != 'author'">

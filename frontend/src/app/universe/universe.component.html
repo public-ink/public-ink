@@ -1,11 +1,22 @@
-<!-- The Device ui.device.style-->
-<app-device [ngStyle]="{}">
-  <app-container id="app" [ngStyle]="{}">
+<!-- the universe -->
+<flex-row
+  [ngStyle]="{'height.vh': 100, 'width.vw':100, background: 'red'}"
+>
 
-    
+<!-- the screen! point? -->
+  <flex-row id="screen" 
+    [style.background-color]="'beige'"
+    style="width: 100%; align-items: center; justify-content: center;">
 
-<!-- The App -->
-<router-outlet></router-outlet>
+  <!-- The Device ui.device.style-->
+    <app-device [ngStyle]="ui.device.style" style="box-sizing: content-box;">
+      <app-container id="app" [ngStyle]="{'width': '100%', 'overflow': 'scroll', 'height': ui.deviceHeight + 'px', 'display': 'flex', 'flex-direction': 'column'}">
+        <!-- The App -->
+        <router-outlet></router-outlet>
 
-</app-container>
-</app-device>
+      </app-container>
+    </app-device>
+
+  </flex-row><!-- end of screen -->
+
+</flex-row>

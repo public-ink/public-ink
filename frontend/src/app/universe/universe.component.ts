@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core'
 
 import { StyleService } from '../style.service'
 import { BackendService } from '../backend.service'
+import { UIService } from '../ui.service'
 
 @Component({
   selector: 'app-universe',
@@ -13,6 +14,7 @@ export class UniverseComponent implements OnInit {
   constructor(
     private style: StyleService,
     private backend: BackendService,
+    private ui: UIService,
   ) { }
 
   ngOnInit() {

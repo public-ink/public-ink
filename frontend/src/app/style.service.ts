@@ -42,6 +42,7 @@ export class StyleService {
       let style = {
         'maxWidth.px': this.theme.contentWidth,
         'width.%': 100,
+        'margin': '0px auto',
         backgroundColor: this.theme.article.paper.backgroundColor,
       }
       return style
@@ -109,7 +110,7 @@ export class StyleService {
         return {
           'backgroundColor': bg,
           //'color': 'white',
-          'padding': '0px 20px',
+          'padding': '0px 10px',
         }
       }
     }

@@ -9,6 +9,7 @@ import { HomeComponent } from './home/home.component'
 // services
 import { BackendService } from './backend.service'
 import { StyleService } from './style.service'
+import { UIService } from './ui.service'
 
 // routing
 import { RouterModule, Routes } from '@angular/router'
@@ -16,7 +17,8 @@ import { PublicationComponent } from './publication/publication.component';
 import { ArticleComponent } from './article/article.component';
 import { AuthorComponent } from './author/author.component';
 import { UniverseComponent } from './universe/universe.component';
-import { AllComponent } from './all/all.component'
+import { AllComponent } from './all/all.component';
+import { PlaygroundComponent } from './playground/playground.component'
 
 /*const appRoutes: Routes = [
   { path: '', component: HomeComponent },
@@ -26,6 +28,7 @@ import { AllComponent } from './all/all.component'
   //{ path: '**', component: PageNotFoundComponent }
 ]*/
 const appRoutes: Routes = [
+  { path: 'playground', component: PlaygroundComponent },
   { path: '', component: AllComponent },
   { path: ':authorID',   component: AllComponent },
   { path: ':authorID/:publicationID',   component: AllComponent },
@@ -43,6 +46,7 @@ const appRoutes: Routes = [
     AuthorComponent,
     UniverseComponent,
     AllComponent,
+    PlaygroundComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),
@@ -53,6 +57,7 @@ const appRoutes: Routes = [
   providers: [
     BackendService,
     StyleService,
+    UIService,
   ],
   schemas: [
     CUSTOM_ELEMENTS_SCHEMA

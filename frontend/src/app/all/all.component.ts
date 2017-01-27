@@ -1,4 +1,10 @@
-import { Component, OnInit } from '@angular/core'
+import {
+  Component, OnInit, trigger,
+  state,
+  style,
+  transition,
+  animate
+} from '@angular/core'
 import { Router, ActivatedRoute, Params } from '@angular/router'
 
 import { BackendService } from '../backend.service'
@@ -11,9 +17,31 @@ import 'rxjs/Rx'
 @Component({
   selector: 'app-all',
   templateUrl: './all.component.html',
-  styleUrls: ['./all.component.css']
+  styleUrls: ['./all.component.css'],
+  animations: [
+    trigger('editState', [
+      state('inactive', style({
+        height: 0,
+        opacity: 0,
+      })),
+      state('active', style({
+        opacity: 1,
+        height: '40px',
+      })),
+      transition('inactive => active', animate('100ms ease-in')),
+      transition('active => inactive', animate('100ms ease-out'))
+    ])
+  ],
 })
 export class AllComponent implements OnInit {
+
+  editState: string = 'inactive'
+
+  toggleEdit() {
+    let next = this.editState === 'active' ? 'inactive' : 'active'
+    this.editState = next
+    console.log(next)
+  }
 
   // get from backend
   homePublications: any
@@ -41,13 +69,17 @@ export class AllComponent implements OnInit {
 
     private route: ActivatedRoute,
     private router: Router
-  ) { 
+  ) {
     Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
 
+      console.log(event.keyCode)
       // save article
       if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) { /*ctrl s */
         event.preventDefault()
         this.saveArticle()
+      } else if ((event.metaKey || event.ctrlKey) && event.keyCode === 69) { /*ctrl e */
+        this.toggleEdit()
+        event.preventDefault()
       }
     })
 
@@ -161,7 +193,7 @@ export class AllComponent implements OnInit {
       placeholder: 'your body here',
     })
 
-    
+
   }
 
   imageHandler() {
