@@ -4,6 +4,10 @@ import { Router, ActivatedRoute, Params } from '@angular/router'
 import { BackendService } from '../backend.service'
 import { StyleService } from '../style.service'
 
+import { Observable } from 'rxjs/Observable'
+import 'rxjs/Rx'
+
+
 @Component({
   selector: 'app-all',
   templateUrl: './all.component.html',
@@ -29,13 +33,25 @@ export class AllComponent implements OnInit {
   bodyQuill: any
   madeQuill: boolean = false
 
+
+
   constructor(
     private backend: BackendService,
     private style: StyleService,
 
     private route: ActivatedRoute,
     private router: Router
-  ) { }
+  ) { 
+    Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
+
+      // save article
+      if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) { /*ctrl s */
+        event.preventDefault()
+        this.saveArticle()
+      }
+    })
+
+  }
 
   ngOnInit() {
     console.log('all init!')
@@ -81,6 +97,8 @@ export class AllComponent implements OnInit {
   loadArticle() {
     this.backend.getArticleByIDs(this.authorID, this.publicationID, this.articleID).subscribe((article) => {
       this.article = article
+      let bodyContents = JSON.parse(this.article.body)
+      this.bodyQuill.setContents(bodyContents)
       this.makeArticleQuill()
     })
   }
@@ -142,10 +160,17 @@ export class AllComponent implements OnInit {
       theme: 'snow',
       placeholder: 'your body here',
     })
+
+    
   }
 
   imageHandler() {
     console.log('image handler!')
+  }
+
+  saveArticle() {
+    this.article.body = JSON.stringify(this.bodyQuill.getContents())
+    this.backend.updateArticle(this.article)
   }
 
 

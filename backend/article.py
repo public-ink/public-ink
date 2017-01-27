@@ -119,6 +119,7 @@ class ArticleEndpoint(RequestHandler):
         """
         data = json.loads(self.request.body)
         title = data.get('title')
+        title_text = data.get('titleText')
         teaser = data.get('teaser')
         body = data.get('body')
         article = ndb.Key(
@@ -131,5 +132,6 @@ class ArticleEndpoint(RequestHandler):
         article.title = title
         article.teaser = teaser
         article.body = body
+        article.title_text = title_text
         article.put()
         return_json(self, article.data())

@@ -57,6 +57,9 @@ export class BackendService {
   // the current Author identity as which the user acts
   userIdentity: Author
 
+  // local state: saving
+  saving: boolean = false
+
   constructor(
     private http: Http
   ) {
@@ -274,11 +277,13 @@ export class BackendService {
 
 
   updateArticle(article: Article) {
+    this.saving = true
     let url = this.BACKEND_URL + article.url
     let data = article
     this.http.post(url, article, this.defaultOptions()).map(res => res.json()).subscribe(
       (article: Article) => {
         console.log('update article', article)
+        this.saving = false
       },
       (error) => {
         this.handleError(error)

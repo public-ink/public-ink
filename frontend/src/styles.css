@@ -1,6 +1,12 @@
 flex-row {
     display: flex;
 }
+flex-100-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
 flex-row-center {
     display: flex;
     align-items: center;

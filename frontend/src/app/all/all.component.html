@@ -1,77 +1,112 @@
 <!-- header -->
-<flex-row-center style="position:fixed; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); z-index: 3; top: 0; left:0; width: 100%; height: 50px; background-color: beige;">
-
-      <flex-row [style.width.px]="style.theme.contentWidth" style="justify-content: space-between">
-        <flex-row>
-          <a [ngStyle]="style.s.topBar.home()" [routerLink]="['/']" style="font-size: 24px;">⌂</a>
-        </flex-row>
+<flex-row-center style="position:fixed; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); z-index: 3; top: 0; left:0; width: 100%; height: 50px; background-color: white;">
 
 
-        <flex-row>
-          <div id="bodyToolbar" [ngStyle]="style.s.topBar.editor()">
-            <button class="ql-bold">Bold</button>
-            <button class="ql-italic">Italic</button>
-            <button class="ql-image">img</button>
-          </div>
-        </flex-row>
+<!-- inner content width -->
+<flex-row [style.width.px]="style.theme.contentWidth" style="justify-content: space-between">
+  
+  <!-- left / home -->
+  <flex-row>
+    <a [ngStyle]="style.s.topBar.home()" [routerLink]="['/']" style="font-size: 24px;">⌂</a>
+  </flex-row>
 
-        <flex-row>
-          {{ backend.userIdentity?.name }}
-         
-          <div *ngFor="let publication of backend.userIdentity?.publications">
-            <a [routerLink]="['/', publication.author.id, publication.id, 'new']"> new article in {{ publication.name }}</a>
-        </div>
 
-        </flex-row>
+  <!-- center -->
+  <flex-row>
+    <div id="bodyToolbar" [ngStyle]="style.s.topBar.editor()">
+      <button class="ql-bold">Bold</button>
+      <button class="ql-italic">Italic</button>
+      <button class="ql-underline">under</button>
+      <button class="ql-strike">strike</button>
+      <button class="ql-blockquote"></button>
+      <button class="ql-image">img</button>
+      <button class="ql-link">link</button>
+      <button class="ql-header" value="1" type="button"></button>
+      <button class="ql-header" value="2" type="button"></button>
+      <button class="ql-clean">clean</button>
       
-      </flex-row>
+    </div>
+  </flex-row>
+  
+  <flex-row-center 
+    [ngStyle]="style.s.topBar.button(backend.saving ? 'blue': 'white')"
+    (click)="saveArticle(article)" >
+    save ∨
+  </flex-row-center>
 
-    </flex-row-center>
+  <flex-row-center 
+    [ngStyle]="style.s.topBar.button('white')"
+    (click)="saveArticle(article)" >
+    <span style="color: black;">new ...</span>
+  </flex-row-center>
 
-    <div [style.height.px]="50"></div>
+  <!-- user bubble -->
+  <flex-row-center 
+    [ngStyle]="style.s.topBar.button('white')"
+     >
+    <flex-row-center style="width: 40px; height: 40px; border-radius: 20px; color: white; background-color: black;">👤</flex-row-center>
+  </flex-row-center>
+
+
+  <!-- right -->
+  <!--<flex-row>
+    <div *ngFor="let publication of backend.userIdentity?.publications">
+      <a [routerLink]="['/', publication.author.id, publication.id, 'new']"> new article in {{ publication.name }}</a>
+    </div>
+  </flex-row>-->
+<!-- end right -->
+
+</flex-row>
+<!-- end inner -->
+
+</flex-row-center>
+
+<div [style.height.px]="50"></div>
 
 <!-- end of header -->
+<!-- global container -->
+<flex-100-center>
+  <div #container [ngStyle]="style.s.container()">
 
-all here: author id : {{ authorID}} publication id : {{ publicationID}} article id : {{ articleID}}
-
-<br> location: <b>{{ location }}</b>
-
-<!-- Home Page -->
-<div [hidden]="location != 'home'">
-  <div *ngFor="let publication of homePublications">
-    <h2><a [routerLink]="['/', publication.author.id, publication.id]">{{ publication.name }}</a></h2>
-    by <a [routerLink]="['/', publication.author.id]">{{ publication.author.name }}</a>
-  </div>
-</div>
-
-<!-- Author Page -->
-<div [hidden]="location != 'author'">
-  <div *ngIf="author">
-    <h1>{{ author.name }}</h1>
-    <input type="text" [(ngModel)]="author.name" />
-    <div>{{ author.about }}</div>
-    <textarea [(ngModel)]="author.about"></textarea>
-    <!-- only if owner -->
-    <button (click)="backend.updateAuthor(author)">save changes</button>
-  </div>
-</div>
-
-<!-- Publication Page -->
-<div [hidden]="location != 'publication'">
-  <div *ngIf="publication">
-    <h1>{{ publication.name }} {{ publication.deleted }}</h1>
-    <h2>a publication by <a [routerLink]="['/', publication.author.id]">{{ publication.author.name }}</a></h2>
-    <div *ngFor="let article of publication.articles">
-      <a [routerLink]="['/', authorID, publicationID, article.id]">{{ article.titleText }}</a>
+    <!-- Home Page -->
+    <div [hidden]="location != 'home'">
+      <div *ngFor="let publication of homePublications">
+        <h2><a [routerLink]="['/', publication.author.id, publication.id]">{{ publication.name }}</a></h2>
+        by <a [routerLink]="['/', publication.author.id]">{{ publication.author.name }}</a>
+      </div>
     </div>
-    <button (click)="backend.deletePublication(publication)">delete this publication</button>
-  </div>
-</div>
 
-<!-- Article Page -->
-<div [hidden]="location != 'article'">
-  <div>
-    <h2>{{ article.body }}</h2>
-    <div id="bodyEditor"></div>
+    <!-- Author Page -->
+    <div [hidden]="location != 'author'">
+      <div *ngIf="author">
+        <h1>{{ author.name }}</h1>
+        <input type="text" [(ngModel)]="author.name" />
+        <div>{{ author.about }}</div>
+        <textarea [(ngModel)]="author.about"></textarea>
+        <!-- only if owner -->
+        <button (click)="backend.updateAuthor(author)">save changes</button>
+      </div>
+    </div>
+
+    <!-- Publication Page -->
+    <div [hidden]="location != 'publication'">
+      <div *ngIf="publication">
+        <h1>{{ publication.name }} {{ publication.deleted }}</h1>
+        <h2>a publication by <a [routerLink]="['/', publication.author.id]">{{ publication.author.name }}</a></h2>
+        <div *ngFor="let article of publication.articles">
+          <a [routerLink]="['/', authorID, publicationID, article.id]">{{ article.titleText }}</a>
+        </div>
+        <button (click)="backend.deletePublication(publication)">delete this publication</button>
+      </div>
+    </div>
+
+    <!-- Article Page -->
+    <div [hidden]="location != 'article'">
+      <div>
+        <input [ngStyle]="style.s.article.h1()" type="text" [(ngModel)]="article.titleText" />
+        <div [ngStyle]="style.s.article.copy()" id="bodyEditor"></div>
+      </div>
+    </div>
+
   </div>
-</div>
+</flex-100-center>
