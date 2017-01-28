@@ -35,13 +35,34 @@ import 'rxjs/Rx'
 })
 export class AllComponent implements OnInit {
 
+  state: string = 'root'
+
   editState: string = 'inactive'
+  createState: string = 'inactive'
 
   toggleEdit() {
     let next = this.editState === 'active' ? 'inactive' : 'active'
     this.editState = next
+    if (next === 'active') {
+      this.setState('editing')
+    } else {
+      this.setState('root')
+    }
     console.log(next)
   }
+  toggleCreate() {
+    let next = this.createState === 'active' ? 'inactive' : 'active'
+    this.createState = next
+    if (next === 'active') {
+      this.setState('creating')
+    } else {
+      this.setState('root')
+    }
+}
+
+setState(state: string) {
+  this.state = state
+}
 
   // get from backend
   homePublications: any
@@ -137,7 +158,8 @@ export class AllComponent implements OnInit {
   newArticle() {
     this.article = this.backend.newArticle
     this.article.url = `/author/${this.authorID}/publication/${this.publicationID}/article/new`
-  }
+    this.setState('editing')
+}
 
   /**
    * Publication

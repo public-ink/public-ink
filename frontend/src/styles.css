@@ -9,6 +9,12 @@ flex-col {
     display: flex;
     flex-direction: column;
 }
+flex-col-center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
 flex-100-center {
     display: flex;
     justify-content: center;
@@ -24,7 +30,7 @@ flex-row-center {
 
 /* You can add global styles to this file, and also import other style files */
 body {
-    font-family: monospace;
+    font-family: Raleway;
     background-color: #fff;
     color:#333;
 }
@@ -33,6 +39,20 @@ body {
 a {
     color: #333;
 }
+
+/* toolbar */
+.toolbar-label {
+    font-size: 11px;
+}
+
+.toolbar-icon {
+    font-size: 20px;
+}
+
+.toolbar-button {
+    color: #444;
+}
+
 
 
 /* them text stuff */
