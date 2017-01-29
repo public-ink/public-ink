@@ -1,0 +1,91 @@
+<flex-col style="align-items: center; position:fixed; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); z-index: 3; top: 0; left:0; width: 100%; background-color: white;">
+  <!-- ROOT -->
+  <flex-col [style.display]="ui.toolbarState.main === 'root' ? 'flex' : 'none'"
+    [style.width.%]="100" [style.maxWidth.px]="style.theme.contentWidth">
+    <!-- root top -->
+    <flex-row-center>
+      <flex-row-center [ngStyle]="style.s.topBar.home()" [routerLink]="['/']" style="font-size: 24px;">
+      ⌂
+      </flex-row-center>
+      <flex-row style="flex-grow: 1; justify-content: space-around;">
+        <app-toolbar-button [icon]="'pencil'" [text]="'Edit'"></app-toolbar-button>
+        <app-toolbar-button [icon]="'plus'" [text]="'Create'"></app-toolbar-button>
+        <app-toolbar-button [icon]="'search'" [text]="'Search'"></app-toolbar-button>
+        <app-toolbar-button [icon]="'user'" [text]="'You'"></app-toolbar-button>
+      </flex-row>
+    </flex-row-center>
+    <!-- root bottom -->
+    <flex-row-center>
+      <span [ngStyle]="style.s.topBar.navPlus()">search</span>
+      <flex-row-center style="flex-grow: 1; height: 40px; border-top: 1px dashed #efefef;">
+        <input style="font-size:16px; border:0; width: 300px; padding:5px; outline: 0;" placeholder="Articles, Publications, Authors..." type="text" [(ngModel)]="ui.searchQuery"/>
+      </flex-row-center>
+    </flex-row-center>    
+  </flex-col>
+
+  <!-- CREATE -->
+  <flex-col [style.display]="ui.toolbarState.main === 'create' ? 'flex' : 'none'"
+    [style.width.%]="100" [style.maxWidth.px]="style.theme.contentWidth">
+    <!-- create top -->
+    <flex-row-center>
+      <flex-row-center (click)="ui.toolbarState.main = 'root'" [ngStyle]="style.s.topBar.home()" style="font-size: 24px;">x</flex-row-center>
+      <flex-row-center style="flex-grow: 1; justify-content: space-around;">
+        <app-toolbar-button [icon]="'paragraph'" [text]="'Article'"></app-toolbar-button>
+        <app-toolbar-button [icon]="'reorder'" [text]="'Publication'"></app-toolbar-button>
+        <app-toolbar-button [icon]="'user'" [text]="'Author'"></app-toolbar-button>
+      </flex-row-center>
+    </flex-row-center>
+    <!-- create bottom -->
+    <flex-row-center [style.height.px]="40" [style.justifyContent]="'space-between'">
+      <flex-row-center [ngStyle]="style.s.topBar.navPlus()">create</flex-row-center>
+      <flex-row-center style="flex-grow: 1; justify-content: space-around;">
+        <!-- create links -->
+          <a style="color: #333; background-color: #efefef;  padding: 5px 10px;" [routerLink]="['/']">in Atomic Angular</a>
+          <a style="color: #333; background-color: #efefef;  padding: 5px 10px;" [routerLink]="['/']">in 2017</a>
+          
+      </flex-row-center>
+    </flex-row-center>    
+  </flex-col>
+
+  <!-- EDIT -->
+  <flex-col [style.display]="ui.toolbarState.main === 'edit' ? 'flex' : 'none'"
+  [style.width.%]="100" [style.maxWidth.px]="style.theme.contentWidth">
+    <!-- edit top -->
+    <flex-row-center>
+      <flex-row-center (click)="ui.toolbarState.main = 'root'" [ngStyle]="style.s.topBar.home()" style="font-size: 24px;">
+        <i class="fa fa-check" aria-hidden="true"></i>
+      </flex-row-center>
+      <flex-row-center style="flex-grow: 1; justify-content: space-around;">
+        <app-toolbar-button [icon]="'level-up'" [text]="'Save'"></app-toolbar-button>
+        <app-toolbar-button [icon]="'paper-plane'" [text]="'Publish'"></app-toolbar-button>
+        <app-toolbar-button [icon]="'trash'" [text]="'Delete'"></app-toolbar-button>
+      </flex-row-center>
+    </flex-row-center>
+
+
+    <!-- edit bottom -->
+    <flex-row-center>
+      <span [ngStyle]="style.s.topBar.navPlus()">edit</span>
+      <flex-row-center style="flex-grow: 1; height: 40px; border-top: 1px solid #eee;">
+        <flex-row>
+          <div id="bodyToolbar" >
+              <button class="ql-bold">Bold</button>
+              <button class="ql-italic">Italic</button>
+              <button class="ql-underline">under</button>
+              <button class="ql-strike">strike</button>
+              <button class="ql-blockquote"></button>
+              <button class="ql-image">img</button>
+              <button class="ql-link">link</button>
+              <button class="ql-header" value="1" type="button"></button>
+              <button class="ql-header" value="2" type="button"></button>
+              <button class="ql-clean">clean</button>
+            </div>  
+    </flex-row> 
+      </flex-row-center>
+    </flex-row-center>    
+
+    
+    <!-- quill tools article body -->
+       
+  </flex-col>
+</flex-col>

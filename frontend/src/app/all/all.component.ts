@@ -9,6 +9,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router'
 
 import { BackendService } from '../backend.service'
 import { StyleService } from '../style.service'
+import { UIService } from '../ui.service'
 
 import { Observable } from 'rxjs/Observable'
 import 'rxjs/Rx'
@@ -87,6 +88,7 @@ setState(state: string) {
   constructor(
     private backend: BackendService,
     private style: StyleService,
+    private ui: UIService,
 
     private route: ActivatedRoute,
     private router: Router
@@ -98,8 +100,18 @@ setState(state: string) {
       if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) { /*ctrl s */
         event.preventDefault()
         this.saveArticle()
-      } else if ((event.metaKey || event.ctrlKey) && event.keyCode === 69) { /*ctrl e */
-        this.toggleEdit()
+      } else if ((event.metaKey || event.ctrlKey) && event.keyCode === 187) { /*ctrl + */
+        this.ui.toolbarState.main = this.ui.toolbarState.main === 'create' ? 'root' : 'create'
+        event.preventDefault()
+      }
+      // CMS E (toggle edit toolbar)
+      else if ((event.metaKey || event.ctrlKey) && event.keyCode === 69) { /*ctrl E */
+        this.ui.toolbarState.main = this.ui.toolbarState.main === 'edit' ? 'root' : 'edit'
+        event.preventDefault()
+      }
+      // escape!
+      else if ( event.keyCode === 27) { /* Escape */
+        this.ui.toolbarState.main = 'root'
         event.preventDefault()
       }
     })

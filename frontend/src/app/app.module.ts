@@ -18,7 +18,9 @@ import { ArticleComponent } from './article/article.component';
 import { AuthorComponent } from './author/author.component';
 import { UniverseComponent } from './universe/universe.component';
 import { AllComponent } from './all/all.component';
-import { PlaygroundComponent } from './playground/playground.component'
+import { PlaygroundComponent } from './playground/playground.component';
+import { ToolbarComponent } from './toolbar/toolbar.component';
+import { ToolbarButtonComponent } from './toolbar-button/toolbar-button.component'
 
 /*const appRoutes: Routes = [
   { path: '', component: HomeComponent },
@@ -47,6 +49,8 @@ const appRoutes: Routes = [
     UniverseComponent,
     AllComponent,
     PlaygroundComponent,
+    ToolbarComponent,
+    ToolbarButtonComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),

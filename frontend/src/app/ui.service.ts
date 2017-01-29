@@ -18,6 +18,20 @@ interface IDevice {
 @Injectable()
 export class UIService {
 
+  toolbarState = {
+    main: 'root',
+    second: ''
+  }
+  hideToolbar(which) {
+    if(this.toolbarState.main === which) {
+      return false
+    } else {
+      return true 
+    }
+  }
+
+  searchQuery = ''
+
   // dragged image (or media, set by editor)
   draggedImage: any
 

@@ -96,6 +96,21 @@ export class StyleService {
           'width.px': 50,
         }
       },
+      navPlus: () => {
+        return {
+          backgroundColor: '#000',
+          color: '#ccc',
+          borderTop: '1px dashed gray',
+          'height.px': 41,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textDecoration: 'none',
+          'width.px': 50,
+          'fontSize.px': 11,
+        }
+      },
+
       saveButton: () => {
         let button = this.s.topBar.button('blue')
         let save = {

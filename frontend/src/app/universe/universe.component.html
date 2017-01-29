@@ -12,6 +12,7 @@
     <app-device [ngStyle]="ui.device.style" style="box-sizing: content-box;">
       <app-container id="app" [ngStyle]="{'width': '100%', 'overflow': 'scroll', 'height': ui.deviceHeight + 'px', 'display': 'flex', 'flex-direction': 'column'}">
         <!-- The App -->
+        <app-toolbar></app-toolbar>
         <router-outlet></router-outlet>
 
       </app-container>
