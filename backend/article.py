@@ -11,7 +11,9 @@ class Article(ndb.Model):
     title = ndb.StringProperty()
     title_text = ndb.StringProperty()
     teaser = ndb.TextProperty()
+    teaser_text = ndb.TextProperty()
     body = ndb.TextProperty()
+    body_text = ndb.TextProperty()
     deleted = ndb.BooleanProperty(default=False)
 
 
@@ -28,7 +30,9 @@ class Article(ndb.Model):
             'title': self.title,
             'titleText': self.title_text,
             'teaser': self.teaser,
+            'teaserText': self.teaser_text,
             'body': self.body,
+            'bodyText': self.body_text,
             'deleted': self.deleted,
             'url': '/author/{}/publication/{}/article/{}'.format(author_id, publication_id, article_id),
             # related: author
@@ -121,7 +125,9 @@ class ArticleEndpoint(RequestHandler):
         title = data.get('title')
         title_text = data.get('titleText')
         teaser = data.get('teaser')
+        teaser_text = data.get('teaserText')
         body = data.get('body')
+        body_text = data.get('bodyText')
         article = ndb.Key(
             'Author', author_id, 
             'Publication', publication_id,
@@ -130,8 +136,10 @@ class ArticleEndpoint(RequestHandler):
             return_error(self, 404, 'this article could not be found.')
             return
         article.title = title
-        article.teaser = teaser
-        article.body = body
         article.title_text = title_text
+        article.teaser = teaser
+        article.teaser_text = teaser_text
+        article.body = body
+        article.body_text = body_text
         article.put()
         return_json(self, article.data())

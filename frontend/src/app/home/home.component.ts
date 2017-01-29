@@ -11,9 +11,15 @@ export class HomeComponent implements OnInit {
   publications: any = []
 
   constructor(private backend: BackendService) {
-    this.backend.getPublications().subscribe((publications) => { // todo: use interface
+    this.backend.getPublications().subscribe(
+      (publications) => { // todo: use interface
       this.publications = publications
-    })
+    }, 
+    (error) => {
+      console.log('caught get publications network error')
+    }
+    
+    )
    }
 
   ngOnInit() {

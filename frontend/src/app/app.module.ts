@@ -33,8 +33,8 @@ const appRoutes: Routes = [
   { path: 'playground', component: PlaygroundComponent },
   { path: '', component: AllComponent },
   { path: ':authorID',   component: AllComponent },
-  { path: ':authorID/:publicationID',   component: AllComponent },
-  { path: ':authorID/:publicationID/:articleID', component: AllComponent },
+  { path: ':authorID/:publicationID',   component: PublicationComponent },
+  { path: ':authorID/:publicationID/:articleID', component: ArticleComponent },
   //{ path: '**', component: PageNotFoundComponent }
 ]
 

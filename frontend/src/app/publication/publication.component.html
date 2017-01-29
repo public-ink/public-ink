@@ -1,10 +1,10 @@
-<div *ngIf="error">
-  there has been an error, I'll know the reason soon too.
-</div>
-
+<div style="margin-top: 100px;"></div>
+ <div id="publicationNameEditor" (click)="ui.toolbarState.second = 'publicationName'"></div>
+ <div id="publicationAboutEditor" (click)="ui.toolbarState.second = 'publicationAbout'"></div>
+ 
 <div *ngIf="publication">
-  <h1>{{ publication.name }} {{ publication.deleted }}</h1>
-  <h2>a publication by <a [routerLink]="['/', publication.author.id]">{{ publication.author.name }}</a></h2>
+
+  <!--<h2>a publication by <a [routerLink]="['/', publication.author.id]">{{ publication.author.name }}</a></h2>-->
   <div *ngFor="let article of publication.articles">
     <a [routerLink]="['/', authorID, publicationID, article.id]">{{ article.titleText }}</a>
   </div>

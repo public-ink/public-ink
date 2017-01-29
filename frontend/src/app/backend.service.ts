@@ -15,7 +15,7 @@ interface Author {
 interface Publication {
   id: string;
   name: string;
-  url: string;
+  url?: string;
 }
 
 interface Article {
@@ -23,7 +23,9 @@ interface Article {
   title: string;
   titleText: string;
   teaser: string;
+  teaserText: string;
   body: string;
+  bodyText: string;
   url?: string; // only optional because of newArticle...
   deleted?: boolean; // only optional because of new...
 }
@@ -37,13 +39,55 @@ interface ServerError {
 @Injectable()
 export class BackendService {
 
+  currentResource: Article | Publication
+
+  saveCurrentResource() {
+    console.log('wanna save', this.currentResource)
+    if (this.currentResource.id === 'new') {
+      this.http.put(this.BACKEND_URL + this.currentResource.url, this.currentResource, this.defaultOptions()).map(res => res.json()).subscribe(
+        (resource) => {
+          console.log('created', resource)
+        },
+        (error) => {
+          console.log('caught create error')
+        }
+      )
+    } else {
+      this.http.post(this.BACKEND_URL + this.currentResource.url, this.currentResource, this.defaultOptions()).map(res => res.json()).subscribe(
+      (resource) => {
+          console.log('update', resource)
+        },
+        (error) => {
+          console.log('caught update error')
+        }
+      )
+    }
+  }
+
   newArticle: Article = {
     id: 'new',
     title: '{}',
-    titleText: 'jo new title text',
+    titleText: '',
     teaser: '{}',
+    teaserText: '',
     body: '{}',
+    bodyText: ''
   }
+  newPublication: Publication = {
+    id: 'new',
+    name: 'A new publication',
+  }
+  startPublication(authorID) {
+    let pub = {
+      id: 'new',
+      name: 'A new publication',
+      about: 'yea, about that...',
+      url: '/author/' + authorID + '/publication/new'
+    }
+    return pub
+  }
+
+  
 
   BACKEND_URL = 'http://localhost:8080'
 
@@ -279,6 +323,9 @@ export class BackendService {
   updateArticle(article: Article) {
     this.saving = true
     let url = this.BACKEND_URL + article.url
+
+    
+
     let data = article
     this.http.post(url, article, this.defaultOptions()).map(res => res.json()).subscribe(
       (article: Article) => {

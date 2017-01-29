@@ -1,12 +1,3 @@
-<!-- new header! -->
-
-
-
-<!-- end of header -->
-
-
-
-
 
 
 <!-- CONTENT -->
@@ -23,9 +14,10 @@
     <!-- Home Page -->
     <div [hidden]="location != 'home'">
 
-      <flex-row-center style="height:50vh; width: 100vw; background-color:aqua;">
+      <flex-col-center style="height:50vh; width: 100vw; background-color:white;">
         <h1>public.ink</h1>
-      </flex-row-center>
+        <p>An open source, non-commercial publishing platform. Learn more here.</p>
+      </flex-col-center>
 
       
       <div [ngStyle]="style.s.container()">
@@ -34,8 +26,8 @@
         <h2><a [routerLink]="['/', publication.author.id, publication.id]">{{ publication.name }}</a></h2>
         by <a [routerLink]="['/', publication.author.id]">{{ publication.author.name }}</a>
         <div *ngFor="let article of publication.articles">
-          <h1>{{ article.titleText }}</h1>
-          <h2>{{ article.teaser }}</h2>
+          <h1><a [routerLink]="['/', publication.author.id, publication.id, article.id]">{{ article.titleText }}</a></h1>
+          <p>{{ article.teaserText }}</p>
         </div>
       </div>
 

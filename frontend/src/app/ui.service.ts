@@ -20,15 +20,9 @@ export class UIService {
 
   toolbarState = {
     main: 'root',
-    second: ''
+    second: 'publicationName'
   }
-  hideToolbar(which) {
-    if(this.toolbarState.main === which) {
-      return false
-    } else {
-      return true 
-    }
-  }
+  
 
   searchQuery = ''
 

@@ -93,28 +93,7 @@ setState(state: string) {
     private route: ActivatedRoute,
     private router: Router
   ) {
-    Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
-
-      console.log(event.keyCode)
-      // save article
-      if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) { /*ctrl s */
-        event.preventDefault()
-        this.saveArticle()
-      } else if ((event.metaKey || event.ctrlKey) && event.keyCode === 187) { /*ctrl + */
-        this.ui.toolbarState.main = this.ui.toolbarState.main === 'create' ? 'root' : 'create'
-        event.preventDefault()
-      }
-      // CMS E (toggle edit toolbar)
-      else if ((event.metaKey || event.ctrlKey) && event.keyCode === 69) { /*ctrl E */
-        this.ui.toolbarState.main = this.ui.toolbarState.main === 'edit' ? 'root' : 'edit'
-        event.preventDefault()
-      }
-      // escape!
-      else if ( event.keyCode === 27) { /* Escape */
-        this.ui.toolbarState.main = 'root'
-        event.preventDefault()
-      }
-    })
+    
 
   }
 
@@ -195,37 +174,8 @@ setState(state: string) {
    * Make Article Quill
    */
   makeArticleQuill() {
-    if (this.madeQuill) {
-      console.log('already made quill, leave me alone!')
-      return
-    }
-    console.log('because quill is', this.bodyQuill)
-    console.log('making quill')
-    this.madeQuill = true
-
-
-    /** don't know how to pass them in, ask on github! */
-    let bodyToolbarOptions = [
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote', 'code-block'],
-      ['link', 'image', 'video', 'formula'],
-      [{ 'header': [1, 2, false] }],
-      ['clean']
-    ]
-
-    this.bodyQuill = new Quill('#bodyEditor', {
-      modules: {
-        toolbar: {
-          //options: [['bold', 'italic'], ['link', 'image']],
-          container: '#bodyToolbar',  // Selector for toolbar container
-          handlers: {
-            'image': this.imageHandler
-          },
-        },
-      },
-      theme: 'snow',
-      placeholder: 'your body here',
-    })
+    return ''
+    
 
 
   }
@@ -235,7 +185,11 @@ setState(state: string) {
   }
 
   saveArticle() {
+    
+
     this.article.body = JSON.stringify(this.bodyQuill.getContents())
+    this.article.bodyText = this.bodyQuill.getText()
+    this.article.teaserText = this.article.bodyText.substring(0, 140);
     this.backend.updateArticle(this.article)
   }
 

@@ -1,47 +1,11 @@
-<flex-row-center #app style="width: 100%; " >
+<flex-col-center style="width: 100%; margin-top: 200px;" >
+
+<div [ngStyle]="style.s.container()">
 
 
-<div #container [ngStyle]="style.s.container()">
-
-  <div *ngIf="article">
-
-    <div #titleEditorTools [hidden]="!editing">
-      <button class="ql-bold">Bold</button>‹
-      <button class="ql-italic">Italic</button>
-    </div>
-    <div 
-      #titleEditor 
-      (dblclick)="toggelToolbar('title')"
-      [ngStyle]="style.s.article.h1()"
-    >title goes here</div>
-
-    <!-- teaser editor -->
-    <div #teaserEditorTools>
-      <button class="ql-bold">Bold</button>
-      <button class="ql-italic">Italic</button>
-    </div>
-    <div #teaserEditor [ngStyle]="style.s.teaser.copy()">teaser goes here</div>
-
-    <!-- body editor -->
-    <div id="icanhide">
-      <div #bodyEditorTools >
-        
-      </div>
-    </div>
-    <!-- editor tool bar appears here -->
-    <div #bodyEditor 
-      (dblclick)="toggleToolbar('body')"
-    [ngStyle]="style.s.article.copy()">body goes here</div>
-
-
-
-
-<!--
-    this article is part of the publication <a [routerLink]="['/', article.author.id, article.publication.id]">{{ article.publication.name}}</a>    written by <a [routerLink]="['/', article.author.id]">{{ article.author.name }}</a>
--->
-    <button (click)="saveArticle()">save changes</button>
-  </div>
+<div style="width:500px;" id="articleTitleEditor" (click)="ui.toolbarState.second = 'articleTitle'">jo</div>
+<div style="width:500px;" id="articleBodyEditor" (click)="ui.toolbarState.second = 'articleBody'"></div>
 
 </div>
 
-</flex-row-center>
+</flex-col-center>

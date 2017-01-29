@@ -12,22 +12,6 @@ class Publication(ndb.Model):
     name = ndb.StringProperty()
     deleted = ndb.BooleanProperty(default=False)
 
-    @classmethod
-    def create(cls, author_id, publication_name):
-        """
-        creates a publication, given
-        - an author id
-        - a publication name
-        """
-        # parent is an author
-        author_key = ndb.Key('Author', author_id)
-        publication_key = Publication(
-            id = slugify(publication_name),
-            parent = author_key,
-            name = publication_name
-        ).put()
-        return publication_key.get()
-
     def get_articles(self):
         """
         returns a list of articles associated with this Publication
@@ -69,10 +53,13 @@ class PublicationEndpoint(RequestHandler):
         """
         data = json.loads(self.request.body)
         name = data.get('name')
-        publication = Publication.create(
-            author_id,
-            name
+        author_key = ndb.Key('Author', author_id)
+        publication = Publication(
+            parent = author_key,
+            id = slugify(name),
+            name = name
         )
+        publication.put()
         return_json(self, publication.data())
 
     @cross_origin

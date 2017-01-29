@@ -40,8 +40,9 @@
       <flex-row-center [ngStyle]="style.s.topBar.navPlus()">create</flex-row-center>
       <flex-row-center style="flex-grow: 1; justify-content: space-around;">
         <!-- create links -->
-          <a style="color: #333; background-color: #efefef;  padding: 5px 10px;" [routerLink]="['/']">in Atomic Angular</a>
-          <a style="color: #333; background-color: #efefef;  padding: 5px 10px;" [routerLink]="['/']">in 2017</a>
+          <a style="color: #333; background-color: #efefef;  padding: 5px 10px;" [routerLink]="['/hoff/back-to-berlin/new']">article in Atomic Angular</a>
+
+          <a style="color: #333; background-color: #efefef;  padding: 5px 10px;" [routerLink]="['/hoff/new']">publication by Hoff</a>
           
       </flex-row-center>
     </flex-row-center>    
@@ -50,6 +51,7 @@
   <!-- EDIT -->
   <flex-col [style.display]="ui.toolbarState.main === 'edit' ? 'flex' : 'none'"
   [style.width.%]="100" [style.maxWidth.px]="style.theme.contentWidth">
+
     <!-- edit top -->
     <flex-row-center>
       <flex-row-center (click)="ui.toolbarState.main = 'root'" [ngStyle]="style.s.topBar.home()" style="font-size: 24px;">
@@ -62,13 +64,40 @@
       </flex-row-center>
     </flex-row-center>
 
-
     <!-- edit bottom -->
     <flex-row-center>
       <span [ngStyle]="style.s.topBar.navPlus()">edit</span>
       <flex-row-center style="flex-grow: 1; height: 40px; border-top: 1px solid #eee;">
         <flex-row>
-          <div id="bodyToolbar" >
+
+          <div id="articleTitleToolbar" [hidden]="ui.toolbarState.second != 'articleTitle'">
+            <button class="ql-bold">Bold</button>
+            <button class="ql-italic">Italic</button>
+            <button class="ql-underline">under</button>
+            <button class="ql-strike">strike</button>
+            <button class="ql-blockquote"></button>
+            <button class="ql-image">img</button>
+            <button class="ql-link">link</button>
+            <button class="ql-header" value="1" type="button"></button>
+            <button class="ql-header" value="2" type="button"></button>
+            <button class="ql-clean">clean</button>
+          </div>
+          <div id="articleBodyToolbar" [hidden]="ui.toolbarState.second != 'articleBody'">
+            <button class="ql-bold">Bold</button>
+            <button class="ql-italic">Italic</button>
+            <button class="ql-underline">under</button>
+            <button class="ql-strike">strike</button>
+            <button class="ql-blockquote"></button>
+            <button class="ql-image">img</button>
+            <button class="ql-link">link</button>
+            <button class="ql-header" value="1" type="button"></button>
+            <button class="ql-header" value="2" type="button"></button>
+            <button class="ql-clean">clean</button>
+          </div>  
+
+
+            <div id="publicationNameToolbar" [hidden]="ui.toolbarState.second  != 'publicationName'">
+              publication name toolbar
               <button class="ql-bold">Bold</button>
               <button class="ql-italic">Italic</button>
               <button class="ql-underline">under</button>
@@ -79,13 +108,20 @@
               <button class="ql-header" value="1" type="button"></button>
               <button class="ql-header" value="2" type="button"></button>
               <button class="ql-clean">clean</button>
+            </div>
+            <div id="publicationAboutToolbar" [hidden]="ui.toolbarState.second != 'publicationAbout'" >
+              publication about toolbar
+              <button class="ql-bold">Bold</button>
+              <button class="ql-italic">Italic</button>
+              <button class="ql-underline">under</button>
+              <button class="ql-strike">strike</button>
+              <button class="ql-link">link</button>
+              <button class="ql-clean">clean</button>
             </div>  
-    </flex-row> 
+
+           </flex-row> 
       </flex-row-center>
     </flex-row-center>    
+  </flex-col><!-- end of edit bar -->
 
-    
-    <!-- quill tools article body -->
-       
-  </flex-col>
 </flex-col>
