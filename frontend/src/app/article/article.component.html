@@ -2,9 +2,10 @@
 
 <div [ngStyle]="style.s.container()">
 
+<img [src]="article?.image" />
 
-<div style="width:500px;" id="articleTitleEditor" (click)="ui.toolbarState.second = 'articleTitle'">jo</div>
-<div style="width:500px;" id="articleBodyEditor" (click)="ui.toolbarState.second = 'articleBody'"></div>
+<div style="width:500px;" id="articleTitleEditor" (click)="ui.toolbarState.main = 'edit'; ui.toolbarState.second = 'articleTitle'">jo</div>
+<div style="width:500px;" id="articleBodyEditor" (click)="ui.toolbarState.main = 'edit'; ui.toolbarState.second = 'articleBody'"></div>
 
 </div>
 

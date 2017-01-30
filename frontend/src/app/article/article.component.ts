@@ -42,7 +42,8 @@ export class ArticleComponent implements OnInit {
 
 
   titleImageHandler() {
-    console.log('title imge handler')
+    console.log(this)
+    //article.image = 'https://images.unsplash.com/photo-1480321182142-e77f14b9aa64?dpr=2&auto=format&fit=crop&w=767&h=511&q=80&cs=tinysrgb&crop='
     /*var range = this.quill.getSelection()
     if (!range) { return }
     let value = prompt('What is the image URL')
@@ -70,38 +71,23 @@ export class ArticleComponent implements OnInit {
       })
     })
 
-    // set up quill (needed?)
-    /*let coreModule = Quill.import('core/module')
-    Quill.register('modules/modules', coreModule)*/
-
-
-
   }
 
-  ngAfterViewChecked() {
-    //this.makeQuills()
-  }
-
-
-
+  /* cleanup */
   makeQuills() {
     console.log('make quills')
     if (this.madeQuills) {
       console.log('already done...')
       return
     }
-
-
     let editorEl = document.getElementById('articleTitleEditor')
     let toolbarEl = document.getElementById('articleTitleToolbar')
     console.log('article quill with', editorEl, toolbarEl)
-
 
     if (!editorEl) {
       return
     }
     this.madeQuills = true
-
 
     // article title
     this.titleQuill = new Quill('#articleTitleEditor', {
@@ -109,14 +95,17 @@ export class ArticleComponent implements OnInit {
         toolbar: {
           container: '#articleTitleToolbar',
           //handlers: {'image': this.titleImageHandler},
+          handlers: {'image': () => {
+            console.log('handler', this)
+            this.article.image = 'https://images.unsplash.com/photo-1480321182142-e77f14b9aa64?dpr=2&auto=format&fit=crop&w=767&h=511&q=80&cs=tinysrgb&crop='
+          }},
         },
       },
       theme: 'snow',
       placeholder: 'such article title!',
     })
     this.ui.toolbarState.second = 'articleTitle'
-    let titleContents = JSON.parse(this.article.title)
-    this.titleQuill.setContents(titleContents)
+    this.titleQuill.setContents(JSON.parse(this.article.title))
     this.titleQuill.on('text-change', (delta, oldDelta, source)  => {
       this.article.titleText = this.titleQuill.getText()
       this.article.title = JSON.stringify(this.titleQuill.getContents())
@@ -148,4 +137,13 @@ export class ArticleComponent implements OnInit {
     return document.getElementById('selector')
   }
 
+}
+
+export class Resource {
+  
+}
+
+export class Article extends Resource {
+  id: string
+  titleText: string
 }

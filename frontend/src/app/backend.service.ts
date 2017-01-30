@@ -6,15 +6,20 @@ import 'rxjs/add/operator/map'
 interface Author {
   id: string;
   name: string;
-  email: string;
-  about: string | null;
-  publications: Publication[];
+  nameText: string;
+  about: string;
+  aboutText: string;
+  publications?: Publication[];
+  url: string;
 }
 
 // expand
 interface Publication {
   id: string;
   name: string;
+  nameText: string;
+  about: string;
+  aboutText: string;
   url?: string;
 }
 
@@ -26,6 +31,8 @@ interface Article {
   teaserText: string;
   body: string;
   bodyText: string;
+  // todo: decide how to transfer
+  image?: string;
   url?: string; // only optional because of newArticle...
   deleted?: boolean; // only optional because of new...
 }
@@ -54,7 +61,7 @@ export class BackendService {
       )
     } else {
       this.http.post(this.BACKEND_URL + this.currentResource.url, this.currentResource, this.defaultOptions()).map(res => res.json()).subscribe(
-      (resource) => {
+        (resource) => {
           console.log('update', resource)
         },
         (error) => {
@@ -73,21 +80,29 @@ export class BackendService {
     body: '{}',
     bodyText: ''
   }
-  newPublication: Publication = {
+
+  newAuthor: Author = {
     id: 'new',
-    name: 'A new publication',
+    name: '{}',
+    nameText: '',
+    about: '{}',
+    aboutText: '',
+    url: '/author/new',
   }
+  
   startPublication(authorID) {
     let pub = {
       id: 'new',
-      name: 'A new publication',
-      about: 'yea, about that...',
+      name: '{}',
+      nameText: 'such new',
+      about: '{}',
+      aboutText: 'yea about that...',
       url: '/author/' + authorID + '/publication/new'
     }
     return pub
   }
 
-  
+
 
   BACKEND_URL = 'http://localhost:8080'
 
@@ -270,7 +285,7 @@ export class BackendService {
   }
 
   // NEW: get multiple publications for Home Page
-  getPublications():Observable<Publication> {
+  getPublications(): Observable<Publication> {
     let url = this.BACKEND_URL + '/publications'
     return this.http.get(url).map(res => res.json())
   }
@@ -281,7 +296,7 @@ export class BackendService {
    */
   createArticle(article: Article) {
     // try using new if the id is not enforced anyway
-    let url = this.BACKEND_URL  + article.url
+    let url = this.BACKEND_URL + article.url
     let data = {
       titleText: article.titleText,
       title: article.title,
@@ -324,7 +339,7 @@ export class BackendService {
     this.saving = true
     let url = this.BACKEND_URL + article.url
 
-    
+
 
     let data = article
     this.http.post(url, article, this.defaultOptions()).map(res => res.json()).subscribe(
@@ -345,10 +360,48 @@ export class BackendService {
 
 
   /**
+   * File Uploader for backend!
+   * todo: implement 'get upload url'
+   */
+
+  uploadFile(file: File): Observable<any> {
+    return Observable.create(observer => {
+      let formData: FormData = new FormData()
+      let xhr: XMLHttpRequest = new XMLHttpRequest()
+      // can the string be anything?
+      formData.append('uploads[]', file, file.name);
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            observer.next(JSON.parse(xhr.response));
+            observer.complete();
+          } else {
+            observer.error(xhr.response);
+          }
+        }
+      }
+
+      // attaching an onprogres handler breaks cors
+      /*xhr.upload.onprogress = (event) => {
+          this.progress = Math.round(event.loaded / event.total * 100);
+          this.progressObserver.next(this.progress);
+      };*/
+
+      // get an upload url, then post!
+      this.http.get(this.BACKEND_URL + '/image/upload-url').map(res => { return res.json() }).subscribe(data => {
+        alert('posting to ' + data.url)
+        xhr.open('POST', data.url, true);
+        xhr.send(formData);
+      })
+    })
+  }
+
+
+  /**
    * Helpers
    */
   private handleError(error: Response | any) {
-    
+
     console.error(error)
     alert('error handler')
 

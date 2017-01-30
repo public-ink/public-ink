@@ -1,8 +1,23 @@
-<p>
-  home here, there are the existing publications:
-</p>
 
-<div *ngFor="let publication of publications">
-  <h2><a [routerLink]="['/', publication.author.id, publication.id]">{{ publication.name }}</a></h2>
-  by <a [routerLink]="['/', publication.author.id]">{{ publication.author.name }} / {{ publication.author.id}}</a>
+<div style="height:100px"></div>
+
+<flex-col-center [ngStyle]="heroStyle()" style="height:50vh; width: 100vw; background-color:white;">
+  <h1>
+    <span style="background: black; color: white;">public.ink</span>
+    </h1>
+  <p>An open source, non-commercial publishing platform. Learn more here.</p>
+</flex-col-center>
+
+
+<div [ngStyle]="style.s.container()">
+
+      <div *ngFor="let publication of publications">
+        <h2><a [routerLink]="['/', publication.author.id, publication.id]">x {{ publication.nameText }}</a></h2>
+        by <a [routerLink]="['/', publication.author.id]">{{ publication.author.name }}</a>
+        
+        <!--<div *ngFor="let article of publication.articles">
+          <h1><a [routerLink]="['/', publication.author.id, publication.id, article.id]">{{ article.titleText }}</a></h1>
+          <p>{{ article.teaserText }}</p>
+        </div>-->
+      </div>
 </div>

@@ -8,8 +8,8 @@
       ⌂
       </flex-row-center>
       <flex-row style="flex-grow: 1; justify-content: space-around;">
-        <app-toolbar-button [icon]="'pencil'" [text]="'Edit'"></app-toolbar-button>
-        <app-toolbar-button [icon]="'plus'" [text]="'Create'"></app-toolbar-button>
+        <app-toolbar-button [icon]="'pencil'" [text]="'Edit'" (click)="ui.toolbarState.main = 'edit'"></app-toolbar-button>
+        <app-toolbar-button [icon]="'plus'" [text]="'Create'" (click)="ui.toolbarState.main = 'create'"></app-toolbar-button>
         <app-toolbar-button [icon]="'search'" [text]="'Search'"></app-toolbar-button>
         <app-toolbar-button [icon]="'user'" [text]="'You'"></app-toolbar-button>
       </flex-row>
@@ -30,8 +30,8 @@
     <flex-row-center>
       <flex-row-center (click)="ui.toolbarState.main = 'root'" [ngStyle]="style.s.topBar.home()" style="font-size: 24px;">x</flex-row-center>
       <flex-row-center style="flex-grow: 1; justify-content: space-around;">
-        <app-toolbar-button [icon]="'paragraph'" [text]="'Article'"></app-toolbar-button>
-        <app-toolbar-button [icon]="'reorder'" [text]="'Publication'"></app-toolbar-button>
+        <app-toolbar-button [icon]="'paragraph'" [text]="'Article'" (click)="ui.toolbarState.second = 'createArticle'"></app-toolbar-button>
+        <app-toolbar-button [icon]="'reorder'" [text]="'Publication'" (click)="ui.toolbarState.second = 'createPublication'"></app-toolbar-button>
         <app-toolbar-button [icon]="'user'" [text]="'Author'"></app-toolbar-button>
       </flex-row-center>
     </flex-row-center>
@@ -39,11 +39,30 @@
     <flex-row-center [style.height.px]="40" [style.justifyContent]="'space-between'">
       <flex-row-center [ngStyle]="style.s.topBar.navPlus()">create</flex-row-center>
       <flex-row-center style="flex-grow: 1; justify-content: space-around;">
-        <!-- create links -->
-          <a style="color: #333; background-color: #efefef;  padding: 5px 10px;" [routerLink]="['/hoff/back-to-berlin/new']">article in Atomic Angular</a>
+        
+        
+        <!-- create: new publication for given author -->
+        <div [hidden]="ui.toolbarState.second != 'createPublication'">
+        <span *ngFor="let author of backend.userAuthors">
+         <a style="color: #333; background-color: #efefef;  padding: 5px 10px;" [routerLink]="['/', author.id, 'new']">publi by by {{ author.nameText }}</a>
+        </span>
+        </div>
 
-          <a style="color: #333; background-color: #efefef;  padding: 5px 10px;" [routerLink]="['/hoff/new']">publication by Hoff</a>
-          
+
+        <!-- create publication toolbarl-->
+        <div  [hidden]="ui.toolbarState.second != 'createArticle'">
+          <span *ngFor="let author of backend.userAuthors">
+         <span 
+          *ngFor="let publication of author.publications"
+          [routerLink]="['/', author.id, publication.id, 'new']"
+          >create article in {{ publication.nameText }}</span>
+        </span>
+        </div>
+        
+
+        <!-- create new article given publication (all that this author has)-->
+       
+
       </flex-row-center>
     </flex-row-center>    
   </flex-col>
@@ -69,6 +88,17 @@
       <span [ngStyle]="style.s.topBar.navPlus()">edit</span>
       <flex-row-center style="flex-grow: 1; height: 40px; border-top: 1px solid #eee;">
         <flex-row>
+
+          <div id="authorNameToolbar" [hidden]="ui.toolbarState.second  != 'authorName'">
+              publication name toolbar
+              <button class="ql-bold">Bold</button>
+              <button class="ql-italic">Italic</button>
+              <button class="ql-underline">under</button>
+              <button class="ql-strike">strike</button>
+              <button class="ql-image">img</button>
+              <button class="ql-clean">clean</button>
+            </div>
+
 
           <div id="articleTitleToolbar" [hidden]="ui.toolbarState.second != 'articleTitle'">
             <button class="ql-bold">Bold</button>

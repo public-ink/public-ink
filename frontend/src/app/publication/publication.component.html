@@ -1,14 +1,20 @@
 <div style="margin-top: 100px;"></div>
+ 
+
  <div id="publicationNameEditor" (click)="ui.toolbarState.second = 'publicationName'"></div>
  <div id="publicationAboutEditor" (click)="ui.toolbarState.second = 'publicationAbout'"></div>
  
+
+
+
 <div *ngIf="publication">
 
-  <!--<h2>a publication by <a [routerLink]="['/', publication.author.id]">{{ publication.author.name }}</a></h2>-->
+   <div [ngStyle]="heroStyle()">
+ </div>
+
   <div *ngFor="let article of publication.articles">
     <a [routerLink]="['/', authorID, publicationID, article.id]">{{ article.titleText }}</a>
   </div>
-  <button (click)="backend.deletePublication(publication)">delete this publication</button>
 </div> 
 
 

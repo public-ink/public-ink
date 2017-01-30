@@ -1,14 +1,8 @@
-<p>
-  author works!
-</p>
+<div style="height: 200px;"></div>
 
-<div *ngIf="author">
-<h1>{{ author.name }}</h1>
-<input type="text" [(ngModel)]="author.name" />
+ <div id="authorNameEditor" (click)="ui.toolbarState.second = 'authorName'"></div>
+ <div id="authorAboutEditor" (click)="ui.toolbarState.second = 'authorAbout'"></div>
+ 
+{{ author.nameText }}
 
-<div>{{ author.about }}</div>
-<textarea [(ngModel)]="author.about"></textarea>
 
-<!-- only if owner -->
-<button (click)="backend.updateAuthor(author)">save changes</button>
-</div>

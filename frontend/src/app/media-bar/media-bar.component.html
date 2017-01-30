@@ -1,0 +1,13 @@
+
+
+<div style="position:fixed; bottom: 0; left: 0; width: 100%; background-color:lime;">
+<h1>media bar!</h1>
+<h2>upload</h2>
+<app-file-drop></app-file-drop>
+<h2>images</h2>
+        <img *ngFor="let image of []" 
+            (dragstart)="ui.draggedImage = image"
+            (click)="content.setImageId(image.id)"
+            [src]="'http://localhost:8080/userimage?id=' + image.id +'&w=200'"
+        />
+</div>

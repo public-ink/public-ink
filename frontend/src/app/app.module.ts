@@ -20,7 +20,9 @@ import { UniverseComponent } from './universe/universe.component';
 import { AllComponent } from './all/all.component';
 import { PlaygroundComponent } from './playground/playground.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
-import { ToolbarButtonComponent } from './toolbar-button/toolbar-button.component'
+import { ToolbarButtonComponent } from './toolbar-button/toolbar-button.component';
+import { MediaBarComponent } from './media-bar/media-bar.component';
+import { FileDropComponent } from './file-drop/file-drop.component'
 
 /*const appRoutes: Routes = [
   { path: '', component: HomeComponent },
@@ -31,8 +33,8 @@ import { ToolbarButtonComponent } from './toolbar-button/toolbar-button.componen
 ]*/
 const appRoutes: Routes = [
   { path: 'playground', component: PlaygroundComponent },
-  { path: '', component: AllComponent },
-  { path: ':authorID',   component: AllComponent },
+  { path: '', component: HomeComponent },
+  { path: ':authorID',   component: AuthorComponent },
   { path: ':authorID/:publicationID',   component: PublicationComponent },
   { path: ':authorID/:publicationID/:articleID', component: ArticleComponent },
   //{ path: '**', component: PageNotFoundComponent }
@@ -51,6 +53,8 @@ const appRoutes: Routes = [
     PlaygroundComponent,
     ToolbarComponent,
     ToolbarButtonComponent,
+    MediaBarComponent,
+    FileDropComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),

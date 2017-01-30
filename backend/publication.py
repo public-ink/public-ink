@@ -10,6 +10,9 @@ The Publication Model
 class Publication(ndb.Model):
     # id is set at time of creation, and consists of the author's id (root / parent), and publication id
     name = ndb.StringProperty()
+    name_text = ndb.StringProperty()
+    about = ndb.TextProperty()
+    about_text = ndb.TextProperty()
     deleted = ndb.BooleanProperty(default=False)
 
     def get_articles(self):
@@ -34,6 +37,10 @@ class Publication(ndb.Model):
             'id': publication_id,
             'author': author.data(include_publications = False),
             'name': self.name,
+            'nameText': self.name_text,
+            'about': self.about,
+            'aboutText': self.about_text,
+            # related
             'articles': article_list,
             'deleted': self.deleted,
             'url': '/author/{}/publication/{}'.format(author_id, publication_id)
@@ -53,11 +60,15 @@ class PublicationEndpoint(RequestHandler):
         """
         data = json.loads(self.request.body)
         name = data.get('name')
+        name_text = data.get('nameText')
         author_key = ndb.Key('Author', author_id)
         publication = Publication(
             parent = author_key,
-            id = slugify(name),
-            name = name
+            id = slugify(name_text),
+            name = name,
+            name_text = name_text,
+            about = data.get('about'),
+            about_text = data.get('aboutText')
         )
         publication.put()
         return_json(self, publication.data())

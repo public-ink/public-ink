@@ -17,6 +17,7 @@ from google.appengine.ext import blobstore
 from author      import AuthorEndpoint, MeEndpoint
 from publication import PublicationEndpoint, PublicationsEndpoint
 from article     import ArticleEndpoint
+from image       import UploadUrl, ImageUploadHandler
 from shared      import ninja
 
 
@@ -44,9 +45,12 @@ app = webapp2.WSGIApplication([
   ('/publications', PublicationsEndpoint),
   ('/me', MeEndpoint),
   
+  # here comes the image server!
+  # get upload url
+  ('/image/upload-url', UploadUrl),
+  ('/image/upload', ImageUploadHandler),
+  # not implemented
+  ('/image/serve', UploadUrl)
 
-  #('/author', AuthorEndpoint),
-  ('/article', ArticleEndpoint)
-  # the unique identifier for a blog
-  #(r'/author/(.+)?/blog/(.+)?', AuthorEndpoint),
+
 ], debug=True)

@@ -18,8 +18,11 @@ class Author(ndb.Model):
     > ndb.Key('Author', 'mc-hoff').get()
     """
     name = ndb.StringProperty()
-    email = ndb.StringProperty()
+    name_text = ndb.StringProperty()
     about = ndb.TextProperty()
+    about_text = ndb.TextProperty()
+
+    email = ndb.StringProperty()
     deleted = ndb.BooleanProperty(default=False)
     
     @classmethod
@@ -33,7 +36,7 @@ class Author(ndb.Model):
     @classmethod
     def get_by_session(cls):
         """
-        Returns a list of author data associated with the current sessions,
+        Returns a list of authors associated with the current sessions,
         or an empty list
         """
         user = users.get_current_user()
@@ -108,8 +111,9 @@ class Author(ndb.Model):
             'id': author_id,
             'url': '/author/{}'.format(author_id),
             'name': self.name,
-            'email': self.email,
+            'nameText': self.name_text,
             'about': self.about,
+            'about_text': self.about_text,
             'publications': publication_list # exclude altogether
         }
 
@@ -140,14 +144,25 @@ class AuthorEndpoint(RequestHandler):
         Endpoint for creating an author
         """
         data = json.loads(self.request.body)
-        name = data.get('name')
+        name_text = data.get('nameText')
         email = users.get_current_user().email()
-        author = Author.create(name, email)
-        if not author: # duplicate error
-            return_error(self, 409, 'an author with this id already exists')
+
+        author = ndb.Key('Author', slugify(name_text)).get()
+        if author:
+            # duplicate! raise error
+            # or just add something to the key, like 'hoff-mega
+            return_error(self, 409, 'already exists')
             return
-        author_data = author.data()
-        return_json(self, author_data)
+        author_key = Author(
+            id=slugify(name_text),
+            name= data.get('name'),
+            name_text = name_text,
+            email=email, # add user id!
+            about=data.get('about'),
+            about_text = data.get('aboutText')
+        ).put()
+        author = author_key.get()
+        return_json(self, author.data())
 
     @cross_origin
     @owner_required
