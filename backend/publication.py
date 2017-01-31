@@ -13,6 +13,7 @@ class Publication(ndb.Model):
     name_text = ndb.StringProperty()
     about = ndb.TextProperty()
     about_text = ndb.TextProperty()
+    image_url = ndb.TextProperty()
     deleted = ndb.BooleanProperty(default=False)
 
     def get_articles(self):
@@ -40,6 +41,7 @@ class Publication(ndb.Model):
             'nameText': self.name_text,
             'about': self.about,
             'aboutText': self.about_text,
+            'imageUrl': self.image_url,
             # related
             'articles': article_list,
             'deleted': self.deleted,
@@ -62,13 +64,20 @@ class PublicationEndpoint(RequestHandler):
         name = data.get('name')
         name_text = data.get('nameText')
         author_key = ndb.Key('Author', author_id)
+
+        #debug
+        abtext = data.get('aboutText')
+        print type(abtext)
+        print abtext
+
         publication = Publication(
             parent = author_key,
             id = slugify(name_text),
             name = name,
             name_text = name_text,
             about = data.get('about'),
-            about_text = data.get('aboutText')
+            about_text = data.get('aboutText'),
+            image_url  = data.get('imageUrl')
         )
         publication.put()
         return_json(self, publication.data())
@@ -100,11 +109,30 @@ class PublicationEndpoint(RequestHandler):
         """
         data = json.loads(self.request.body)
         name = data.get('name')
+        name_text = data.get('nameText')
+        #debug
+        abtext = data.get('aboutText')
+        if abtext == name_text:
+            print 'same same, omg!'
+        else:
+            print 'not the same!'
+        print type(abtext)
+        print abtext
         publication = ndb.Key('Author', author_id, 'Publication', publication_id).get()
         if not publication:
             return_error(self, 404, 'this publication could not be found.')
             return
-        publication.name = name
+        publication.name = data.get('name')
+        publication.name_text = data.get('nameText')
+        
+        publication.about_text = name_text
+        print 'I set about text to'
+        print name_text
+        publication.about_text = abtext
+        publication.about_text = data.get('aboutText')
+        publication.about = data.get('about')
+
+        publication.image_url  = data.get('imageUrl')
         publication.put()
         return_json(self, publication.data())
 

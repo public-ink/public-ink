@@ -4,6 +4,7 @@ import 'rxjs/add/operator/switchMap'
 import { Observable } from 'rxjs/Observable'
 
 import { BackendService } from '../backend.service'
+import { StyleService } from '../style.service'
 import { UIService } from '../ui.service'
 
 @Component({
@@ -25,11 +26,20 @@ export class PublicationComponent implements OnInit {
 
   constructor(
     private backend: BackendService,
+    private style: StyleService,
     private ui: UIService,
 
     private route: ActivatedRoute,
     private router: Router,
-  ) { }
+  ) {
+    /**
+    * Subscribe to media clicks
+    */
+    this.backend.mediaStreamOut.subscribe(media => {
+      this.publication.imageUrl = media.url
+      console.log('jo', this.publication.imageUrl)
+    })
+  }
 
   ngOnInit() {
 
@@ -68,7 +78,7 @@ export class PublicationComponent implements OnInit {
       console.log('already made quills')
       this.nameQuill.setContents(JSON.parse(this.publication.name))
       this.aboutQuill.setContents(JSON.parse(this.publication.about))
-      
+
       return
     }
     this.madeQuills = true
@@ -79,9 +89,11 @@ export class PublicationComponent implements OnInit {
       modules: {
         toolbar: {
           container: '#publicationNameToolbar',
-          handlers: { 'image': () => {
-            this.publication.image = 'http://placehold.it/300/400'
-          }},
+          handlers: {
+            'image': () => {
+              this.publication.image = 'http://placehold.it/300/400'
+            }
+          },
         },
       },
       theme: 'snow',
@@ -97,7 +109,6 @@ export class PublicationComponent implements OnInit {
       this.publication.nameText = this.nameQuill.getText()
       this.publication.name = JSON.stringify(this.nameQuill.getContents())
     })
-
 
     // Publication About
     this.aboutQuill = new Quill('#publicationAboutEditor', {
@@ -131,20 +142,20 @@ export class PublicationComponent implements OnInit {
 
 
 
-  heroStyle() {
-    if (!this.publication.image) {
-      return { 
-        backgroundImage: `none` ,
-        'height.vh': 50,
-      
+  heroStyle(): any {
+    let style
+    if (!this.publication) {
+      style = {}
     }
-    } else {
-      return {
-        backgroundImage: `url("${this.publication.image}")`,
+    else {
+      style = {
+        backgroundImage: `url("${this.publication.imageUrl}=s${this.ui.vw(100)}")`,
         'height.vh': 50,
       }
     }
-
+    return style
   }
+
+
 
 }

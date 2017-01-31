@@ -30,6 +30,9 @@ export class ArticleComponent implements OnInit {
   publicationID: string
   articleID: string
 
+  // expect media clicks
+  expectArticleImage: boolean = false
+
   constructor(
     private backend: BackendService,
     private style: StyleService,
@@ -37,7 +40,22 @@ export class ArticleComponent implements OnInit {
 
     private route: ActivatedRoute,
     private router: Router
-  ) { }
+  ) {
+
+
+    /**
+     * Subscribe to media clicks
+     */
+    this.backend.mediaStreamOut.subscribe(media => {
+      console.log('article knows media was selected!', media)
+      if (this.expectArticleImage === false) {
+        let range = this.bodyQuill.getSelection()
+        this.bodyQuill.insertEmbed(range.index, 'image', media.url, 'user')
+      } else {
+        this.article.imageUrl = media.url
+      }
+    })
+  }
 
 
 
@@ -95,10 +113,12 @@ export class ArticleComponent implements OnInit {
         toolbar: {
           container: '#articleTitleToolbar',
           //handlers: {'image': this.titleImageHandler},
-          handlers: {'image': () => {
-            console.log('handler', this)
-            this.article.image = 'https://images.unsplash.com/photo-1480321182142-e77f14b9aa64?dpr=2&auto=format&fit=crop&w=767&h=511&q=80&cs=tinysrgb&crop='
-          }},
+          handlers: {
+            'image': () => {
+              console.log('handler', this)
+              this.article.image = 'https://images.unsplash.com/photo-1480321182142-e77f14b9aa64?dpr=2&auto=format&fit=crop&w=767&h=511&q=80&cs=tinysrgb&crop='
+            }
+          },
         },
       },
       theme: 'snow',
@@ -106,7 +126,7 @@ export class ArticleComponent implements OnInit {
     })
     this.ui.toolbarState.second = 'articleTitle'
     this.titleQuill.setContents(JSON.parse(this.article.title))
-    this.titleQuill.on('text-change', (delta, oldDelta, source)  => {
+    this.titleQuill.on('text-change', (delta, oldDelta, source) => {
       this.article.titleText = this.titleQuill.getText()
       this.article.title = JSON.stringify(this.titleQuill.getContents())
     })
@@ -126,11 +146,28 @@ export class ArticleComponent implements OnInit {
     let bodyContents = JSON.parse(this.article.body)
     this.bodyQuill.setContents(bodyContents)
 
-    this.bodyQuill.on('text-change', (delta, oldDelta, source)  => {
+    this.bodyQuill.on('text-change', (delta, oldDelta, source) => {
       this.article.bodyText = this.bodyQuill.getText()
       this.article.body = JSON.stringify(this.bodyQuill.getContents())
     })
 
+  }
+
+  imageStyle(): any {
+    let style
+    if (!this.article || !this.article.imageUrl) {
+      style = {}
+    }
+    else {
+      style = {
+        backgroundImage: `url("${this.article.imageUrl}=s${this.style.theme.contentWidth}")`,
+        'height.px': 400,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }
+    }
+    return style
   }
 
   $(selector) {
@@ -140,7 +177,7 @@ export class ArticleComponent implements OnInit {
 }
 
 export class Resource {
-  
+
 }
 
 export class Article extends Resource {

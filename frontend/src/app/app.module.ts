@@ -22,7 +22,8 @@ import { PlaygroundComponent } from './playground/playground.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { ToolbarButtonComponent } from './toolbar-button/toolbar-button.component';
 import { MediaBarComponent } from './media-bar/media-bar.component';
-import { FileDropComponent } from './file-drop/file-drop.component'
+import { FileDropComponent } from './file-drop/file-drop.component';
+import { ArticlePreviewComponent } from './article-preview/article-preview.component'
 
 /*const appRoutes: Routes = [
   { path: '', component: HomeComponent },
@@ -55,6 +56,7 @@ const appRoutes: Routes = [
     ToolbarButtonComponent,
     MediaBarComponent,
     FileDropComponent,
+    ArticlePreviewComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),

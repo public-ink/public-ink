@@ -22,6 +22,8 @@ export class UIService {
     main: 'root',
     second: 'publicationName'
   }
+
+  mediaBar: boolean = false
   
 
   searchQuery = ''
@@ -143,7 +145,7 @@ export class UIService {
     router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         console.log('navigation end!')
-        document.getElementById('app').scrollTop = 0
+        //document.getElementById('app').scrollTop = 0
       }
     })
 

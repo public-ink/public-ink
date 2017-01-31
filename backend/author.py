@@ -21,8 +21,10 @@ class Author(ndb.Model):
     name_text = ndb.StringProperty()
     about = ndb.TextProperty()
     about_text = ndb.TextProperty()
+    image_url = ndb.StringProperty()
 
     email = ndb.StringProperty()
+    user_id = ndb.StringProperty()
     deleted = ndb.BooleanProperty(default=False)
     
     @classmethod
@@ -49,53 +51,6 @@ class Author(ndb.Model):
         return author_list
 
 
-    @classmethod
-    def create(cls, name, email, about=None):
-        """
-        Creates an auther with a given name, email, and (optional) about.
-        Returns the newly created author entitiy.
-
-        :param name: The name of the author
-        :param email: The email of the author
-        :param about (optional): An text snippet about the author
-        :rtype: Author :class:`ndb.Entitiy <Author>` or None
-        """
-        author = ndb.Key(cls, slugify(name)).get()
-        if author:
-            return None
-        author_key = cls(
-            id=slugify(name),
-            name=name,
-            email=email,
-            about=about
-        ).put()
-        return author_key.get()
-
-    @classmethod
-    def update(cls, id, name, about):
-        """
-        updates information about an author
-        """
-        author = ndb.Key('Author', id).get()
-        if not author:
-            return None
-        author.name = name if name else author.name
-        author.about = about if about else author.about
-        author.put()
-        return author
-
-    @classmethod
-    def delete(cls, id):
-        """
-        deletes an author by setting her deleted attribute to True
-        """
-        author = ndb.Key('Author', id).get()
-        if not author:
-            return None
-        author.deleted = True
-        author.put()
-        return author
-
     def data(self, include_publications=True):
         """
         returns a dictionary containing information about an author,
@@ -113,7 +68,8 @@ class Author(ndb.Model):
             'name': self.name,
             'nameText': self.name_text,
             'about': self.about,
-            'about_text': self.about_text,
+            'aboutText': self.about_text,
+            'imageUrl': self.image_url,
             'publications': publication_list # exclude altogether
         }
 
@@ -159,7 +115,8 @@ class AuthorEndpoint(RequestHandler):
             name_text = name_text,
             email=email, # add user id!
             about=data.get('about'),
-            about_text = data.get('aboutText')
+            about_text = data.get('aboutText'),
+            image_url = data.get('imageUrl')
         ).put()
         author = author_key.get()
         return_json(self, author.data())
@@ -173,9 +130,17 @@ class AuthorEndpoint(RequestHandler):
         data = json.loads(self.request.body)
         name = data.get('name')
         about = data.get('about')
-        author = Author.update(id, name, about)
+        # inline
+        author = ndb.Key('Author', id).get()
         if not author:
             return_error(self, 404, 'this author does not exist')
+            return
+        author.name = data.get('name')
+        author.name_text = data.get('nameText')
+        author.about = data.get('about')
+        author.about_text = data.get('aboutText')
+        author.image_url = data.get('imageUrl')
+        author.put()
         author_data = author.data()
         return_json(self, author_data)
 
@@ -185,8 +150,9 @@ class AuthorEndpoint(RequestHandler):
         """
         Endpoint for deleting a user (protected)
         """
-        author = Author.delete(id)
-        author_data = author.data()
+        author = ndb.Key('Author', id).get()
+        author.deleted = True
+        author.put()
         return_json(self, author_data)
 
 class MeEndpoint(RequestHandler):

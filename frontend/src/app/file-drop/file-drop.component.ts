@@ -7,7 +7,7 @@ import { BackendService } from '../backend.service'
   <div 
     (dragover)="onDragOver($event)"
     (drop)="onDrop($event)"
-    style="border: 2px dotted gray; padding: 10px; background-color: white; color:black">
+    style="width: 100%; height: 100%; border: 2px dotted gray; padding: 10px; background-color: white; color:black">
     
     drop files here!
   </div>
@@ -28,8 +28,8 @@ export class FileDropComponent {
     console.log('dropped!', $event)
 
     for (let file of files) {
-      this.backend.uploadFile(file).subscribe(() => {
-        console.log('single file upload completed')
+      this.backend.uploadFile(file).subscribe((res) => {
+        console.log('single file upload completed', res)
       })
     }
   }

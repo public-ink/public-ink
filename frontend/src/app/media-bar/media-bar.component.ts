@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core'
+import { BackendService } from '../backend.service'
 
 @Component({
   selector: 'app-media-bar',
@@ -7,9 +8,22 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MediaBarComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private backend: BackendService,
+  ) { 
+
+    //this.backend.mediaStreamOut.subscribe()
+
+  }
 
   ngOnInit() {
   }
+
+  onMediaClick(media) {
+    console.log('media bar will publish to', this.backend)
+    this.backend.mediaStreamIn.next(media)
+  }
+
+
 
 }

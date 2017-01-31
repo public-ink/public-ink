@@ -12,12 +12,12 @@
 <div [ngStyle]="style.s.container()">
 
       <div *ngFor="let publication of publications">
-        <h2><a [routerLink]="['/', publication.author.id, publication.id]">x {{ publication.nameText }}</a></h2>
-        by <a [routerLink]="['/', publication.author.id]">{{ publication.author.name }}</a>
+        <h1><a [routerLink]="['/', publication.author.id, publication.id]">{{ publication.nameText }}</a></h1>
+        by <a [routerLink]="['/', publication.author.id]">{{ publication.author.nameText }}</a>
         
-        <!--<div *ngFor="let article of publication.articles">
-          <h1><a [routerLink]="['/', publication.author.id, publication.id, article.id]">{{ article.titleText }}</a></h1>
-          <p>{{ article.teaserText }}</p>
-        </div>-->
+        <div *ngFor="let article of publication.articles">
+          <h2><a [routerLink]="['/', publication.author.id, publication.id, article.id]">{{ article.titleText }}</a></h2>
+          <p>{{ article.bodyText }}</p>
+        </div>
       </div>
 </div>

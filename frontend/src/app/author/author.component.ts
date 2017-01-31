@@ -4,6 +4,7 @@ import 'rxjs/add/operator/switchMap'
 import { Observable } from 'rxjs/Observable'
 
 import { BackendService } from '../backend.service'
+import { StyleService } from '../style.service'
 import { UIService } from '../ui.service'
 
 @Component({
@@ -22,11 +23,19 @@ export class AuthorComponent implements OnInit {
 
   constructor(
     private backend: BackendService,
+    private style: StyleService,
     private ui: UIService,
 
     private route: ActivatedRoute,
     private router: Router
-  ) { }
+  ) { 
+
+    this.backend.mediaStreamOut.subscribe((media) => {
+      this.author.imageUrl = media.url
+      console.log(media)
+    })
+
+  }
 
   ngOnInit() {
 
@@ -57,7 +66,8 @@ export class AuthorComponent implements OnInit {
       return
     }
     this.madeQuills = true
-    // Publication Name
+
+    // author Name
     this.nameQuill = new Quill('#authorNameEditor', {
       modules: {
         toolbar: {
@@ -68,7 +78,7 @@ export class AuthorComponent implements OnInit {
         },
       },
       theme: 'snow',
-      placeholder: 'Boom!',
+      placeholder: 'Author Name or Pseudonym',
     })
     this.ui.toolbarState.second = 'authorName'
 
@@ -81,6 +91,33 @@ export class AuthorComponent implements OnInit {
       this.author.name = JSON.stringify(this.nameQuill.getContents())
     })
 
+    // author About
+    this.aboutQuill = new Quill('#authorAboutEditor', {
+      modules: {
+        toolbar: {
+          container: '#authorAboutToolbar',
+          handlers: { 'image': () => {
+            this.author.image = 'http://placehold.it/300/400'
+          }},
+        },
+      },
+      theme: 'snow',
+      placeholder: 'A little introduction? (optional)',
+    })
+    this.ui.toolbarState.second = 'authorName'
+
+    // load content
+    this.aboutQuill.setContents(JSON.parse(this.author.about))
+
+    // keep data fresh
+    this.aboutQuill.on('text-change', (delta, oldDelta, source) => {
+      this.author.aboutText = this.aboutQuill.getText()
+      this.author.about = JSON.stringify(this.aboutQuill.getContents())
+    })
+
   }
+
+  
+  
 
 }

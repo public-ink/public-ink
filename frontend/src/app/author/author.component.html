@@ -1,8 +1,19 @@
-<div style="height: 200px;"></div>
+<div style="height: 100px;">should be 90, or calculated</div>
 
- <div id="authorNameEditor" (click)="ui.toolbarState.second = 'authorName'"></div>
- <div id="authorAboutEditor" (click)="ui.toolbarState.second = 'authorAbout'"></div>
- 
-{{ author.nameText }}
+<!-- full width row -->
+<flex-row [style.width.vw]="100" style="background:pink; justify-content: center;">
+  <!-- content lane, centereed -->
+  <flex-col [style.width.%]="100" [style.maxWidth.px]="style.theme.contentWidth" style="background-color: beige;" >
+    <!-- author image -->
+    <img [src]="author?.imageUrl +'=s400'" style="width: 160px; height: 160px; border-radius: 80px;" (click)="ui.mediaBar = !ui.mediaBar;" />
+    <!-- author name -->
+    <div id="authorNameEditor" (click)="ui.toolbarState.second = 'authorName'"></div>
+    <!-- author about -->
+    <div id="authorAboutEditor" (click)="ui.toolbarState.second = 'authorAbout'"></div>
 
 
+
+  </flex-col>
+  <!-- end of content, centered -->
+</flex-row>
+<!-- end of full row -->

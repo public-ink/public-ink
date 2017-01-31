@@ -15,6 +15,7 @@ class Article(ndb.Model):
     body = ndb.TextProperty()
     body_text = ndb.TextProperty()
     deleted = ndb.BooleanProperty(default=False)
+    image_url = ndb.StringProperty()
 
 
     def data(self):
@@ -33,6 +34,7 @@ class Article(ndb.Model):
             'teaserText': self.teaser_text,
             'body': self.body,
             'bodyText': self.body_text,
+            'imageUrl': self.image_url,
             'deleted': self.deleted,
             'url': '/author/{}/publication/{}/article/{}'.format(author_id, publication_id, article_id),
             # related: author
@@ -57,9 +59,7 @@ class ArticleEndpoint(RequestHandler):
         # incoming data
         data = json.loads(self.request.body)
         article_title = data.get('title')
-        article_title_text = data.get('titleText')
-        article_body = data.get('body')
-        article_teaser = data.get('teaser')
+        title_text = data.get('titleText')
         
         # parent: publication
         publication_key = ndb.Key('Author', author_id, 'Publication', publication_id)
@@ -71,12 +71,13 @@ class ArticleEndpoint(RequestHandler):
             return
         
         article = Article(
-            id = slugify(article_title_text), 
+            id = slugify(title_text), 
             parent = publication_key,
-            title = article_title,
-            title_text = article_title_text,
-            teaser = article_teaser,
-            body = article_body
+            title = data.get('title'),
+            title_text = title_text,
+            body = data.get('body'),
+            body_text = data.get('bodyText'),
+            image_url = data.get('imageUrl')
         ).put().get()
         return_json(self, article.data())
 
@@ -141,5 +142,6 @@ class ArticleEndpoint(RequestHandler):
         article.teaser_text = teaser_text
         article.body = body
         article.body_text = body_text
+        article.image_url = data.get('imageUrl')
         article.put()
         return_json(self, article.data())

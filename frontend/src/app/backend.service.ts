@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core'
 import { Http, Headers, RequestOptions, Response } from '@angular/http'
 import { Observable } from 'rxjs/Observable'
+import { Observer } from 'rxjs/Observer'
+
 import 'rxjs/add/operator/map'
 
 interface Author {
@@ -21,6 +23,7 @@ interface Publication {
   about: string;
   aboutText: string;
   url?: string;
+  imageUrl?: string;
 }
 
 interface Article {
@@ -33,6 +36,7 @@ interface Article {
   bodyText: string;
   // todo: decide how to transfer
   image?: string;
+  imageUrl?: string;
   url?: string; // only optional because of newArticle...
   deleted?: boolean; // only optional because of new...
 }
@@ -47,6 +51,8 @@ interface ServerError {
 export class BackendService {
 
   currentResource: Article | Publication
+
+  userImages = []
 
   saveCurrentResource() {
     console.log('wanna save', this.currentResource)
@@ -119,11 +125,20 @@ export class BackendService {
   // local state: saving
   saving: boolean = false
 
+  // media click informer
+  mediaStreamIn: Observer<any>
+  mediaStreamOut: Observable<any>
+
   constructor(
     private http: Http
   ) {
     this.me()
-    //this.getPublication('hoff', 'atomic-angular')
+    this.getUserImages()
+
+   this.mediaStreamOut = Observable.create(input => {
+      this.mediaStreamIn = input
+      console.log('click input', input)
+    })
   }
 
   /**
@@ -359,9 +374,23 @@ export class BackendService {
   }
 
 
+  getUserImages() {
+    this.http.get(this.BACKEND_URL + '/userimage', this.defaultOptions()).map(res => res.json()).subscribe(
+      (images) => {
+        this.userImages = images
+      },
+      (error) => {
+        console.log('caught error getting user images', error)
+      }
+    )
+  }
+
+
+  
+
+
   /**
    * File Uploader for backend!
-   * todo: implement 'get upload url'
    */
 
   uploadFile(file: File): Observable<any> {
@@ -373,8 +402,12 @@ export class BackendService {
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4) {
           if (xhr.status === 200) {
+            let data = JSON.parse(xhr.response)
             observer.next(JSON.parse(xhr.response));
-            observer.complete();
+            observer.complete()
+            // add the new image to your list of images!
+            console.log('wanna add', data)
+            this.userImages.unshift(data)
           } else {
             observer.error(xhr.response);
           }
@@ -389,8 +422,9 @@ export class BackendService {
 
       // get an upload url, then post!
       this.http.get(this.BACKEND_URL + '/image/upload-url').map(res => { return res.json() }).subscribe(data => {
-        alert('posting to ' + data.url)
-        xhr.open('POST', data.url, true);
+        console.log('posting to ' + data.url)
+        xhr.open('POST', data.url, true)
+        xhr.withCredentials = true
         xhr.send(formData);
       })
     })

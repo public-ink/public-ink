@@ -1,4 +1,4 @@
-<flex-col style="align-items: center; position:fixed; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); z-index: 3; top: 0; left:0; width: 100%; background-color: white;">
+<flex-col style="z-index: 2; align-items: center; position:fixed; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); z-index: 3; top: 0; left:0; width: 100%; background-color: white;">
   <!-- ROOT -->
   <flex-col [style.display]="ui.toolbarState.main === 'root' ? 'flex' : 'none'"
     [style.width.%]="100" [style.maxWidth.px]="style.theme.contentWidth">
@@ -15,7 +15,7 @@
       </flex-row>
     </flex-row-center>
     <!-- root bottom -->
-    <flex-row-center>
+    <flex-row-center style="display: none;">
       <span [ngStyle]="style.s.topBar.navPlus()">search</span>
       <flex-row-center style="flex-grow: 1; height: 40px; border-top: 1px dashed #efefef;">
         <input style="font-size:16px; border:0; width: 300px; padding:5px; outline: 0;" placeholder="Articles, Publications, Authors..." type="text" [(ngModel)]="ui.searchQuery"/>
@@ -89,8 +89,20 @@
       <flex-row-center style="flex-grow: 1; height: 40px; border-top: 1px solid #eee;">
         <flex-row>
 
+          <!-- Author -->
+          <!-- Name -->
           <div id="authorNameToolbar" [hidden]="ui.toolbarState.second  != 'authorName'">
-              publication name toolbar
+              author name toolbar
+              <button class="ql-bold">Bold</button>
+              <button class="ql-italic">Italic</button>
+              <button class="ql-underline">under</button>
+              <button class="ql-strike">strike</button>
+              <button class="ql-image">img</button>
+              <button class="ql-clean">clean</button>
+            </div>
+            <!-- About -->
+          <div id="authorAboutToolbar" [hidden]="ui.toolbarState.second  != 'authorAbout'">
+              author about toolbar
               <button class="ql-bold">Bold</button>
               <button class="ql-italic">Italic</button>
               <button class="ql-underline">under</button>
@@ -99,7 +111,8 @@
               <button class="ql-clean">clean</button>
             </div>
 
-
+            <!-- Article -->
+            <!-- Title -->
           <div id="articleTitleToolbar" [hidden]="ui.toolbarState.second != 'articleTitle'">
             <button class="ql-bold">Bold</button>
             <button class="ql-italic">Italic</button>
@@ -112,6 +125,7 @@
             <button class="ql-header" value="2" type="button"></button>
             <button class="ql-clean">clean</button>
           </div>
+          <!-- Body -->
           <div id="articleBodyToolbar" [hidden]="ui.toolbarState.second != 'articleBody'">
             <button class="ql-bold">Bold</button>
             <button class="ql-italic">Italic</button>

@@ -1,12 +1,37 @@
-<flex-col-center style="width: 100%; margin-top: 200px;" >
+<div style="height: 100px;">should be 90, or calculated</div>
 
-<div [ngStyle]="style.s.container()">
+<!-- full width row -->
+<flex-row [style.width.vw]="100" style="background:notpink; justify-content: center;">
+  <!-- content lane, centereed -->
+  <flex-col [style.width.%]="100" [style.maxWidth.px]="style.theme.contentWidth"
+    style="background-color: notbeige;"
+  >
+    <!-- main article image -->
+    <div>
+    <div [ngStyle]="imageStyle()"></div>
+    </div>
 
-<img [src]="article?.image" />
+   
+    
+    
+    <div>
+    <div 
+      id="articleTitleEditor" 
+      [ngStyle]="style.s.article.headline()"
+      (click)="ui.toolbarState.main = 'edit'; ui.toolbarState.second = 'articleTitle'">
+    </div>
+    </div>
 
-<div style="width:500px;" id="articleTitleEditor" (click)="ui.toolbarState.main = 'edit'; ui.toolbarState.second = 'articleTitle'">jo</div>
-<div style="width:500px;" id="articleBodyEditor" (click)="ui.toolbarState.main = 'edit'; ui.toolbarState.second = 'articleBody'"></div>
+    <!-- by author in publication -->
+     <div *ngIf="article">
+      By <a [routerLink]="['/', article.author.id]">{{ article.author.nameText }} </a>
+      in <a [routerLink]="['/', article.author.id, article.publication.id]">{{ article.publication.nameText }}</a>
+    </div>
 
-</div>
+    <br><br>
+  <!-- body editor -->
+    <div style="padding: 0px 0px;" id="articleBodyEditor" (click)="ui.toolbarState.main = 'edit'; ui.toolbarState.second = 'articleBody'"></div>
 
-</flex-col-center>
+  </flex-col><!-- end of content, centered -->
+</flex-row><!-- end of full row -->
+

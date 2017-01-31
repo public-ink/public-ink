@@ -1,0 +1,6 @@
+<div [routerLink]="['/', article.author.id, article.publication.id, article.id]">
+  <div [ngStyle]="heroStyle()"></div>
+  <h2>{{ article.titleText }}</h2>
+  by {{ article.author.nameText }} in bla, Feb 2017
+  <p>{{ article.bodyText}}</p>
+</div>

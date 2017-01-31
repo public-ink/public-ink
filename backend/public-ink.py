@@ -17,7 +17,7 @@ from google.appengine.ext import blobstore
 from author      import AuthorEndpoint, MeEndpoint
 from publication import PublicationEndpoint, PublicationsEndpoint
 from article     import ArticleEndpoint
-from image       import UploadUrl, ImageUploadHandler
+from image       import UploadUrl, ImageUploadHandler, UserImageEndpoint
 from shared      import ninja
 
 
@@ -50,7 +50,9 @@ app = webapp2.WSGIApplication([
   ('/image/upload-url', UploadUrl),
   ('/image/upload', ImageUploadHandler),
   # not implemented
-  ('/image/serve', UploadUrl)
+  ('/image/serve', UploadUrl),
+  # GET user images
+  ('/userimage', UserImageEndpoint)
 
 
 ], debug=True)

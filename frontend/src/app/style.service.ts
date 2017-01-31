@@ -21,7 +21,7 @@ export class StyleService {
     contentWidth: 700,
     prime: 'Raleway',
     article: {
-      h1: {
+      headline: {
         'fontSize.px': 40,
         'fontWeight': 700,
         'marginTop.px': 40,
@@ -38,6 +38,28 @@ export class StyleService {
 
 
   s = {
+    publication: {
+      title: () => {
+        return {
+          backgroundColor: 'black',
+          color: 'white',
+          'fontSize.px': 32,
+          display: 'inline-block',
+          fontWeight: 700,
+          padding: '20px 40px',
+        }
+      },
+      about: () => {
+        return {
+          'backgroundColor': 'black',
+          'color': 'white',
+          'fontSize.px': 22,
+          'display': 'inline-block',
+           padding: '10px 20px',
+           margin: '10px'
+        }
+      }
+    },
     container: () => {
       let style = {
         'maxWidth.px': this.theme.contentWidth,
@@ -56,9 +78,9 @@ export class StyleService {
       }
     },
     article: {
-      h1: () => {
+      headline: () => {
         let style = {
-          'fontSize.px': this.theme.article.h1['fontSize.px'],
+          'fontSize.px': this.theme.article.headline['fontSize.px'],
           'marginTop.px': 40,
           'fontFamily': this.theme.prime,
           'fontWeight': 'bold',

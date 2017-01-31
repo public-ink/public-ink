@@ -1,23 +1,60 @@
-<div style="margin-top: 100px;"></div>
- 
+<div style="height: 100px;">should be 90, or calculated</div>
 
- <div id="publicationNameEditor" (click)="ui.toolbarState.second = 'publicationName'"></div>
- <div id="publicationAboutEditor" (click)="ui.toolbarState.second = 'publicationAbout'"></div>
- 
+<flex-row [style.width.vw]="100" style="background:notpink; justify-content: center;">
+
+<flex-col>
+
+  <!-- background and title / punch -->
+  <flex-row [ngStyle]="heroStyle()" style="background-color:azure; height: 40vh; width: 100vw; justify-content: center;">
+      <flex-col-center [style.width.%]="100" [style.maxWidth.px]="style.theme.contentWidth" style="background-color:notred;">
+        <div>
+          <!-- publication name -->
+          <div 
+            id="publicationNameEditor"
+            [ngStyle]="style.s.publication.title()"
+            (click)="ui.toolbarState.second = 'publicationName'">
+          </div>
+          <br>
+          <!-- publication about -->
+          <div 
+            id="publicationAboutEditor" 
+            [ngStyle]="style.s.publication.about()"
+            (click)="ui.toolbarState.second = 'publicationAbout'">
+          </div>
+          <!-- publication author banner -->
+          <flex-row style="margin-top: 20px; background-color:black; color: white; border-radius: 40px;">
+            <img [src]="publication?.author.imageUrl" style="border-radius: 80px; width:80px; height:80px;" />
+            <span>a publication by {{ publication?.author.nameText }}</span>
+          </flex-row>
+        </div>
+      </flex-col-center>
+</flex-row>
 
 
 
-<div *ngIf="publication">
 
-   <div [ngStyle]="heroStyle()">
- </div>
+<!-- full width row -->
+<flex-row [style.width.vw]="100" style="background:notpink; justify-content: center;">
+  <!-- content lane, centereed -->
+  <flex-col 
+    [style.maxWidth.px]="style.theme.contentWidth" [style.width.%]="100" 
+    style="background-color: notbeige;"
+  >
+    <!-- DPPPPP  the publication's articles -->
+    <div *ngIf="publication" style="margin-top: 40px;">
+      <div *ngFor="let article of publication.articles">
 
-  <div *ngFor="let article of publication.articles">
-    <a [routerLink]="['/', authorID, publicationID, article.id]">{{ article.titleText }}</a>
-  </div>
-</div> 
+        <app-article-preview [article]="article"></app-article-preview>
+        <br><br><br>
+        
+        
+      </div>
+    </div>
+  </flex-col><!-- end of content, centered -->
+</flex-row><!-- end of full row -->
 
 
 
+</flex-col>
 
-
+</flex-row>

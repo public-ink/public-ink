@@ -40,6 +40,11 @@ export class UniverseComponent implements OnInit {
         this.ui.toolbarState.main = 'root'
         event.preventDefault()
       }
+      // cmd + m (media bar)
+      else if ( (event.metaKey || event.ctrlKey) && event.keyCode === 77) { /* Escape */
+        this.ui.mediaBar = !this.ui.mediaBar
+        event.preventDefault()
+      }
     })
   }
 
