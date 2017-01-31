@@ -1,0 +1,36 @@
+
+
+  
+
+<flex-row-center
+  [ngStyle]="style.container()"
+  style="background-color: #333; position:relative;"
+>
+
+
+  <flex-row-center *ngIf="publication" [ngStyle]="style.content()">
+    <flex-col-center style="color: white;">
+      <h1><a class="inherit-color" [routerLink]="['/', publication.author.id, publication.id]"> {{ publication.nameText }}</a></h1>
+      <p>{{ publication.aboutText }}</p>      
+    </flex-col-center>
+  </flex-row-center>
+
+  <div [ngStyle]="style.image()"></div>
+  
+
+
+</flex-row-center>
+
+<!-- article previews! -->
+<div *ngIf="publication" style="margin-top: 40px;">
+    <div *ngFor="let article of publication.articles">
+
+        <flex-row-center>
+          <flex-col [style.maxWidth.px]="styleService.theme.contentWidth" [style.width.%]="100">
+            <app-article-preview [article]="article"></app-article-preview>
+             <br><br><br>
+          </flex-col>
+        </flex-row-center>
+      
+    </div>
+  </div>

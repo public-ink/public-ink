@@ -107,31 +107,17 @@ class PublicationEndpoint(RequestHandler):
         """
         Updates a publication.
         """
-        data = json.loads(self.request.body)
-        name = data.get('name')
-        name_text = data.get('nameText')
-        #debug
-        abtext = data.get('aboutText')
-        if abtext == name_text:
-            print 'same same, omg!'
-        else:
-            print 'not the same!'
-        print type(abtext)
-        print abtext
+        # lookup publication
         publication = ndb.Key('Author', author_id, 'Publication', publication_id).get()
         if not publication:
             return_error(self, 404, 'this publication could not be found.')
             return
+        # update the publication
+        data = json.loads(self.request.body)
         publication.name = data.get('name')
         publication.name_text = data.get('nameText')
-        
-        publication.about_text = name_text
-        print 'I set about text to'
-        print name_text
-        publication.about_text = abtext
         publication.about_text = data.get('aboutText')
         publication.about = data.get('about')
-
         publication.image_url  = data.get('imageUrl')
         publication.put()
         return_json(self, publication.data())

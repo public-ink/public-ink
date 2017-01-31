@@ -11,9 +11,6 @@ export class MediaBarComponent implements OnInit {
   constructor(
     private backend: BackendService,
   ) { 
-
-    //this.backend.mediaStreamOut.subscribe()
-
   }
 
   ngOnInit() {

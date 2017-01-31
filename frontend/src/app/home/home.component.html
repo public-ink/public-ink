@@ -2,22 +2,22 @@
 <div style="height:100px"></div>
 
 <flex-col-center [ngStyle]="heroStyle()" style="height:50vh; width: 100vw; background-color:white;">
+  
+  <span style="font-style: italic;">THIS IS</span>
   <h1>
     <span style="background: black; color: white;">public.ink</span>
     </h1>
   <p>An open source, non-commercial publishing platform. Learn more here.</p>
 </flex-col-center>
 
+<!-- a place to introduce ourselves! -->
+<!--<flex-row-center>
+  <flex-col [style.maxWidth.px]="style.theme.contentWidth" [style.width.%]="100">
+    <h1>yes this is on content</h1>
+  </flex-col>
+</flex-row-center>-->
 
-<div [ngStyle]="style.s.container()">
-
-      <div *ngFor="let publication of publications">
-        <h1><a [routerLink]="['/', publication.author.id, publication.id]">{{ publication.nameText }}</a></h1>
-        by <a [routerLink]="['/', publication.author.id]">{{ publication.author.nameText }}</a>
-        
-        <div *ngFor="let article of publication.articles">
-          <h2><a [routerLink]="['/', publication.author.id, publication.id, article.id]">{{ article.titleText }}</a></h2>
-          <p>{{ article.bodyText }}</p>
-        </div>
-      </div>
+<!-- todo: set number of publications -->
+<div *ngFor="let publication of publications">
+    <app-publication-banner [publication]="publication" [heightVH]="33"></app-publication-banner>
 </div>

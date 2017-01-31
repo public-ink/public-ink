@@ -5,6 +5,13 @@ strong {
   font-weight: bold;
 }
 
+h1 > a {
+  text-decoration: none;
+}
+a.inherit-color{
+  color:inherit;
+}
+
 /*!
  * Quill Editor v1.2.0
  * https://quilljs.com/
@@ -47,6 +54,10 @@ strong {
   white-space: pre-wrap;
   word-wrap: break-word;
 }
+.ql-editor p {
+  line-height: 40px;
+}
+
 .ql-editor p,
 .ql-editor ol,
 .ql-editor ul,

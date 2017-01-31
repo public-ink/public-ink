@@ -1,11 +1,15 @@
 <div style="height: 100px;">should be 90, or calculated</div>
 
+
+<app-publication-banner [publication]="publication" [heightVH]="50"></app-publication-banner>
+
+
 <flex-row [style.width.vw]="100" style="background:notpink; justify-content: center;">
 
 <flex-col>
 
   <!-- background and title / punch -->
-  <flex-row [ngStyle]="heroStyle()" style="background-color:azure; height: 40vh; width: 100vw; justify-content: center;">
+  <flex-row [ngStyle]="heroStyle()" style="display: none; background-color:azure; height: 40vh; width: 100vw; justify-content: center;">
       <flex-col-center [style.width.%]="100" [style.maxWidth.px]="style.theme.contentWidth" style="background-color:notred;">
         <div>
           <!-- publication name -->
@@ -22,10 +26,10 @@
             (click)="ui.toolbarState.second = 'publicationAbout'">
           </div>
           <!-- publication author banner -->
-          <flex-row style="margin-top: 20px; background-color:black; color: white; border-radius: 40px;">
-            <img [src]="publication?.author.imageUrl" style="border-radius: 80px; width:80px; height:80px;" />
-            <span>a publication by {{ publication?.author.nameText }}</span>
-          </flex-row>
+          <flex-col style="margin-top: 20px;">
+            <img [src]="publication?.author.imageUrl" style="border: 3px solid black; border-radius: 80px; width:80px; height:80px;" />
+            <span style="background-color:black; color: white;">{{ publication?.author.nameText }}</span>
+          </flex-col>
         </div>
       </flex-col-center>
 </flex-row>

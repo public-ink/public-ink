@@ -31,7 +31,7 @@ export class ArticleComponent implements OnInit {
   articleID: string
 
   // expect media clicks
-  expectArticleImage: boolean = false
+  expectArticleImage: boolean = true
 
   constructor(
     private backend: BackendService,

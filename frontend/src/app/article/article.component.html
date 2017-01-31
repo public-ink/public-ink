@@ -6,6 +6,8 @@
   <flex-col [style.width.%]="100" [style.maxWidth.px]="style.theme.contentWidth"
     style="background-color: notbeige;"
   >
+
+
     <!-- main article image -->
     <div>
     <div [ngStyle]="imageStyle()"></div>
@@ -23,7 +25,8 @@
     </div>
 
     <!-- by author in publication -->
-     <div *ngIf="article">
+     <div *ngIf="article && article.author">
+       <br>
       By <a [routerLink]="['/', article.author.id]">{{ article.author.nameText }} </a>
       in <a [routerLink]="['/', article.author.id, article.publication.id]">{{ article.publication.nameText }}</a>
     </div>

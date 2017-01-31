@@ -43,9 +43,9 @@ export class StyleService {
         return {
           backgroundColor: 'black',
           color: 'white',
-          'fontSize.px': 32,
+          'fontSize.px': 38,
           display: 'inline-block',
-          fontWeight: 700,
+          fontWeight: 400,
           padding: '20px 40px',
         }
       },
@@ -53,7 +53,8 @@ export class StyleService {
         return {
           'backgroundColor': 'black',
           'color': 'white',
-          'fontSize.px': 22,
+          'fontSize.px': 20,
+          'fontWeight': 200,
           'display': 'inline-block',
            padding: '10px 20px',
            margin: '10px'

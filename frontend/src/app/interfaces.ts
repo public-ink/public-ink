@@ -12,3 +12,14 @@ export interface Article {
   url?: string; // only optional because of newArticle...
   deleted?: boolean; // only optional because of new...
 }
+
+// expand
+export interface Publication {
+  id: string;
+  name: string;
+  nameText: string;
+  about: string;
+  aboutText: string;
+  url?: string;
+  imageUrl?: string;
+}

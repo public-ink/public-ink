@@ -13,7 +13,7 @@ export class HomeComponent implements OnInit {
 
   heroStyle() {
     return {
-      backgroundImage: `url("${this.bgImg}")`
+      //backgroundImage: `url("${this.bgImg}")`
     }
   }
 
