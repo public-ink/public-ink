@@ -4,18 +4,25 @@
 <flex-col-center [ngStyle]="heroStyle()" style="height:50vh; width: 100vw; background-color:white;">
   
   <span style="font-style: italic;">THIS IS</span>
+  <br><br>
   <h1>
-    <span style="background: black; color: white;">public.ink</span>
-    </h1>
-  <p>An open source, non-commercial publishing platform. Learn more here.</p>
+    <span style="display: inline-block; background: black; color: white; padding: 20px 30px;">public.ink</span>
+  </h1>
+<br><br>
+  <p>An open source, non-commercial publishing platform.</p>
+  
 </flex-col-center>
 
-<!-- a place to introduce ourselves! -->
-<!--<flex-row-center>
-  <flex-col [style.maxWidth.px]="style.theme.contentWidth" [style.width.%]="100">
-    <h1>yes this is on content</h1>
-  </flex-col>
-</flex-row-center>-->
+<!-- a place to introduce ourselves! content lane candidate-->
+<flex-row-center>
+  <flex-row style="justify-content: space-around;margin-bottom: 50px;" [style.maxWidth.px]="style.theme.contentWidth" [style.width.%]="100">
+    <flex-col-center *ngFor="let feature of features">
+      <span>{{feature.name }}</span>
+      <i [style.fontSize.px]="30" class="fa fa-{{feature.icon}}"></i> 
+    </flex-col-center>
+    
+  </flex-row>
+</flex-row-center>
 
 <!-- todo: set number of publications -->
 <div *ngFor="let publication of publications">

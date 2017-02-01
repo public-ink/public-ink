@@ -3,19 +3,31 @@
   
 
 <flex-row-center
-  [ngStyle]="style.container()"
+  [ngStyle]="stil.container()"
   style="background-color: #333; position:relative;"
 >
 
 
-  <flex-row-center *ngIf="publication" [ngStyle]="style.content()">
-    <flex-col-center style="color: white;">
-      <h1><a class="inherit-color" [routerLink]="['/', publication.author.id, publication.id]"> {{ publication.nameText }}</a></h1>
-      <p>{{ publication.aboutText }}</p>      
+  <flex-row-center *ngIf="publication" [ngStyle]="stil.content()">
+    <!-- center lane -->
+    <flex-col-center [style.width.%]="100" [style.maxWidth.px]="style.theme.contentWidth">
+
+
+      <!-- editing only when on publication page, otherwise makes no sense -->
+      <input [ngStyle]="stil.name()" type="text" [(ngModel)]="publication.nameText" />
+      <a     [ngStyle]="stil.name()" class="inherit-color" [routerLink]="['/', publication.author.id, publication.id]"> {{ publication.nameText }}</a>
+      
+      
+      
+      <input [ngStyle]="stil.about()" type="text" class="hover-underline" [(ngModel)]="publication.aboutText" />
+      <a [ngStyle]="stil.about()" class="inherit-color" [routerLink]="['/', publication.author.id, publication.id]"> {{ publication.aboutText }}</a>
+
+
+      <img [src]="publication.author.imageUrl" style="border: 3px solid black; border-radius: 80px; width:80px; height:80px;" />
     </flex-col-center>
   </flex-row-center>
 
-  <div [ngStyle]="style.image()"></div>
+  <div [ngStyle]="stil.image()"></div>
   
 
 
@@ -26,7 +38,7 @@
     <div *ngFor="let article of publication.articles">
 
         <flex-row-center>
-          <flex-col [style.maxWidth.px]="styleService.theme.contentWidth" [style.width.%]="100">
+          <flex-col [style.maxWidth.px]="style.theme.contentWidth" [style.width.%]="100">
             <app-article-preview [article]="article"></app-article-preview>
              <br><br><br>
           </flex-col>

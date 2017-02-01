@@ -24,6 +24,8 @@ export class UIService {
   }
 
   mediaBar: boolean = false
+
+  overlay: boolean = false
   
 
   searchQuery = ''

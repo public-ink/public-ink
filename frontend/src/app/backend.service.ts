@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core'
 import { Http, Headers, RequestOptions, Response } from '@angular/http'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
-
 import 'rxjs/add/operator/map'
+
+import { UIService } from './ui.service'
 
 interface Author {
   id: string;
@@ -56,10 +57,12 @@ export class BackendService {
 
   saveCurrentResource() {
     console.log('wanna save', this.currentResource)
+    this.ui.overlay = true
     if (this.currentResource.id === 'new') {
       this.http.put(this.BACKEND_URL + this.currentResource.url, this.currentResource, this.defaultOptions()).map(res => res.json()).subscribe(
         (resource) => {
           console.log('created', resource)
+          setTimeout(() => {this.ui.overlay = false}, 1000)
         },
         (error) => {
           console.log('caught create error')
@@ -69,12 +72,17 @@ export class BackendService {
       this.http.post(this.BACKEND_URL + this.currentResource.url, this.currentResource, this.defaultOptions()).map(res => res.json()).subscribe(
         (resource) => {
           console.log('update', resource)
+          setTimeout(() => {this.ui.overlay = false}, 1000)
         },
         (error) => {
           console.log('caught update error')
         }
       )
     }
+  }
+
+  closeOverlay() {
+    this.ui.overlay = false
   }
 
   newArticle: Article = {
@@ -130,7 +138,8 @@ export class BackendService {
   mediaStreamOut: Observable<any>
 
   constructor(
-    private http: Http
+    private http: Http,
+    private ui: UIService,
   ) {
     this.me()
     this.getUserImages()

@@ -1,5 +1,8 @@
 
-
+<!--overlay -->
+<flex-col-center *ngIf="ui.overlay" style="position: fixed; top:0; left:0; width: 100%; height: 100%; z-index: 999; background-color:white;">
+<h1>such overlay!</h1>
+</flex-col-center>
 <!-- The App -->
 <app-toolbar></app-toolbar>
 <app-media-bar *ngIf="ui.mediaBar"></app-media-bar>

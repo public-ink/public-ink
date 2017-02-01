@@ -17,14 +17,39 @@ export class PublicationBannerComponent implements OnInit {
 
   constructor(
     private ui: UIService,
-    private styleService: StyleService,
+    private style: StyleService,
   ) { }
 
   ngOnInit() {
 
   }
 
-  style = {
+  stil = {
+    name: () => {
+      return {
+        color: 'white',
+        'fontSize.px': 33,
+        fontWeight: 'bold',
+        background: 'transparent',
+        border: 0,
+        width: '100%',
+        display: 'inline-block',
+        textDecoration: 'none',
+        textAlign: 'center',
+      }
+    },
+    about: () => {
+      return {
+        color: 'white',
+        'fontSize.px': 20,
+        fontWeight: 400,
+        background: 'transparent',
+        border: 0,
+        width: '100%',
+        textDecoration: 'none',
+        textAlign: 'center',
+      }
+    },
     bannerHeightPX: this.ui.vh(this.heightVH),
     container: (): any => {
       return {
@@ -57,9 +82,5 @@ export class PublicationBannerComponent implements OnInit {
       }
     }
   }
-
-
-
-
 
 }

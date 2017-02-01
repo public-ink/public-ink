@@ -54,10 +54,11 @@ export class ArticlePreviewComponent implements OnInit {
     else {
       style = {
         backgroundImage: `url("${this.article.imageUrl}=s${this.style.theme.contentWidth}")`,
-        'height.px': 200,
+        'height.px': 120,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
+        opacity: 0.9,
       }
     }
     return style

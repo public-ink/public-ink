@@ -11,6 +11,25 @@ export class HomeComponent implements OnInit {
 
   publications: any = []
 
+  features = [
+    {
+      name: 'Privacy built-in',
+      icon: 'shield'
+    },
+    {
+      name: 'For Respectful Dialog',
+      icon: 'heart',
+    },
+    {
+      name: 'Ready for Scale',
+      icon: 'rocket',
+    },
+    /*{
+      name: 'Slick as fuck',
+      icon: 'circle-o-notch',
+    },*/
+  ]
+
   heroStyle() {
     return {
       //backgroundImage: `url("${this.bgImg}")`
@@ -22,17 +41,17 @@ export class HomeComponent implements OnInit {
   constructor(
     private backend: BackendService,
     private style: StyleService,
-    ) {
+  ) {
     this.backend.getPublications().subscribe(
       (publications) => { // todo: use interface
-      this.publications = publications
-    }, 
-    (error) => {
-      console.log('caught get publications network error')
-    }
-    
+        this.publications = publications
+      },
+      (error) => {
+        console.log('caught get publications network error')
+      }
+
     )
-   }
+  }
 
   ngOnInit() {
   }

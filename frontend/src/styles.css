@@ -27,6 +27,16 @@ flex-row-center {
     justify-content: center;
 }
 
+.hover-underline{
+    text-decoration: none;
+}
+.hover-underline:hover{
+    text-decoration: underline;
+}
+
+input {
+    font-family: Raleway;
+}
 
 
 
