@@ -1,48 +1,46 @@
 
 
   
-
+<!-- BANNER -->
 <flex-row-center
   [ngStyle]="stil.container()"
   style="background-color: #333; position:relative;"
 >
 
-
+  <!-- Content on banner -->
   <flex-row-center *ngIf="publication" [ngStyle]="stil.content()">
-    <!-- center lane -->
+    <!-- content width -->
     <flex-col-center [style.width.%]="100" [style.maxWidth.px]="style.theme.contentWidth">
 
-
-      <!-- editing only when on publication page, otherwise makes no sense -->
-      <input [ngStyle]="stil.name()" type="text" [(ngModel)]="publication.nameText" />
-      <a     [ngStyle]="stil.name()" class="inherit-color" [routerLink]="['/', publication.author.id, publication.id]"> {{ publication.nameText }}</a>
+      <!-- Publication Name -->
+      <input *ngIf="editable"  [ngStyle]="stil.name()" type="text" [(ngModel)]="publication.nameText" />
+      <a     *ngIf="!editable" [ngStyle]="stil.name()" class="inherit-color" [routerLink]="['/', publication.author.id, publication.id]"> {{ publication.nameText }}</a>
       
-      
-      
-      <input [ngStyle]="stil.about()" type="text" class="hover-underline" [(ngModel)]="publication.aboutText" />
-      <a [ngStyle]="stil.about()" class="inherit-color" [routerLink]="['/', publication.author.id, publication.id]"> {{ publication.aboutText }}</a>
+      <!-- Publication About -->
+      <input *ngIf="editable"  [ngStyle]="stil.about()" type="text" class="hover-underline" [(ngModel)]="publication.aboutText" />
+      <a     *ngIf="!editbale" [ngStyle]="stil.about()" class="inherit-color" [routerLink]="['/', publication.author.id, publication.id]"> {{ publication.aboutText }}</a>
 
-
+      <!-- Author Image Circle -->
       <img [src]="publication.author.imageUrl" style="border: 3px solid black; border-radius: 80px; width:80px; height:80px;" />
+    
     </flex-col-center>
   </flex-row-center>
 
+  <!--  the background publication banner -->
   <div [ngStyle]="stil.image()"></div>
   
+</flex-row-center><!-- END OF BANNER -->
 
-
-</flex-row-center>
-
-<!-- article previews! -->
+<!-- ARTICLES -->
 <div *ngIf="publication" style="margin-top: 40px;">
     <div *ngFor="let article of publication.articles">
-
-        <flex-row-center>
-          <flex-col [style.maxWidth.px]="style.theme.contentWidth" [style.width.%]="100">
-            <app-article-preview [article]="article"></app-article-preview>
-             <br><br><br>
-          </flex-col>
-        </flex-row-center>
-      
-    </div>
+      <!-- refactor -->
+      <flex-row-center>
+        <flex-col [style.maxWidth.px]="style.theme.contentWidth" [style.width.%]="100">
+          <app-article-preview [article]="article"></app-article-preview>
+            <br><br><br>
+        </flex-col>
+      </flex-row-center>
+    
   </div>
+</div><!-- END OF ARTICLES -->

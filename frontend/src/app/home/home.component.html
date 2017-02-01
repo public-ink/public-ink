@@ -1,30 +1,30 @@
-
+<!-- spacer -->
 <div style="height:100px"></div>
 
+
+<!-- introduction | This is public.ink  -->
 <flex-col-center [ngStyle]="heroStyle()" style="height:50vh; width: 100vw; background-color:white;">
-  
   <span style="font-style: italic;">THIS IS</span>
   <br><br>
   <h1>
     <span style="display: inline-block; background: black; color: white; padding: 20px 30px;">public.ink</span>
   </h1>
-<br><br>
+  <br><br>
   <p>An open source, non-commercial publishing platform.</p>
-  
 </flex-col-center>
 
-<!-- a place to introduce ourselves! content lane candidate-->
+<!-- USPs -->
 <flex-row-center>
   <flex-row style="justify-content: space-around;margin-bottom: 50px;" [style.maxWidth.px]="style.theme.contentWidth" [style.width.%]="100">
+    <!-- a feature with icon -->
     <flex-col-center *ngFor="let feature of features">
       <span>{{feature.name }}</span>
-      <i [style.fontSize.px]="30" class="fa fa-{{feature.icon}}"></i> 
+      <i [style.fontSize.px]="30" class="fa fa-{{feature.icon}}"></i>
     </flex-col-center>
-    
   </flex-row>
 </flex-row-center>
 
 <!-- todo: set number of publications -->
 <div *ngFor="let publication of publications">
-    <app-publication-banner [publication]="publication" [heightVH]="33"></app-publication-banner>
+  <app-publication-banner [publication]="publication" [heightVH]="33" [editable]="false"></app-publication-banner>
 </div>

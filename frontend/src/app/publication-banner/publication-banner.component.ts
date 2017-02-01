@@ -13,6 +13,7 @@ export class PublicationBannerComponent implements OnInit {
 
   @Input() publication: Publication
   @Input() heightVH: number = 30
+  @Input() editable: boolean = false
 
 
   constructor(
@@ -24,6 +25,9 @@ export class PublicationBannerComponent implements OnInit {
 
   }
 
+  /**
+   * Styles specific to publication banner, and it's articles below?
+   */
   stil = {
     name: () => {
       return {
@@ -53,7 +57,8 @@ export class PublicationBannerComponent implements OnInit {
     bannerHeightPX: this.ui.vh(this.heightVH),
     container: (): any => {
       return {
-        'height.vh': this.heightVH
+        'height.vh': this.heightVH,
+        'box-shadow': '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
       }
     },
     image: (): any => {
