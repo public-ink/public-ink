@@ -11,7 +11,10 @@
         <app-toolbar-button [icon]="'pencil'" [text]="'Edit'" (click)="ui.toolbarState.main = 'edit'"></app-toolbar-button>
         <app-toolbar-button [icon]="'plus'" [text]="'Create'" (click)="ui.toolbarState.main = 'create'"></app-toolbar-button>
         <app-toolbar-button [icon]="'search'" [text]="'Search'"></app-toolbar-button>
-        <app-toolbar-button [icon]="'user'" [text]="backend.userIdentity?.nameText"></app-toolbar-button>
+        <flex-row-center [ngStyle]="style.s.topBar.home()" style="font-size: 24px;">
+          <img [src]="backend.userIdentity?.imageUrl + '=s50-c'" style="border-radius:50px;" />
+        </flex-row-center>
+        
       </flex-row>
     </flex-row-center>
     <!-- root bottom -->

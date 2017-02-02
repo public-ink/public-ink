@@ -6,13 +6,7 @@
 
   <flex-row>
 
-    <!-- AUTHENTICATED USERS -->
-    <div *ngIf="backend.userAuthenticated">
-      <h3>your are LOGGED in with {{ backend.userEmail }}</h3>
-        <a href="{{ 'http://localhost:8080' + backend.logoutUrl }}">log out here</a>
-      
-      <!-- logged in and profiles -->
-    </div>
+    
 
     <!-- NON AUTHED USERS -->
     <div *ngIf="!backend.userAuthenticated">
@@ -22,22 +16,34 @@
     </div>
 
 
-
-    <div *ngIf="backend.userIdentity">
-      <h2>you are logged in as {{ backend.userIdentity.nameText }}</h2>
-      you can <a href="{{ backend.logoutUrl }}">log out here</a>
-      you are authed? {{ backend.userAuthenticated }}
-    </div>
-
+    <!-- AUTHENTICATED USERS -->
     <flex-col-center *ngFor="let author of backend.userAuthors">
       
-      <img [src]="author.imageUrl + '=s100-c'" style="border-radius:50px;"/>
-      <span>{{ author.nameText }}</span>
-      <span *ngIf="author === backend.userIdentity">CURRENT</span>
-      <!--<a [routerLink]="['/', author.id]">author page {{ author.id }}</a>
-      <span (click)="backend.assumeIdentity(author)">become {{ author.nameText }}</span>-->
-    </flex-col-center>ssdf
-     
+      <flex-col-center (click)="backend.assumeIdentity(author)" style="width: 80px; height: 80px; border-radius:50px; background-color:lightsalmon;">
+        <img [src]="author.imageUrl + '=s80-c'" style="border-radius:50px;"/>
+        <span *ngIf="author === backend.userIdentity">check (abs)</span>
+      </flex-col-center>
+      <a [routerLink]="['/', author.id]">{{ author.nameText }}</a>
+
+    </flex-col-center>
+
+    <!-- create profile -->
+    <flex-col-center>
+      <flex-col-center style="width: 80px; height: 80px; border-radius:50px; background-color:lightsalmon;">
+        <i class="fa fa-user-plus" aria-hidden="true"></i>
+      </flex-col-center>
+      <span>Create Profile</span>
+    </flex-col-center>
+
+    <!-- create profile -->
+    <flex-col-center>
+      <flex-col-center style="width: 80px; height: 80px; border-radius:50px; background-color:lightsteelblue;">
+        <i class="fa fa-sign-out" aria-hidden="true"></i>
+      </flex-col-center>
+      <span>Sign Out</span>
+    </flex-col-center>
+
+      
 
 
   </flex-row>

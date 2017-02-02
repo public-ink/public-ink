@@ -140,7 +140,7 @@ export class ArticleComponent implements OnInit {
         },
       },
       theme: 'snow',
-      placeholder: 'such article title!',
+      placeholder: 'here is where you lay your words down...',
     })
     this.ui.toolbarState.second = 'articleTitle'
     let bodyContents = JSON.parse(this.article.body)

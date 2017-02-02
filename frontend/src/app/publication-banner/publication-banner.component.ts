@@ -3,6 +3,8 @@ import { Publication } from '../interfaces'
 
 import { UIService } from '../ui.service'
 import { StyleService } from '../style.service'
+import { BackendService } from '../backend.service'
+
 
 @Component({
   selector: 'app-publication-banner',
@@ -14,13 +16,16 @@ export class PublicationBannerComponent implements OnInit {
   @Input() publication: Publication
   @Input() heightVH: number = 30
   @Input() editable: boolean = false
+  
   @Input() showAuthor: boolean = true
+  // how many articles should be previewed
   @Input() articleCount: number = 0
 
 
   constructor(
     private ui: UIService,
     private style: StyleService,
+    private backend: BackendService,
   ) { }
 
   ngOnInit() {

@@ -31,6 +31,13 @@
   
 </flex-row-center><!-- END OF BANNER -->
 
+
+<!-- NEW ARTICLE -->
+<flex-col-center *ngIf="publication?.author.nameText === backend.userIdentity?.nameText">
+  {{ backend.userIdentity.nameText  }} {{ publication.author.nameText }}
+  <button [routerLink]="['/', publication.author.id, publication.id, 'new']" [ngStyle]="{'backgroundColor': 'blue', color: 'white', 'fontSize.px': 20}">create article</button>
+</flex-col-center>
+
 <!-- ARTICLES -->
 <div *ngIf="publication" style="margin-top: 40px;">
     <div *ngFor="let article of publication.articles.slice(0,articleCount +1)">
