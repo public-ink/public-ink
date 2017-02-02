@@ -3,6 +3,8 @@ from shared import RequestHandler, return_error, return_json, allow_cors, cross_
 from slugify import slugify
 import json
 
+from comment import Comment
+
 """
 The Article Model
 """
@@ -17,13 +19,31 @@ class Article(ndb.Model):
     deleted = ndb.BooleanProperty(default=False)
     image_url = ndb.StringProperty()
 
+    def url(self):
+        author_id      =  self.key.parent().parent().id()
+        publication_id = self.key.parent().id()
+        article_id     = self.key.id()
+        url = '/author/{}/publication/{}/article/{}'.format(
+            author_id, 
+            publication_id, 
+            article_id)
+        return url
+
 
     def data(self):
         publication_key = self.key.parent()
         publication_id = publication_key.id()
 
+        # related: author
         author_key = publication_key.parent()
         author_id = author_key.id()
+
+        # related: comments
+        comments = Comment.query(ancestor = self.key)
+        comment_list = []
+        for comment in comments: 
+            comment_list.append(comment.data())
+
 
         article_id = self.key.id()
         return {
@@ -37,8 +57,9 @@ class Article(ndb.Model):
             'imageUrl': self.image_url,
             'deleted': self.deleted,
             'url': '/author/{}/publication/{}/article/{}'.format(author_id, publication_id, article_id),
-            # related: author
+            # related: author, comments
             'author': author_key.get().data(include_publications = False),
+            'comments': comment_list,
             # related: publication
             'publication': publication_key.get().data(include_articles = False)
         }
@@ -120,7 +141,7 @@ class ArticleEndpoint(RequestHandler):
     def post(self, author_id, publication_id, article_id):
         """
         Updates a article.
-        TODO: expand
+        TODO: consolidate
         """
         data = json.loads(self.request.body)
         title = data.get('title')

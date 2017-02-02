@@ -24,7 +24,8 @@ import { ToolbarButtonComponent } from './toolbar-button/toolbar-button.componen
 import { MediaBarComponent } from './media-bar/media-bar.component';
 import { FileDropComponent } from './file-drop/file-drop.component';
 import { ArticlePreviewComponent } from './article-preview/article-preview.component';
-import { PublicationBannerComponent } from './publication-banner/publication-banner.component'
+import { PublicationBannerComponent } from './publication-banner/publication-banner.component';
+import { CommentComponent } from './comment/comment.component'
 
 /*const appRoutes: Routes = [
   { path: '', component: HomeComponent },
@@ -59,6 +60,7 @@ const appRoutes: Routes = [
     FileDropComponent,
     ArticlePreviewComponent,
     PublicationBannerComponent,
+    CommentComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),

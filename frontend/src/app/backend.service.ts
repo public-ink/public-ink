@@ -4,48 +4,11 @@ import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import 'rxjs/add/operator/map'
 
+// Services
 import { UIService } from './ui.service'
 
-interface Author {
-  id: string;
-  name: string;
-  nameText: string;
-  about: string;
-  aboutText: string;
-  publications?: Publication[];
-  url: string;
-}
-
-// expand
-interface Publication {
-  id: string;
-  name: string;
-  nameText: string;
-  about: string;
-  aboutText: string;
-  url?: string;
-  imageUrl?: string;
-}
-
-interface Article {
-  id: string;
-  title: string;
-  titleText: string;
-  teaser: string;
-  teaserText: string;
-  body: string;
-  bodyText: string;
-  // todo: decide how to transfer
-  image?: string;
-  imageUrl?: string;
-  url?: string; // only optional because of newArticle...
-  deleted?: boolean; // only optional because of new...
-}
-
-interface ServerError {
-  message: string;
-}
-
+// Interfaces
+import { Author, Publication, Article, Comment, ServerError } from './interfaces'
 
 
 @Injectable()
@@ -71,7 +34,7 @@ export class BackendService {
     } else {
       this.http.post(this.BACKEND_URL + this.currentResource.url, this.currentResource, this.defaultOptions()).map(res => res.json()).subscribe(
         (resource) => {
-          console.log('update', resource)
+          console.log('updated', resource)
           setTimeout(() => {this.ui.overlay = false}, 1000)
         },
         (error) => {
@@ -79,6 +42,11 @@ export class BackendService {
         }
       )
     }
+  }
+
+  saveResource(resource) {
+    this.currentResource = resource
+    this.saveCurrentResource()
   }
 
   closeOverlay() {
@@ -172,8 +140,10 @@ export class BackendService {
       this.userAuthors = authors
       console.log('your authors', authors)
       if (this.userAuthors.length === 1) {
+        // become the one you were last active with
         this.assumeIdentity(this.userAuthors[0])
       }
+      this.assumeIdentity(this.userAuthors[0])
     })
   }
 

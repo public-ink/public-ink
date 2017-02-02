@@ -17,6 +17,7 @@ from google.appengine.ext import blobstore
 from author      import AuthorEndpoint, MeEndpoint
 from publication import PublicationEndpoint, PublicationsEndpoint
 from article     import ArticleEndpoint
+from comment     import CommentEndpoint
 from image       import UploadUrl, ImageUploadHandler, UserImageEndpoint
 from shared      import ninja
 
@@ -33,6 +34,8 @@ class Home(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
   # renders the home template, for now
   ('/', Home),
+  # Comment Endpoint
+  (r'/author/(.+)?/publication/(.+)?/article/(.+)?/comment/(.+)?', CommentEndpoint),
   # Article Endpoint 
   # /author/hoff/publication/atomic-angular/article/how-this-blog-was-made
   (r'/author/(.+)?/publication/(.+)?/article/(.+)?', ArticleEndpoint),

@@ -11,7 +11,7 @@
         <app-toolbar-button [icon]="'pencil'" [text]="'Edit'" (click)="ui.toolbarState.main = 'edit'"></app-toolbar-button>
         <app-toolbar-button [icon]="'plus'" [text]="'Create'" (click)="ui.toolbarState.main = 'create'"></app-toolbar-button>
         <app-toolbar-button [icon]="'search'" [text]="'Search'"></app-toolbar-button>
-        <app-toolbar-button [icon]="'user'" [text]="'You'"></app-toolbar-button>
+        <app-toolbar-button [icon]="'user'" [text]="backend.userIdentity?.nameText"></app-toolbar-button>
       </flex-row>
     </flex-row-center>
     <!-- root bottom -->
