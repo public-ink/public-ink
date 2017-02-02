@@ -37,6 +37,17 @@ export class AuthorComponent implements OnInit {
 
   }
 
+  stil = {
+    authorName: {
+      'fontSize.px': 24,
+      'fontWeight': 700
+    },
+    author140: {
+      'fontSize.px': 14,
+      'fontFamily': this.style.theme.prime,
+    }
+  }
+
   ngOnInit() {
 
     this.route.params.subscribe(params => {
@@ -46,14 +57,14 @@ export class AuthorComponent implements OnInit {
         this.author = this.backend.newAuthor
         // do we need to tell the backend? I guess so
         this.backend.currentResource = this.author
-        this.makeQuills()
+        //this.makeQuills()
         return
       }
 
       return this.backend.getAuthorByID(this.authorID).subscribe((author) => {
         this.author = author
         this.backend.currentResource = this.author  
-        this.makeQuills()      
+        //this.makeQuills()      
       })
     })
   }

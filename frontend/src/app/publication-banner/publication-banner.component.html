@@ -21,7 +21,7 @@
       <a     *ngIf="!editbale" [ngStyle]="stil.about()" class="inherit-color" [routerLink]="['/', publication.author.id, publication.id]"> {{ publication.aboutText }}</a>
 
       <!-- Author Image Circle -->
-      <img [src]="publication.author.imageUrl" style="border: 3px solid black; border-radius: 80px; width:80px; height:80px;" />
+      <img *ngIf="showAuthor" [src]="publication.author.imageUrl" style="border: 3px solid black; border-radius: 80px; width:80px; height:80px;" />
     
     </flex-col-center>
   </flex-row-center>
@@ -33,10 +33,10 @@
 
 <!-- ARTICLES -->
 <div *ngIf="publication" style="margin-top: 40px;">
-    <div *ngFor="let article of publication.articles">
+    <div *ngFor="let article of publication.articles.slice(0,articleCount +1)">
       <!-- refactor -->
       <flex-row-center>
-        <flex-col [style.maxWidth.px]="style.theme.contentWidth" [style.width.%]="100">
+        <flex-col [style.width.%]="100" [style.maxWidth.px]="style.theme.contentWidth" [style.width.%]="100">
           <app-article-preview [article]="article"></app-article-preview>
             <br><br><br>
         </flex-col>

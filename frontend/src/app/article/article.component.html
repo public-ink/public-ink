@@ -34,15 +34,22 @@
   <!-- body editor -->
     <div style="padding: 0px 0px;" id="articleBodyEditor" (click)="ui.toolbarState.main = 'edit'; ui.toolbarState.second = 'articleBody'"></div>
 
+
+
+    <!-- comment -->
+    <div *ngIf="article && article.id !== 'new'">
+
     <hr>
-    new comment:
+    
     <app-comment *ngIf="article" [article]="article"></app-comment>
-    existing comments:
+    
     <app-comment 
       *ngFor="let comment of article?.comments" 
       [article]="article" 
       [comment]="comment"
       ></app-comment>
+
+    </div>
 
   </flex-col><!-- end of content, centered -->
 </flex-row><!-- end of full row -->

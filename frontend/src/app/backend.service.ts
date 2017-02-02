@@ -18,6 +18,11 @@ export class BackendService {
 
   userImages = []
 
+  loginUrl: string
+  logoutUrl: string
+  userAuthenticated: boolean = false
+  userEmail: string
+
   saveCurrentResource() {
     console.log('wanna save', this.currentResource)
     this.ui.overlay = true
@@ -25,6 +30,7 @@ export class BackendService {
       this.http.put(this.BACKEND_URL + this.currentResource.url, this.currentResource, this.defaultOptions()).map(res => res.json()).subscribe(
         (resource) => {
           console.log('created', resource)
+          this.currentResource = resource
           setTimeout(() => {this.ui.overlay = false}, 1000)
         },
         (error) => {
@@ -110,6 +116,7 @@ export class BackendService {
     private ui: UIService,
   ) {
     this.me()
+    this.whoami()
     this.getUserImages()
 
    this.mediaStreamOut = Observable.create(input => {
@@ -144,6 +151,17 @@ export class BackendService {
         this.assumeIdentity(this.userAuthors[0])
       }
       this.assumeIdentity(this.userAuthors[0])
+    })
+  }
+
+  whoami() {
+    let url = this.BACKEND_URL + '/whoami'
+    this.http.get(url, this.defaultOptions()).map(res => res.json()).subscribe((reply) => {
+      this.loginUrl = reply.loginUrl
+      this.logoutUrl = reply.logoutUrl
+      console.log('authend?', reply.authenticated, reply)
+      this.userAuthenticated = reply.authenticated
+      this.userEmail = reply.email
     })
   }
 

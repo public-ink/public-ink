@@ -14,6 +14,8 @@ export class PublicationBannerComponent implements OnInit {
   @Input() publication: Publication
   @Input() heightVH: number = 30
   @Input() editable: boolean = false
+  @Input() showAuthor: boolean = true
+  @Input() articleCount: number = 0
 
 
   constructor(

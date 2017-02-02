@@ -1,19 +1,42 @@
 <div style="height: 100px;">should be 90, or calculated</div>
 
 <!-- full width row -->
-<flex-row [style.width.vw]="100" style="background:pink; justify-content: center;">
+<flex-row  [style.width.vw]="100" style="background:notpink; justify-content: center;">
   <!-- content lane, centereed -->
-  <flex-col [style.width.%]="100" [style.maxWidth.px]="style.theme.contentWidth" style="background-color: beige;" >
-    <!-- author image -->
-    <img [src]="author?.imageUrl +'=s400'" style="width: 160px; height: 160px; border-radius: 80px;" (click)="ui.mediaBar = !ui.mediaBar;" />
+  <flex-col-center [style.width.%]="100" [style.maxWidth.px]="style.theme.contentWidth" style="background-color: notbeige;" >
+
+    <flex-row>
+      <!-- left: author image -->
+      <img [src]="author?.imageUrl +'=s500'" style="width: 180px; height: 180px; border-radius: 180px;" (click)="ui.mediaBar = !ui.mediaBar;" />
+      <!-- right -->
+      <div>
+        <!-- these become input and textarea -->
+        <flex-col *ngIf="author">
+          <input type="text" [ngStyle]="stil.authorName" [(ngModel)]="author.nameText" />
+          <textarea [ngStyle]="stil.author140" [(ngModel)]="author.aboutText"></textarea>
+        </flex-col>
+      </div>
+
+        
+    </flex-row>
+
+
+    <!-- old, refactor -->
     <!-- author name -->
-    <div id="authorNameEditor" (click)="ui.toolbarState.second = 'authorName'"></div>
-    <!-- author about -->
-    <div id="authorAboutEditor" (click)="ui.toolbarState.second = 'authorAbout'"></div>
+      <!--<div id="authorNameEditor" (click)="ui.toolbarState.second = 'authorName'"></div>
+      <div id="authorAboutEditor" (click)="ui.toolbarState.second = 'authorAbout'"></div>-->
+
+      <div *ngIf="author">
+        <h1>You have {{ author.publications.length }} publications</h1>
+      </div>
+
+      <!-- todo: set number of publications (repeats in home page) -->
+    <div *ngFor="let publication of author?.publications">
+      <app-publication-banner [showArticles]="1" [showAuthor]="false" [publication]="publication" [heightVH]="33" [editable]="false"></app-publication-banner>
+    </div>
 
 
-
-  </flex-col>
+  </flex-col-center>
   <!-- end of content, centered -->
 </flex-row>
 <!-- end of full row -->

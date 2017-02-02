@@ -32,10 +32,14 @@ class UserImage(ndb.Model):
 class UserImageEndpoint(RequestHandler):
     """
     returns a list of the users images
+    todo: better code for not-authed
     """
     @cross_origin
     def get(self):
         user = users.get_current_user()
+        if not user:
+            return_error(self, 403, 'you need to be authenticated in order to load images')
+            return
         user_images = UserImage.query(UserImage.user_id == user.user_id()).fetch()
         image_list = []
         for user_image in user_images:

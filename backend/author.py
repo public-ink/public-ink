@@ -47,7 +47,7 @@ class Author(ndb.Model):
             return author_list
         authors = cls.query(Author.email == user.email(), Author.deleted == False).fetch()
         for author in authors:
-            author_list.append(author.data())
+            author_list.append(author.data(include_publications = False))
         return author_list
 
 
@@ -163,3 +163,28 @@ class MeEndpoint(RequestHandler):
         author_list = Author.get_by_session()
         allow_cors(self)
         return_json(self, author_list)
+
+class WhoAmIEndpoint(RequestHandler):
+    """
+    Endpoint for querying information about the current user
+    Response is a list of authors
+    """
+    def get(self):
+        user = users.get_current_user()
+        if user:
+            authenticated = True
+            email = user.email()
+        else:
+            authenticated = False
+            email = ''
+        author_list = Author.get_by_session()
+        
+        response = {
+            'authenticated': authenticated,
+            'authors': author_list,
+            'loginUrl': users.create_login_url('http://localhost:4200/'),
+            'logoutUrl': users.create_logout_url('http://localhost:4200/'),
+            'email': email
+        }
+        allow_cors(self)
+        return_json(self, response)

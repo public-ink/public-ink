@@ -14,7 +14,7 @@ from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext import blobstore
 """
 
-from author      import AuthorEndpoint, MeEndpoint
+from author      import AuthorEndpoint, MeEndpoint, WhoAmIEndpoint
 from publication import PublicationEndpoint, PublicationsEndpoint
 from article     import ArticleEndpoint
 from comment     import CommentEndpoint
@@ -26,8 +26,12 @@ class Home(webapp2.RequestHandler):
     def get(self):
         template = ninja.get_template('home.html')
         user = users.get_current_user()
-        login_url = users.create_login_url("/")
-        template_values = {'login_url': login_url}
+        login_url = users.create_login_url('/')
+        logout_url = users.create_logout_url('/')
+        template_values = {
+          'login_url': login_url,
+          'logout_url': logout_url
+        }
         self.response.write(template.render(template_values))
 
 
@@ -46,6 +50,9 @@ app = webapp2.WSGIApplication([
 
   # here come listing of anythings!
   ('/publications', PublicationsEndpoint),
+  # who am I
+  ('/whoami', WhoAmIEndpoint),
+  
   ('/me', MeEndpoint),
   
   # here comes the image server!
@@ -59,3 +66,10 @@ app = webapp2.WSGIApplication([
 
 
 ], debug=True)
+
+
+"""
+Tip: An easy way to restrict access to a part of your application 
+to signed in users is to use the login: required configuration element 
+for the URL handler. See Configuring an App.
+"""
