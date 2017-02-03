@@ -24,6 +24,16 @@ export class HomeComponent implements OnInit {
       name: 'Ready for Scale',
       icon: 'rocket',
     },
+    {
+      name: 'Fast & Secure',
+      icon: 'lock',
+    },
+    {
+      name: 'Deleted = Deleted',
+      icon: 'rocket',
+    },
+    
+    
     /*{
       name: 'Slick as fuck',
       icon: 'circle-o-notch',

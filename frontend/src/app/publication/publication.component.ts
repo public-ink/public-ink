@@ -7,6 +7,8 @@ import { BackendService } from '../backend.service'
 import { StyleService } from '../style.service'
 import { UIService } from '../ui.service'
 
+import  { Author, Publication } from '../interfaces'
+
 @Component({
   selector: 'app-publication',
   templateUrl: './publication.component.html',
@@ -18,9 +20,13 @@ export class PublicationComponent implements OnInit {
   aboutQuill: any
   madeQuills: boolean = false
 
-  publication: any
   authorID: string
   publicationID: string
+
+  // from backend
+  publication: Publication
+  author: Author
+  
 
   error
 
@@ -47,14 +53,22 @@ export class PublicationComponent implements OnInit {
       this.authorID = params['authorID']
       this.publicationID = params['publicationID']
 
+      
+
+      
+
       if (this.publicationID === 'new') {
-        this.publication = this.backend.startPublication(this.authorID)
-        console.log('new pub', this.publication)
-        this.backend.currentResource = this.publication
+        // get the author (we don't have a publication with an author inside)
+        this.backend.getAuthorByID(this.authorID).subscribe((author: Author) => {
+          this.author = author
+          this.publication = this.backend.startPublication(this.author)
+          this.backend.currentResource = this.publication
+        })
         return
       }
 
-      return this.backend.getPublicationByIDs(this.authorID, this.publicationID).subscribe(
+      // else: load existing publication
+      this.backend.getPublicationByIDs(this.authorID, this.publicationID).subscribe(
         (publication) => {
           this.publication = publication
           console.log('existing pub', this.publication)
@@ -75,7 +89,7 @@ export class PublicationComponent implements OnInit {
    */
   titleImageHandler() {
     console.log('quill title image handler here', this)
-    this.publication.image = 'http://placehold.it/300/400'
+    this.publication.imageUrl = 'http://placehold.it/300/400'
   }
 
 

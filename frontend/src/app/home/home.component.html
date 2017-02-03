@@ -1,6 +1,39 @@
 <!-- spacer -->
 <div style="height:100px"></div>
 
+<flex-row-center>
+  <flex-row [style.width.%]="100" [style.maxWidth.px]="style.theme.contentWidth" 
+  style="justify-content:space-around;">
+
+      <!-- AUTHENTICATED USERS -->
+    <flex-col-center *ngFor="let author of backend.userAuthors">
+      <flex-col-center (click)="backend.assumeIdentity(author)" style="width: 60px; height: 60px; border-radius:50px; background-color:lightsalmon;">
+        <img [src]="author.imageUrl + '=s60-c'" style="border-radius:50px;"/>
+        <span *ngIf="author === backend.userIdentity">check (abs)</span>
+      </flex-col-center>
+      <a [routerLink]="['/', author.id]">{{ author.nameText }}</a>
+    </flex-col-center>
+
+    <!-- create profile -->
+    <flex-col-center [routerLink]="['/', 'new']">
+      <flex-col-center style="width: 60px; height: 60px; border-radius:50px; background-color:lightsalmon;">
+        <i class="fa fa-plus-circle" aria-hidden="true"></i>
+      </flex-col-center>
+      <span>Create Profile</span>
+    </flex-col-center>
+
+    <!-- sign out -->
+    <flex-col-center>
+      <flex-col-center style="width: 60px; height: 60px; border-radius:50px; background-color:lightsteelblue;">
+        <i class="fa fa-sign-out" aria-hidden="true"></i>
+      </flex-col-center>
+      <span>Sign Out</span>
+    </flex-col-center>
+
+  </flex-row>
+
+</flex-row-center>
+
 <!-- temp: user identity switching -->
 <flex-col-center>
 
@@ -16,32 +49,7 @@
     </div>
 
 
-    <!-- AUTHENTICATED USERS -->
-    <flex-col-center *ngFor="let author of backend.userAuthors">
-      
-      <flex-col-center (click)="backend.assumeIdentity(author)" style="width: 80px; height: 80px; border-radius:50px; background-color:lightsalmon;">
-        <img [src]="author.imageUrl + '=s80-c'" style="border-radius:50px;"/>
-        <span *ngIf="author === backend.userIdentity">check (abs)</span>
-      </flex-col-center>
-      <a [routerLink]="['/', author.id]">{{ author.nameText }}</a>
-
-    </flex-col-center>
-
-    <!-- create profile -->
-    <flex-col-center>
-      <flex-col-center style="width: 80px; height: 80px; border-radius:50px; background-color:lightsalmon;">
-        <i class="fa fa-user-plus" aria-hidden="true"></i>
-      </flex-col-center>
-      <span>Create Profile</span>
-    </flex-col-center>
-
-    <!-- create profile -->
-    <flex-col-center>
-      <flex-col-center style="width: 80px; height: 80px; border-radius:50px; background-color:lightsteelblue;">
-        <i class="fa fa-sign-out" aria-hidden="true"></i>
-      </flex-col-center>
-      <span>Sign Out</span>
-    </flex-col-center>
+    
 
       
 

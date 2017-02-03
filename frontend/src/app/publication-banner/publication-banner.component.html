@@ -1,5 +1,6 @@
 
-
+<!-- GUARD -->
+<div *ngIf="publication">
   
 <!-- BANNER -->
 <flex-row-center
@@ -32,9 +33,9 @@
 </flex-row-center><!-- END OF BANNER -->
 
 
-<!-- NEW ARTICLE -->
-<flex-col-center *ngIf="publication?.author.nameText === backend.userIdentity?.nameText">
-  {{ backend.userIdentity.nameText  }} {{ publication.author.nameText }}
+<!-- NEW ARTICLE (only if not new-->
+<flex-col-center *ngIf="publication.id !== 'new'">
+  create article (only if allowed)
   <button [routerLink]="['/', publication.author.id, publication.id, 'new']" [ngStyle]="{'backgroundColor': 'blue', color: 'white', 'fontSize.px': 20}">create article</button>
 </flex-col-center>
 
@@ -51,3 +52,5 @@
     
   </div>
 </div><!-- END OF ARTICLES -->
+
+</div>

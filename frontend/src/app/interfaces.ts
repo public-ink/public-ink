@@ -19,6 +19,8 @@ export interface Publication {
   aboutText: string;
   url?: string;
   imageUrl?: string;
+  author: Author;
+  articles: Publication[];
 }
 
 // ARTICLE

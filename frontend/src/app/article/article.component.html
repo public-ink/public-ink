@@ -35,6 +35,10 @@
     <div style="padding: 0px 0px;" id="articleBodyEditor" (click)="ui.toolbarState.main = 'edit'; ui.toolbarState.second = 'articleBody'"></div>
 
 
+    <!-- CRUD -->
+    <span (click)="backend.updateArticle(article)">save</span>
+    <span (click)="backend.deleteArticle(article)">delete</span>
+
 
     <!-- comment -->
     <div *ngIf="article && article.id !== 'new'">

@@ -78,14 +78,16 @@ export class BackendService {
     url: '/author/new',
   }
   
-  startPublication(authorID) {
-    let pub = {
+  startPublication(author: Author) {
+    let pub: Publication = {
       id: 'new',
       name: '{}',
       nameText: 'such new',
       about: '{}',
       aboutText: 'yea about that...',
-      url: '/author/' + authorID + '/publication/new'
+      url: '/author/' + author.id + '/publication/new',
+      author: author,
+      articles: [],
     }
     return pub
   }
@@ -190,6 +192,7 @@ export class BackendService {
     let url = this.BACKEND_URL + '/author/' + author.id
     this.http.delete(url, this.defaultOptions()).map(res => res.json()).subscribe((deletedAuthor: Author) => {
       author = deletedAuthor
+      alert('deleted author')
       console.log('deleted author')
     })
   }
@@ -350,9 +353,6 @@ export class BackendService {
   updateArticle(article: Article) {
     this.saving = true
     let url = this.BACKEND_URL + article.url
-
-
-
     let data = article
     this.http.post(url, article, this.defaultOptions()).map(res => res.json()).subscribe(
       (article: Article) => {

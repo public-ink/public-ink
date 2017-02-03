@@ -26,8 +26,13 @@
       <!--<div id="authorNameEditor" (click)="ui.toolbarState.second = 'authorName'"></div>
       <div id="authorAboutEditor" (click)="ui.toolbarState.second = 'authorAbout'"></div>-->
 
-      <div *ngIf="author">
+      <a [routerLink]="['/', author.id, 'new']" *ngIf="author">create new publication</a>
+
+      <div *ngIf="author && author.publications">
         <h1>You have {{ author.publications.length }} publications</h1>
+
+        <button *ngIf="author.id === backend.userIdentity?.id" (click)="backend.deleteAuthor(author)">delete</button>
+
       </div>
 
       <!-- todo: set number of publications (repeats in home page) -->

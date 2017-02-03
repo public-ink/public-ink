@@ -153,7 +153,7 @@ class AuthorEndpoint(RequestHandler):
         author = ndb.Key('Author', id).get()
         author.deleted = True
         author.put()
-        return_json(self, author_data)
+        return_json(self, author.data())
 
 class MeEndpoint(RequestHandler):
     """
