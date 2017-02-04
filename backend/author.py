@@ -50,7 +50,7 @@ class Author(ndb.Model):
             author_list.append(author.data(include_publications = False))
         return author_list
 
-
+    ## todo: know which server you are sitting on! hardcoded localhost:8080 for now
     def data(self, include_publications=True):
         """
         returns a dictionary containing information about an author,
@@ -64,12 +64,13 @@ class Author(ndb.Model):
                 publication_list.append(publication.data())
         return {
             'id': author_id,
-            'url': '/author/{}'.format(author_id),
+            'url': 'http://localhost:8080/author/{}'.format(author_id),
             'name': self.name,
             'nameText': self.name_text,
             'about': self.about,
             'aboutText': self.about_text,
             'imageUrl': self.image_url,
+            'deleted': self.deleted,
             'publications': publication_list # exclude altogether
         }
 
@@ -101,13 +102,14 @@ class AuthorEndpoint(RequestHandler):
         """
         data = json.loads(self.request.body)
         name_text = data.get('nameText')
-        email = users.get_current_user().email()
+        if not name_text or name_text == '':
+            return_error(self, 400, 'missing required paramter: nameText')
+            return
 
+        email = users.get_current_user().email()
         author = ndb.Key('Author', slugify(name_text)).get()
         if author:
-            # duplicate! raise error
-            # or just add something to the key, like 'hoff-mega
-            return_error(self, 409, 'already exists')
+            return_error(self, 409, 'an author of that name already exists')
             return
         author_key = Author(
             id=slugify(name_text),

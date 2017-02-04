@@ -7,6 +7,8 @@ import 'rxjs/add/operator/map'
 // Services
 import { UIService } from './ui.service'
 
+import { Resource } from './models'
+
 // Interfaces
 import { Author, Publication, Article, Comment, ServerError } from './interfaces'
 
@@ -22,6 +24,10 @@ export class BackendService {
   logoutUrl: string
   userAuthenticated: boolean = false
   userEmail: string
+
+  /*putResource(resouce: Resource) {
+    this.http.put(resouce.url, resouce.data())
+  }*/
 
   saveCurrentResource() {
     console.log('wanna save', this.currentResource)
@@ -299,7 +305,7 @@ export class BackendService {
     return this.http.get(url).map(res => res.json())
   }
 
-  // NEW: get multiple publications for Home Page
+// NEW: get multiple publications for Home Page
   getPublications(): Observable<Publication> {
     let url = this.BACKEND_URL + '/publications'
     return this.http.get(url).map(res => res.json())

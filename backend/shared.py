@@ -111,7 +111,7 @@ def return_error(handler, code, message):
     Returns an error with a given code and message
     """
     handler.error(code)
-    return_json(handler, {'message': message})
+    handler.response.out.write(message)
 
 
 """
