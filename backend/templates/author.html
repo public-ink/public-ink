@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ author.name }}'s profile on public.ink
+{% endblock %}
+
+{% block body %}
+
+<flex-row-center>
+    <div class="content-width">
+        <h1>Author Template</h1>
+        <h2>{{ author.name }}</h2>
+    </div>
+</flex-row-center>
+
+{% endblock %}

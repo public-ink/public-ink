@@ -10,7 +10,9 @@
 
   <div *ngIf="createdAuthor">
     <h2 *ngIf="createdAuthor.deleted" style="background-color: red;">deleted</h2>
-    <h3>{{ createdAuthor.nameText }}</h3>
+  
+    <img style="width: 200px; " [src]="createdAuthor.imageUrl" />
+  <h3>{{ createdAuthor.nameText }}</h3>
     <p> {{ createdAuthor.aboutText }}</p>
   </div>
 

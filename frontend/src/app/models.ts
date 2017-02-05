@@ -47,6 +47,7 @@ export class Author extends Resource implements IResource {
     about: string
     aboutText: string
     imageUrl: string
+    deleted: boolean
 
     constructor(data: AuthorData) {
         super(data)
@@ -56,6 +57,7 @@ export class Author extends Resource implements IResource {
         this.about = data.about
         this.aboutText = data.aboutText
         this.imageUrl = data.imageUrl
+        this.deleted = data.deleted
     } 
 
     /** The data this resources puts/posts to the backend */

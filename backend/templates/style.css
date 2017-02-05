@@ -1,0 +1,17 @@
+.content-width {
+    width: 100%;
+    max-width: {{ content_width }}px;
+}
+
+html {
+    background-color: blue;
+}
+
+flex-row{
+    display: flex;
+}
+flex-row-center {
+    background:yellow;
+    display: flex;
+    justify-content: center;
+}

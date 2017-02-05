@@ -37,7 +37,6 @@ export class PlaygroundComponent implements OnInit {
   constructor(
     private backend: BackendService,
     private ui: UIService,
-
     private http: Http,
   ) { }
 
@@ -52,7 +51,8 @@ export class PlaygroundComponent implements OnInit {
   deletedAuthor: Author
 
 
-  sampleImage = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='30' height='30'><circle cx='15' cy='15' r='10' /></svg>"
+  sampleImage = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50'><circle cx='25' cy='25' r='25' fill='blue' /></svg>"
+  sampleImageUrl = "http://i.dailymail.co.uk/i/pix/2015/10/05/22/2D1EA25A00000578-3261149-image-a-1_1444081231329.jpg"
 
 
   freshAuthorData() {
@@ -63,7 +63,7 @@ export class PlaygroundComponent implements OnInit {
       nameText: '',
       about: '',
       aboutText: '',
-      imageUrl: this.sampleImage,
+      imageUrl: this.sampleImageUrl,
       deleted: false,
     }
   }
@@ -82,10 +82,11 @@ export class PlaygroundComponent implements OnInit {
       },
       (error: ValidationError | ServerError) => {
         if (error.status === 400) {
+          // should not happen
           this.checks.push('improper create: CHECK!')
         } else if (error.status === 999) {
           this.checks.push('improper create: Check! (got expected validation error)')
-        }
+        } 
       }
     )
   }
@@ -202,28 +203,35 @@ export class PlaygroundComponent implements OnInit {
   properDelete() {
     this.deleteResource(this.createdAuthor).subscribe(
       (authorData: AuthorData) => {
-      if (authorData.deleted) {
-        this.checks.push('Proper DELETE: Check!')
-      }
+        this.createdAuthor = new Author(authorData)
+        if (this.createdAuthor.deleted) {
+          this.checks.push('Proper DELETE: Check!')
+        } else {
+          this.checks.push('delete fail')
+        }
       },
       (error: ValidationError | ServerError) => {
-        
+        this.checks.push('delete fail (error)')
       }
     )
   }
 
   /**
-   * CRUD! :))))
+   * Creates a resource, via PUT
    */
   putResource(resource: IResource): Observable<AuthorData | PublicationData> {
-    if (!resource.isValid()) {
-      // return validation error, via subscription
-      return Observable.create(input => { input.error({ status: 999 }) })
-    } else {
+    if (resource.isValid()) {
       // go ahead and PUT
       return this.http.put(resource.url, resource.data(), this.defaultOptions()).map(res => res.json())
+    } else {
+      // return validation error, via subscription
+      return Observable.create(input => { input.error({ status: 999 }) })
     }
   }
+
+  /**
+   * Updates a resource, via POST
+   */
   postResource(resource: IResource): Observable<AuthorData | PublicationData> {
     if (resource.isValid()) {
       // go ahead and POST
@@ -233,10 +241,19 @@ export class PlaygroundComponent implements OnInit {
       return Observable.create(input => { input.error({ status: 999 }) })
     }
   }
+  /**
+   * Deletes a resource, via DELETE
+   */
   deleteResource(resource: IResource): Observable<AuthorData | PublicationData> {
     return this.http.delete(resource.url, this.defaultOptions()).map(res => res.json())
   }
 
+  /**
+   * Gets a resource, given its IDs
+   * -authorID (required)
+   * -publicationID
+   * -articleID
+   */
   getResourceByIDs(authorID: string, publicationID?: string, articleID?: string) {
     let url = '/author/' + authorID
     url += publicationID ? `/publication/${publicationID}` : ''
@@ -244,15 +261,23 @@ export class PlaygroundComponent implements OnInit {
     return this.http.get(url, this.defaultOptions()).map(res => res.json())
   }
 
+  /**
+   * Gets a resource from a given URL
+   */
   getResourceByUrl(url: string): Observable<AuthorData | PublicationData> {
     return this.http.get(url, this.defaultOptions()).map(res => res.json())
   }
 
-  /** GET an array of resources */
+  /** 
+   * Gets a list of resource from a given URL
+   */
   getResourcesByUrl(url: string): Observable<IBackendData[]> {
     return this.http.get(url, this.defaultOptions()).map(res => res.json())
   }
 
+  /**
+   * Returns RequestOptions of content-type: json, withCredentials: true
+   */
   defaultOptions(): RequestOptions {
     let headers = new Headers({ 'Content-Type': 'application/json' })
     return new RequestOptions({ headers: headers, withCredentials: true })

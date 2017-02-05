@@ -34,8 +34,19 @@ class Home(webapp2.RequestHandler):
         }
         self.response.write(template.render(template_values))
 
+class StyleEndpoint(webapp2.RequestHandler):
+    def get(self):
+        content_width = 700
+        template = ninja.get_template('style.css')
+        template_values = {
+          'content_width': content_width
+        }
+        self.response.write(template.render(template_values))
 
 app = webapp2.WSGIApplication([
+# new style
+  ('/style', StyleEndpoint),
+
   # renders the home template, for now
   ('/', Home),
   # Comment Endpoint

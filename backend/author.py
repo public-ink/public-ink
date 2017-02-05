@@ -6,6 +6,7 @@ import json
 import webapp2
 
 from publication import Publication
+from shared import ninja
 
 
 class Author(ndb.Model):
@@ -92,7 +93,15 @@ class AuthorEndpoint(RequestHandler):
             return_error(self, 404, 'this author does not exist')
             return
         author_data = author.data()
-        return_json(self, author_data)
+        format = self.request.GET.get('format')
+        if format == 'html':
+            template = ninja.get_template('author.html')
+            template_values = {
+                'author': author
+            }
+            self.response.write(template.render(template_values))
+        else: 
+            return_json(self, author_data)
 
     @cross_origin
     @login_required
