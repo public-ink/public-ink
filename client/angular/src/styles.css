@@ -1,0 +1,34 @@
+
+
+flex-row {
+    display: flex;
+}
+flex-row-center {
+    display: flex;
+}
+
+/*
+COLUMNS:
+first part is horizontal, so align-items,
+sececond part is vertical, so justify-content,
+*/
+flex-col {
+    display: flex;
+    flex-direction: column;
+}
+flex-col-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+flex-col-center-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#loadingScreen {
+    width: 100vw;
+    height: 100vh;
+}
