@@ -145,11 +145,15 @@ export class Publication extends Resource implements IResource {
 export class Article extends Resource implements IResource {
     title: string
     titleText: string
+    body: string
+    bodyText: string
 
     constructor(data: ArticleData) {
         super(data)
         this.title = data.title
         this.titleText = data.titleText
+        this.body = data.body
+        this.bodyText = data.bodyText
     }
 
     data() {
