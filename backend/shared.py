@@ -1,9 +1,21 @@
 import webapp2
+import datetime
 import json
 import jinja2
 import os
 from google.appengine.ext import ndb
 from google.appengine.api import users
+
+
+"""
+Unix Epoch Helper
+"""
+
+zero = datetime.datetime.utcfromtimestamp(0)
+def epoch(dt):
+    if not dt:
+        return 0
+    return int((dt - zero).total_seconds() * 1000)
 
 
 """

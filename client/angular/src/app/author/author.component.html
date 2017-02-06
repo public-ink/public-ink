@@ -1,3 +1,13 @@
-<p>
-  author works!
-</p>
+
+{{ author | stringify }}
+
+<img [src]="author.imageUrl + '=s80-c'" />
+
+<input type="text" [(ngModel)]="author.nameText" />
+
+<h1>{{ author.nameText }}</h1>
+<h1>{{ author.aboutText }}</h1>
+
+<button (click)="emitSaveAuthor()">save</button>
+
+<app-publication *ngFor="let publication of author.publications" [publication]="publication"></app-publication>

@@ -9,6 +9,9 @@ import {
   AuthorData,
 } from './models'
 
+// Declarations
+declare function stopTimer(timestamp: number): void
+
 
 @Component({
   selector: 'app-root',
@@ -17,14 +20,11 @@ import {
 })
 export class AppComponent {
 
-  private author
-
   constructor(
     private backend: BackendService,
   ) {
-    this.backend.getResourceByUrl('http://localhost:8080/author/bukovski').subscribe((authorData: AuthorData) => {
-      this.author = new Author(authorData)
-    })
+    let now = new Date().getTime()
+    stopTimer(now)
   }
 
   title = 'public.ink'

@@ -1,5 +1,3 @@
-import { BackendService } from './backend.service'
-import { Http } from '@angular/http'
 
 /**
  * The shape of a Resource instance (an Author, Publication,.. instance)
@@ -47,7 +45,10 @@ export class Author extends Resource implements IResource {
     about: string
     aboutText: string
     imageUrl: string
+    publications: Publication[] = []
     deleted: boolean
+    created: number
+    updated: number
 
     constructor(data: AuthorData) {
         super(data)
@@ -58,7 +59,14 @@ export class Author extends Resource implements IResource {
         this.aboutText = data.aboutText
         this.imageUrl = data.imageUrl
         this.deleted = data.deleted
-    } 
+        this.created = data.created
+        this.updated = data.updated
+
+        for (let publication of data.publications) {
+            this.publications.push(new Publication(publication))
+        } 
+
+    }
 
     /** The data this resources puts/posts to the backend */
     data() {
@@ -81,21 +89,45 @@ export class Author extends Resource implements IResource {
         }
     }
 
-    /** nice, but useless */
-    static fromData(data: AuthorData) {
+    /**
+     * Creates and returns a 'New Author' instance
+     */
+    static createNew(): Author {
+        let data: AuthorData = {
+            id: 'new',
+            url: 'http://localhost:8080/author/new',
+            name: '',
+            nameText: '',
+            about: '',
+            aboutText: '',
+            imageUrl: '',
+            deleted: false,
+            publications: [],
+        }
         return new this(data)
     }
 }
 
 export class Publication extends Resource implements IResource {
     name: string
+    nameText: string
     about: string
+    aboutText: string
+    imageUrl: string
+    // related
+    articles: Article[] = []
 
     constructor(data: PublicationData) {
         super(data)
         this.type = 'publication'
         this.name = data.name
+        this.nameText = data.nameText
         this.about = data.about
+        this.aboutText = data.aboutText
+        // construct related
+        for (let articleData of data.articles) {
+            this.articles.push(new Article(articleData))
+        }
     }
 
     data() {
@@ -105,6 +137,24 @@ export class Publication extends Resource implements IResource {
         }
     }
 
+    isValid() {
+        return true
+    }
+}
+
+export class Article extends Resource implements IResource {
+    title: string
+    titleText: string
+
+    constructor(data: ArticleData) {
+        super(data)
+        this.title = data.title
+        this.titleText = data.titleText
+    }
+
+    data() {
+        return {}
+    }
     isValid() {
         return true
     }
@@ -130,9 +180,35 @@ export interface AuthorData extends ResourceData {
     about: string
     aboutText: string
     imageUrl: string
+    publications: PublicationData[]
     deleted: boolean
+    created?: number
+    updated?: number
 }
-export interface PublicationData extends ResourceData{
+
+export interface PublicationData extends ResourceData {
     name: string
+    nameText: string
     about: string
+    aboutText: string
+    imageUrl: string
+    articles: ArticleData[]
+}
+
+export interface ArticleData extends ResourceData {
+    title: string
+    titleText: string
+    body: string
+    bodyText: string
+}
+
+export interface ServerError {
+    status: number
+    statusText: string
+    _body: string
+}
+
+export interface ValidationError {
+    status: number
+    statusText: string
 }

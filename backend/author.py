@@ -6,7 +6,7 @@ import json
 import webapp2
 
 from publication import Publication
-from shared import ninja
+from shared import ninja, epoch
 
 
 class Author(ndb.Model):
@@ -26,6 +26,8 @@ class Author(ndb.Model):
 
     email = ndb.StringProperty()
     user_id = ndb.StringProperty()
+    created = ndb.DateTimeProperty(auto_now_add = True)
+    updated = ndb.DateTimeProperty(auto_now = True)
     deleted = ndb.BooleanProperty(default=False)
     
     @classmethod
@@ -72,6 +74,8 @@ class Author(ndb.Model):
             'aboutText': self.about_text,
             'imageUrl': self.image_url,
             'deleted': self.deleted,
+            'created': epoch(self.created),
+            'updated': epoch(self.updated),
             'publications': publication_list # exclude altogether
         }
 

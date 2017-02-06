@@ -11,6 +11,8 @@ import {
 @Injectable()
 export class BackendService {
 
+  backendHost: string = 'http://localhost:8080'
+
   constructor(
     private http: Http,
   ) { }
@@ -54,7 +56,7 @@ export class BackendService {
    * -articleID
    */
   getResourceByIDs(authorID: string, publicationID?: string, articleID?: string) {
-    let url = '/author/' + authorID
+    let url = this.backendHost + '/author/' + authorID
     url += publicationID ? `/publication/${publicationID}` : ''
     url += articleID ? `/article/${articleID}` : ''
     return this.http.get(url, this.defaultOptions()).map(res => res.json())
