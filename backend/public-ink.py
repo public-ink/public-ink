@@ -4,6 +4,7 @@ import json
 import jinja2
 import time
 
+from google.appengine.ext import ndb
 from google.appengine.api import users
 
 
@@ -43,9 +44,84 @@ class StyleEndpoint(webapp2.RequestHandler):
         }
         self.response.write(template.render(template_values))
 
+
+"""
+Graphene Test Ride
+"""
+
+
+
+
+class Author(ndb.Model):
+    name = ndb.StringProperty()
+
+class Article(ndb.Model):
+    headline = ndb.StringProperty()
+    summary = ndb.TextProperty()
+    text = ndb.TextProperty()
+
+    author_key = ndb.KeyProperty(kind='Author')
+
+    created_at = ndb.DateTimeProperty(auto_now_add=True)
+    updated_at = ndb.DateTimeProperty(auto_now=True)
+
+
+import graphene
+from graphene_gae import NdbObjectType
+
+
+class ArticleType(NdbObjectType):
+    class Meta:
+        model = Article
+
+class Query(graphene.ObjectType):
+    articles = graphene.List(ArticleType)
+
+    hello = graphene.String()
+
+    def resolve_hello(self, args, context, info):
+        return 'World'
+
+    @graphene.resolve_only_args
+    def resolve_articles(self):
+        return Article.query()
+
+#schema = graphene.Schema(query=Query)
+from schema import schema
+from shared import return_json
+import json
+
+from data import initialize
+
+
+
+class GraphQLEndpoint(webapp2.RequestHandler):
+    def get(self):
+        query = '''
+        query RebelsShipsQuery {
+            rebels {
+                name,
+                hero {
+                    name
+                }
+            ships(first: 2) {
+                edges {
+                    node {
+                        name
+                    }
+                }
+            }
+            }
+        }
+        '''
+        result = schema.execute(query)
+        print "executed Query!!"
+        return_json(self, result.data)
+
+
 app = webapp2.WSGIApplication([
 # new style
-  ('/style', StyleEndpoint),
+  ('/graphql', GraphQLEndpoint),
 
   # renders the home template, for now
   ('/', Home),
