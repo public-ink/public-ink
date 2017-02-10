@@ -1,4 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core'
+
+import gql from 'graphql-tag'
+
+import { BackendService } from '../backend.service'
 
 @Component({
   selector: 'app-home-page',
@@ -7,9 +11,34 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HomePageComponent implements OnInit {
 
-  constructor() { }
+  data: any
+
+  constructor(
+    private backend: BackendService,
+  ) { }
 
   ngOnInit() {
+
+
+    const TestQuery = gql`
+      query test {
+            rebels {
+                name
+                hero {
+                    name
+                }
+            }
+        }
+    `
+    console.log('kicking off query')
+    let sub = this.backend.apolloClient.watchQuery({
+      query: TestQuery
+    })
+    console.log('subscription', sub.result)
+
+    this.data = this.backend.apolloClient.watchQuery({ query: TestQuery })
+
+
   }
 
 }

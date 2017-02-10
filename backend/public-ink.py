@@ -51,7 +51,7 @@ Graphene Test Ride
 
 
 
-
+"""
 class Author(ndb.Model):
     name = ndb.StringProperty()
 
@@ -64,40 +64,37 @@ class Article(ndb.Model):
 
     created_at = ndb.DateTimeProperty(auto_now_add=True)
     updated_at = ndb.DateTimeProperty(auto_now=True)
-
+"""
 
 import graphene
 from graphene_gae import NdbObjectType
-
-
-class ArticleType(NdbObjectType):
-    class Meta:
-        model = Article
-
-class Query(graphene.ObjectType):
-    articles = graphene.List(ArticleType)
-
-    hello = graphene.String()
-
-    def resolve_hello(self, args, context, info):
-        return 'World'
-
-    @graphene.resolve_only_args
-    def resolve_articles(self):
-        return Article.query()
-
 #schema = graphene.Schema(query=Query)
 from schema import schema
-from shared import return_json
+from shared import return_json, cross_origin, allow_cors, RequestHandler
 import json
+
+schema
 
 from data import initialize
 
 
 
-class GraphQLEndpoint(webapp2.RequestHandler):
+class GraphQLEndpoint(RequestHandler):
+
+    @cross_origin
+    def post(self):
+        data = json.loads(self.request.body)
+        query = data.get('query', '')
+        result = schema.execute(query)
+        response = {}
+        response['data'] = result.data
+        print "executed Query!!"
+        return_json(self, response)
+
+    @cross_origin
     def get(self):
-        query = '''
+        allow_cors(self)
+        xquery = '''
         query RebelsShipsQuery {
             rebels {
                 name,
@@ -114,6 +111,21 @@ class GraphQLEndpoint(webapp2.RequestHandler):
             }
         }
         '''
+        xquery = ''
+        xquery = self.request.GET.get('query', '')
+        xquery = 'rebels {name}'
+        xquery = """
+        {
+            rebels {
+                name,
+                hero {
+                    name
+                }
+            }
+        }
+        """
+        #query = "query test { rebels { name, hero { name }}}"
+        query = self.request.GET.get('query', '')
         result = schema.execute(query)
         print "executed Query!!"
         return_json(self, result.data)
