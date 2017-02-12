@@ -5,6 +5,7 @@ import webapp2
 import graphene
 from graphene import relay, resolve_only_args
 from graphene_gae import NdbObjectType, NdbConnectionField
+import urllib
 
 import jinja2
 
@@ -38,11 +39,21 @@ class Author(ndb.Model):
 
 class AuthorSchema(graphene.ObjectType):
     """
-    whatever is defined here (this shows up in the docs!! make use of that!)
+    The Author Schema in all its glory!
+    GOTCHA: this shows up in the docs :)
     """
     name = graphene.String()
     about = graphene.String()
     #posts = graphene.List(lambda: PostSchema, description="jo I write about the awesome post schema")
+
+    id = graphene.String()
+    def resolve_id(self, *args): return self.key.id()
+
+    articles = graphene.List(lambda: ArticleSchema)
+    def resolve_articles(self, *args): return Article.query(ancestor=self.key)
+       
+    publications = graphene.List(lambda: PublicationSchema)
+    def resolve_publications(self, *args): return Publication.query(ancestor=self.key)
 
 
 
@@ -59,6 +70,17 @@ class PublicationSchema(graphene.ObjectType):
     name = graphene.String()
     about = graphene.String()
 
+    id = graphene.String()
+    def resolve_id(self, *args): return self.key.id()
+
+    author = graphene.Field(AuthorSchema)
+    def resolve_author(self, *args): return self.key.parent().get()
+
+    articles = graphene.List(lambda: ArticleSchema)
+    def resolve_articles(self, *args): return Article.query(ancestor = self.key)
+    
+
+
 
 
 class Article(ndb.Model):
@@ -72,32 +94,37 @@ class Article(ndb.Model):
 
 
 class ArticleSchema(graphene.ObjectType):
+    """ The Schema / Type Definition of an Article """
+
+    id = graphene.String()
+    def resolve_id(self, *args): return self.key.id()
+    
     title = graphene.String()
     teaser = graphene.String()
 
-    """ author is not a property on Article, so we need to provide a resolver """
+    """ related """
     author = graphene.Field(AuthorSchema)
-    publication = graphene.Field(PublicationSchema)
-
+    """ 
+    GOTCHA: self refers to the actual Article instance 
+    TODO: understand how to pass arguments! (but here it's not so useful...)
+    """
     def resolve_author(self, *args):
-        """
-        because author is not a property of Article, we provide a resolve function
-        Gotcha: self refers to the Article entity, so can we simple find her 'grandparent' here
-        """
         publication = self.key.parent().get()
         author = publication.key.parent().get()
         return author
 
-    def resolve_publication(self, *args):
-        """
-        because author is not a property of Article, we provide a resolve function
-        Gotcha: self refers to the Article entity, so can we simple find her 'grandparent' here
-        """
-        publication = self.key.parent().get()
-        return publication
-
+    publication = graphene.Field(PublicationSchema)
+    def resolve_publication(self, *args): return self.key.parent().get()
     
 
+    def resolve_author(self, *args):
+        """ 
+        GOTCHA: self refers to the actual Article instance 
+        TODO: understand how to pass arguments!
+        """
+        publication = self.key.parent().get()
+        author = publication.key.parent().get()
+        return author
 
 
 
@@ -157,11 +184,16 @@ class GraphQLEndpoint(webapp2.RequestHandler):
         Renders the GraphiQL IDE, populated with a query if it exists
         """
         query = self.request.GET.get('query')
+        # this does shit all, but might be useful later
+        # res = urllib.unquote(query).decode()
+        
         template = ninja.get_template('graphiql.html')
         template_values = {
-            'query': query
+            'query': query 
         }
-        self.response.write(template.render(template_values))
+        # hack for un-quoting double quotes like these " 
+        output = template.render(template_values).replace('&#34;', '"')
+        self.response.write(output)
 
     def post(self):
         """
