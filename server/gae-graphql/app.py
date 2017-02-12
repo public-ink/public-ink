@@ -15,9 +15,17 @@ ninja = jinja2.Environment(
     autoescape=True)
 
 """
+Complex Inputs
+"""
+class IDInput(graphene.InputObjectType):
+    """
+    This kind of thing is useful for defining complex inputs / args
+    """
+    id = graphene.String(required=True)
+
+"""
 Our NDB models
 """
-
 class Author(ndb.Model):
     """
     Represents an author.
@@ -26,11 +34,17 @@ class Author(ndb.Model):
     """
     name = ndb.StringProperty()
     about = ndb.TextProperty()
+    
 
 class AuthorSchema(graphene.ObjectType):
+    """
+    whatever is defined here (this shows up in the docs!! make use of that!)
+    """
     name = graphene.String()
     about = graphene.String()
     #posts = graphene.List(lambda: PostSchema, description="jo I write about the awesome post schema")
+
+
 
 class Publication(ndb.Model):
     """
@@ -41,6 +55,12 @@ class Publication(ndb.Model):
     name = ndb.StringProperty()
     about = ndb.TextProperty()
 
+class PublicationSchema(graphene.ObjectType):
+    name = graphene.String()
+    about = graphene.String()
+
+
+
 class Article(ndb.Model):
     """
     Represents an article, which belongs to an author
@@ -50,6 +70,114 @@ class Article(ndb.Model):
     title = ndb.StringProperty()
     teaser = ndb.TextProperty()
 
+
+class ArticleSchema(graphene.ObjectType):
+    title = graphene.String()
+    teaser = graphene.String()
+
+    """ author is not a property on Article, so we need to provide a resolver """
+    author = graphene.Field(AuthorSchema)
+    publication = graphene.Field(PublicationSchema)
+
+    def resolve_author(self, *args):
+        """
+        because author is not a property of Article, we provide a resolve function
+        Gotcha: self refers to the Article entity, so can we simple find her 'grandparent' here
+        """
+        publication = self.key.parent().get()
+        author = publication.key.parent().get()
+        return author
+
+    def resolve_publication(self, *args):
+        """
+        because author is not a property of Article, we provide a resolve function
+        Gotcha: self refers to the Article entity, so can we simple find her 'grandparent' here
+        """
+        publication = self.key.parent().get()
+        return publication
+
+    
+
+
+
+
+"""
+QUERY and schema
+"""
+class Query(graphene.ObjectType):
+    #author = graphene.Field(AuthorSchema, id=IDInput(), description="Information about an author, now with id!")
+    author = graphene.Field(
+        AuthorSchema, 
+        id=graphene.String(), 
+        description="Information about an author, given the author ID")
+    
+    publication = graphene.Field(
+        PublicationSchema, 
+        authorID = graphene.String(), 
+        publicationID = graphene.String(),
+        description="Information about a publication, given autor ID and publication ID")
+
+    article = graphene.Field(
+        ArticleSchema, 
+        authorID = graphene.String(), 
+        publicationID = graphene.String(),
+        articleID = graphene.String(),
+        description="Information about an article, given autor ID, a publication ID, and article ID")
+
+    def resolve_author(self, args, context, info):
+        id = args.get('id')
+        author_key = ndb.Key('Author', id)
+        author = author_key.get()
+        return author
+
+    def resolve_publication(self, args, context, info):
+        author_id = args.get('authorID')
+        publication_id = args.get('publicationID')
+        publication_key = ndb.Key('Author', author_id, 'Publication', publication_id)
+        publication = publication_key.get()
+        return publication
+
+    def resolve_article(self, args, context, info):
+        author_id = args.get('authorID')
+        publication_id = args.get('publicationID')
+        article_id = args.get('articleID')
+        article_key = ndb.Key('Author', author_id, 'Publication', publication_id, 'Article', article_id)
+        article = article_key.get()
+        return article
+        
+
+schema = graphene.Schema(query=Query) #, mutation=Mutation
+
+"""
+GraphQL Endpoint
+"""
+class GraphQLEndpoint(webapp2.RequestHandler):
+    def get(self):
+        """
+        Renders the GraphiQL IDE, populated with a query if it exists
+        """
+        query = self.request.GET.get('query')
+        template = ninja.get_template('graphiql.html')
+        template_values = {
+            'query': query
+        }
+        self.response.write(template.render(template_values))
+
+    def post(self):
+        """
+        Accepts a query, executes it, and returns the result
+        """
+        data = json.loads(self.request.body)
+        query = data.get('query', '')
+        result = schema.execute(query)
+        response = {'data' : result.data}
+        self.response.headers['Content-Type'] = 'application/json; charset=utf-8'
+        self.response.out.write(json.dumps(response))
+
+
+"""
+Data...
+"""
 def reset_data():
     authors = Author.query().fetch()
     publications = Publication.query().fetch()
@@ -86,8 +214,9 @@ def reset_data():
     print Article.query().fetch()
 
 
-    
-
+"""
+Endpoints!
+"""
 class Home(webapp2.RequestHandler):
     def get(self):
         self.response.write('nothing to see, yet')
@@ -119,45 +248,6 @@ class DataEndpoint(webapp2.RequestHandler):
         self.response.write(template.render(data))
 
 
-
-"""
-QUERY and schema
-"""
-class Query(graphene.ObjectType):
-    author = graphene.Field(AuthorSchema, description="Information about an author!")
-
-    def resolve_author(self, args, context, info):
-        author_key = ndb.Key('Author', 'hoffer')
-        author = author_key.get()
-        return author
-
-schema = graphene.Schema(query=Query) #, mutation=Mutation
-
-"""
-GraphQL Endpoint
-"""
-class GraphQLEndpoint(webapp2.RequestHandler):
-    def get(self):
-        """
-        Renders the GraphiQL IDE, populated with a query if it exists
-        """
-        query = self.request.GET.get('query')
-        template = ninja.get_template('graphiql.html')
-        template_values = {
-            'query': query
-        }
-        self.response.write(template.render(template_values))
-
-    def post(self):
-        """
-        Accepts a query, executes it, and returns the result
-        """
-        data = json.loads(self.request.body)
-        query = data.get('query', '')
-        result = schema.execute(query)
-        response = {'data' : result.data}
-        self.response.headers['Content-Type'] = 'application/json; charset=utf-8'
-        self.response.out.write(json.dumps(response))
 
 app = webapp2.WSGIApplication(
     [
