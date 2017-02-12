@@ -24,6 +24,11 @@ class IDInput(graphene.InputObjectType):
     """
     id = graphene.String(required=True)
 
+class OrderInput(graphene.InputObjectType):
+    order = graphene.String(required=True)
+    name = 'such order'
+
+
 """
 Our NDB models
 """
@@ -42,6 +47,7 @@ class AuthorSchema(graphene.ObjectType):
     The Author Schema in all its glory!
     GOTCHA: this shows up in the docs :)
     """
+    
     name = graphene.String()
     about = graphene.String()
     #posts = graphene.List(lambda: PostSchema, description="jo I write about the awesome post schema")
@@ -49,8 +55,10 @@ class AuthorSchema(graphene.ObjectType):
     id = graphene.String()
     def resolve_id(self, *args): return self.key.id()
 
-    articles = graphene.List(lambda: ArticleSchema)
-    def resolve_articles(self, *args): return Article.query(ancestor=self.key)
+    articles = graphene.List(lambda: ArticleSchema, order= graphene.String())
+    def resolve_articles(self, *args): 
+        print args
+        return Article.query(ancestor=self.key)
        
     publications = graphene.List(lambda: PublicationSchema)
     def resolve_publications(self, *args): return Publication.query(ancestor=self.key)
@@ -67,6 +75,9 @@ class Publication(ndb.Model):
     about = ndb.TextProperty()
 
 class PublicationSchema(graphene.ObjectType):
+    
+    #order = graphene.InputField(lambda: OrderInput)
+    
     name = graphene.String()
     about = graphene.String()
 
@@ -76,14 +87,22 @@ class PublicationSchema(graphene.ObjectType):
     author = graphene.Field(AuthorSchema)
     def resolve_author(self, *args): return self.key.parent().get()
 
-    articles = graphene.List(lambda: ArticleSchema)
-    def resolve_articles(self, *args): return Article.query(ancestor = self.key)
+    articles = graphene.List(lambda: ArticleSchema, order = graphene.String())
+    def resolve_articles(self, *args): 
+        print 'Super' + str(args)
+        return Article.query(ancestor = self.key)
     
 
 
+class InkModel(ndb.Model):
+    """
+    A common NDB entity model
+    """
+    created = ndb.DateTimeProperty(auto_now_add = True)
+    updated = ndb.DateTimeProperty(auto_now = True)
 
 
-class Article(ndb.Model):
+class Article(InkModel):
     """
     Represents an article, which belongs to an author
     The ID is set by us, e.g. 'how-public-ink-was-made', so an article can be retrieved like so:
@@ -92,15 +111,21 @@ class Article(ndb.Model):
     title = ndb.StringProperty()
     teaser = ndb.TextProperty()
 
+    
+
 
 class ArticleSchema(graphene.ObjectType):
     """ The Schema / Type Definition of an Article """
+
+    #order = graphene.InputField(AuthorSchema)
 
     id = graphene.String()
     def resolve_id(self, *args): return self.key.id()
     
     title = graphene.String()
     teaser = graphene.String()
+    created = graphene.String()
+    updated = graphene.String()
 
     """ related """
     author = graphene.Field(AuthorSchema)
@@ -117,11 +142,12 @@ class ArticleSchema(graphene.ObjectType):
     def resolve_publication(self, *args): return self.key.parent().get()
     
 
-    def resolve_author(self, *args):
+    def resolve_author(self, args, context, info):
         """ 
         GOTCHA: self refers to the actual Article instance 
         TODO: understand how to pass arguments!
         """
+        print 'Super' + str(args)
         publication = self.key.parent().get()
         author = publication.key.parent().get()
         return author
@@ -152,6 +178,10 @@ class Query(graphene.ObjectType):
         description="Information about an article, given autor ID, a publication ID, and article ID")
 
     def resolve_author(self, args, context, info):
+        """
+        this resolve author gets args, I want them passed everywhere
+        """
+        print 'resolve author on base query got args' + str(args)
         id = args.get('id')
         author_key = ndb.Key('Author', id)
         author = author_key.get()
