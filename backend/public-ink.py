@@ -91,6 +91,9 @@ class GraphQLEndpoint(RequestHandler):
         print "executed Query!!"
         return_json(self, response)
 
+    def options(self, *arg):
+        allow_cors(self)
+
     @cross_origin
     def get(self):
         allow_cors(self)
