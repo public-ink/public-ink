@@ -32,7 +32,15 @@ class OrderInput(graphene.InputObjectType):
 """
 Our NDB models
 """
-class Author(ndb.Model):
+
+class InkModel(ndb.Model):
+    """
+    A common NDB entity model
+    """
+    created = ndb.DateTimeProperty(auto_now_add = True)
+    updated = ndb.DateTimeProperty(auto_now = True)
+
+class Author(InkModel):
     """
     Represents an author.
     The ID is set by us, e.g. 'hoff', so an author can be retrieved like so:
@@ -50,22 +58,28 @@ class AuthorSchema(graphene.ObjectType):
     
     name = graphene.String()
     about = graphene.String()
+
+    created = graphene.String()
+    updated = graphene.String()
+
     #posts = graphene.List(lambda: PostSchema, description="jo I write about the awesome post schema")
 
     id = graphene.String()
     def resolve_id(self, *args): return self.key.id()
 
     articles = graphene.List(lambda: ArticleSchema, order= graphene.String())
-    def resolve_articles(self, *args): 
+    def resolve_articles(self, args, info, context): 
         print args
-        return Article.query(ancestor=self.key)
+        order = args.get('order')
+        print order
+        return Article.query(ancestor=self.key).order(Article.created)
        
     publications = graphene.List(lambda: PublicationSchema)
     def resolve_publications(self, *args): return Publication.query(ancestor=self.key)
 
 
 
-class Publication(ndb.Model):
+class Publication(InkModel):
     """
     Represents a publication, which belongs to an author
     The ID is set by us, e.g. 'atomic-angular', so a publication can be retrieved like so:
@@ -75,11 +89,14 @@ class Publication(ndb.Model):
     about = ndb.TextProperty()
 
 class PublicationSchema(graphene.ObjectType):
-    
-    #order = graphene.InputField(lambda: OrderInput)
-    
+    """
+    The publication schema
+    """
     name = graphene.String()
     about = graphene.String()
+
+    created = graphene.String()
+    updated = graphene.String()
 
     id = graphene.String()
     def resolve_id(self, *args): return self.key.id()
@@ -87,19 +104,15 @@ class PublicationSchema(graphene.ObjectType):
     author = graphene.Field(AuthorSchema)
     def resolve_author(self, *args): return self.key.parent().get()
 
+    """
+    'articles' is  custom field, with 'order' input. If input gets complex you can do
+    order = graphene.InputField(lambda: OrderInput)
+    """
     articles = graphene.List(lambda: ArticleSchema, order = graphene.String())
-    def resolve_articles(self, *args): 
-        print 'Super' + str(args)
+    def resolve_articles(self, args, context, info): 
+        print 'Super' + args.get('order')
         return Article.query(ancestor = self.key)
     
-
-
-class InkModel(ndb.Model):
-    """
-    A common NDB entity model
-    """
-    created = ndb.DateTimeProperty(auto_now_add = True)
-    updated = ndb.DateTimeProperty(auto_now = True)
 
 
 class Article(InkModel):
@@ -111,11 +124,10 @@ class Article(InkModel):
     title = ndb.StringProperty()
     teaser = ndb.TextProperty()
 
-    
-
 
 class ArticleSchema(graphene.ObjectType):
     """ The Schema / Type Definition of an Article """
+    """ GOTCHA: self refers to the actual Article instance """
 
     #order = graphene.InputField(AuthorSchema)
 
@@ -124,30 +136,16 @@ class ArticleSchema(graphene.ObjectType):
     
     title = graphene.String()
     teaser = graphene.String()
+
     created = graphene.String()
     updated = graphene.String()
 
     """ related """
-    author = graphene.Field(AuthorSchema)
-    """ 
-    GOTCHA: self refers to the actual Article instance 
-    TODO: understand how to pass arguments! (but here it's not so useful...)
-    """
-    def resolve_author(self, *args):
-        publication = self.key.parent().get()
-        author = publication.key.parent().get()
-        return author
-
     publication = graphene.Field(PublicationSchema)
     def resolve_publication(self, *args): return self.key.parent().get()
     
-
+    author = graphene.Field(AuthorSchema)
     def resolve_author(self, args, context, info):
-        """ 
-        GOTCHA: self refers to the actual Article instance 
-        TODO: understand how to pass arguments!
-        """
-        print 'Super' + str(args)
         publication = self.key.parent().get()
         author = publication.key.parent().get()
         return author
@@ -271,9 +269,13 @@ def reset_data():
         teaser = 'A look behind the scenes!'
     )
     article_key = article.put()
-    print 'created article'
-    print article_key
-    print Article.query().fetch()
+    
+    article2 = Article(
+        id="on-being-awesome",
+        parent = publication_key,
+        title="On being awesome",
+        teaser ="a primer that will change your life"
+    ).put()
 
 
 """
