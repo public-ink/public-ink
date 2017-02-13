@@ -1,3 +1,12 @@
-<p>
-  article-page works!
-</p>
+
+<div *ngIf="article">
+
+<div class="content-width">
+  <h1>{{ article.title }}</h1>
+   <p>by {{ article.author.name }} updated on {{ article.updated | date:'medium'}}</p>
+    <p>{{ article.teaser }}</p>
+    <textarea [(ngModel)]="article.teaser"></textarea>
+    <div class="button" (click)="save()">save</div>
+</div>
+
+</div>

@@ -10,6 +10,9 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 
   <style>
+  body {
+    font-family: Courier New, Courier, monospace;
+  }
   flex-col-center-center {
     display: flex;
     flex-direction: column;
@@ -18,7 +21,7 @@
   }
   #loadingScreen {
     width: 100vw;
-    height: 30vh;
+    height: 10vh;
     border-bottom: 1px solid black;
 }
   </style>
@@ -27,7 +30,7 @@
 
 <body>
   <flex-col-center-center id="loadingScreen">
-    <div>public.ink <span id="wording" > is loading </span> <span id="timer">ms</span></div>
+    <div><a href="/">public.ink</a> <span id="wording" > is loading </span> <span id="timer"></span>ms</div>
   </flex-col-center-center>
   <app-root>
     

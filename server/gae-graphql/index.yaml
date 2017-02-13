@@ -14,3 +14,9 @@ indexes:
   ancestor: yes
   properties:
   - name: created
+
+- kind: Article
+  ancestor: yes
+  properties:
+  - name: created
+    direction: desc

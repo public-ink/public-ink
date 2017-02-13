@@ -15,29 +15,13 @@ import {
 export class BackendService {
 
   backendHost: string = 'http://localhost:8080'
-  testQuery = gql`
-      query test {
-            rebels {
-                name,
-                hero {
-                    name
-                }
-            }
-        }
-    `
-
-  apolloClient: ApolloClient
+  
 
   constructor(
     private http: Http,
   ) {
 
-    this.apolloClient = new ApolloClient({
-      networkInterface: createNetworkInterface({
-        uri: 'http://localhost:8080/graphql'
-      }),
-    })
-    console.log('instantiated apollo client', this.apolloClient)
+   
   }
 
   /**

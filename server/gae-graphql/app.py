@@ -6,8 +6,10 @@ import graphene
 from graphene import relay, resolve_only_args
 from graphene_gae import NdbObjectType, NdbConnectionField
 import urllib
-
+import random
 import jinja2
+
+from shared import RequestHandler, cross_origin
 
 
 ninja = jinja2.Environment(
@@ -69,10 +71,14 @@ class AuthorSchema(graphene.ObjectType):
 
     articles = graphene.List(lambda: ArticleSchema, order= graphene.String())
     def resolve_articles(self, args, info, context): 
-        print args
+        
         order = args.get('order')
-        print order
-        return Article.query(ancestor=self.key).order(Article.created)
+        if order == 'latest':
+            return Article.query(ancestor=self.key).order(-Article.created)
+        elif order == 'oldest':
+            return Article.query(ancestor=self.key).order(Article.created)
+        else:
+            return Article.query(ancestor=self.key)
        
     publications = graphene.List(lambda: PublicationSchema)
     def resolve_publications(self, *args): return Publication.query(ancestor=self.key)
@@ -110,7 +116,6 @@ class PublicationSchema(graphene.ObjectType):
     """
     articles = graphene.List(lambda: ArticleSchema, order = graphene.String())
     def resolve_articles(self, args, context, info): 
-        print 'Super' + args.get('order')
         return Article.query(ancestor = self.key)
     
 
@@ -157,33 +162,27 @@ QUERY and schema
 """
 class Query(graphene.ObjectType):
     #author = graphene.Field(AuthorSchema, id=IDInput(), description="Information about an author, now with id!")
+
+    """ author take an ID """
     author = graphene.Field(
         AuthorSchema, 
         id=graphene.String(), 
         description="Information about an author, given the author ID")
+
+    def resolve_author(self, args, context, info):
+        id = args.get('id')
+        author_key = ndb.Key('Author', id)
+        author = author_key.get()
+        return author
     
+    """
+    Publication takes an authorID and publicationID
+    """
     publication = graphene.Field(
         PublicationSchema, 
         authorID = graphene.String(), 
         publicationID = graphene.String(),
         description="Information about a publication, given autor ID and publication ID")
-
-    article = graphene.Field(
-        ArticleSchema, 
-        authorID = graphene.String(), 
-        publicationID = graphene.String(),
-        articleID = graphene.String(),
-        description="Information about an article, given autor ID, a publication ID, and article ID")
-
-    def resolve_author(self, args, context, info):
-        """
-        this resolve author gets args, I want them passed everywhere
-        """
-        print 'resolve author on base query got args' + str(args)
-        id = args.get('id')
-        author_key = ndb.Key('Author', id)
-        author = author_key.get()
-        return author
 
     def resolve_publication(self, args, context, info):
         author_id = args.get('authorID')
@@ -192,6 +191,16 @@ class Query(graphene.ObjectType):
         publication = publication_key.get()
         return publication
 
+    """
+    Article take an authorID, a publicationID, and articleID
+    """
+    article = graphene.Field(
+        ArticleSchema, 
+        authorID = graphene.String(), 
+        publicationID = graphene.String(),
+        articleID = graphene.String(),
+        description="Information about an article, given autor ID, a publication ID, and article ID")
+
     def resolve_article(self, args, context, info):
         author_id = args.get('authorID')
         publication_id = args.get('publicationID')
@@ -199,14 +208,79 @@ class Query(graphene.ObjectType):
         article_key = ndb.Key('Author', author_id, 'Publication', publication_id, 'Article', article_id)
         article = article_key.get()
         return article
+
+    """
+    Endpoint for getting a list of articles
+    -> currently simply returns all articles
+    """
+    articles = graphene.List(lambda: ArticleSchema, order = graphene.String())
+    def resolve_articles(self, args, context, info): 
+        return Article.query()
+
+    """
+    Endpoint for getting a list of publications
+    -> currently returns all publications
+    """
+    publications = graphene.List(lambda: PublicationSchema)
+    def resolve_publications(self, args, context, info):
+        return Publication.query()
+
+
+"""
+Mutations
+"""
+class CreatePerson(graphene.Mutation):
+    class Input:
+        name = graphene.String()
+
+    ok = graphene.Boolean()
+    person = graphene.Field(lambda: Person)
+
+    def mutate(self, args, context, info):
+        person = Person(name=args.get('name'))
+        ok = True
+        return CreatePerson(person=person, ok=ok)
+
+class UpdateArticle(graphene.Mutation):
+    class Input:
+        authorID = graphene.String()
+        publicationID = graphene.String()
+        articleID = graphene.String()
+        title = graphene.String()
+
+    # the return value(s) fro this mutation, in this case the update article
+    article = graphene.Field(ArticleSchema)
+
+    def mutate(self, args, context, info):
+        author_id = args.get('authorID')
+        publication_id = args.get('publicationID')
+        article_id = args.get('articleID')
+        title = args.get('title')
+
+        article = ndb.Key('Author', author_id, 'Publication', publication_id, 'Article', article_id).get()
+        # perform update here
+
+        article.title = title
+        article.put()
+        # return a proper article
+        print article
+        return UpdateArticle(article = article)
+
+
+class Person(graphene.ObjectType):
+    name = graphene.String()
+
+class Mutation(graphene.ObjectType):
+    create_person = CreatePerson.Field()
+    update_article = UpdateArticle.Field()
         
 
-schema = graphene.Schema(query=Query) #, mutation=Mutation
+schema = graphene.Schema(query=Query, mutation=Mutation) #, mutation=Mutation
 
 """
 GraphQL Endpoint
 """
-class GraphQLEndpoint(webapp2.RequestHandler):
+class GraphQLEndpoint(RequestHandler):
     def get(self):
         """
         Renders the GraphiQL IDE, populated with a query if it exists
@@ -223,6 +297,7 @@ class GraphQLEndpoint(webapp2.RequestHandler):
         output = template.render(template_values).replace('&#34;', '"')
         self.response.write(output)
 
+    @cross_origin
     def post(self):
         """
         Accepts a query, executes it, and returns the result

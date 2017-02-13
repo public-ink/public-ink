@@ -18,11 +18,26 @@ import { ArticlePageComponent } from './article-page/article-page.component';
 import { PublicationComponent } from './publication/publication.component';
 import { ArticleComponent } from './article/article.component'
 
+import { ApolloClient, createNetworkInterface } from 'apollo-client'
+import { ApolloModule } from 'apollo-angular'
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic'
+
+
+const apolloClient = new ApolloClient({
+  networkInterface: createNetworkInterface({
+    uri: 'http://localhost:8080/graphql'
+  }),
+})
+
+export function provideClient(): ApolloClient {
+  return apolloClient
+}
+
 
 const appRoutes: Routes = [
   { path: '', component: HomePageComponent },
-  { path: ':authorID',   component: AuthorPageComponent },
-  { path: ':authorID/:publicationID',   component: PublicationPageComponent },
+  { path: ':authorID', component: AuthorPageComponent },
+  { path: ':authorID/:publicationID', component: PublicationPageComponent },
   { path: ':authorID/:publicationID/:articleID', component: ArticlePageComponent },
   //{ path: '**', component: PageNotFoundComponent }
 ]
@@ -42,12 +57,15 @@ const appRoutes: Routes = [
   ],
   imports: [
     RouterModule.forRoot(appRoutes),
+    ApolloModule.forRoot(provideClient),
     BrowserModule,
     FormsModule,
     HttpModule,
   ],
   providers: [BackendService, UIService],
   bootstrap: [AppComponent],
-  schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppModule { }
+
+platformBrowserDynamic().bootstrapModule(AppModule)
