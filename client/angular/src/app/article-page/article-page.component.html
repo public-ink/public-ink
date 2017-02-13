@@ -3,9 +3,16 @@
 
 <div class="content-width">
   <h1>{{ article.title }}</h1>
+  <textarea [(ngModel)]="article.title"></textarea>
+
    <p>by {{ article.author.name }} updated on {{ article.updated | date:'medium'}}</p>
-    <p>{{ article.teaser }}</p>
+    <p>{{ article.body }}</p>
     <textarea [(ngModel)]="article.teaser"></textarea>
+
+
+    body:
+    <div id="articleBodyEditor">jojo</div>
+
     <div class="button" (click)="save()">save</div>
 </div>
 

@@ -4,6 +4,10 @@ import { Router, ActivatedRoute } from '@angular/router'
 import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
 
+interface Quill {
+  new (container: string | Element, options?: any): Quill;
+}
+
 interface UpdateResponse {
 
   updateArticle: {
@@ -28,6 +32,9 @@ export class ArticlePageComponent implements OnInit {
   // loaded via graphql
   data: any
   article: any
+  // quill
+  bodyQuill: any
+  madeQuill: boolean = false
 
 
 
@@ -37,6 +44,10 @@ export class ArticlePageComponent implements OnInit {
 
     private apollo: Apollo,
   ) { }
+
+  ngAfterViewChecked() {
+    this.makeQuill()
+  }
 
   ngOnInit() {
 
@@ -55,7 +66,7 @@ export class ArticlePageComponent implements OnInit {
       query anArticle {
         article(authorID:"${this.authorID}", publicationID:"${this.publicationID}", articleID:"${this.articleID}") {
           title
-          teaser
+          body
           created
           updated
           author {
@@ -70,20 +81,28 @@ export class ArticlePageComponent implements OnInit {
     }).subscribe((result) => {
       // this is not a local object but probably in redux
       this.data = result.data
-
       this.article = JSON.parse(JSON.stringify(result.data)).article
-
-      console.log('got article!', result.data)
+      console.log('got article!', this.article)
+      // make quill! 
+      let el = document.getElementById('articleBodyEditor')
+      console.log(el)
+      this.makeQuill()
     })
   }
 
   doMutate() {
     const mutation = gql`
       mutation {
-        updateArticle (authorID:"hoffer", publicationID:"atomic-angular", articleID: "on-being-awesome", title: "such mutated by apollo"){
+        updateArticle (
+          authorID:"${this.authorID}", 
+          publicationID:"${this.publicationID}", 
+          articleID: "${this.articleID}", 
+          title: "${this.article.title}", 
+          body: "{"ops":[{"insert":"mega\n"}]}"
+        ){
           article {
             title
-            teaser
+            body
             created
             updated
             author {
@@ -96,20 +115,44 @@ export class ArticlePageComponent implements OnInit {
     this.apollo.mutate({
       mutation: mutation
     }).subscribe(result => {
-      let data = JSON.parse(JSON.stringify(result.data))
-      let article = data.updateArticle.article
-      console.log('mutation result', data.updateArticle.article)
-      this.article = article
-      
+      const data = JSON.parse(JSON.stringify(result.data))
+      this.article = data.updateArticle.article
+      console.log('mutation result article', this.article)
     })
   }
 
 
-
-
   save() {
-    console.log(this.article.title)
+    console.log('saving' + this.article.title)
     this.doMutate()
   }
+
+  makeQuill() {
+    let el = document.getElementById('articleBodyEditor')
+    if (!el || !this.article || this.madeQuill) {
+      return
+    }
+    this.bodyQuill = new Quill('#articleBodyEditor', {
+      modules: {
+        /*toolbar: {
+          container: '#articleBodyToolbar',
+          //handlers: {'image': this.titleImageHandler},
+        },*/
+      },
+      theme: 'snow',
+      placeholder: 'here is where you lay your words down...',
+    })
+    //let bodyContents = JSON.parse(this.article.body)
+    let bodyContents = {}
+    this.bodyQuill.setContents(bodyContents)
+
+    this.bodyQuill.on('text-change', (delta, oldDelta, source) => {
+      this.article.bodyText = this.bodyQuill.getText()
+      console.log(JSON.stringify(this.bodyQuill.getContents()))
+      this.article.body = JSON.stringify(this.bodyQuill.getContents())
+    })
+    this.madeQuill = true
+  }
+
 
 }

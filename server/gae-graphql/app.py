@@ -128,6 +128,7 @@ class Article(InkModel):
     """
     title = ndb.StringProperty()
     teaser = ndb.TextProperty()
+    body = ndb.TextProperty()
 
 
 class ArticleSchema(graphene.ObjectType):
@@ -140,7 +141,9 @@ class ArticleSchema(graphene.ObjectType):
     def resolve_id(self, *args): return self.key.id()
     
     title = graphene.String()
+    #remove
     teaser = graphene.String()
+    body = graphene.String()
 
     created = graphene.String()
     updated = graphene.String()
@@ -229,53 +232,41 @@ class Query(graphene.ObjectType):
 """
 Mutations
 """
-class CreatePerson(graphene.Mutation):
-    class Input:
-        name = graphene.String()
-
-    ok = graphene.Boolean()
-    person = graphene.Field(lambda: Person)
-
-    def mutate(self, args, context, info):
-        person = Person(name=args.get('name'))
-        ok = True
-        return CreatePerson(person=person, ok=ok)
-
 class UpdateArticle(graphene.Mutation):
     class Input:
+        # identification
         authorID = graphene.String()
         publicationID = graphene.String()
         articleID = graphene.String()
+        #content
         title = graphene.String()
+        body = graphene.String()
 
-    # the return value(s) fro this mutation, in this case the update article
+    # the return value(s) fro this mutation, in this case the updated article
     article = graphene.Field(ArticleSchema)
 
     def mutate(self, args, context, info):
+        # get article
         author_id = args.get('authorID')
         publication_id = args.get('publicationID')
         article_id = args.get('articleID')
-        title = args.get('title')
-
         article = ndb.Key('Author', author_id, 'Publication', publication_id, 'Article', article_id).get()
         # perform update here
-
-        article.title = title
+        article.title = args.get('title', 'no title sent!')
+        article.body = args.get('body', '{}')
         article.put()
-        # return a proper article
-        print article
         return UpdateArticle(article = article)
 
 
-class Person(graphene.ObjectType):
-    name = graphene.String()
-
+"""
+Our Mutation Collection
+"""
 class Mutation(graphene.ObjectType):
-    create_person = CreatePerson.Field()
     update_article = UpdateArticle.Field()
         
+""" The Schema """
+schema = graphene.Schema(query=Query, mutation=Mutation)
 
-schema = graphene.Schema(query=Query, mutation=Mutation) #, mutation=Mutation
 
 """
 GraphQL Endpoint
@@ -341,7 +332,7 @@ def reset_data():
         id = article_slug,
         parent = publication_key,
         title = 'How public.ink was made',
-        teaser = 'A look behind the scenes!'
+        body = '{"ops":[{"insert":"such body\n"}]}'
     )
     article_key = article.put()
     
@@ -349,7 +340,7 @@ def reset_data():
         id="on-being-awesome",
         parent = publication_key,
         title="On being awesome",
-        teaser ="a primer that will change your life"
+        body ='{"ops":[{"insert":"such legs\n"}]}'
     ).put()
 
 

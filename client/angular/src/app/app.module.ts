@@ -67,5 +67,3 @@ const appRoutes: Routes = [
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppModule { }
-
-platformBrowserDynamic().bootstrapModule(AppModule)
