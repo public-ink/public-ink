@@ -2,6 +2,7 @@
 
 *.pyc
 backend/env
+server/*/env
 
 #frontend
 frontend/node_modules
