@@ -42,12 +42,27 @@ class InkModel(ndb.Model):
     created = ndb.DateTimeProperty(auto_now_add = True)
     updated = ndb.DateTimeProperty(auto_now = True)
 
+
+class InkUser(InkModel):
+    """
+    Represents a human being
+    The id is automatically set
+    """
+    email = ndb.StringProperty()
+    password_hash = ndb.StringProperty()
+
+
+
+
 class Author(InkModel):
     """
-    Represents an author.
+    Represents an author, and is always linked to an InkUser,
+    but that relation is not revealed publicly.
+
     The ID is set by us, e.g. 'hoff', so an author can be retrieved like so:
     nbd.Key('Author', 'hoff').get()
     """
+    ink_user = ndb.KeyProperty(kind=InkUser)
     name = ndb.StringProperty()
     about = ndb.TextProperty()
     
@@ -351,7 +366,9 @@ Endpoints!
 """
 class Home(webapp2.RequestHandler):
     def get(self):
-        self.response.write('nothing to see, yet')
+        ink_user = InkUser(email='hoff@hoff.com')
+        ink_user_key = ink_user.put()
+        
 
 import time
 class ResetEndpoint(webapp2.RequestHandler):
