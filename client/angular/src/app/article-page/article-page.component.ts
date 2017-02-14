@@ -92,13 +92,13 @@ export class ArticlePageComponent implements OnInit {
 
   doMutate() {
     const mutation = gql`
-      mutation {
+      mutation updateArticle($title: String!, $body: String!) {
         updateArticle (
           authorID:"${this.authorID}", 
           publicationID:"${this.publicationID}", 
           articleID: "${this.articleID}", 
-          title: "${this.article.title}", 
-          body: "{"ops":[{"insert":"mega\n"}]}"
+          title: $title,
+          body: $body
         ){
           article {
             title
@@ -113,7 +113,12 @@ export class ArticlePageComponent implements OnInit {
       }
     `
     this.apollo.mutate({
-      mutation: mutation
+      mutation: mutation,
+      variables: {
+        title: this.article.title,
+        body: JSON.stringify(this.bodyQuill.getContents()),
+
+      }
     }).subscribe(result => {
       const data = JSON.parse(JSON.stringify(result.data))
       this.article = data.updateArticle.article
@@ -142,14 +147,22 @@ export class ArticlePageComponent implements OnInit {
       theme: 'snow',
       placeholder: 'here is where you lay your words down...',
     })
-    //let bodyContents = JSON.parse(this.article.body)
-    let bodyContents = {}
+    let bodyContents = "{}"
+    try {
+      bodyContents = JSON.parse(this.article.body)
+      console.warn('successfully parsed json')
+      console.warn(this.article.body)
+    } catch(e) {
+      console.warn('error parsing json, this is the offender')
+      console.warn(this.article.body)
+    }
     this.bodyQuill.setContents(bodyContents)
 
     this.bodyQuill.on('text-change', (delta, oldDelta, source) => {
-      this.article.bodyText = this.bodyQuill.getText()
-      console.log(JSON.stringify(this.bodyQuill.getContents()))
-      this.article.body = JSON.stringify(this.bodyQuill.getContents())
+      /* currently, we don't need to do anything here
+      at the time of saving, we converting quill content to json
+      */
+      
     })
     this.madeQuill = true
   }

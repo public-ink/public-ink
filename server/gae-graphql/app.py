@@ -246,6 +246,7 @@ class UpdateArticle(graphene.Mutation):
     article = graphene.Field(ArticleSchema)
 
     def mutate(self, args, context, info):
+        print 'mutate!'
         # get article
         author_id = args.get('authorID')
         publication_id = args.get('publicationID')
@@ -253,7 +254,7 @@ class UpdateArticle(graphene.Mutation):
         article = ndb.Key('Author', author_id, 'Publication', publication_id, 'Article', article_id).get()
         # perform update here
         article.title = args.get('title', 'no title sent!')
-        article.body = args.get('body', '{}')
+        article.body = args.get('body', '{"ops":[{"insert":"no body sent!\n"}]}')
         article.put()
         return UpdateArticle(article = article)
 
@@ -295,7 +296,8 @@ class GraphQLEndpoint(RequestHandler):
         """
         data = json.loads(self.request.body)
         query = data.get('query', '')
-        result = schema.execute(query)
+        variables = data.get('variables')
+        result = schema.execute(query, variable_values = variables)
         response = {'data' : result.data}
         self.response.headers['Content-Type'] = 'application/json; charset=utf-8'
         self.response.out.write(json.dumps(response))
