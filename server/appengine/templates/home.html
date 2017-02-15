@@ -1,3 +1,11 @@
 <b>public.ink</b>
 
 {{ hash }} {{ verified }}
+
+<hr>
+
+users:
+
+{% for user in ink_users %}
+    {{ user.email }}
+{% endfor %}

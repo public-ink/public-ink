@@ -7,11 +7,23 @@ import uuid
 import os
 
 from google.appengine.ext import ndb
+from google.appengine.api import mail
 
 from shared import RequestHandler, cross_origin, hash_password, verify_password
 
+"""
+JWT
+"""
+from datetime import datetime, timedelta
+import jwt
+
+JWT_SECRET = 'soverysercret'
+JWT_ALGORITHM = 'HS256'
+JWT_EXP_DELTA_SECONDS = 20
+
+
 ninja = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname( __file__ ), 'templates')),
+    loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')),
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 
@@ -19,8 +31,8 @@ class InkModel(ndb.Model):
     """
     A common NDB entity model
     """
-    created = ndb.DateTimeProperty(auto_now_add = True)
-    updated = ndb.DateTimeProperty(auto_now = True)
+    created = ndb.DateTimeProperty(auto_now_add=True)
+    updated = ndb.DateTimeProperty(auto_now=True)
 
 
 class InkUser(InkModel):
@@ -29,6 +41,8 @@ class InkUser(InkModel):
     The id is automatically set
     """
     email = ndb.StringProperty()
+    verification_token = ndb.StringProperty()
+    verified_at = ndb.DateTimeProperty()
     password_hash_sha256 = ndb.StringProperty()
 
     def hash_password_sha256(self, password):
@@ -39,7 +53,7 @@ class InkUser(InkModel):
         hash = hashlib.sha256(salt.encode() + password.encode()).hexdigest() + ':' + salt
         self.password_hash_sha256 = hash
         self.put()
-        
+
     def verify_password_sha256(self, password):
         """
         checks if a given password matches the stored password's hash
@@ -67,7 +81,7 @@ class Author(InkModel):
     """
     ink_user = ndb.KeyProperty(kind=InkUser)
     name = ndb.StringProperty()
-    
+
 
 class Author(InkModel):
     """
@@ -80,28 +94,32 @@ class Author(InkModel):
     ink_user = ndb.KeyProperty(kind=InkUser)
     name = ndb.StringProperty()
     about = ndb.TextProperty()
-    
+
 
 class AuthorSchema(graphene.ObjectType):
     """
     The Author Schema in all its glory!
     GOTCHA: this shows up in the docs :)
     """
-    
+
     name = graphene.String()
     about = graphene.String()
 
     created = graphene.String()
     updated = graphene.String()
 
-    #posts = graphene.List(lambda: PostSchema, description="jo I write about the awesome post schema")
+    #posts = graphene.List(lambda: PostSchema, description="jo I write about the  post schema")
 
     id = graphene.String()
     def resolve_id(self, *args): return self.key.id()
 
-    articles = graphene.List(lambda: ArticleSchema, order= graphene.String())
-    def resolve_articles(self, args, info, context): 
-        
+    articles = graphene.List(
+        lambda: ArticleSchema,
+        order=graphene.String(),
+        description="Lists of articles")
+
+    def resolve_articles(self, args, info, context):
+
         order = args.get('order')
         if order == 'latest':
             return Article.query(ancestor=self.key).order(-Article.created)
@@ -109,7 +127,7 @@ class AuthorSchema(graphene.ObjectType):
             return Article.query(ancestor=self.key).order(Article.created)
         else:
             return Article.query(ancestor=self.key)
-       
+
     publications = graphene.List(lambda: PublicationSchema)
     def resolve_publications(self, *args): return Publication.query(ancestor=self.key)
 
@@ -169,7 +187,7 @@ class ArticleSchema(graphene.ObjectType):
 
     id = graphene.String()
     def resolve_id(self, *args): return self.key.id()
-    
+
     title = graphene.String()
     #remove
     teaser = graphene.String()
@@ -181,7 +199,7 @@ class ArticleSchema(graphene.ObjectType):
     """ related """
     publication = graphene.Field(PublicationSchema)
     def resolve_publication(self, *args): return self.key.parent().get()
-    
+
     author = graphene.Field(AuthorSchema)
     def resolve_author(self, args, context, info):
         publication = self.key.parent().get()
@@ -194,31 +212,34 @@ class ArticleSchema(graphene.ObjectType):
 QUERY and schema
 """
 class Query(graphene.ObjectType):
-    #author = graphene.Field(AuthorSchema, id=IDInput(), description="Information about an author, now with id!")
-    #verifyUser = graphene.Field()
+    """
+    For nexted input, you an Input class
+    """
 
     """ author take an ID """
     author = graphene.Field(
-        AuthorSchema, 
-        id=graphene.String(), 
+        AuthorSchema,
+        id=graphene.String(),
         description="Information about an author, given the author ID")
 
-    def resolve_author(self, args, context, info):
-        id = args.get('id')
+    def resolve_author(self, args): #, context, info
+        """ returns and author instance from given argument """
+        author_id = args.get('author_id')
         author_key = ndb.Key('Author', id)
         author = author_key.get()
         return author
-    
+
     """
     Publication takes an authorID and publicationID
     """
     publication = graphene.Field(
-        PublicationSchema, 
-        authorID = graphene.String(), 
-        publicationID = graphene.String(),
+        PublicationSchema,
+        authorID=graphene.String(),
+        publicationID=graphene.String(),
         description="Information about a publication, given autor ID and publication ID")
 
-    def resolve_publication(self, args, context, info):
+    def resolve_publication(self, args):
+        """ resolves a publication from arguments """
         author_id = args.get('authorID')
         publication_id = args.get('publicationID')
         publication_key = ndb.Key('Author', author_id, 'Publication', publication_id)
@@ -229,17 +250,21 @@ class Query(graphene.ObjectType):
     Article take an authorID, a publicationID, and articleID
     """
     article = graphene.Field(
-        ArticleSchema, 
-        authorID = graphene.String(), 
-        publicationID = graphene.String(),
-        articleID = graphene.String(),
-        description="Information about an article, given autor ID, a publication ID, and article ID")
+        ArticleSchema,
+        authorID=graphene.String(),
+        publicationID=graphene.String(),
+        articleID=graphene.String(),
+        description="Information about an article, given autor ID, publication ID, and article ID")
 
-    def resolve_article(self, args, context, info):
+    def resolve_article(self, args):
+        """ resolves and article from arguments """
         author_id = args.get('authorID')
         publication_id = args.get('publicationID')
         article_id = args.get('articleID')
-        article_key = ndb.Key('Author', author_id, 'Publication', publication_id, 'Article', article_id)
+        article_key = ndb.Key(
+            'Author', author_id,
+            'Publication', publication_id,
+            'Article', article_id)
         article = article_key.get()
         return article
 
@@ -247,8 +272,9 @@ class Query(graphene.ObjectType):
     Endpoint for getting a list of articles
     -> currently simply returns all articles
     """
-    articles = graphene.List(lambda: ArticleSchema, order = graphene.String())
-    def resolve_articles(self, args, context, info): 
+    articles = graphene.List(lambda: ArticleSchema, order=graphene.String())
+    def resolve_articles(self, args, context, info):
+        """ returns all articles, currently """
         return Article.query()
 
     """
@@ -282,15 +308,18 @@ class UpdateArticle(graphene.Mutation):
         author_id = args.get('authorID')
         publication_id = args.get('publicationID')
         article_id = args.get('articleID')
-        article = ndb.Key('Author', author_id, 'Publication', publication_id, 'Article', article_id).get()
+        article = ndb.Key(
+            'Author', author_id,
+            'Publication', publication_id,
+            'Article', article_id).get()
         # perform update here
         article.title = args.get('title', 'no title sent!')
         article.body = args.get('body', '{"ops":[{"insert":"no body sent!\n"}]}')
         article.put()
-        return UpdateArticle(article = article)
+        return UpdateArticle(article=article)
 
 class CreateInkUser(graphene.Mutation):
-    
+
     class Input:
         email = graphene.String()
         password = graphene.String()
@@ -301,21 +330,47 @@ class CreateInkUser(graphene.Mutation):
         email = args.get('email')
         password = args.get('password')
 
-        print  InkUser.query().count()
-
         # duplicate check
         exisiting = ndb.Key('InkUser', email).get()
-        print exisiting
         if exisiting:
-            print 'found existing ' + exisiting.password_hash_sha256
-            return CreateInkUser(jwt = 'dup email! no token!')
+            return CreateInkUser(jwt='dup email! no token!')
 
         else:
-            print 'first!'
+            """ new signup """
             password_hash = hash_password(password)
-            ink_user = InkUser(id = email, email = email, password_hash_sha256 = password_hash)
+            # this should move to classmethod on InkUser
+            verification_token = uuid.uuid4().hex
+            ink_user = InkUser(
+                id=email,
+                email=email,
+                verification_token=verification_token,
+                password_hash_sha256=password_hash)
             ink_user.put()
-            return CreateInkUser(jwt = 'mega token!')
+
+            """make a token! """
+            payload = {
+                'email': ink_user.email,
+                'exp': datetime.utcnow() + timedelta(seconds=JWT_EXP_DELTA_SECONDS)
+            }
+            jwt_token = jwt.encode(payload, JWT_SECRET, JWT_ALGORITHM)
+            token_str = jwt_token.decode('utf-8')
+
+            """ send email """
+            message = mail.EmailMessage(
+                sender="auth@public-ink.appspotmail.com",
+                subject="Public.Ink Verification")
+
+            message.to = "micklinghoff@gmail.com"
+            message.body = """Hello there,
+
+You or somebody else submitted this email address to us. To create a public.ink account, let follow this link:
+https://public.ink/verify?email=micklinghoff@gmail.com&token=xyzToken
+
+Awesome!
+            """
+            message.send()
+
+            return CreateInkUser(jwt=token_str)
 
 
 
@@ -325,7 +380,7 @@ Our Mutation Collection
 class Mutation(graphene.ObjectType):
     update_article = UpdateArticle.Field()
     createInkUser = CreateInkUser.Field()
-        
+
 """ The Schema """
 schema = graphene.Schema(query=Query, mutation=Mutation)
 
@@ -341,12 +396,12 @@ class GraphQLEndpoint(RequestHandler):
         query = self.request.GET.get('query')
         # this does shit all, but might be useful later
         # res = urllib.unquote(query).decode()
-        
+
         template = ninja.get_template('graphiql.html')
         template_values = {
-            'query': query 
+            'query': query
         }
-        # hack for un-quoting double quotes like these " 
+        # hack for un-quoting double quotes like these "
         output = template.render(template_values).replace('&#34;', '"')
         self.response.write(output)
 
@@ -358,7 +413,7 @@ class GraphQLEndpoint(RequestHandler):
         data = json.loads(self.request.body)
         query = data.get('query', '')
         variables = data.get('variables')
-        result = schema.execute(query, variable_values = variables)
+        result = schema.execute(query, variable_values=variables)
         response = {'data' : result.data}
         self.response.headers['Content-Type'] = 'application/json; charset=utf-8'
         self.response.out.write(json.dumps(response))
@@ -374,42 +429,40 @@ def reset_data():
     articles = Article.query().fetch()
     for entity in users + authors + publications + articles:
         entity.key.delete()
-    
+
     author_slug = 'hoffer'
     publication_slug = 'atomic-angular'
     article_slug = 'how-public-ink-was-made'
 
     author = Author(
-        id = author_slug, 
-        name = 'Hoff', 
-        about = 'the man!')
+        id=author_slug,
+        name='Hoff',
+        about='the man!')
     author_key = author.put()
 
     publication = Publication(
-        id = publication_slug, 
-        parent = author_key,
-        name = 'Atomic Angular', 
-        about = 'a wonderful publication')
+        id=publication_slug,
+        parent=author_key,
+        name='Atomic Angular',
+        about='a wonderful publication')
     publication_key = publication.put()
 
     article = Article(
-        id = article_slug,
-        parent = publication_key,
-        title = 'How public.ink was made',
-        body = '{"ops":[{"insert":"such body\n"}]}'
+        id=article_slug,
+        parent=publication_key,
+        title='How public.ink was made',
+        body='{"ops":[{"insert":"such body\n"}]}'
     )
     article_key = article.put()
-    
+
     article2 = Article(
         id="on-being-awesome",
-        parent = publication_key,
+        parent=publication_key,
         title="On being awesome",
-        body ='{"ops":[{"insert":"such legs\n"}]}'
+        body='{"ops":[{"insert":"such legs\n"}]}'
     ).put()
 
 
-
-        
 
 import time
 class ResetEndpoint(webapp2.RequestHandler):
@@ -445,10 +498,15 @@ class HomeEndpoint(webapp2.RequestHandler):
 
         verified = verify_password(hashed_pw, pw)
 
+        ink_users = InkUser.query().fetch()
+        user_count = len(ink_users)
+        print user_count
+
         template = ninja.get_template('home.html')
         template_values = {
             'hash': hashed_pw,
-            'verified': verified
+            'verified': verified,
+            'ink_users': ink_users
         }
         output = template.render(template_values)
         return self.response.write(output)
@@ -465,5 +523,5 @@ app = webapp2.WSGIApplication(
         ('/reset', ResetEndpoint),
         ('/data', DataEndpoint),
         ('/graphql', GraphQLEndpoint)
-    ], debug = True
+    ], debug=True
 )

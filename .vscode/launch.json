@@ -1,7 +1,16 @@
 {
     "version": "0.2.0",
     "configurations": [
-
+    {
+        "name": "Attach (Remote Debug)",
+        "type": "python",
+        "request": "attach",
+        "localRoot": "/Users/martin.micklinghoff/projects/public-ink/server/appengine/",
+        "remoteRoot": "/Users/martin.micklinghoff/projects/public-ink/server/appengine/",
+        "port": 3001,
+        "secret": "gae",
+        "host": "localhost"
+    },
         {
             "name": "Python",
             "type": "python",

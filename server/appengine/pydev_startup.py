@@ -4,6 +4,9 @@ import os
 sys.path.append(os.getcwd()) 
 import ptvsd
 #Fee free to change the secret and port number 
-ptvsd.enable_attach(secret = 'gae', address = ('0.0.0.0', 3000))
+print 'jo'
+print ptvsd
+ptvsd.enable_attach(secret = 'gae', address = ('0.0.0.0', 3001))
+print 'sup'
 #The debug server has started and you can now use VS Code to attach to the application for debugging
 print("Google App Engine has started, ready to attach the debugger")
