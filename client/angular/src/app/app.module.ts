@@ -20,7 +20,8 @@ import { ArticleComponent } from './article/article.component'
 
 import { ApolloClient, createNetworkInterface } from 'apollo-client'
 import { ApolloModule } from 'apollo-angular'
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic'
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { AuthPageComponent } from './auth-page/auth-page.component'
 
 
 const apolloClient = new ApolloClient({
@@ -36,6 +37,10 @@ export function provideClient(): ApolloClient {
 
 const appRoutes: Routes = [
   { path: '', component: HomePageComponent },
+  // pages
+  { path: 'auth', component: AuthPageComponent },
+  
+  // graph
   { path: ':authorID', component: AuthorPageComponent },
   { path: ':authorID/:publicationID', component: PublicationPageComponent },
   { path: ':authorID/:publicationID/:articleID', component: ArticlePageComponent },
@@ -54,6 +59,7 @@ const appRoutes: Routes = [
     ArticlePageComponent,
     PublicationComponent,
     ArticleComponent,
+    AuthPageComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),

@@ -1,0 +1,17 @@
+<div class="content-width">
+  <h1>public auth</h1>
+    <input 
+      type="email" 
+      [(ngModel)]="registerEmail"
+       class="form-input" 
+       placeholder="your email" />
+
+    <input type="password" class="form-input" 
+      [(ngModel)]="registerPassword"
+      placeholder=" * a unique password would be nice *"
+      
+       />
+    <br>
+    <button class="button" tabindex="0" (click)="register()">Register with public.ink</button>
+
+</div>
