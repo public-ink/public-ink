@@ -6,6 +6,7 @@ server/*/env
 
 *secrets.py
 *.idea
+*secrets*
 
 #frontend
 frontend/node_modules

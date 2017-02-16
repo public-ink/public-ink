@@ -1,4 +1,4 @@
-from shared import RequestHandler
+from shared import RequestHandler, cross_origin
 import json #hm
 
 class GraphQLEndpoint(RequestHandler):

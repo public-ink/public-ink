@@ -2,8 +2,10 @@ from google.appengine.ext import ndb
 from common import InkModel
 import graphene
 
-from article import Article, ArticleSchema
-from author import Author, AuthorSchema
+
+from require import require_article_schema, require_author_schema
+from article import Article
+
 
 class Publication(InkModel):
     """
@@ -14,10 +16,14 @@ class Publication(InkModel):
     name = ndb.StringProperty()
     about = ndb.TextProperty()
 
+
 class PublicationSchema(graphene.ObjectType):
     """
     The publication schema
     """
+    ArticleSchema = require_article_schema()
+    AuthorSchema = require_author_schema()
+
     name = graphene.String()
     about = graphene.String()
 
@@ -35,5 +41,6 @@ class PublicationSchema(graphene.ObjectType):
     order = graphene.InputField(lambda: OrderInput)
     """
     articles = graphene.List(lambda: ArticleSchema, order = graphene.String())
-    def resolve_articles(self, args, context, info): 
+    def resolve_articles(self, args, context, info):
         return Article.query(ancestor = self.key)
+

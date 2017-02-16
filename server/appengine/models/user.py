@@ -1,11 +1,30 @@
 from common import InkModel
 from google.appengine.ext import ndb
+from google.appengine.api import mail
+
 import graphene
 from datetime import datetime, timedelta
 import jwt
 
 import hashlib
 import uuid
+
+from secrets.jwt import JWT_SECRET, JWT_EXP_DELTA_SECONDS, JWT_ALGORITHM
+
+"""
+Hashing
+"""
+
+
+def hash_password(password):
+    # uuid is used to generate a random number
+    salt = uuid.uuid4().hex
+    return hashlib.sha256(salt.encode() + password.encode()).hexdigest() + ':' + salt
+
+
+def verify_password(hashed_password, user_password):
+    password, salt = hashed_password.split(':')
+    return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
 
 
 class User(InkModel):
@@ -56,6 +75,7 @@ class CreateUser(graphene.Mutation):
     jwt = graphene.String()
 
     def mutate(self, args, context, info):
+       
         email = args.get('email')
         password = args.get('password')
 

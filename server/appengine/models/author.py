@@ -3,8 +3,11 @@ import graphene
 
 from common import InkModel
 from user import User
-from article import Article, ArticleSchema
-from publication import  Publication, PublicationSchema
+
+
+from article import Article
+from publication import Publication
+from require import require_article_schema, require_publication_schema
 
 
 
@@ -18,7 +21,7 @@ class Author(InkModel):
 
     name is the verbose name, e.g. The Hoff
     """
-    ink_user = ndb.KeyProperty(kind=User)
+    user = ndb.KeyProperty(kind=User)
     name = ndb.StringProperty()
 
 
@@ -27,6 +30,10 @@ class AuthorSchema(graphene.ObjectType):
     The Author Schema in all its glory!
     GOTCHA: this shows up in the docs :)
     """
+    # now with require imports :)
+    PublicationSchema = require_publication_schema()
+    ArticleSchema = require_article_schema()
+
 
     name = graphene.String()
     about = graphene.String()
@@ -34,7 +41,6 @@ class AuthorSchema(graphene.ObjectType):
     created = graphene.String()
     updated = graphene.String()
 
-    #posts = graphene.List(lambda: PostSchema, description="jo I write about the  post schema")
 
     id = graphene.String()
     def resolve_id(self, *args): return self.key.id()
@@ -56,3 +62,5 @@ class AuthorSchema(graphene.ObjectType):
 
     publications = graphene.List(lambda: PublicationSchema)
     def resolve_publications(self, *args): return Publication.query(ancestor=self.key)
+
+

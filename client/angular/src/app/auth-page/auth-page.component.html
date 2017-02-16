@@ -1,11 +1,16 @@
 <div class="content-width">
   <h1>public auth</h1>
+
+  <h2>register</h2>
+    <label>Email</label>
     <input 
       type="email" 
       [(ngModel)]="registerEmail"
        class="form-input" 
        placeholder="your email" />
 
+      <br>
+      <label>Password</label>
     <input type="password" class="form-input" 
       [(ngModel)]="registerPassword"
       placeholder=" * a unique password would be nice *"
@@ -13,5 +18,24 @@
        />
     <br>
     <button class="button" tabindex="0" (click)="register()">Register with public.ink</button>
+
+    <hr>
+    <h2>Login</h2>
+    <label>Email</label>
+    <input 
+      type="email" 
+      [(ngModel)]="loginEmail"
+       class="form-input" 
+       placeholder="your email" />
+
+      <br>
+      <label>Password</label>
+    <input type="password" class="form-input" 
+      [(ngModel)]="loginPassword"
+      placeholder=" * a unique password would be nice *"
+      
+       />
+    <br>
+    <button class="button" tabindex="0" (click)="login()">login at public.ink</button>
 
 </div>

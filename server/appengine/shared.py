@@ -9,6 +9,8 @@ from google.appengine.ext import ndb
 from google.appengine.api import users
 
 
+
+
 """
 Unix Epoch Helper
 """
@@ -138,16 +140,4 @@ ninja = jinja2.Environment(
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 
-
-"""
-Hashing
-"""
-def hash_password(password):
-    # uuid is used to generate a random number
-    salt = uuid.uuid4().hex
-    return hashlib.sha256(salt.encode() + password.encode()).hexdigest() + ':' + salt
-    
-def verify_password(hashed_password, user_password):
-    password, salt = hashed_password.split(':')
-    return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
 
