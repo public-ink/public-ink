@@ -4,6 +4,9 @@
 backend/env
 server/*/env
 
+*secrets.py
+*.idea
+
 #frontend
 frontend/node_modules
 frontend/npm-debug.log

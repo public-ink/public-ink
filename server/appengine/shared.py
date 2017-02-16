@@ -38,6 +38,8 @@ def cross_origin(fn):
         return fn(*args)
     return decorated_request
 
+# this will be different with jwt!
+# but a decorator is actually pretty good.
 def owner_required(fn):
     """
     Generic decorator that guards against unauthorized access.
