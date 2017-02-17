@@ -11,6 +11,7 @@ textarea {
     border: 1px solid #333;
     font-family: Courier New, Courier, monospace;
     padding: 10px 15px;
+    width: 400px;
 }
 
 .button {
@@ -26,6 +27,10 @@ textarea {
 .button:focus {
     outline:0;
     border: 2px solid gray;
+}
+.button.form-input{
+    width: 400px;
+    padding: 10px 15px;
 }
 
 flex-row {

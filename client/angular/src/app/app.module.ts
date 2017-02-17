@@ -21,7 +21,8 @@ import { ArticleComponent } from './article/article.component'
 import { ApolloClient, createNetworkInterface } from 'apollo-client'
 import { ApolloModule } from 'apollo-angular'
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { AuthPageComponent } from './auth-page/auth-page.component'
+import { AuthPageComponent } from './auth-page/auth-page.component';
+import { EmailVerificationPageComponent } from './email-verification-page/email-verification-page.component'
 
 
 const apolloClient = new ApolloClient({
@@ -39,6 +40,7 @@ const appRoutes: Routes = [
   { path: '', component: HomePageComponent },
   // pages
   { path: 'auth', component: AuthPageComponent },
+  { path: 'verify/:email/:token', component: EmailVerificationPageComponent},
   
   // graph
   { path: ':authorID', component: AuthorPageComponent },
@@ -60,6 +62,7 @@ const appRoutes: Routes = [
     PublicationComponent,
     ArticleComponent,
     AuthPageComponent,
+    EmailVerificationPageComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),
