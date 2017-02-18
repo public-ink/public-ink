@@ -3,8 +3,8 @@ import { Http, Headers, RequestOptions, Response } from '@angular/http'
 import { Observable } from 'rxjs/Observable'
 import 'rxjs/add/operator/map'
 
-import { ApolloClient, createNetworkInterface } from 'apollo-client'
 import gql from 'graphql-tag'
+import { Apollo } from 'apollo-angular'
 
 import {
   PublicationData,
@@ -15,14 +15,161 @@ import {
 export class BackendService {
 
   backendHost: string = 'http://localhost:8080'
+
+  userAuthenticated: boolean = false
+  userVerified: boolean = false
+  userEmail: string
+  userAuthors: any[] = []
   
 
   constructor(
     private http: Http,
+    private apollo: Apollo,
   ) {
-
-   
+    this.jwtLogin()
   }
+
+  verifyEmail(email: string, token: string) {
+    const query = gql`
+      {verifyEmail(email:"${email}", token:"${token}"){
+        authenticated
+        message
+        jwt
+        authenticated
+        verified
+      }}
+    `
+    this.apollo.watchQuery<any>({
+      query: query
+    }).subscribe(result => {
+      console.log(result)
+      const authData = result.data.verifyEmail
+      if (authData.authenticated) {
+        localStorage.setItem('jwt', authData.jwt)
+        this.userAuthenticated = authData.authenticated
+        this.userVerified = authData.verified
+        this.userEmail = authData.email
+      }
+    })
+  }
+
+  logoutUser() {
+    localStorage.removeItem('jwt')
+    this.userAuthenticated = false
+  }
+
+  jwtLogin() {
+    console.log('attempting jwt login')
+    const jwt = localStorage.getItem('jwt')
+    const query = gql`
+    {
+      jwtLogin(jwt: "${jwt}") {
+        authenticated
+        message
+        jwt
+        verified
+        email
+        authors {
+          name
+        }
+      }
+    }
+    `
+    console.log(query)
+    this.apollo.watchQuery<any>({
+      query: query
+    }).subscribe(result => {
+      console.log('jwt login result', result)
+      const authData = result.data.jwtLogin
+      if (authData.authenticated) {
+        localStorage.setItem('jwt', authData.jwt)
+        this.userAuthenticated = authData.authenticated
+        this.userVerified = authData.verified
+        this.userEmail = authData.email
+        this.userAuthors = authData.authors
+      }
+    })
+  }
+
+  // should be a query!
+  loginUser(email:string, password: string) {
+    const query = gql`
+       {
+          loginUser(email: "${email}", pw: "${password}") {
+            authenticated,
+            verified,
+            email
+            message
+            jwt
+          }
+        }
+    `
+    // add result typing!
+    this.apollo.watchQuery<any>({
+      query: query
+    }).subscribe(result => {
+      
+      const authData = result.data.loginUser
+      this.userAuthenticated = authData.authenticated
+      this.userVerified = authData.verified
+      this.userEmail = authData.email
+      localStorage.setItem('jwt', authData.jwt)
+      alert(authData.message)
+    })
+  }
+
+
+  registerUser(email, password) {
+    console.log('register', email, 'with', password)
+    const query = gql`
+      {
+        createUser(email:"${email}", password:"${password}") {
+          authenticated,
+            verified,
+            email
+            message
+            jwt
+        }}
+    `
+    this.apollo.watchQuery<any>({
+      query: query
+    }).subscribe(result => {
+      const authData = result.data.createUser
+      console.log('register result', authData)
+      this.userAuthenticated = authData.authenticated
+      this.userVerified = authData.verififed
+      this.userEmail = authData.email
+      localStorage.setItem('jwt', authData.jwt)
+    })
+  }
+
+  createAuthor(name: string) {
+    const jwt = localStorage.getItem('jwt')
+    const query = gql`
+      {
+        createAuthor(jwt:"${jwt}", name: "${name}"){
+          message
+          authors{
+            name
+          }
+          jwt
+        }
+      }
+    `
+    this.apollo.watchQuery<any>({
+      query:query
+    }).subscribe(result => {
+      
+      console.log('create author result', result)
+      const authData = result.data.createAuthor
+      //this.userAuthenticated = authData.authenticated
+      //this.userVerified = authData.verififed
+      //this.userEmail = authData.email
+      this.userAuthors = authData.authors
+      localStorage.setItem('jwt', authData.jwt)
+    })
+  }
+
 
   /**
    * Creates a resource, via PUT

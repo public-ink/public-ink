@@ -1,15 +1,17 @@
-import { Component, OnInit } from '@angular/core'
+import { Component } from '@angular/core'
 import { Router, ActivatedRoute } from '@angular/router'
 
 import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
+
+import { BackendService } from '../backend.service'
 
 @Component({
   selector: 'app-email-verification-page',
   templateUrl: './email-verification-page.component.html',
   styleUrls: ['./email-verification-page.component.css']
 })
-export class EmailVerificationPageComponent implements OnInit {
+export class EmailVerificationPageComponent {
 
   email: string
   token: string
@@ -19,30 +21,12 @@ export class EmailVerificationPageComponent implements OnInit {
     private router: Router,
 
     private apollo: Apollo,
+    private backend: BackendService,
   ) { 
-
     this.route.params.subscribe(params => {
       this.email = params['email']
       this.token = params['token']
-      this.verifyEmail()
+      this.backend.verifyEmail(this.email, this.token)
     })
-
   }
-
-  ngOnInit() {
-  }
-
-  verifyEmail() {
-    const query = gql`
-      {verifyEmail(email:"${this.email}", token:"${this.token}")}
-    `
-    this.apollo.watchQuery<any>({
-      query: query
-    }).subscribe(result => {
-      console.log(result)
-      alert(result.data.verifyEmail)
-    })
-
-  }
-
 }

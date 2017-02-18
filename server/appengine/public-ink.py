@@ -10,6 +10,8 @@ import jwt
 import hashlib
 import uuid
 from datetime import datetime, timedelta
+from slugify import slugify
+
 
 # ink stuff
 from shared import RequestHandler, cross_origin, ninja
@@ -60,25 +62,17 @@ def generate_jwt(email):
 """
 Models and Schemas
 """
-class AuthModel(InkModel):
-    """
-    This is NOT a normal db model, it's just used to help out the 
-    AuthSchema at the moment, maybe could be done differently
-    loginUser query uses it...
-    """
-    authenticated = ndb.BooleanProperty()
-    verified = ndb.BooleanProperty()
-    jwt = ndb.StringProperty()
-    email = ndb.StringProperty()
-    message = ndb.StringProperty()
-
 
 class AuthSchema(graphene.ObjectType):
+    """
+    A standalone schema, without backing db model
+    """
     authenticated = graphene.Boolean()
     verified = graphene.Boolean()
     jwt = graphene.String()
     email = graphene.String()
     message = graphene.String()
+    authors = graphene.List(lambda: AuthorSchema)
 
 
 """ USER """
@@ -101,6 +95,8 @@ class UserSchema(graphene.ObjectType):
     to add: list of authors...
     """
     email = graphene.String()
+
+    # any of this in use?
 
     verified = graphene.Boolean()
     def resolve_verified(self, args, context, info):
@@ -135,6 +131,13 @@ class AuthorSchema(graphene.ObjectType):
     """
     user = graphene.Field(UserSchema)
     name = graphene.String()
+
+    # related
+    publications = graphene.List(lambda: PublicationSchema)
+    def resolve_publication(self, args, *more):
+        print 'resolve publication of author'
+        return PublicationModel.query(ancestor=self.key)
+
 
 
 """
@@ -180,6 +183,40 @@ class Query(graphene.ObjectType):
     """
     Query all the things!
     """
+    # authors by
+
+    """ AUTH: JWT LOGIN"""
+    jwtLogin = graphene.Field(AuthSchema, jwt=graphene.String())
+    def resolve_jwtLogin(self, args, *more):
+        """
+        Checks the JWT and returns an Auth Object, if successful
+        """
+        token = args.get('jwt')
+        try:
+            payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            email = payload.get('email')
+            user_key = ndb.Key('UserModel', email)
+            user = user_key.get()
+            authors = AuthorModel.query(AuthorModel.user == user_key)
+            return AuthSchema(
+                message='token valid',
+                email=email, 
+                authenticated=True, 
+                verified=user.is_verified, 
+                jwt=generate_jwt(email),
+                authors=authors
+            )
+        except jwt.ExpiredSignatureError, e:
+            return AuthSchema(
+                message='token expired',
+                email=email, 
+                authenticated=False,
+            )
+        except jwt.DecodeError, e:
+            return AuthSchema(
+                message='token invalid'
+            )
+
     loginUser = graphene.Field(AuthSchema, email=graphene.String(), pw=graphene.String())
     def resolve_loginUser(self, args, *more):
         """
@@ -191,31 +228,36 @@ class Query(graphene.ObjectType):
         user = ndb.Key('UserModel', email).get()
 
         if not user:
-            pass
+            return AuthSchema(
+                message='login failed',
+                authenticated=False,
+                email=email
+            )
         
         matches = verify_password(user.password_hash_sha256, password)
         authenticated = True if matches else False
         jwt = generate_jwt(email) if authenticated else None
         verified = user.is_verified if authenticated else None
 
-        return AuthModel(
+        return AuthSchema(
             message='login successful',
             email=email, 
             authenticated=authenticated, 
             verified=verified, 
             jwt=jwt)
 
-    createUser = graphene.Field(AuthSchema, email=graphene.String(), pw=graphene.String())
+
+    createUser = graphene.Field(AuthSchema, email=graphene.String(), password=graphene.String())
     def resolve_createUser(self, args, *more):
         """
         creates a user with the given email address, provided it does not exist yet
         returns auth related information
         """
         email = args.get('email')
-        password = args.get('pw')
+        password = args.get('password')
         user = ndb.Key('UserModel', email).get()
         if user:
-            return AuthModel(
+            return AuthSchema(
                 message='email already exists'
             )
         password_hash = hash_password(password)
@@ -225,17 +267,76 @@ class Query(graphene.ObjectType):
             email=email,
             verification_token=verification_token,
             password_hash_sha256=password_hash).put()
-        return AuthModel(
+        send_verification_email(email, verification_token)
+        return AuthSchema(
             message='user created',
             email=email, 
             authenticated=True, 
             verified=False, 
             jwt=generate_jwt(email))
-    
-        
-            
+
+
+    verifyEmail = graphene.Field(AuthSchema, email=graphene.String(), token=graphene.String())
+    def resolve_verifyEmail(self, args, context, info):
+        email = args.get('email')
+        token = args.get('token')
+        user = ndb.Key('UserModel', email).get()
+        if token == user.verification_token:
+            user.email_verified_at = datetime.now()
+            user.put()
+            return AuthSchema(
+                message='email successfully verified',
+                email=email, 
+                authenticated=True, 
+                verified=True, 
+                jwt=generate_jwt(email))
+        else:
+            return AuthSchema(
+                message='email verification failed',
+                email=email)
+
+    createAuthor = graphene.Field(AuthSchema, jwt=graphene.String(), name=graphene.String())
+    def resolve_createAuthor(self, args, *more):
+        print "resolve create author"
+        name = args.get('name')
+        token = args.get('jwt')
+        email = email_from_jwt(token)
+        user_key = ndb.Key('UserModel', email)
+        # create author!
+        author = AuthorModel(
+            id=slugify(name),
+            name=name,
+            user=user_key
+        ).put()
+        # this might not include the just-created author.
+        authors = AuthorModel.query(AuthorModel.user == user_key).fetch()
+        if author not in authors:
+            authors.append(author.get())
+        return AuthSchema(
+            message='Author created!',
+            email=email, 
+            authenticated=True, 
+            verified=True, 
+            jwt=generate_jwt(email),
+            authors=authors
+        )
+
+    createPublication = graphene.Field(PublicationSchema, 
+        jwt=graphene.String(), 
+        authorID=graphene.String(), 
+        name=graphene.String()
+        )
+    def resolve_createPublication(self, args, *more):
+        name = args.get('name')
+        publication = PublicationModel(
+            id=slugify(name),
+            name=name
+        ).put()
+        return publication.get()
 
     
+        
+    """ DATA RETRIEVAL """
     user = graphene.Field(UserSchema, email=graphene.String(), jwt=graphene.String())
     def resolve_user(self, args, context, info):
         print 'resolve user'
@@ -275,137 +376,37 @@ class Query(graphene.ObjectType):
         ).get()
         return publication
 
-
-
-    verifyJWT = graphene.Boolean(jwt=graphene.String())
-    def resolve_verifyJWT(self, args, context, info):
-        token = args.get('jwt')
-        try:
-            payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-            # todo: also check email is correct / matching
-            email = payload.get('email')
-            print payload
-            return True
-        except jwt.ExpiredSignatureError, e:
-            print "token has expired"
-            return False
-
-    # should return an account later
-    verifyEmail = graphene.Boolean(email=graphene.String(), token=graphene.String())
-    def resolve_verifyEmail(self, args, context, info):
-        email = args.get('email')
-        token = args.get('token')
-        user = ndb.Key('UserModel', email).get()
-        if token == user.verification_token:
-            user.email_verified_at = datetime.now()
-            user.put()
-            return True
-        else:
-            return False
+    
 
 """ MUTATION """
-
-class LoginUser(graphene.Mutation):
+""" OUTDATED """
+class ReferenceMutation(graphene.Mutation):
     class Input:
         email = graphene.String()
         password = graphene.String()
     
     def mutate(self, args, context, info):
+        # access inputs
         email = args.get('email')
         password = args.get('password')
-        # get user!
-        user = ndb.Key('UserModel', email).get()
-        # compare against hash!
-        matches = verify_password(user.password_hash_sha256, password)
-        if matches:
-            return LoginUser(
-                success=True,
-                jwt= generate_jwt(email),
-                user=user,
-                email=email)
-        else:
-            return LoginUser(
-                success=False)
+        # do your thing, and return yourself, with return values
+        return ReferenceMutation(
+            success=True,
+            message="such output!"
+            )
     # return values
     success = graphene.Boolean()
-    jwt = graphene.String()
-    email = graphene.String()
-    user = graphene.Field(lambda: UserSchema)
-        
-
-class CreateUser(graphene.Mutation):
-    class Input:
-        email = graphene.String()
-        password = graphene.String()
-
-    # return Type
-    #user = graphene.Field(UserSchema)
-    #jwt = graphene.String()
-    success = graphene.Boolean()
-    jwt = graphene.String()
-    email = graphene.String()
-
-    def mutate(self, args, context, info):
-        print "mutate!"
-        email = args.get('email')
-        password = args.get('password')
-
-        # duplicate check
-        exisiting = ndb.Key('UserModel', email).get()
-        if exisiting:
-            print 'exisiting!'
-            return CreateUser(
-                success=False
-                )
-
-        else:
-            """ new signup """
-            password_hash = hash_password(password)
-            # this should move to classmethod on User
-            verification_token = uuid.uuid4().hex
-            user_key = UserModel(
-                id=email,
-                email=email,
-                verification_token=verification_token,
-                password_hash_sha256=password_hash).put()
-            print 'saved'
-            print password
-            print password_hash
-            user = user_key.get()
-
-            """make a token! """
-            jwt_token = generate_jwt(user.email)
-
-            """ send email """
-            message = mail.EmailMessage(
-                sender="auth@public-ink.appspotmail.com",
-                subject="Public.Ink Verification")
-
-            message.to = "micklinghoff@gmail.com"
-            host = 'http://localhost:4200'
-            message.body = """Hello there,
-
-You or somebody else submitted this email address to us. To create a public.ink account, let follow this link:
-{}/verify/{}/{}
-
-Awesome!
-            """.format(host, user.email, verification_token)
-            #message.send()
-            print message.body
-
-            return CreateUser(
-                success=True,
-                jwt=jwt_token,
-                email=user.email
-            )
+    message = graphene.String()
 
 class Mutation(graphene.ObjectType):
-    createUser = CreateUser.Field()
-    loginUser = LoginUser.Field()
+    referenceMutation = ReferenceMutation.Field()
 
+
+""" Glorious Schema """
 schema = graphene.Schema(query=Query, mutation=Mutation)
 
 
+""" GraphQL endpoint """
 class GraphQLEndpoint(RequestHandler):
     def get(self):
         """
@@ -456,3 +457,33 @@ app = webapp2.WSGIApplication(
         ('/graphql', GraphQLEndpoint)
     ], debug=True
 )
+
+
+
+""" UTILS (move)"""
+def send_verification_email(email, token):
+    message = mail.EmailMessage(
+        sender="auth@public-ink.appspotmail.com",
+        subject="Public.Ink Verification")
+
+    message.to = email
+    host = 'http://localhost:4200'
+    message.body = """Hello there,
+
+You or somebody else submitted this email address to us. To create a public.ink account, let follow this link:
+{}/verify/{}/{}
+
+Awesome!
+    """.format(host, email, token)
+    #message.send()
+    print 'sending message to ' + email
+    print message.body
+
+
+def email_from_jwt(token):
+    """
+    returns the email encoded in our jwt
+    """
+    payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    email = payload.get('email')
+    return email

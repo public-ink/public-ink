@@ -1,21 +1,15 @@
 <div class="content-width">
   <h1>public auth</h1>
 
-  <h2>Register</h2>
-    <label>Email</label><br>
-    <input 
-      type="email" 
-      [(ngModel)]="registerEmail"
-       class="form-input" 
-       placeholder="your email" />
+  <div id="register-login-forms" *ngIf="!backend.userAuthenticated">
 
-      <br>
-      <label>Password</label><br>
-    <input type="password" class="form-input" 
-      [(ngModel)]="registerPassword"
-      placeholder="a password"
-      
-       />
+    <h2>Register</h2>
+    <label>Email</label><br>
+    <input type="email" [(ngModel)]="registerEmail" class="form-input" placeholder="your email" />
+
+    <br>
+    <label>Password</label><br>
+    <input type="password" class="form-input" [(ngModel)]="registerPassword" placeholder="a password" />
     <br>
     <button class="button" tabindex="0" (click)="register()">Create Account</button>
 
@@ -23,20 +17,14 @@
     <h2>Login</h2>
     <label>Email</label>
     <br>
-    <input 
-      type="email" 
-      [(ngModel)]="loginEmail"
-       class="form-input" 
-       placeholder="your email" />
+    <input type="email" [(ngModel)]="loginEmail" class="form-input" placeholder="your email" />
 
-      <br>
-      <label>Password</label><br>
-    <input type="password" class="form-input" 
-      [(ngModel)]="loginPassword"
-      placeholder="your password"
-      
-       />
+    <br>
+    <label>Password</label><br>
+    <input type="password" class="form-input" [(ngModel)]="loginPassword" placeholder="your password" />
     <br>
     <button class="button form-input" tabindex="0" (click)="login()">Log In</button>
+
+  </div>
 
 </div>

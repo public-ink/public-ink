@@ -6,12 +6,14 @@ import { Router, ActivatedRoute, Params } from '@angular/router'
 import { BackendService } from '../backend.service'
 import { UIService } from '../ui.service'
 
-// Models
+// Models (hmm)
 import { 
   Author, AuthorData,
   ValidationError, ServerError,
-
 } from '../models'
+
+import gql from 'graphql-tag'
+import { Apollo } from 'apollo-angular'
 
 @Component({
   selector: 'app-author-page',
@@ -32,12 +34,29 @@ export class AuthorPageComponent implements OnInit {
     // ink
     private backend: BackendService,
     private ui: UIService,
+    // graphql
+    private apollo: Apollo,
   ) {
 
     this.route.params.subscribe(params => {
       this.authorID = params['authorID']
 
-      if (this.authorID === 'new') {
+      const query = gql`
+        {author(authorID:"${this.authorID}"){
+          name
+          publications {
+            name
+          }
+        }}
+      `
+      this.apollo.watchQuery<any>({
+        query: query
+      }).subscribe(result => {
+        console.log('author result', result)
+        this.author = result.data.author
+      })
+
+      /*if (this.authorID === 'new') {
         this.author = Author.createNew()
       } else {
         this.backend.getResourceByIDs(this.authorID).subscribe(
@@ -47,7 +66,7 @@ export class AuthorPageComponent implements OnInit {
         (error: ServerError | ValidationError) => {
           this.ui.handleError(error)
         })
-      }
+      }*/
     })
     console.log(this.authorID)
   }

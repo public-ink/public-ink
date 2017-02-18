@@ -1,3 +1,17 @@
 <p>
-  publication-page works!
+  {{ authorID}} | {{ publicationID }}
 </p>
+
+<div *ngIf="publication">
+
+  <input 
+    class="form-input"
+    type="text"
+    [(ngModel)]="publication.name"
+    [placeholder]="'Name your publication'" />
+  <button 
+    class="form-input"
+    (click)="createPublication()"
+  >Create Publication</button>
+
+</div>

@@ -1,0 +1,21 @@
+<p>
+  me-page works!
+</p>
+
+  <div *ngFor="let author of backend.userAuthors">
+    author: <a [routerLink]="['/', author.name]">{{ author.name }}</a>
+  </div>
+
+  <div *ngIf="backend.userAuthors.length === 0">
+    <h2>you ain't got no authors!</h2>
+    
+
+  </div>
+
+create an author!
+    <input 
+      type="text" 
+      [(ngModel)]="newAuthorName"
+      placeholder="Author Name or Pseudonym" 
+    />
+    <button (click)="createAuthor()">create author</button>

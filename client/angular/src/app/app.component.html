@@ -1,1 +1,26 @@
+
+
+<div id="topBar">
+    <div class="content-width">
+       
+
+        <div *ngIf="backend.userAuthenticated">
+            {{ backend.userEmail }}
+
+            <span *ngIf="!backend.userVerified">
+                You are logged in, but your account requires email verification.
+                Please check your inbox and spam folder for an email from us, and follow the link in it.
+            </span>
+
+            <span *ngIf="backend.userVerified">
+                All good, your account is verified :)
+            </span>
+            <button (click)="backend.logoutUser()">Log out</button>
+            </div>
+
+        <div *ngIf="!backend.userAuthenticated">Not authenticated. Please register or log in below.</div>
+        
+    </div>
+</div>
+
 <router-outlet></router-outlet>

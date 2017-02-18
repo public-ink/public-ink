@@ -1,1 +1,13 @@
-<app-author *ngIf="author" [author]="author" (onSave)="saveAuthor()"></app-author>
+<!--<app-author *ngIf="author" [author]="author" (onSave)="saveAuthor()"></app-author>
+-->
+
+<div *ngIf="author">
+
+<h2>{{ author.name }}</h2>
+<div *ngFor="let publication of author.publications">
+    <h3>{{ publication.name }}</h3>
+</div>
+
+<a [routerLink]="['/', authorID, 'create-publication']">create publication</a>
+
+</div>
