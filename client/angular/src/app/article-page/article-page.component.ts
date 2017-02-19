@@ -57,7 +57,13 @@ export class ArticlePageComponent implements OnInit {
       this.publicationID = params['publicationID']
       this.articleID = params['articleID']
 
-      this.doQuery()
+      if (this.articleID === 'create-article') {
+        this.article = {
+          title: 'no title yet'
+        }
+      } else {
+        this.doQuery()
+      }
     })
   }
 

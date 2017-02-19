@@ -134,9 +134,9 @@ class AuthorSchema(graphene.ObjectType):
 
     # related
     publications = graphene.List(lambda: PublicationSchema)
-    def resolve_publication(self, args, *more):
+    def resolve_publications(self, args, *more):
         print 'resolve publication of author'
-        return PublicationModel.query(ancestor=self.key)
+        return PublicationModel.query(ancestor=self.key).fetch()
 
 
 
@@ -150,6 +150,9 @@ class PublicationSchema(graphene.ObjectType):
     """
     The schema for representing a publication
     """
+    id = graphene.String()
+    def resolve_id(self, *args):
+        return self.key.id()
     name = graphene.String()
     articles = graphene.List(lambda: ArticleSchema, order=graphene.String())
     def resolve_articles(self, *args):
@@ -327,8 +330,10 @@ class Query(graphene.ObjectType):
         name=graphene.String()
         )
     def resolve_createPublication(self, args, *more):
+        authorID = args.get('authorID')
         name = args.get('name')
         publication = PublicationModel(
+            parent=ndb.Key('AuthorModel', authorID),
             id=slugify(name),
             name=name
         ).put()
@@ -348,7 +353,7 @@ class Query(graphene.ObjectType):
 
     author = graphene.Field(AuthorSchema, authorID=graphene.String())
     def resolve_author(self, args, context, info):
-        print 'resolve author!'
+        print 'resolve author / zero'
         authorID = args.get('authorID')
         author = ndb.Key(
             'AuthorModel', args.get('authorID')
@@ -358,17 +363,18 @@ class Query(graphene.ObjectType):
 
     publication = graphene.Field(PublicationSchema, authorID=graphene.String(), publicationID=graphene.String())
     def resolve_publication(self, args, context, info):
-        print 'resolve publication'
+        print 'resolve publication / zero'
         publication = ndb.Key(
             'AuthorModel',      args.get('authorID'), 
             'PublicationModel', args.get('publicationID')
         ).get()
+        print publication
         return publication
 
 
     article = graphene.Field(ArticleSchema, authorID=graphene.String(), publicationID=graphene.String(), articleID=graphene.String())
-    def resolve_publication(self, args, context, info):
-        print 'resolve publication'
+    def resolve_article(self, args, context, info):
+        print 'resolve article / zero'
         publication = ndb.Key(
             'AuthorModel',      args.get('authorID'), 
             'PublicationModel', args.get('publicationID'),

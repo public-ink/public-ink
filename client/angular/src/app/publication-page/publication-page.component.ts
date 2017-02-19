@@ -68,7 +68,7 @@ export class PublicationPageComponent implements OnInit {
     const jwt = localStorage.getItem('jwt')
     const query = gql`
       {
-        createPublication(jwt:"${jwt}", name:"${this.publication.name}"){
+        createPublication(jwt:"${jwt}", name:"${this.publication.name}", authorID:"${this.authorID}"){
           name
         }
       }

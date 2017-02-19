@@ -1,6 +1,7 @@
-<p>
-  {{ authorID}} | {{ publicationID }}
-</p>
+<h1>publication page: {{ authorID}} | {{ publicationID }}</h1>
+
+<a [routerLink]="['/', authorID, publicationID, 'create-article']">create article</a>
+
 
 <div *ngIf="publication">
 

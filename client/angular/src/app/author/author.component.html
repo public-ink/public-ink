@@ -1,13 +1,32 @@
 
-{{ author | stringify }}
-
-<img [src]="author.imageUrl + '=s80-c'" />
-
-<input type="text" [(ngModel)]="author.nameText" />
-
-<h1>{{ author.nameText }}</h1>
-<h1>{{ author.aboutText }}</h1>
-
-<button (click)="emitSaveAuthor()">save</button>
-
-<app-publication *ngFor="let publication of author.publications" [publication]="publication"></app-publication>
+<!-- author display pattern -->
+<!-- AUTHOR -->
+<flex-row-center>
+  <flex-row class="content-width">
+    <!-- circle container -->
+    <flex-center
+      [style.background-color]="ui.colors.debug ? ui.colors.lightyellow : ''"
+      [style.padding.px]="pad"
+      >
+      <img 
+        [style.box-shadow]="imageStyle.boxShadow"
+        [style.border]="size === 'sticker' ? '3px solid #fff' : '8px solid #fff'"
+        [ngStyle]="imgStyle()"
+      style="border-radius: 500px;" [src]="author.imageURL" />
+      
+    </flex-center>
+    <!-- author text -->
+    <flex-col class="grow"
+      [style.padding.px]="pad"
+      [style.background-color]="ui.colors.debug ? ui.colors.lightred : ''"
+      [style.color]="size === 'sticker' ? 'white' : '8px solid black'"
+    >
+      <h2 
+      [ngStyle]="nameStyle()">
+      {{ author.name }} </h2>
+      <p *ngIf="size != 'sticker'"
+        [ngStyle]="aboutStyle()"
+      >{{ author.about }}</p>
+    </flex-col>
+  </flex-row>
+</flex-row-center>

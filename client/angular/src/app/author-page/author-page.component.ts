@@ -25,7 +25,7 @@ export class AuthorPageComponent implements OnInit {
   // the ID is taken from the current route
   authorID: string
   // the author is retrieved from the backend
-  author: Author
+  author: any
 
   constructor(
     // angular
@@ -41,11 +41,20 @@ export class AuthorPageComponent implements OnInit {
     this.route.params.subscribe(params => {
       this.authorID = params['authorID']
 
+      if (this.authorID === 'create-author') {
+        this.author = {
+          name: 'chose wisely',
+          publications: []
+        }
+        return
+      }
+
       const query = gql`
         {author(authorID:"${this.authorID}"){
           name
           publications {
             name
+            id
           }
         }}
       `
@@ -54,7 +63,7 @@ export class AuthorPageComponent implements OnInit {
       }).subscribe(result => {
         console.log('author result', result)
         this.author = result.data.author
-      })
+      }) 
 
       /*if (this.authorID === 'new') {
         this.author = Author.createNew()

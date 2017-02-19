@@ -23,7 +23,8 @@ import { ApolloModule } from 'apollo-angular'
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { AuthPageComponent } from './auth-page/auth-page.component';
 import { EmailVerificationPageComponent } from './email-verification-page/email-verification-page.component';
-import { MePageComponent } from './me-page/me-page.component'
+import { MePageComponent } from './me-page/me-page.component';
+import { LayoutComponent } from './layout/layout.component'
 
 
 const apolloClient = new ApolloClient({
@@ -38,6 +39,7 @@ export function provideClient(): ApolloClient {
 
 
 const appRoutes: Routes = [
+  { path: '', component: LayoutComponent },
   { path: '', component: HomePageComponent },
   // pages
   { path: 'me', component: MePageComponent},
@@ -66,6 +68,7 @@ const appRoutes: Routes = [
     AuthPageComponent,
     EmailVerificationPageComponent,
     MePageComponent,
+    LayoutComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),
