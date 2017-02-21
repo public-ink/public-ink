@@ -4,21 +4,21 @@
     <div class="content-width">
        
 
-        <div *ngIf="backend.userAuthenticated">
+        <div *ngIf="backend.userAccount.authenticated">
             {{ backend.userEmail }}
 
-            <span *ngIf="!backend.userVerified">
+            <span *ngIf="!backend.userAccount.verified">
                 You are logged in, but your account requires email verification.
                 Please check your inbox and spam folder for an email from us, and follow the link in it.
             </span>
 
-            <span *ngIf="backend.userVerified">
+            <span *ngIf="backend.userAccount.verified">
                 All good, your account is verified :)
             </span>
             <button (click)="backend.logoutUser()">Log out</button>
             </div>
 
-        <div *ngIf="!backend.userAuthenticated">Not authenticated. Please register or log in below.</div>
+        <div *ngIf="!backend.userAccount.authenticated">Not authenticated. Please register or log in below.</div>
         
     </div>
 </div>

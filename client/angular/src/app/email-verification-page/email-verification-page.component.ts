@@ -15,6 +15,7 @@ export class EmailVerificationPageComponent {
 
   email: string
   token: string
+  status: string = 'checking'
 
   constructor(
     private route: ActivatedRoute,
@@ -26,7 +27,16 @@ export class EmailVerificationPageComponent {
     this.route.params.subscribe(params => {
       this.email = params['email']
       this.token = params['token']
-      this.backend.verifyEmail(this.email, this.token)
+      this.backend.verifyEmail(this.email, this.token).subscribe(account => {
+        if (account.verified) {
+          this.status = 'success' 
+        } else {
+          this.status = 'verification failed'
+        }
+      },
+      (error) => {
+        this.status = 'sorry, an error occured'
+      })
     })
   }
 }

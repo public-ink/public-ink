@@ -5,6 +5,13 @@ import { Apollo } from 'apollo-angular'
 
 import { BackendService } from '../backend.service'
 
+export interface iAccount {
+  email: string
+  authenticated: boolean
+  verified: boolean
+  jwt?: string
+}
+
 @Component({
   selector: 'app-auth-page',
   templateUrl: './auth-page.component.html',
@@ -29,7 +36,12 @@ export class AuthPageComponent implements OnInit {
 
   // todo: verify form
   register() {
-    this.backend.registerUser(this.registerEmail, this.registerPassword)
+    //this.backend.registerUser(this.registerEmail, this.registerPassword)
+    this.backend.createAccount(this.registerEmail, this.registerPassword).subscribe(
+      (account: iAccount) => {
+        console.log('auth page got account, but dont care')
+      }
+    )
   }
 
   login() {

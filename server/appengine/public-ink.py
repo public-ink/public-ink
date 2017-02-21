@@ -267,14 +267,14 @@ class Query(graphene.ObjectType):
             jwt=jwt)
 
 
-    createUser = graphene.Field(AuthSchema, email=graphene.String(), password=graphene.String())
-    def resolve_createUser(self, args, *more):
+    createAccount = graphene.Field(AuthSchema, email=graphene.String(), password=graphene.String())
+    def resolve_createAccount(self, args, *more):
         """
         creates a user with the given email address, provided it does not exist yet
         returns auth related information
         """
-        email = args.get('email')
-        password = args.get('password')
+        email = args.get('email') or self.get('email')
+        password = args.get('password') or self.get('password')
         user = ndb.Key('UserModel', email).get()
         if user:
             return AuthSchema(

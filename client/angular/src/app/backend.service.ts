@@ -6,12 +6,15 @@ import 'rxjs/add/operator/map'
 import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
 
+
 import {
   PublicationData,
   IBackendData, IResource, Author, AuthorData, Publication, Resource
 } from './models'
 
 import { iPublication } from './publication/publication.component'
+
+import { iAccount } from './auth-page/auth-page.component'
 
 interface xAuthorData {
   id: string
@@ -28,10 +31,27 @@ export class BackendService {
 
   backendHost: string = 'http://localhost:8080'
 
+  userAccount: iAccount = {
+    authenticated: false,
+    verified: false,
+    email: '',
+  }
+
   userAuthenticated: boolean = false
   userVerified: boolean = false
   userEmail: string
   userAuthors: any[] = []
+
+  fragments = {
+    account: gql`
+      fragment accountStatus on AuthSchema {
+        email
+        authenticated
+        verified
+        jwt
+      }
+    `
+  }
   
 
   constructor(
@@ -41,28 +61,41 @@ export class BackendService {
     this.jwtLogin()
   }
 
+
+  /**
+   * Verify and email with token (usually by following email link)
+   *  */  
   verifyEmail(email: string, token: string) {
-    const query = gql`
+    const xquery = gql`
       {verifyEmail(email:"${email}", token:"${token}"){
-        authenticated
-        message
-        jwt
+        ...accountStatus
+      }}
+      ${this.fragments.account}
+    `
+    const query = gql`
+    {verifyEmail(email:"${email}", token:"${token}"){
+        email
         authenticated
         verified
+        jwt
       }}
     `
-    this.apollo.watchQuery<any>({
-      query: query
-    }).subscribe(result => {
-      console.log(result)
-      const authData = result.data.verifyEmail
-      if (authData.authenticated) {
-        localStorage.setItem('jwt', authData.jwt)
-        this.userAuthenticated = authData.authenticated
-        this.userVerified = authData.verified
-        this.userEmail = authData.email
-      }
+    const querySub = this.apollo.watchQuery<any>({
+      query: xquery,
     })
+    return new Observable<iAccount>(stream => {
+      querySub.subscribe(result => {
+        const account = result.data.verifyEmail
+        this.userAccount = account
+        stream.next(account)
+      },
+      error => {
+        alert('apollo query error: verify email')
+        stream.error('error verifying account')
+      })
+    })
+    
+    
   }
 
   logoutUser() {
@@ -105,6 +138,9 @@ export class BackendService {
         this.userEmail = authData.email
         this.userAuthors = authData.authors
       }
+    }, 
+    error => {
+      alert('I caught the error')
     })
   }
 
@@ -157,6 +193,39 @@ export class BackendService {
       this.userVerified = authData.verififed
       this.userEmail = authData.email
       localStorage.setItem('jwt', authData.jwt)
+    })
+  }
+
+  // new version of register user, this time, we intercept errors, and return an account observable
+  createAccount(email:string, password: string) {
+    const query = gql`
+      {createAccount {
+        email
+        authenticated
+        verified
+        jwt
+      }}
+    `
+    const querySub = this.apollo.watchQuery<any>({
+      query: query,
+      variables: {
+        email: email,
+        password: password,
+      }
+    })
+    return new Observable<iAccount>(input => {
+      querySub.subscribe(result => {
+        console.log('account result', result)
+        const account: iAccount = result.data.createAccount
+        this.userAccount = account
+        console.log(this.userAccount)
+        input.next(account)
+      },
+      (error) => {
+        alert('create account backend error!')
+        console.log(error)
+        input.error('create account backend error')
+      })
     })
   }
 
