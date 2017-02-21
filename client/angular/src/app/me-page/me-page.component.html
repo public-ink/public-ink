@@ -1,9 +1,12 @@
-<p>
-  me-page works!
-</p>
+<div class="content-width">
+  <h1>Your account</h1>
+  <button>Delete Account</button>
+</div>
+
 
   <div *ngFor="let author of backend.userAuthors">
-    author: <a [routerLink]="['/', author.name]">{{ author.name }}</a>
+    author: <a [routerLink]="['/', author.id]">{{ author.name }}</a>
+    <app-author [author]="author"></app-author>
   </div>
 
   <div *ngIf="backend.userAuthors.length === 0">
@@ -12,7 +15,6 @@
 
   </div>
 
-create an author!
 
 <a [routerLink]="['/', 'create-author']">create author link</a>
     <input 
@@ -20,4 +22,4 @@ create an author!
       [(ngModel)]="newAuthorName"
       placeholder="Author Name or Pseudonym" 
     />
-    <button (click)="createAuthor()">create author</button>
+    

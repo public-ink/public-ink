@@ -3,12 +3,15 @@ import { Component, OnInit } from '@angular/core'
 import { Router, ActivatedRoute, Params } from '@angular/router'
 
 // GraphQL Tools
-import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
+import gql from 'graphql-tag'
 
 // Ink Services
 import { BackendService } from '../backend.service'
 import { UIService } from '../ui.service'
+
+// Ink Interfaces
+import { iPublication } from '../publication/publication.component'
 
 @Component({
   selector: 'app-publication-page',
@@ -20,7 +23,7 @@ export class PublicationPageComponent implements OnInit {
   authorID: string
 
   publicationID: string
-  publication: any
+  publication: iPublication
 
   constructor(
     // angular
@@ -40,13 +43,25 @@ export class PublicationPageComponent implements OnInit {
       this.publicationID = params['publicationID']
 
       if (this.publicationID === 'create-publication') {
-        this.publication = {
-          name: 'no name yet'
-        }
+        this.backend.getAuthor(this.authorID).subscribe(result => {
+          this.publication = {
+            // got to get author!
+            author: result.data.author,
+            new: true,
+            id: this.publicationID,
+            name: 'no name yet',
+          }
+        })
+        
         return
       }
+      console.log('new get')
+      this.backend.getPublication(this.authorID, this.publicationID).subscribe(publication => {
+        console.log('pub page got put', publication)
+        this.publication = publication
+      })
 
-      const query = gql`
+      /*const query = gql`
         {publication(publicationID:"${this.publicationID}"){name}}
       `
       this.apollo.watchQuery<any>({
@@ -54,7 +69,7 @@ export class PublicationPageComponent implements OnInit {
       }).subscribe(result => {
         console.log('publication result', result)
         this.publication = result.data.publication
-      })
+      })*/
 
       
     })
@@ -74,11 +89,19 @@ export class PublicationPageComponent implements OnInit {
       }
     `
     this.apollo.watchQuery<any>({
-      query: query
+      query: query,
+      variables: {
+        jwt: jwt,
+        name: this.publication.name,
+        authorID: this.authorID,
+      }
     }).subscribe(result => {
       console.log(result)
     })
 
+  }
+  savePublication() {
+    this.backend.savePublication(this.publication)
   }
 
 }

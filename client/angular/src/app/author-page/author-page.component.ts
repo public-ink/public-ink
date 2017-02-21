@@ -43,15 +43,23 @@ export class AuthorPageComponent implements OnInit {
 
       if (this.authorID === 'create-author') {
         this.author = {
-          name: 'chose wisely',
-          publications: []
+          new: true,
+          name: 'chose wisely!',
+          about: 'about this author',
+          imageURL: '/assets/images/mask.png',
+          publications: [],
         }
         return
       }
 
       const query = gql`
         {author(authorID:"${this.authorID}"){
+          id          
           name
+          about
+          imageURL
+          created
+          updated
           publications {
             name
             id
@@ -65,19 +73,20 @@ export class AuthorPageComponent implements OnInit {
         this.author = result.data.author
       }) 
 
-      /*if (this.authorID === 'new') {
-        this.author = Author.createNew()
-      } else {
-        this.backend.getResourceByIDs(this.authorID).subscribe(
-          (authorData: AuthorData) => {
-          this.author = new Author(authorData)
-        },
-        (error: ServerError | ValidationError) => {
-          this.ui.handleError(error)
-        })
-      }*/
     })
     console.log(this.authorID)
+  }
+
+  create() {
+    /**
+     * called from the child <app-author> component. 
+     * create an author from the bound author data!
+     * on success, navigate to the new author's page
+     */
+    this.backend.createAuthor(this.author).subscribe(result => {
+      const id = result.data.createAuthor.id
+      this.router.navigate(['/', id])
+    })
   }
 
   /**

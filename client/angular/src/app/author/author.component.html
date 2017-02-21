@@ -1,8 +1,20 @@
 
 <!-- author display pattern -->
 <!-- AUTHOR -->
-<flex-row-center>
-  <flex-row class="content-width">
+<flex-col-center>
+
+    <!-- information about creating authors (only for /create-author) -->
+    <div class="content-width" *ngIf="author?.new">
+        <h1>Create an Author</h1>
+        <p>Authors are the public actors on public.ink. You can create multiple authors, if you like.
+            You can use your real name, a nickname, or pseudonym - up to you. Likewise, you are free to chose whatever photo.
+        </p>
+    </div>
+
+
+  <!-- display pattern: author! -->
+  <flex-row class="content-width" *ngIf="author">
+
     <!-- circle container -->
     <flex-center
       [style.background-color]="ui.colors.debug ? ui.colors.lightyellow : ''"
@@ -10,23 +22,27 @@
       >
       <img 
         [style.box-shadow]="imageStyle.boxShadow"
-        [style.border]="size === 'sticker' ? '3px solid #fff' : '8px solid #fff'"
+        [style.border]="size === 'sticker' ? '4px solid #000' : '8px solid #fff'"
         [ngStyle]="imgStyle()"
       style="border-radius: 500px;" [src]="author.imageURL" />
       
     </flex-center>
     <!-- author text -->
-    <flex-col class="grow"
+    <flex-col-left-center class="grow"
       [style.padding.px]="pad"
       [style.background-color]="ui.colors.debug ? ui.colors.lightred : ''"
       [style.color]="size === 'sticker' ? 'white' : '8px solid black'"
     >
-      <h2 
-      [ngStyle]="nameStyle()">
-      {{ author.name }} </h2>
-      <p *ngIf="size != 'sticker'"
+      <input type="text"
+      placeholder="Name your Author here"
+      [(ngModel)]="author.name" 
+      [ngStyle]="nameStyle()" />
+      
+      <textarea
+        [(ngModel)]="author.about"
+       *ngIf="size != 'sticker'"
         [ngStyle]="aboutStyle()"
-      >{{ author.about }}</p>
-    </flex-col>
-  </flex-row>
-</flex-row-center>
+      ></textarea>
+    </flex-col-left-center>
+  </flex-row><!-- end of display pattern author -->
+</flex-col-center>

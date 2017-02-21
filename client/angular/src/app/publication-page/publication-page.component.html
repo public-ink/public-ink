@@ -1,6 +1,20 @@
-<h1>publication page: {{ authorID}} | {{ publicationID }}</h1>
+<div *ngIf="publication">
+
+  <app-publication 
+    [publication]="publication"
+    (saveClicked)="savePublication()"
+    >
+  </app-publication>
+
+  This publication has {{ publication.articles.length }} articles.
+  <a [routerLink]="['/', publication.author.id, publication.id, 'create-article']">Create Article</a>
+
+</div>
+
+<!--<h1>publication page: {{ authorID}} | {{ publicationID }}</h1>
 
 <a [routerLink]="['/', authorID, publicationID, 'create-article']">create article</a>
+
 
 
 <div *ngIf="publication">
@@ -15,4 +29,4 @@
     (click)="createPublication()"
   >Create Publication</button>
 
-</div>
+</div>-->

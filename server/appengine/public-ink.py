@@ -124,19 +124,30 @@ class UserSchema(graphene.ObjectType):
 class AuthorModel(InkModel):
     user = ndb.KeyProperty(kind=UserModel, required=True)
     name = ndb.StringProperty(required=True)
+    about = ndb.StringProperty()
+    imageURL = ndb.StringProperty()
 
 class AuthorSchema(graphene.ObjectType):
     """
     The schema for representing an author
     """
+    id = graphene.String()
     user = graphene.Field(UserSchema)
     name = graphene.String()
+    about = graphene.String()
+    imageURL = graphene.String()
+
+    created = graphene.String()
+    updated = graphene.String()
 
     # related
     publications = graphene.List(lambda: PublicationSchema)
     def resolve_publications(self, args, *more):
         print 'resolve publication of author'
         return PublicationModel.query(ancestor=self.key).fetch()
+
+    def resolve_id(self, *args):
+        return self.key.id()
 
 
 
@@ -156,7 +167,10 @@ class PublicationSchema(graphene.ObjectType):
     name = graphene.String()
     articles = graphene.List(lambda: ArticleSchema, order=graphene.String())
     def resolve_articles(self, *args):
-        return ArticleModel.query(ancestor = self.key)
+        return ArticleModel.query(ancestor=self.key)
+    author = graphene.Field(AuthorSchema)
+    def resolve_author(self, *args):
+        return self.key.parent().get()
 
 
 """ 
@@ -169,6 +183,9 @@ class ArticleSchema(graphene.ObjectType):
     """
     The schema for representing an author.
     """
+    id = graphene.String()
+    def resolve_id(self, *args):
+        return self.key.id()
     title = graphene.String()
     # related
     publication = graphene.Field(PublicationSchema)
@@ -176,7 +193,7 @@ class ArticleSchema(graphene.ObjectType):
         return self.parent().get()
     author = graphene.Field(AuthorSchema)
     def resolve_author():
-        pass
+        return self.parent().parent().get()
 
 
 """
@@ -298,19 +315,39 @@ class Query(graphene.ObjectType):
                 message='email verification failed',
                 email=email)
 
-    createAuthor = graphene.Field(AuthSchema, jwt=graphene.String(), name=graphene.String())
+    """ AUTHOR !!! """
+
+    createAuthor = graphene.Field(
+        AuthorSchema, 
+        jwt=graphene.String(),
+        name=graphene.String(),
+        about=graphene.String(),
+        imageURL=graphene.String()
+        )
     def resolve_createAuthor(self, args, *more):
         print "resolve create author"
         name = args.get('name')
+        about = args.get('about')
+        imageURL = args.get('imageURL')
+        # more args!
         token = args.get('jwt')
         email = email_from_jwt(token)
         user_key = ndb.Key('UserModel', email)
         # create author!
-        author = AuthorModel(
+        author_key = AuthorModel(
             id=slugify(name),
             name=name,
+            about=about,
+            imageURL=imageURL,
             user=user_key
         ).put()
+        # return the author, plain and simple
+        author = author_key.get()
+        return author
+        # outdated!! -> but good learning
+        """
+        we can either return just a db instance, or a custom schema!
+        """
         # this might not include the just-created author.
         authors = AuthorModel.query(AuthorModel.user == user_key).fetch()
         if author not in authors:
@@ -323,6 +360,15 @@ class Query(graphene.ObjectType):
             jwt=generate_jwt(email),
             authors=authors
         )
+
+    """ delete author"""
+    deleteAuthor = graphene.Boolean(jwt=graphene.String(), authorID=graphene.String())
+    def resolve_deleteAuthor(self, args, *more):
+        ndb.Key('AuthorModel', args.get('authorID')).delete()
+        return True
+
+
+    """ PUBLICATION !!! """
 
     createPublication = graphene.Field(PublicationSchema, 
         jwt=graphene.String(), 
@@ -338,6 +384,32 @@ class Query(graphene.ObjectType):
             name=name
         ).put()
         return publication.get()
+
+    """ save publication (existing or new!) """
+    savePublication = graphene.Field(PublicationSchema, 
+        jwt=graphene.String(), 
+        publicationID=graphene.String(),
+        authorID=graphene.String(), 
+        name=graphene.String()
+        )
+    def resolve_savePublication(self, args, context, info):
+        publicationID = self.get('publicationID')
+        name = self.get('name')
+        authorID = self.get('authorID')
+        
+        if publicationID == 'create-publication':
+            """ create publication """
+            publication_key = PublicationModel(
+                parent=ndb.Key('AuthorModel', authorID),
+                id=slugify(name),
+                name=name
+            ).put()
+        else:
+            """ update publication """
+            publication = ndb.Key('AuthorModel', authorID, 'PublicationModel', publicationID).get()
+            publication.name = args.get('name')
+            publicion_key = publication.put()
+        return publication_key.get()
 
     
         
@@ -364,11 +436,16 @@ class Query(graphene.ObjectType):
     publication = graphene.Field(PublicationSchema, authorID=graphene.String(), publicationID=graphene.String())
     def resolve_publication(self, args, context, info):
         print 'resolve publication / zero'
+        print 'self:'
+        print self
+        print 'args:'
+        print args
+        authorID = self.get('authorID') or self.args.get('authorID')
+        publicationID = self.get('publicationID') or self.args.get('publicationID')
         publication = ndb.Key(
-            'AuthorModel',      args.get('authorID'), 
-            'PublicationModel', args.get('publicationID')
+            'AuthorModel',      authorID, 
+            'PublicationModel', publicationID
         ).get()
-        print publication
         return publication
 
 
@@ -436,7 +513,9 @@ class GraphQLEndpoint(RequestHandler):
         data = json.loads(self.request.body)
         query = data.get('query', '')
         variables = data.get('variables')
-        result = schema.execute(query, variable_values=variables)
+        print 'executing schema with variables'
+        print variables
+        result = schema.execute(query, variables)
         response = {'data' : result.data}
         self.response.headers['Content-Type'] = 'application/json; charset=utf-8'
         self.response.out.write(json.dumps(response))

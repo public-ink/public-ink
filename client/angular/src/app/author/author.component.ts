@@ -16,21 +16,24 @@ export class AuthorComponent implements OnInit {
 
   // the ID is taken from the current route
   authorID: string
-  // the author is retrieved from the backend
-  @Input() author: Author
+  // the author is retrieved from the backend, or 'new'
+  @Input() author
   @Input() size: string
   @Output() onSave: EventEmitter<any> = new EventEmitter()
 
+  // this output is emitted straight from the template!
+  @Output() create: EventEmitter<any> = new EventEmitter()
+
   imageStyle = {
     boxShadow: this.sanitizer.bypassSecurityTrustStyle('inset 0 1.5px 3px 0 rgba(0,0,0,.15), 0 1.5px 3px 0 rgba(0,0,0,.15)'),
-    border: this.size === 'sticker' ? '3px solid green': '8px solid #fff',
-}
+    border: this.size === 'sticker' ? '3px solid green' : '8px solid #fff',
+  }
 
-  imgStyle() { 
+  imgStyle() {
     if (this.size === 'sticker') {
       return {
-        'width.px': 50,
-        'height.px': 50,
+        'width.px': 70,
+        'height.px': 70,
       }
     }
     else {
@@ -74,8 +77,14 @@ export class AuthorComponent implements OnInit {
     private ui: UIService,
     private sanitizer: DomSanitizer,
   ) {
-
+    this.author = {
+      name: 'uninited',
+      id: 'noneyet',
+      about: 'yee',
+    }
   }
+
+
 
   ngOnInit() {
     console.log('author cmp here', this.author)

@@ -1,5 +1,24 @@
-publication: 
+<!--publication: 
 
-<h3>{{ publication.nameText }}</h3>
+<h3>{{ publication.name }}</h3>
 
 <app-article *ngFor="let article of publication.articles" [article]="article"></app-article>
+-->
+
+<flex-col-center
+ class="bgCircut"
+ 
+  >
+  <flex-col-center
+    class="content-width"
+    [style.padding.px]="40"
+    [style.background-color]="ui.colors.debug ? ui.colors.lightyellow : ''">
+      <textarea
+        [(ngModel)]="publication.name"
+        [style.font-size.px]="40"
+      style="color: #333; text-align: center;"></textarea>
+      <app-author [author]="publication.author" [size]="'sticker'"></app-author> 
+  </flex-col-center>
+  
+
+</flex-col-center>

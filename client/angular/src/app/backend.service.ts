@@ -11,6 +11,18 @@ import {
   IBackendData, IResource, Author, AuthorData, Publication, Resource
 } from './models'
 
+import { iPublication } from './publication/publication.component'
+
+interface xAuthorData {
+  id: string
+  name:string
+  about:string
+  imageURL:string
+}
+interface AuthorReply {
+
+}
+
 @Injectable()
 export class BackendService {
 
@@ -70,7 +82,12 @@ export class BackendService {
         verified
         email
         authors {
+          id
           name
+          about
+          imageURL
+          created
+          updated
         }
       }
     }
@@ -91,7 +108,7 @@ export class BackendService {
     })
   }
 
-  // should be a query!
+  // now a query
   loginUser(email:string, password: string) {
     const query = gql`
        {
@@ -143,32 +160,117 @@ export class BackendService {
     })
   }
 
-  createAuthor(name: string) {
+  createAuthor(author: any) {
     const jwt = localStorage.getItem('jwt')
     const query = gql`
       {
-        createAuthor(jwt:"${jwt}", name: "${name}"){
-          message
-          authors{
-            name
-          }
-          jwt
+        createAuthor(jwt:"${jwt}", name: "${author.name}", about:"${author.about}", imageURL:"${author.imageURL}"){
+          id
+          name
         }
       }
     `
-    this.apollo.watchQuery<any>({
+    const subscription = this.apollo.watchQuery<any>({
       query:query
-    }).subscribe(result => {
+    })
+    subscription.subscribe(result => {
       
       console.log('create author result', result)
-      const authData = result.data.createAuthor
+      //const authData = result.data.createAuthor
       //this.userAuthenticated = authData.authenticated
       //this.userVerified = authData.verififed
       //this.userEmail = authData.email
-      this.userAuthors = authData.authors
-      localStorage.setItem('jwt', authData.jwt)
+      //this.userAuthors = authData.authorsx
+      //localStorage.setItem('jwt', authData.jwt)
     })
+    return subscription
   }
+
+  /** GET OR LOAD AUTHOR */
+  getAuthor(authorID: string) {
+    // check locally: ToDo!
+    const query = gql`
+      {author(authorID:"${authorID}"){
+        id, name, about, imageURL
+      }}
+    `
+    const sub = this.apollo.watchQuery<any>({query: query})
+    sub.subscribe(result => {
+      console.log('be get author:', result.data.author)
+    })
+    return sub
+  }
+
+  /** GET OR LOAD PUBLICATION */
+  /**
+   * Returns a Publication observable
+   */
+  getPublication(authorID: string, publicationID: string):Observable<iPublication> {
+
+    return new Observable(emitter => {
+      const query = gql`
+        {publication {
+          id
+          name
+          author {
+            id
+            name
+            about
+            imageURL
+          }
+          articles {
+            id
+            title
+          }
+        }}
+      `
+      this.apollo.watchQuery<any>({
+        query: query,
+        variables: {
+          authorID: authorID,
+          publicationID: publicationID
+        }
+      }).subscribe(result => {
+        emitter.next(result.data.publication)
+      })
+    })
+
+    
+  }
+
+
+/**
+ * PUBLICATION
+ */
+savePublication(publication) {
+  const jwt = localStorage.getItem('jwt')
+    const query = gql`
+      {
+        savePublication {
+          name
+        }
+      }
+    `
+    const subscription = this.apollo.watchQuery<any>({
+      query: query,
+      variables: {
+        jwt: jwt,
+        authorID: publication.author.id,
+        publicationID: publication.id,
+        name: publication.name,
+      }
+    })
+    subscription.subscribe(result => {
+      console.log('backend saved publication', result)
+    })
+    return subscription
+}
+
+
+
+
+
+
 
 
   /**

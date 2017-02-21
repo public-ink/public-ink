@@ -20,6 +20,7 @@ export class MePageComponent implements OnInit {
 
   createAuthor() {
     console.log('create author', this.newAuthorName)
+    // this goes away, and onto authorpage.
     this.backend.createAuthor(this.newAuthorName)
   }
 

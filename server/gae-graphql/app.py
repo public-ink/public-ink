@@ -312,6 +312,7 @@ class GraphQLEndpoint(RequestHandler):
         data = json.loads(self.request.body)
         query = data.get('query', '')
         variables = data.get('variables')
+        print variables
         result = schema.execute(query, variable_values = variables)
         response = {'data' : result.data}
         self.response.headers['Content-Type'] = 'application/json; charset=utf-8'

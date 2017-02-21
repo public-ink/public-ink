@@ -16,7 +16,7 @@ export class UIService {
     lightyellow: 'lightyellow',
     lightgray: 'lightgray',
 
-    debug: true,
+    debug: false,
   }
 
   bg = {

@@ -1,17 +1,51 @@
-<!--<app-author *ngIf="author" [author]="author" (onSave)="saveAuthor()"></app-author>
--->
-<h2>author page {{ authorID}}</h2>
 
+
+<flex-row-center *ngIf="author">
+    <flex-col class="content-width">
+        <!-- center lane -->
+            <app-author [author]="author" (create)="create()"></app-author>
+
+            <!-- if NEW! -->
+            <button (click)="create()" class="form-button" *ngIf="author.new">Create Author</button>
+
+            <!-- if EXISTING AUTHOR: create new publication -->
+            <a [routerLink]="['/', author.id, 'create-publication']">start publication</a>
+
+            <!-- publications -->
+            <h2>{{ author.name }} has {{ author.publications.length }} publication(s).</h2>
+            <div *ngFor="let publication of author.publications">
+                <a [routerLink]="['/', author.id, publication.id]">{{ publication.name }}</a>
+            </div>
+        <!-- end of center lane -->
+    </flex-col>
+</flex-row-center>
+
+<!-- if the author has no publications, offer to create! nope!-->
+<!--<div *ngIf="author">
+    <div *ngIf="author.publications.length === 0">
+        <div class="content-width" style="margin:0px auto;">
+            <h2>{{ author.name }} has no publications yet</h2>
+            <p>Publications are a way or organizing articles. An author can have one or many publications.
+                Others can chose to follow individual publication, or all of an author's  articles. Time to create 
+                your first publication!
+            </p>
+        </div>
+        
+        <a [routerLink]="['/', author.id, 'create-publication']">start publication</a>
+    </div>
+</div>-->
+
+
+
+
+<!--<div *ngIf="!author">Author Page did not receive an author input!</div>
 <div *ngIf="author">
-<input type="text" class="form-input" [(ngModel)]="author.name" />
-
-
-<h2>{{ author.name }}</h2>
-<div *ngFor="let publication of author.publications">
-    <h3>{{ publication.name }}</h3>
-    <a [routerLink]="['/', authorID, publication.id]">{{ publication.name }}</a>
+    <div *ngIf="authorID === 'create-author'">
+        <h2>Create an author</h2>
+        <p>Authors are the public actors on publik.ink. You create have multiple author, or just use one.
+            You can use your real name, your nickname, or a Pseudonym. You decide how identifiable your author is.
+        </p>
+        <app-author [author]="author"></app-author>
+    </div>
 </div>
-
-<a [routerLink]="['/', authorID, 'create-publication']">create publication</a>
-
-</div>
+-->
