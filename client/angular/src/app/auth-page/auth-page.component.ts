@@ -40,13 +40,23 @@ export class AuthPageComponent implements OnInit {
     this.backend.createAccount(this.registerEmail, this.registerPassword).subscribe(
       (account: iAccount) => {
         console.log('auth page got account, but dont care')
-      }
+      },
+      (error => {
+        console.log('backend return an expected error', error)
+        alert(error)
+      })
     )
   }
 
   login() {
     console.log('login!')
-    this.backend.loginUser(this.loginEmail, this.loginPassword)
+    this.backend.loginUser(this.loginEmail, this.loginPassword).subscribe(account => {
+      this.backend.userAccount = account
+      console.log('login success', account)
+    },
+    error => {
+      alert(error)
+    })
   }
 
 }

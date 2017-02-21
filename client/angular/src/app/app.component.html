@@ -5,7 +5,7 @@
        
 
         <div *ngIf="backend.userAccount.authenticated">
-            {{ backend.userEmail }}
+            {{ backend.userAccount.email }}
 
             <span *ngIf="!backend.userAccount.verified">
                 You are logged in, but your account requires email verification.

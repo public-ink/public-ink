@@ -11,6 +11,7 @@ import hashlib
 import uuid
 from datetime import datetime, timedelta
 from slugify import slugify
+import re
 
 
 # ink stuff
@@ -67,6 +68,7 @@ class AuthSchema(graphene.ObjectType):
     """
     A standalone schema, without backing db model
     """
+    success = graphene.Boolean() # indicates that the query was succesful
     authenticated = graphene.Boolean()
     verified = graphene.Boolean()
     jwt = graphene.String()
@@ -239,6 +241,7 @@ class Query(graphene.ObjectType):
 
     loginUser = graphene.Field(AuthSchema, email=graphene.String(), pw=graphene.String())
     def resolve_loginUser(self, args, *more):
+        print "resolve login user!"
         """
         checks email and password, and returns and object containing
         auth related information
@@ -274,11 +277,19 @@ class Query(graphene.ObjectType):
         returns auth related information
         """
         email = args.get('email') or self.get('email')
+        if not is_email_valid(email):
+            print "email invalid!"
+            return AuthSchema(
+                success=False,
+                message='email_invalid'
+            )
+
         password = args.get('password') or self.get('password')
         user = ndb.Key('UserModel', email).get()
         if user:
             return AuthSchema(
-                message='email already exists'
+                message='email_exists',
+                success=False
             )
         password_hash = hash_password(password)
         verification_token = uuid.uuid4().hex
@@ -289,6 +300,7 @@ class Query(graphene.ObjectType):
             password_hash_sha256=password_hash).put()
         send_verification_email(email, verification_token)
         return AuthSchema(
+            sucess = True,
             message='user created',
             email=email, 
             authenticated=True, 
@@ -515,6 +527,7 @@ class GraphQLEndpoint(RequestHandler):
         variables = data.get('variables')
         print 'executing schema with variables'
         print variables
+        print query
         result = schema.execute(query, variables)
         response = {'data' : result.data}
         self.response.headers['Content-Type'] = 'application/json; charset=utf-8'
@@ -572,3 +585,12 @@ def email_from_jwt(token):
     payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
     email = payload.get('email')
     return email
+
+def is_email_valid(email):
+    expression = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+    matches = re.match(expression, email)
+    if matches:
+        print "email is valid"
+    else:
+        print "email NOT VALID"
+    return True if matches else False
