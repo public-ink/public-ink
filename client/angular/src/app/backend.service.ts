@@ -163,6 +163,17 @@ export class BackendService {
     })
   }
 
+  test() {
+    return new Observable(stream => {
+      const query = gql`{test}`
+      const wq = this.apollo.query({query:query, forceFetch:true})
+      wq.subscribe(result => {
+        console.log(result.data)
+      })
+    }).subscribe(jo => {return})
+    
+    
+  }
 
   /**
    * ACCOUNT CREATION with email and password
@@ -170,7 +181,7 @@ export class BackendService {
    */
   createAccount(email: string, password: string): Observable<iAccount> {
 
-    alert('backend create account call starting')
+    //alert('backend create account call starting')
     const query = gql`
       {createAccount {
         ...accountStatus
@@ -179,15 +190,17 @@ export class BackendService {
       }}
       ${this.fragments.accountStatus}
     `
-    const querySubscription = this.apollo.watchQuery<any>({
+    const querySubscription = this.apollo.query<any>({
       query: query,
       variables: {
         email: email,
         password: password,
-      }
+      },
+      forceFetch: true, // this is important
     })
+    console.log(querySubscription, 'jo')
     return new Observable<iAccount>(stream => {
-      querySubscription.subscribe(result => {
+      let sub = querySubscription.subscribe(result => {
         // expected Backend error (like email exists, invalid, reserved)
         if (!result.data.createAccount.success) {
           stream.error(result.data.createAccount.message)

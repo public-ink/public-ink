@@ -12,6 +12,7 @@ import uuid
 from datetime import datetime, timedelta
 from slugify import slugify
 import re
+from random import randint
 
 
 # ink stuff
@@ -205,7 +206,10 @@ class Query(graphene.ObjectType):
     """
     Query all the things!
     """
-    # authors by
+    """ TEST """
+    test = graphene.Int()
+    def resolve_test(*args):
+        return randint(0,100)
 
     """ AUTH: JWT LOGIN"""
     jwtLogin = graphene.Field(AuthSchema, jwt=graphene.String())
