@@ -304,7 +304,7 @@ class Query(graphene.ObjectType):
             password_hash_sha256=password_hash).put()
         send_verification_email(email, verification_token)
         return AuthSchema(
-            sucess = True,
+            success = True,
             message='user created',
             email=email, 
             authenticated=True, 

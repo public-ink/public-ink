@@ -3,6 +3,20 @@
 
   <div id="register-login-forms" *ngIf="!backend.userAccount.authenticated">
 
+    <form [formGroup]="loginForm" (ngSubmit)="doLogin($event)">
+    <flex-col-center>
+        <label class="form-label" for="loginEmail">Email</label>
+        <input id="loginEmail" class="form-input" formControlName="email" type="email" placeholder="your email address">
+        
+        <label class="form-label" for="loginPassword">Password</label>
+        <input id="loginPassword" class="form-input" formControlName="password" type="password" placeholder="your password">
+        <br>
+        <button class="button form-input" type="submit" [disabled]="!loginForm.valid">Log in</button>
+    </flex-col-center>
+    </form>
+
+    <hr>
+
     <h2>Register</h2>
     <label>Email</label><br>
     <input type="email" [(ngModel)]="registerEmail" class="form-input" placeholder="your email" />

@@ -28,17 +28,18 @@ textarea {
     background-color: #333;
     color: white;
 }
-
-.button {
-    display: inline-block;
-    background-color: #333;
-    border: 2px solid black;
-    color: white;
-    padding: 10px;
-    font-family: Courier New, Courier, monospace;
-    font-size: 20px;
-    outline: 0;
+.form-button:disabled {
+    background-color:gray;
+    color:red;
 }
+
+.form-label{
+    display: block;
+    width: 100%;
+    font-size: 18px;
+}
+
+
 .button:focus {
     outline:0;
     border: 2px solid gray;

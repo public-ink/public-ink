@@ -13,7 +13,7 @@ export class MePageComponent implements OnInit {
 
   constructor(
     private backend: BackendService
-  ) { }
+  ) { }  
 
   ngOnInit() {
   }

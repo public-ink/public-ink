@@ -6,6 +6,8 @@ import { ServerError, ValidationError } from './models'
 @Injectable()
 export class UIService {
 
+  message: string
+
   colors = {
     black: '#000',
     white: '#fff',

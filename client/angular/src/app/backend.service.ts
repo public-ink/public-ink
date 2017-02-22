@@ -3,8 +3,12 @@ import { Http, Headers, RequestOptions, Response } from '@angular/http'
 import { Observable } from 'rxjs/Observable'
 import 'rxjs/add/operator/map'
 
+// graphql
 import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
+
+// ink services
+import {UIService} from './ui.service'
 
 
 import {
@@ -50,10 +54,16 @@ export class BackendService {
   constructor(
     private http: Http,
     private apollo: Apollo,
+
+    private ui: UIService,
   ) {
     const jwt = localStorage.getItem('jwt')
-    if (jwt) {
+    if (!jwt) {
+      console.log('no jwt in local storage! not signed in!')
+    }
+    else {
       this.jwtLogin(jwt).subscribe(account => {
+        console.log('jwt login got', account)
         this.userAccount = account
       }, error => {
         console.warn(error)
@@ -67,22 +77,14 @@ export class BackendService {
    *
    * */
   verifyEmail(email: string, token: string) {
-    const xquery = gql`
+    const query = gql`
       {verifyEmail(email:"${email}", token:"${token}"){
         ...accountStatus
       }}
       ${this.fragments.accountStatus}
     `
-    const query = gql`
-    {verifyEmail(email:"${email}", token:"${token}"){
-        email
-        authenticated
-        verified
-        jwt
-      }}
-    `
     const querySub = this.apollo.watchQuery<any>({
-      query: xquery,
+      query: query,
     })
     return new Observable<iAccount>(stream => {
       querySub.subscribe(result => {
@@ -155,6 +157,7 @@ export class BackendService {
     return new Observable(stream => {
       querySubscription.subscribe(result => {
         const account: iAccount = result.data.loginUser
+        console.log('login got account', account)
         stream.next(account)
       },
         error => {
@@ -190,6 +193,7 @@ export class BackendService {
       }}
       ${this.fragments.accountStatus}
     `
+    
     const querySubscription = this.apollo.query<any>({
       query: query,
       variables: {
@@ -198,11 +202,12 @@ export class BackendService {
       },
       forceFetch: true, // this is important
     })
-    console.log(querySubscription, 'jo')
+    
     return new Observable<iAccount>(stream => {
       let sub = querySubscription.subscribe(result => {
         // expected Backend error (like email exists, invalid, reserved)
         if (!result.data.createAccount.success) {
+          //this.ui.message = result.data.createAccount.message
           stream.error(result.data.createAccount.message)
           return
         }
@@ -239,6 +244,7 @@ export class BackendService {
     `
     const subscription = this.apollo.watchQuery<any>({
       query: query
+      
     })
     subscription.subscribe(result => {
 
