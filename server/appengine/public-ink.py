@@ -65,6 +65,33 @@ def generate_jwt(email):
 Models and Schemas
 """
 
+class InfoSchema(graphene.ObjectType):
+    """
+    container for part of ANY response
+    """
+    success = graphene.Boolean()
+    message = graphene.String()
+
+class AccountSchema(graphene.ObjectType):
+    """
+    container for account part of ANY response
+    """
+    email = graphene.String()
+    verified = graphene.Boolean()
+    authenticated = graphene.Boolean()
+    jwt = graphene.String()
+
+class AccountResponse(graphene.ObjectType):
+    """
+    happens to return both of the above :) - name is not so good maybe
+    """
+    info = graphene.Field(InfoSchema)
+    account = graphene.Field(AccountSchema)
+
+
+
+
+
 class AuthSchema(graphene.ObjectType):
     """
     A standalone schema, without backing db model
@@ -199,10 +226,101 @@ class ArticleSchema(graphene.ObjectType):
         return self.parent().parent().get()
 
 
+class Hoff(graphene.ObjectType):
+    name = graphene.String()
+    age = graphene.Int()
+
+class Beer(graphene.ObjectType):
+    brand = graphene.String()
+    volume = graphene.Int()
+
+class Evening(graphene.ObjectType):
+    hoff = graphene.Field(Hoff)
+    beer = graphene.Field(Beer)
+
+
 """
 ##############  THE BIG FAT QUERY  ############################
 """
 class Query(graphene.ObjectType):
+    """
+    Tutorial
+    """
+    randomNumber = graphene.Int()
+    def resolve_randomNumber(self, *args):
+        return randint(0,100)
+
+    """
+    These Fields (or enpoints) can accept arguments. These inputs are also visible to GraphiQL
+    Let's make an echo field that returns what we received
+    """
+    echo = graphene.Int(input = graphene.Int())
+    def resolve_echo(self, args, context, info):
+        return args.get('input')
+
+    """
+    So far, we've only been returning Primitives. How about returning an object?
+    If, let's define a Schema for it, Hoff, with name and age.
+    Inputs still work the same way, so here we pass age through.
+    """
+    hoff = graphene.Field(Hoff, age = graphene.Int())
+    def resolve_hoff(self, args, *more):
+        return Hoff(name='hoff', age=args.get('age'))
+
+    """
+    so to return an object with say, 2 'baskets', we simply define such and object
+    Evening container Hoff and Beer
+    """
+    evening = graphene.Field(Evening)
+    def resolve_evening(self, args, *more):
+        hoff = Hoff(name='hoff', age=36)
+        beer = Beer(brand='jever', volume=5)
+        return Evening(hoff=hoff, beer=beer)
+
+
+    """ Now getting real """
+    epLogin = graphene.Field(AccountResponse)
+    def resolve_epLogin(self, *args):
+        print 'epLogin root'
+        email = self.get('email')
+        password = self.get('password')
+        user = ndb.Key('UserModel', email).get()
+
+        if not user:
+            info = InfoSchema(
+                success=False,
+                message='account_not_found'
+            )
+            return AccountResponse(
+                info=info
+            )
+        
+        matches = verify_password(user.password_hash_sha256, password)
+        if not matches:
+            info = InfoSchema(
+                success=False,
+                message='password_incorrect'
+            )
+            return AccountResponse(
+                info=info
+            )
+
+        # Proper big response
+        account = AccountSchema(
+            email=email,
+            verified=user.is_verified,
+            authenticated=True,
+            jwt=generate_jwt(email)
+        )
+        info = InfoSchema(
+            success=True,
+            message='login_success'
+        )
+        return AccountResponse(
+            account=account,
+            info=info
+        )
+
     """
     Query all the things!
     """
@@ -211,8 +329,18 @@ class Query(graphene.ObjectType):
     def resolve_test(*args):
         return randint(0,100)
 
+    #accountTest = graphene.Field(AccountSnippet)
+    accountTest = graphene.Boolean()
+    def resolve_accountTest(self, *args):
+        print 'resolve acount test'
+        return AccountSnippet(
+            email='jo',
+            verified=True,
+            authenticated=True
+        )
+
     """ AUTH: JWT LOGIN"""
-    jwtLogin = graphene.Field(AuthSchema, jwt=graphene.String())
+    jwtLogin = graphene.Field(AccountResponse, jwt=graphene.String())
     def resolve_jwtLogin(self, args, *more):
         """
         Checks the JWT and returns an Auth Object, if successful
@@ -223,113 +351,81 @@ class Query(graphene.ObjectType):
             email = payload.get('email')
             user_key = ndb.Key('UserModel', email)
             user = user_key.get()
-            authors = AuthorModel.query(AuthorModel.user == user_key)
-            return AuthSchema(
-                message='token valid',
-                email=email, 
-                authenticated=True, 
-                verified=user.is_verified, 
-                jwt=generate_jwt(email),
-                authors=authors
-            )
+
+            if not user:
+                return AccountResponse(info=InfoSchema(success=False, message='account not found'))
+
+            return AccountResponse(
+                info=InfoSchema(success=True, message="token login successful"),
+                account=AccountSchema(
+                    email=email, verified=user.is_verified, 
+                    authenticated=True, jwt=generate_jwt(email))
+                )
+            
         except jwt.ExpiredSignatureError, e:
-            return AuthSchema(
-                message='token expired',
-                email=email, 
-                authenticated=False,
-            )
+            return AccountResponse(info=InfoSchema(success=False, message='token expired'))
         except jwt.DecodeError, e:
-            return AuthSchema(
-                message='token invalid'
-            )
-
-    loginUser = graphene.Field(AuthSchema, email=graphene.String(), pw=graphene.String())
-    def resolve_loginUser(self, args, *more):
-        print "resolve login user!"
-        """
-        checks email and password, and returns and object containing
-        auth related information
-        """
-        email = args.get('email')
-        password = args.get('pw')
-        user = ndb.Key('UserModel', email).get()
-
-        if not user:
-            return AuthSchema(
-                message='login failed',
-                authenticated=False,
-                email=email
-            )
-        
-        matches = verify_password(user.password_hash_sha256, password)
-        authenticated = True if matches else False
-        jwt = generate_jwt(email) if authenticated else None
-        verified = user.is_verified if authenticated else None
-
-        return AuthSchema(
-            message='login successful',
-            email=email, 
-            authenticated=authenticated, 
-            verified=verified, 
-            jwt=jwt)
+            return AccountResponse(info=InfoSchema(success=False, message='token invalid'))
 
 
-    createAccount = graphene.Field(AuthSchema, email=graphene.String(), password=graphene.String())
+
+
+    createAccount = graphene.Field(AccountResponse, email=graphene.String(), password=graphene.String())
     def resolve_createAccount(self, args, *more):
         """
         creates a user with the given email address, provided it does not exist yet
         returns auth related information
         """
+
+        """ email validation check """
         email = args.get('email') or self.get('email')
         if not is_email_valid(email):
-            print "email invalid!"
-            return AuthSchema(
-                success=False,
-                message='email_invalid'
-            )
+            return AccountResponse(info=InfoSchema(success=False, message='email_invalid'))
 
-        password = args.get('password') or self.get('password')
+        """ duplicate email check """
         user = ndb.Key('UserModel', email).get()
         if user:
-            return AuthSchema(
-                message='email_exists',
-                success=False
-            )
+            return AccountResponse(info=InfoSchema(success=False, message='email_exists'))
+
+        """ Create an Account"""
+        password = args.get('password') or self.get('password')        
         password_hash = hash_password(password)
         verification_token = uuid.uuid4().hex
         user_key = UserModel(
             id=email,
             email=email,
             verification_token=verification_token,
-            password_hash_sha256=password_hash).put()
+            password_hash_sha256=password_hash
+            ).put()
         send_verification_email(email, verification_token)
-        return AuthSchema(
-            success = True,
-            message='user created',
-            email=email, 
-            authenticated=True, 
-            verified=False, 
-            jwt=generate_jwt(email))
+
+        """ return account response """
+        return AccountResponse(
+            info=InfoSchema(success=True, message="registration_successful"),
+            account=AccountSchema(
+                email=email, verified=False, 
+                authenticated=True, jwt=generate_jwt(email))
+        )
 
 
-    verifyEmail = graphene.Field(AuthSchema, email=graphene.String(), token=graphene.String())
+
+    verifyEmail = graphene.Field(AccountResponse, email=graphene.String(), token=graphene.String())
     def resolve_verifyEmail(self, args, context, info):
         email = args.get('email')
         token = args.get('token')
         user = ndb.Key('UserModel', email).get()
         if token == user.verification_token:
+            """ success """
             user.email_verified_at = datetime.now()
             user.put()
-            return AuthSchema(
-                message='email successfully verified',
-                email=email, 
-                authenticated=True, 
-                verified=True, 
-                jwt=generate_jwt(email))
+            return AccountResponse(
+                info=InfoSchema(success=True, message="email verification successful"),
+                account=AccountSchema(
+                    email=user.email, verified=user.is_verified, 
+                    authenticated=True, jwt=generate_jwt(user.email)))
         else:
-            return AuthSchema(
-                message='email verification failed',
-                email=email)
+            """ failure """
+            return AccountResponse(info=InfoSchema(success=False, message='email verification failed'))
 
     """ AUTHOR !!! """
 
@@ -533,7 +629,7 @@ class GraphQLEndpoint(RequestHandler):
         print variables
         print query
         result = schema.execute(query, variables)
-        response = {'data' : result.data}
+        response = {'data' : result.data, 'errors': result.errors}
         self.response.headers['Content-Type'] = 'application/json; charset=utf-8'
         self.response.out.write(json.dumps(response))
 

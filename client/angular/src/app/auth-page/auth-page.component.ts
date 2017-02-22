@@ -28,6 +28,8 @@ export class AuthPageComponent implements OnInit {
 
   loginEmail: string = ''
   loginPassword: string = ''
+  // network status
+  loginLoading: boolean = false
 
   public loginForm = this.fb.group({
     email: ["", Validators.required],
@@ -42,8 +44,14 @@ export class AuthPageComponent implements OnInit {
   ) { }
 
   doLogin(event) {
-    console.log(event);
-    console.log(this.loginForm.value);
+    const email = this.loginForm.value.email
+    const password = this.loginForm.value.password
+    this.loginLoading = true
+    this.backend.epLogin(email, password).subscribe(info => {
+        this.loginLoading = false
+        this.ui.message = info.message
+      })
+    // we only care about the status. the account is handled by the backend.
   }
 
   ngOnInit() {
@@ -53,25 +61,10 @@ export class AuthPageComponent implements OnInit {
   register() {
     //this.backend.registerUser(this.registerEmail, this.registerPassword)
     this.backend.createAccount(this.registerEmail, this.registerPassword).subscribe(
-      (account: iAccount) => {
-        console.log('auth page got account, but dont care')
-      },
-      (error => {
-        console.log('backend return an error, expected or otherwise', error)
-        this.ui.message = error
-      })
+      info => {
+        console.log(info)
+      }
     )
-  }
-
-  login() {
-    console.log('login!')
-    this.backend.loginUser(this.loginEmail, this.loginPassword).subscribe(account => {
-      this.backend.userAccount = account
-      console.log('login success', account)
-    },
-    error => {
-      alert(error)
-    })
   }
 
 }

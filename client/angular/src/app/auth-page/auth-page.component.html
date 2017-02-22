@@ -11,7 +11,11 @@
         <label class="form-label" for="loginPassword">Password</label>
         <input id="loginPassword" class="form-input" formControlName="password" type="password" placeholder="your password">
         <br>
+
+        <!-- use the 2-elements strategy -->
+        <button *ngIf="loginLoading" class="form-button" [disabled]="true">checking...</button>
         <button class="button form-input" type="submit" [disabled]="!loginForm.valid">Log in</button>
+        
     </flex-col-center>
     </form>
 

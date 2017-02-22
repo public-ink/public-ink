@@ -8,7 +8,7 @@ import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
 
 // ink services
-import {UIService} from './ui.service'
+import { UIService } from './ui.service'
 
 
 import {
@@ -47,6 +47,20 @@ export class BackendService {
         verified
         jwt
       }
+    `,
+    account: gql`
+      fragment account on AccountSchema {
+        email
+        verified
+        authenticated
+        jwt
+      }
+    `,
+    info: gql`
+      fragment info on InfoSchema {
+        success
+        message
+      }
     `
   }
 
@@ -57,18 +71,62 @@ export class BackendService {
 
     private ui: UIService,
   ) {
+    //this.epLogin('xxhoff@hoff.com', 'hoffi')
+
     const jwt = localStorage.getItem('jwt')
     if (!jwt) {
       console.log('no jwt in local storage! not signed in!')
     }
     else {
-      this.jwtLogin(jwt).subscribe(account => {
-        console.log('jwt login got', account)
-        this.userAccount = account
+      this.jwtLogin(jwt).subscribe(info => {
+        console.log('jwt reply', info)
+        // we don't care about the response here
       }, error => {
         console.warn(error)
       })
     }
+  }
+
+  /**
+   * testing requesting and returning of nexted stuff!
+   */
+  epLogin(email: string, password: string): Observable<any> {
+    const endpoint = 'epLogin'
+    const query = gql`
+      {
+        ${endpoint} {
+          info {
+            ...info
+          }
+          account {
+            ...account
+          }
+        }
+      }
+      ${this.fragments.account}
+      ${this.fragments.info}
+    `
+    const apolloQuery = this.apollo.watchQuery<any>({
+      query: query,
+      variables: {
+        email: email,
+        password: password,
+      },
+      forceFetch: true
+    })
+
+    return new Observable(stream => {
+      apolloQuery.subscribe(result => {
+        const info = result.data[endpoint].info
+        if (info.success) {
+          const account = result.data[endpoint].account
+          this.userAccount = account
+          localStorage.setItem('jwt', account.jwt)
+        }
+        // in any case return the info!
+        stream.next(info)
+      })
+    })
   }
 
 
@@ -113,69 +171,53 @@ export class BackendService {
   /**
    * Authentication with jwt token from localStorage
    */
-  jwtLogin(jwt: string): Observable<iAccount> {
+  jwtLogin(jwt: string): Observable<any> {
     console.log('attempting jwt login')
+    const endpoint = 'jwtLogin'
     const query = gql`
     {jwtLogin(jwt: "${jwt}") {
-        ...accountStatus
+        info {
+            ...info
+          }
+          account {
+            ...account
+          }
     }}
-    ${this.fragments.accountStatus}
+    ${this.fragments.account}
+    ${this.fragments.info}
     `
-    const querySubscription = this.apollo.watchQuery<any>({
+    const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
       // consider sticking jwt into variables 
     })
 
-    return new Observable<iAccount>(stream => {
-      querySubscription.subscribe(result => {
-        const account: iAccount = result.data.jwtLogin
-        stream.next(account)
-      },
-        error => {
-          stream.error('jwt login failed')
-        })
-    })
-
-  }
-
-  /**
-   * USER LOGIN, with email and password
-   * Retuns an iAccount if successful, and also sets it as the userAccount
-   */
-  loginUser(email: string, password: string): Observable<iAccount> {
-    const query = gql`
-       {
-          loginUser(email: "${email}", pw: "${password}") {
-            ...accountStatus
-          }
-        }
-        ${this.fragments.accountStatus}
-    `
-    const querySubscription = this.apollo.watchQuery<any>({
-      query: query
-    })
     return new Observable(stream => {
-      querySubscription.subscribe(result => {
-        const account: iAccount = result.data.loginUser
-        console.log('login got account', account)
-        stream.next(account)
-      },
-        error => {
-          stream.error('user login failed')
-        })
+      apolloQuery.subscribe(result => {
+        const info = result.data[endpoint].info
+        if (info.success) {
+          const account = result.data[endpoint].account
+          this.userAccount = account
+          localStorage.setItem('jwt', account.jwt)
+        }
+        // in any case return the info!
+        stream.next(info)
+      })
     })
+
   }
+
+
 
   test() {
     return new Observable(stream => {
       const query = gql`{test}`
-      const wq = this.apollo.query({query:query, forceFetch:true})
+      const wq = this.apollo.query({ query: query, forceFetch: true })
       wq.subscribe(result => {
         console.log(result.data)
       })
-    }).subscribe(jo => {return})
-    
-    
+    }).subscribe(jo => { return })
+
+
   }
 
   /**
@@ -185,16 +227,21 @@ export class BackendService {
   createAccount(email: string, password: string): Observable<iAccount> {
 
     //alert('backend create account call starting')
+    const endpoint = 'createAccount'
     const query = gql`
-      {createAccount {
-        ...accountStatus
-        success
-        message
-      }}
-      ${this.fragments.accountStatus}
+    {${endpoint} {
+        info {
+            ...info
+          }
+          account {
+            ...account
+          }
+    }}
+    ${this.fragments.account}
+    ${this.fragments.info}
     `
-    
-    const querySubscription = this.apollo.query<any>({
+    // continue here!
+    const apolloQuery = this.apollo.query<any>({
       query: query,
       variables: {
         email: email,
@@ -202,23 +249,17 @@ export class BackendService {
       },
       forceFetch: true, // this is important
     })
-    
+
     return new Observable<iAccount>(stream => {
-      let sub = querySubscription.subscribe(result => {
-        // expected Backend error (like email exists, invalid, reserved)
-        if (!result.data.createAccount.success) {
-          //this.ui.message = result.data.createAccount.message
-          stream.error(result.data.createAccount.message)
-          return
+      apolloQuery.subscribe(result => {
+        const info = result.data[endpoint].info
+        if (info.success) {
+          const account = result.data[endpoint].account
+          this.userAccount = account
+          localStorage.setItem('jwt', account.jwt)
         }
-        // on Success
-        const account: iAccount = {
-          email: result.data.email,
-          authenticated: result.data.createAccount.authenticated,
-          verified: result.data.createAccount.verified
-        }
-        this.userAccount = account
-        stream.next(account)
+        // in any case return the info!
+        stream.next(info)
       },
         // un-expected Backend error
         (error) => {
@@ -244,7 +285,7 @@ export class BackendService {
     `
     const subscription = this.apollo.watchQuery<any>({
       query: query
-      
+
     })
     subscription.subscribe(result => {
 
