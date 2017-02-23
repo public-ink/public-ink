@@ -3,49 +3,57 @@
 
   <div id="register-login-forms" *ngIf="!backend.userAccount.authenticated">
 
+    <h2>Log In</h2>
     <form [formGroup]="loginForm" (ngSubmit)="doLogin($event)">
-    <flex-col-center>
-        <label class="form-label" for="loginEmail">Email</label>
-        <input id="loginEmail" class="form-input" formControlName="email" type="email" placeholder="your email address">
-        
-        <label class="form-label" for="loginPassword">Password</label>
-        <input id="loginPassword" class="form-input" formControlName="password" type="password" placeholder="your password">
-        <br>
+      <flex-col-center>
+          <div class="form-label">
+            <label  for="loginEmail">Email</label>
+          </div>
+          <input id="loginEmail" class="form-input" formControlName="email" type="email" placeholder="your email address">
+          
+          <div class="form-label">
+            <label for="loginPassword">Password</label>
+          </div>
+          <input id="loginPassword" class="form-input" formControlName="password" type="password" placeholder="your password">
+          <br>
 
-        <!-- use the 2-elements strategy -->
-        <button *ngIf="loginLoading" class="form-button" [disabled]="true">checking...</button>
-        <button class="button form-input" type="submit" [disabled]="!loginForm.valid">Log in</button>
-        
-    </flex-col-center>
+          <!-- use the 2-elements strategy. todo: proper sizing!-->
+          <flex-row-center *ngIf="loginLoading" class="form-button">
+            <div class="spinner"></div>
+          </flex-row-center>
+          <button  *ngIf="!loginLoading" class="form-button" type="submit" [disabled]="!loginForm.valid">Log In</button>
+          
+      </flex-col-center>
     </form>
 
-    <hr>
+     <simple-spacer></simple-spacer>
 
-    <h2>Register</h2>
-    <label>Email</label><br>
-    <input type="email" [(ngModel)]="registerEmail" class="form-input" placeholder="your email" />
+    <h2>Create Account</h2>
+    <form [formGroup]="registrationForm" (ngSubmit)="createAccount($event)">
+      <flex-col-center>
+          <label class="form-label" for="registrationEmail">Email</label>
+          <input id="registrationEmail" class="form-input" formControlName="email" type="email" placeholder="your email address">
+          
+          <label class="form-label" for="registrationPassword">Password</label>
+          <input id="registrationPassword" class="form-input" formControlName="password" type="password" placeholder="your password">
+          <br>
 
-    <br>
-    <label>Password</label><br>
-    <input type="password" class="form-input" [(ngModel)]="registerPassword" placeholder="a password" />
-    <br>
-    <button class="button" tabindex="0" (click)="register()">Create Account</button>
 
-    <hr>
-    <h2>Login</h2>
-    <label>Email</label>
-    <br>
-    <input type="email" [(ngModel)]="loginEmail" class="form-input" placeholder="your email" />
+          <!-- use the 2-elements strategy. todo: proper sizing!-->
+          <flex-row-center *ngIf="registrationLoading" class="form-button">
+            <div class="spinner"></div>
+          </flex-row-center>
+          <button  *ngIf="!registrationLoading" class="form-button" type="submit" [disabled]="!registrationForm.valid">Create Account</button>
+          
+      </flex-col-center>
+    </form>
 
-    <br>
-    <label>Password</label><br>
-    <input type="password" class="form-input" [(ngModel)]="loginPassword" placeholder="your password" />
-    <br>
-    <button class="button form-input" tabindex="0" (click)="login()">Log In</button>
+    
 
     <simple-spacer></simple-spacer>
     <button class="button form-input" tabindex="0" (click)="backend.test()">TEST</button>
-    
+    <!-- use the 2-elements strategy -->
+         
 
   </div>
 

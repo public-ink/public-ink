@@ -27,6 +27,7 @@ import { iAccount } from './auth-page/auth-page.component'
 export class BackendService {
 
   backendHost: string = 'http://localhost:8080'
+  backendDelay: number = 1000
 
   userAccount: iAccount = {
     authenticated: false,
@@ -38,16 +39,6 @@ export class BackendService {
   userAuthors: any[] = []
 
   fragments = {
-    accountStatus: gql`
-      fragment accountStatus on AuthSchema {
-        success
-        message
-        email
-        authenticated
-        verified
-        jwt
-      }
-    `,
     account: gql`
       fragment account on AccountSchema {
         email
@@ -116,7 +107,7 @@ export class BackendService {
     })
 
     return new Observable(stream => {
-      apolloQuery.subscribe(result => {
+      apolloQuery.delay(this.backendDelay).subscribe(result => {
         const info = result.data[endpoint].info
         if (info.success) {
           const account = result.data[endpoint].account
@@ -137,15 +128,17 @@ export class BackendService {
   verifyEmail(email: string, token: string) {
     const query = gql`
       {verifyEmail(email:"${email}", token:"${token}"){
-        ...accountStatus
+        info {...info}
+        account {...account}
       }}
-      ${this.fragments.accountStatus}
+      ${this.fragments.account}
+      ${this.fragments.info}
     `
     const querySub = this.apollo.watchQuery<any>({
       query: query,
     })
     return new Observable<iAccount>(stream => {
-      querySub.subscribe(result => {
+      querySub.delay(this.backendDelay).subscribe(result => {
         const account = result.data.verifyEmail // this contains all listed in fragment
         this.userAccount = account
         stream.next(account)
@@ -176,12 +169,12 @@ export class BackendService {
     const endpoint = 'jwtLogin'
     const query = gql`
     {jwtLogin(jwt: "${jwt}") {
-        info {
-            ...info
-          }
-          account {
-            ...account
-          }
+      info {
+          ...info
+        }
+        account {
+          ...account
+        }
     }}
     ${this.fragments.account}
     ${this.fragments.info}
@@ -192,7 +185,7 @@ export class BackendService {
     })
 
     return new Observable(stream => {
-      apolloQuery.subscribe(result => {
+      apolloQuery.delay(this.backendDelay).subscribe(result => {
         const info = result.data[endpoint].info
         if (info.success) {
           const account = result.data[endpoint].account
@@ -203,10 +196,7 @@ export class BackendService {
         stream.next(info)
       })
     })
-
   }
-
-
 
   test() {
     return new Observable(stream => {
@@ -224,7 +214,7 @@ export class BackendService {
    * ACCOUNT CREATION with email and password
    * If successful, returns an iAccount, and also sets it as the userAccount
    */
-  createAccount(email: string, password: string): Observable<iAccount> {
+  createAccount(email: string, password: string): Observable<any> {
 
     //alert('backend create account call starting')
     const endpoint = 'createAccount'
@@ -251,7 +241,7 @@ export class BackendService {
     })
 
     return new Observable<iAccount>(stream => {
-      apolloQuery.subscribe(result => {
+      apolloQuery.delay(this.backendDelay).subscribe(result => {
         const info = result.data[endpoint].info
         if (info.success) {
           const account = result.data[endpoint].account

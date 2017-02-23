@@ -91,20 +91,6 @@ class AccountResponse(graphene.ObjectType):
 
 
 
-
-class AuthSchema(graphene.ObjectType):
-    """
-    A standalone schema, without backing db model
-    """
-    success = graphene.Boolean() # indicates that the query was succesful
-    authenticated = graphene.Boolean()
-    verified = graphene.Boolean()
-    jwt = graphene.String()
-    email = graphene.String()
-    message = graphene.String()
-    authors = graphene.List(lambda: AuthorSchema)
-
-
 """ USER """
 
 class UserModel(InkModel):
@@ -430,11 +416,7 @@ class Query(graphene.ObjectType):
     """ AUTHOR !!! """
 
     createAuthor = graphene.Field(
-        AuthorSchema, 
-        jwt=graphene.String(),
-        name=graphene.String(),
-        about=graphene.String(),
-        imageURL=graphene.String()
+        AuthorSchema
         )
     def resolve_createAuthor(self, args, *more):
         print "resolve create author"
@@ -464,13 +446,8 @@ class Query(graphene.ObjectType):
         authors = AuthorModel.query(AuthorModel.user == user_key).fetch()
         if author not in authors:
             authors.append(author.get())
-        return AuthSchema(
-            message='Author created!',
-            email=email, 
-            authenticated=True, 
-            verified=True, 
-            jwt=generate_jwt(email),
-            authors=authors
+        return AuthorSchema(
+            
         )
 
     """ delete author"""

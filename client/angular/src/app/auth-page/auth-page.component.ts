@@ -8,6 +8,8 @@ import { Apollo } from 'apollo-angular'
 import { BackendService } from '../backend.service'
 import { UIService } from '../ui.service'
 
+import 'rxjs/Rx'
+
 export interface iAccount {
   email: string
   authenticated: boolean
@@ -20,11 +22,12 @@ export interface iAccount {
   templateUrl: './auth-page.component.html',
   styleUrls: ['./auth-page.component.css']
 })
-export class AuthPageComponent implements OnInit {
+export class AuthPageComponent {
 
   // template bindings 
   registerEmail: string = ''
   registerPassword: string = ''
+  registrationLoading: boolean = false
 
   loginEmail: string = ''
   loginPassword: string = ''
@@ -36,6 +39,11 @@ export class AuthPageComponent implements OnInit {
     password: ["", Validators.required]
   })
 
+  public registrationForm = this.fb.group({
+    email: ["", Validators.required],
+    password: ["", Validators.required]
+  })
+
   constructor(
     private backend: BackendService,
     private apollo: Apollo,
@@ -43,6 +51,11 @@ export class AuthPageComponent implements OnInit {
     private ui: UIService,
   ) { }
 
+  /**
+   * Try to authenticate with email and password
+   * If successfull, the backend's userAccount will be updated
+   * In any case, we receive the info (success and msg)
+   */
   doLogin(event) {
     const email = this.loginForm.value.email
     const password = this.loginForm.value.password
@@ -54,15 +67,20 @@ export class AuthPageComponent implements OnInit {
     // we only care about the status. the account is handled by the backend.
   }
 
-  ngOnInit() {
-  }
+  /**
+   * Can only be called once the registration form is valid
+   * Receives information (success, and message) about the result
+   */
+  createAccount() {
 
-  // todo: verify form
-  register() {
-    //this.backend.registerUser(this.registerEmail, this.registerPassword)
-    this.backend.createAccount(this.registerEmail, this.registerPassword).subscribe(
+    const email = this.registrationForm.value.email
+    const password = this.registrationForm.value.password
+    this.registrationLoading = true
+
+    this.backend.createAccount(email, password).subscribe(
       info => {
-        console.log(info)
+        this.registrationLoading = false
+        this.ui.message = info.message
       }
     )
   }
