@@ -34,8 +34,8 @@ export class PublicationPageComponent implements OnInit {
     private ui: UIService,
     // graphql
     private apollo: Apollo,
-  ) { 
-     this.route.params.subscribe(params => {
+  ) {
+    this.route.params.subscribe(params => {
 
       console.log(params)
 
@@ -53,7 +53,7 @@ export class PublicationPageComponent implements OnInit {
             articles: [],
           }
         })
-        
+
         return
       }
       console.log('new get')
@@ -61,18 +61,6 @@ export class PublicationPageComponent implements OnInit {
         console.log('pub page got put', publication)
         this.publication = publication
       })
-
-      /*const query = gql`
-        {publication(publicationID:"${this.publicationID}"){name}}
-      `
-      this.apollo.watchQuery<any>({
-        query: query
-      }).subscribe(result => {
-        console.log('publication result', result)
-        this.publication = result.data.publication
-      })*/
-
-      
     })
   }
 
@@ -80,33 +68,17 @@ export class PublicationPageComponent implements OnInit {
 
   }
 
-  /**old it seems, we use 'save publication' now for new and existing */
-  createPublication() {
-    const jwt = localStorage.getItem('jwt')
-    const query = gql`
-      {
-        createPublication(jwt:"${jwt}", name:"${this.publication.name}", authorID:"${this.authorID}"){
-          name
-        }
-      }
-    `
-    this.apollo.watchQuery<any>({
-      query: query,
-      variables: {
-        jwt: jwt,
-        name: this.publication.name,
-        authorID: this.authorID,
-      }
-    }).subscribe(result => {
-      console.log(result)
-    })
-
-  }
+  /** 
+   * Save (creates of updates) the local publication!
+   */
   savePublication() {
     this.backend.savePublication(this.publication).subscribe(info => {
       console.log('publication page save publication info')
     })
   }
+  /**
+   * Deletes the current publication
+   */
   deletePublication() {
     this.backend.deletePublication(this.publication).subscribe(info => {
       this.ui.message = info.message

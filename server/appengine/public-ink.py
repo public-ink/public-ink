@@ -97,6 +97,13 @@ class AccountResponse(graphene.ObjectType):
     info = graphene.Field(InfoSchema)
     account = graphene.Field(AccountSchema)
 
+class ArticleResponse(graphene.ObjectType):
+    """
+    Returned for saveArticle calls
+    """
+    info = graphene.Field(InfoSchema)
+    article = graphene.Field(lambda: ArticleSchema)
+
 
 
 
@@ -206,7 +213,7 @@ class ArticleModel(InkModel):
 
 class ArticleSchema(graphene.ObjectType):
     """
-    The schema for representing an author.
+    The schema for representing an article.
     """
     id = graphene.String()
     def resolve_id(self, *args):
@@ -489,7 +496,7 @@ class Query(graphene.ObjectType):
         name = self.get('name')
         authorID = self.get('authorID')
         
-        if publicationID == 'create-publication':
+        if publicationID == 'create-publication': #not ideal
             """ create publication """
             publication_key = PublicationModel(
                 parent=ndb.Key('AuthorModel', authorID),
@@ -502,6 +509,49 @@ class Query(graphene.ObjectType):
             publication.name = args.get('name')
             publicion_key = publication.put()
         return publication_key.get()
+
+    """ SAVE ARTICLE (create and update) """
+    saveArticle = graphene.Field(ArticleResponse)
+    def resolve_saveArticle(self, *args):
+        authorID = self.get('authorID')
+        publicationID = self.get('publicationID')
+        articleID = self.get('articleID')
+        title = self.get('title')
+
+        if articleID == 'create-article':
+            """ create article """
+            publication_key = ndb.Key('AuthorID', authorID, 'PublicationID', publicationID)
+            article_key = ArticleModel(
+                parent=publication_key,
+                id=slugify(title),
+                title=title
+            ).put()
+            article = article_key.get()
+            message = 'article_created'
+        else:
+            """ update Article """
+            article_key = ndb.Key(
+                'AuthorModel', authorID, 
+                'PublicationModel', publicationID,
+                'ArticleID', articleID
+            )
+            article = article_key.get()
+            article.title = title
+            article.put()
+            message = 'article_updated'
+        return ArticleResponse(
+            info=InfoSchema(success=True, message=message),
+            article=article
+        )
+
+    deleteArticle = graphene.Field(InfoSchema)
+    def resolve_deleteArticle(self, *args):
+        ndb.Key(
+            'AuthorModel', self.get('authorID'), 
+            'PublicationModel', self.get('publicationID'),
+            'ArticleModel', self.get('articleID')
+            ).delete()
+        return InfoSchema(success=True, message='article_deleted')
 
     
         
@@ -544,12 +594,13 @@ class Query(graphene.ObjectType):
     article = graphene.Field(ArticleSchema, authorID=graphene.String(), publicationID=graphene.String(), articleID=graphene.String())
     def resolve_article(self, args, context, info):
         print 'resolve article / zero'
-        publication = ndb.Key(
-            'AuthorModel',      args.get('authorID'), 
-            'PublicationModel', args.get('publicationID'),
-            'ArticleModel',     args.get('articleID')
+        article = ndb.Key(
+            'AuthorModel',      self.get('authorID'), 
+            'PublicationModel', self.get('publicationID'),
+            'ArticleModel',     self.get('articleID')       
         ).get()
-        return publication
+        print article
+        return article
 
     
 

@@ -4,6 +4,8 @@ import { Router, ActivatedRoute } from '@angular/router'
 import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
 
+import { BackendService } from '../backend.service'
+
 interface Quill {
   new (container: string | Element, options?: any): Quill;
 }
@@ -41,7 +43,7 @@ export class ArticlePageComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-
+    private backend: BackendService,
     private apollo: Apollo,
   ) { }
 
@@ -62,7 +64,11 @@ export class ArticlePageComponent implements OnInit {
           title: 'no title yet'
         }
       } else {
-        this.doQuery()
+        //this.doQuery()
+        this.backend.getArticle(this.authorID, this.publicationID, this.articleID).subscribe(article => {
+          console.log('article page got an article!', article)
+          this.article = article
+        })
       }
     })
   }
@@ -96,46 +102,17 @@ export class ArticlePageComponent implements OnInit {
     })
   }
 
-  doMutate() {
-    const mutation = gql`
-      mutation updateArticle($title: String!, $body: String!) {
-        updateArticle (
-          authorID:"${this.authorID}", 
-          publicationID:"${this.publicationID}", 
-          articleID: "${this.articleID}", 
-          title: $title,
-          body: $body
-        ){
-          article {
-            title
-            body
-            created
-            updated
-            author {
-              name
-            }
-          }
-        }
-      }
-    `
-    this.apollo.mutate({
-      mutation: mutation,
-      variables: {
-        title: this.article.title,
-        body: JSON.stringify(this.bodyQuill.getContents()),
-
-      }
-    }).subscribe(result => {
-      const data = JSON.parse(JSON.stringify(result.data))
-      this.article = data.updateArticle.article
-      console.log('mutation result article', this.article)
-    })
-  }
 
 
   save() {
     console.log('saving' + this.article.title)
-    this.doMutate()
+    this.backend.saveArticle(
+      this.authorID,
+      this.publicationID,
+      this.articleID,
+      this.article).subscribe(info => {
+      console.log('article page save result', info)
+    })
   }
 
   makeQuill() {
