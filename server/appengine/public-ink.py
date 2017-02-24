@@ -445,10 +445,9 @@ class Query(graphene.ObjectType):
         else:
             """ update publication """
             publication = ndb.Key('AuthorModel', authorID, 'PublicationModel', publicationID).get()
-            publication.name = self.get('name') # rework below
+            publication.name = self.get('name') 
             publication_key = publication.put()
-            publication = publication_key.get()
-        return publication
+        return publication_key.get()
 
 
     """ SAVE ARTICLE (create and update) """

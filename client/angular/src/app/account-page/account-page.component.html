@@ -9,10 +9,10 @@
     <app-author [author]="author"></app-author>
 
     <div *ngFor="let publication of author.publications">
-      <h3><a [routerLink]="['/', author.id, publication.id]">{{ publication.name }}</a></h3>
+      <h3><a [routerLink]="['/', author.id, publication.id]">pub: {{ publication.name }}</a></h3>
       <app-publication [publication]="publication"></app-publication>
       <div *ngFor="let article of publication.articles">
-        <h4>{{ article.title }}</h4>
+        <h4>article: {{ article.title }}</h4>
       </div>
     </div>
     
