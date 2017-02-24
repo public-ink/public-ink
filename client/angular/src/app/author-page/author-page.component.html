@@ -7,7 +7,10 @@
 
             <!-- if NEW! -->
             <button (click)="create()" class="form-button" *ngIf="author.new">Create Author</button>
-
+            <!-- if Existing -->
+            <button (click)="delete()" class="form-button" *ngIf="!author.new">Delete Author!</button>
+            
+        
             <!-- if EXISTING AUTHOR: create new publication -->
             <a [routerLink]="['/', author.id, 'create-publication']">start publication</a>
 

@@ -5,11 +5,13 @@
 </flex-col-center-center>
 
 <div id="topBar">
-    <div class="content-width">
+    <div class="content-width" *ngIf="backend.userAccount">
        
 
         <div *ngIf="backend.userAccount.authenticated">
             {{ backend.userAccount.email }}
+
+            your have <b>{{ backend.userAccount.authors.length }}</b> authors!
 
             <span *ngIf="!backend.userAccount.verified">
                 You are logged in, but your account requires email verification.

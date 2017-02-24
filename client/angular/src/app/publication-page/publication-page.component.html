@@ -6,27 +6,13 @@
     >
   </app-publication>
 
+  <!-- if NEW! -->
+  <button (click)="savePublication()" class="form-button" *ngIf="publication.new">Create publication</button>
+  <!-- if Existing -->
+  <button (click)="deletePublication()" class="form-button" *ngIf="!publication.new">Delete publication!</button>
+
   This publication has {{ publication.articles.length }} articles.
   <a [routerLink]="['/', publication.author.id, publication.id, 'create-article']">Create Article</a>
 
 </div>
 
-<!--<h1>publication page: {{ authorID}} | {{ publicationID }}</h1>
-
-<a [routerLink]="['/', authorID, publicationID, 'create-article']">create article</a>
-
-
-
-<div *ngIf="publication">
-
-  <input 
-    class="form-input"
-    type="text"
-    [(ngModel)]="publication.name"
-    [placeholder]="'Name your publication'" />
-  <button 
-    class="form-input"
-    (click)="createPublication()"
-  >Create Publication</button>
-
-</div>-->

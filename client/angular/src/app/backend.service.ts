@@ -20,6 +20,11 @@ import { iPublication } from './publication/publication.component'
 
 import { iAccount } from './auth-page/auth-page.component'
 
+export interface iInfo {
+  success: boolean
+  message: string
+}
+
 
 
 
@@ -29,14 +34,9 @@ export class BackendService {
   backendHost: string = 'http://localhost:8080'
   backendDelay: number = 1000
 
-  userAccount: iAccount = {
-    authenticated: false,
-    verified: false,
-    email: '',
-  }
+  /* the object containing everything by the current user */
+  userAccount: iAccount
 
-
-  userAuthors: any[] = []
 
   fragments = {
     account: gql`
@@ -45,6 +45,21 @@ export class BackendService {
         verified
         authenticated
         jwt
+
+        authors {
+          id
+          name
+          about
+          imageURL
+          publications {
+            id
+            name
+            articles {
+              id
+              title
+            }
+          }
+        }
       }
     `,
     info: gql`
@@ -111,7 +126,9 @@ export class BackendService {
         const info = result.data[endpoint].info
         if (info.success) {
           const account = result.data[endpoint].account
-          this.userAccount = account
+          //this.userAccount = account
+          this.userAccount = Object.assign({}, account)
+          console.log('user account is now', this.userAccount)
           localStorage.setItem('jwt', account.jwt)
         }
         // in any case return the info!
@@ -141,6 +158,8 @@ export class BackendService {
       querySub.delay(this.backendDelay).subscribe(result => {
         const account = result.data.verifyEmail // this contains all listed in fragment
         this.userAccount = account
+        // duplicate with jwt and all...
+        this.userAccount = JSON.parse(JSON.stringify(account))
         stream.next(account)
       },
         error => {
@@ -157,7 +176,8 @@ export class BackendService {
     this.userAccount = {
       authenticated: false,
       verified: false,
-      email: ''
+      email: '',
+      authors: [],
     }
   }
 
@@ -188,8 +208,10 @@ export class BackendService {
       apolloQuery.delay(this.backendDelay).subscribe(result => {
         const info = result.data[endpoint].info
         if (info.success) {
+          /* include authors! and all the other things! */
           const account = result.data[endpoint].account
-          this.userAccount = account
+          // duplicate in epLogin and all...
+          this.userAccount = JSON.parse(JSON.stringify(account))
           localStorage.setItem('jwt', account.jwt)
         }
         // in any case return the info!
@@ -267,19 +289,28 @@ export class BackendService {
     const jwt = localStorage.getItem('jwt')
     const query = gql`
       {
-        createAuthor(jwt:"${jwt}", name: "${author.name}", about:"${author.about}", imageURL:"${author.imageURL}"){
+        createAuthor{
           id
           name
+          about
+          imageURL
         }
       }
     `
     const subscription = this.apollo.watchQuery<any>({
-      query: query
+      query: query,
+      variables: {
+        jwt: jwt,
+        name: author.name,
+        about: author.about,
+        imageURL: author.imageURL,
+      }
 
     })
     subscription.subscribe(result => {
-
-
+      console.log('create author result', result)
+    },error => {
+      console.error('caught create author error!', error)
     })
     return subscription
   }
@@ -297,6 +328,34 @@ export class BackendService {
       console.log('be get author:', result.data.author)
     })
     return sub
+  }
+  deleteAuthor(authorID):Observable<iInfo> {
+    /**
+     * Deletes an Author, removes it from the userAccount's authors, 
+     * and returns information about the status
+     */
+    const jwt = localStorage.getItem('jwt')
+    const query = gql`
+      {deleteAuthor(jwt:"${jwt}", authorID: "${authorID}"){
+        ...info
+      }}
+       ${this.fragments.info}
+    `
+    const apolloQuery = this.apollo.watchQuery<any>({
+      query: query,
+    })
+    return new Observable(stream => {
+      apolloQuery.subscribe(result => {
+        const info = result.data.deleteAuthor
+        let authors = this.userAccount.authors 
+        if (info.success) {
+          // remove author from userAccount's authors
+          authors = authors.filter(author => author.id !== authorID)
+          this.userAccount.authors = authors
+        }
+        stream.next(info)
+      })
+    })
   }
 
 
@@ -347,6 +406,7 @@ export class BackendService {
     const query = gql`
       {
         savePublication {
+          id
           name
         }
       }
@@ -372,7 +432,40 @@ export class BackendService {
   }
 
 
-
+  deletePublication(publication:iPublication):Observable<iInfo> {
+    /**
+     * Deletes a publication, removes it from the respetive's userAccount's author's publications TODO, 
+     * and returns information about the status
+     */
+    const jwt = localStorage.getItem('jwt')
+    const query = gql`
+      {deletePublication {
+        ...info
+      }}
+      ${this.fragments.info}
+    `
+    const apolloQuery = this.apollo.watchQuery<any>({
+      query: query,
+      variables: {
+        jwt: jwt,
+        authorID: publication.author.id,
+        publicationID: publication.id,
+      }
+    })
+    return new Observable(stream => {
+      apolloQuery.subscribe(result => {
+        const info = result.data.deletePublication
+        let authors = this.userAccount.authors 
+        if (info.success) {
+          // TODO
+          // remove publication from userAccount's author's publications
+          //authors = authors.filter(author => author.id !== authorID)
+          //this.userAccount.authors = authors
+        }
+        stream.next(info)
+      })
+    })
+  }
 
 
 

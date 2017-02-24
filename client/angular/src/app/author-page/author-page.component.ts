@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core'
 import { Router, ActivatedRoute, Params } from '@angular/router'
 
 // Services
-import { BackendService } from '../backend.service'
+import { BackendService, iInfo } from '../backend.service'
 import { UIService } from '../ui.service'
 
 // Models (hmm)
@@ -71,6 +71,7 @@ export class AuthorPageComponent implements OnInit {
       }).subscribe(result => {
         console.log('author result', result)
         this.author = result.data.author
+        // is this an immutable fucker?
       }) 
 
     })
@@ -85,7 +86,16 @@ export class AuthorPageComponent implements OnInit {
      */
     this.backend.createAuthor(this.author).subscribe(result => {
       const id = result.data.createAuthor.id
+      this.backend.userAccount.authors.push(this.author)
       this.router.navigate(['/', id])
+    })
+  }
+  delete() {
+    this.backend.deleteAuthor(this.authorID).subscribe((info: iInfo) => {
+      console.log('author page received delete result', info)
+      this.ui.message = info.message
+      // todo: remove from backend!! actually, backend should do that
+      this.router.navigate(['/my-account'])
     })
   }
 

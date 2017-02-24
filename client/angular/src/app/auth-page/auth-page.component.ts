@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import { FormGroup, FormBuilder, Validators } from '@angular/forms'
+import { Router } from '@angular/router'
 
 // graphql
 import gql from 'graphql-tag'
@@ -15,6 +16,7 @@ export interface iAccount {
   authenticated: boolean
   verified: boolean
   jwt?: string
+  authors: any[]
 }
 
 @Component({
@@ -41,7 +43,9 @@ export class AuthPageComponent {
 
   public registrationForm = this.fb.group({
     email: ["", Validators.required],
-    password: ["", Validators.required]
+    password: ["", Validators.required],
+    password2: ["", Validators.required],
+    terms: ["", Validators.requiredTrue],
   })
 
   constructor(
@@ -49,8 +53,9 @@ export class AuthPageComponent {
     private apollo: Apollo,
     public fb: FormBuilder,
     private ui: UIService,
+    private router: Router,
   ) { }
-
+f
   /**
    * Try to authenticate with email and password
    * If successfull, the backend's userAccount will be updated
@@ -63,6 +68,9 @@ export class AuthPageComponent {
     this.backend.epLogin(email, password).subscribe(info => {
         this.loginLoading = false
         this.ui.message = info.message
+        if (info.success === true) {
+          this.router.navigate(['/', 'me'])
+        }
       })
     // we only care about the status. the account is handled by the backend.
   }
@@ -81,6 +89,9 @@ export class AuthPageComponent {
       info => {
         this.registrationLoading = false
         this.ui.message = info.message
+        if (info.success === true) {
+          this.router.navigate(['/', 'me'])
+        }
       }
     )
   }

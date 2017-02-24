@@ -81,6 +81,15 @@ class AccountSchema(graphene.ObjectType):
     authenticated = graphene.Boolean()
     jwt = graphene.String()
 
+    # related: authors!
+    authors = graphene.List(lambda: AuthorSchema)
+    def resolve_authors(self, *args):
+        # query authors that are pointing to this user
+        user_key = ndb.Key('UserModel', self.email)
+        authors = AuthorModel.query(AuthorModel.user == user_key)
+        return authors
+
+
 class AccountResponse(graphene.ObjectType):
     """
     happens to return both of the above :) - name is not so good maybe
@@ -415,16 +424,13 @@ class Query(graphene.ObjectType):
 
     """ AUTHOR !!! """
 
-    createAuthor = graphene.Field(
-        AuthorSchema
-        )
+    createAuthor = graphene.Field(AuthorSchema)
     def resolve_createAuthor(self, args, *more):
         print "resolve create author"
-        name = args.get('name')
-        about = args.get('about')
-        imageURL = args.get('imageURL')
-        # more args!
-        token = args.get('jwt')
+        name = self.get('name')
+        about = self.get('about')
+        imageURL = self.get('imageURL')
+        token = self.get('jwt')
         email = email_from_jwt(token)
         user_key = ndb.Key('UserModel', email)
         # create author!
@@ -438,23 +444,20 @@ class Query(graphene.ObjectType):
         # return the author, plain and simple
         author = author_key.get()
         return author
-        # outdated!! -> but good learning
-        """
-        we can either return just a db instance, or a custom schema!
-        """
-        # this might not include the just-created author.
-        authors = AuthorModel.query(AuthorModel.user == user_key).fetch()
-        if author not in authors:
-            authors.append(author.get())
-        return AuthorSchema(
-            
-        )
+
+        
 
     """ delete author"""
-    deleteAuthor = graphene.Boolean(jwt=graphene.String(), authorID=graphene.String())
+    deleteAuthor = graphene.Field(InfoSchema, jwt=graphene.String(), authorID=graphene.String())
     def resolve_deleteAuthor(self, args, *more):
         ndb.Key('AuthorModel', args.get('authorID')).delete()
-        return True
+        return InfoSchema(success=True, message='author_deleted')
+
+    """ delete publication """
+    deletePublication = graphene.Field(InfoSchema)
+    def resolve_deletePublication(self, *args):
+        ndb.Key('AuthorModel', self.get('authorID'), 'PublicationModel', self.get('publicationID')).delete()
+        return InfoSchema(success=True, message='publication_deleted')
 
 
     """ PUBLICATION !!! """
@@ -606,7 +609,10 @@ class GraphQLEndpoint(RequestHandler):
         print variables
         print query
         result = schema.execute(query, variables)
-        response = {'data' : result.data, 'errors': result.errors}
+        error_list = []
+        for error in result.errors:
+            error_list.append(str(error))
+        response = {'data' : result.data, 'errors': error_list}
         self.response.headers['Content-Type'] = 'application/json; charset=utf-8'
         self.response.out.write(json.dumps(response))
 

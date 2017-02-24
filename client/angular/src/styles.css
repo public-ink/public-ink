@@ -21,7 +21,7 @@ textarea {
     padding: 10px 15px;
     width: 400px;
 }
-.form-input:focus, .form-button:focus {
+.form-input:focus, .form-button:focus, input[type="checkbox"] + label{
     outline:2px solid dodgerblue;
 }
 
@@ -50,6 +50,33 @@ textarea {
     font-weight: bold;
 }
 
+/* checkbox */
+
+
+input[type="checkbox"] {
+    display:none;
+}
+input[type="checkbox"] + label {
+    display:inline-block;
+    width:50px;
+    height:50px;
+    cursor:pointer;
+    border:1px solid black;
+}
+input[type="checkbox"]:checked + label {
+   /* background-color:cornflowerblue;*/
+}
+
+input[type="checkbox"]:checked + label:before {
+    content: '✔';
+    width:50px;
+    height: 50px;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    font-size:35px;
+}
+
 
 /* FLEX ALL THE THINGS */
 .grow {
@@ -58,6 +85,10 @@ textarea {
 
 flex-row {
     display: flex;
+}
+flex-row-100 {
+    display: flex;
+    width:100%;
 }
 flex-row-center {
     display: flex;

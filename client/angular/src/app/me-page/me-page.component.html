@@ -4,12 +4,12 @@
 </div>
 
 
-  <div *ngFor="let author of backend.userAuthors">
+  <div *ngFor="let author of backend.userAccount.authors">
     author: <a [routerLink]="['/', author.id]">{{ author.name }}</a>
     <app-author [author]="author"></app-author>
   </div>
 
-  <div *ngIf="backend.userAuthors.length === 0">
+  <div *ngIf="backend.userAccount.authors.length === 0">
     <h2>you ain't got no authors!</h2>
     
 

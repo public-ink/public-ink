@@ -14,6 +14,7 @@ export interface iPublication {
   id: string
   name?: string
   author?: iAuthor 
+  articles: any[]
 }
 
 @Component({

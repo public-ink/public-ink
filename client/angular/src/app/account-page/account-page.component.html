@@ -1,0 +1,21 @@
+<!--{{ backend.userAccount | stringify }}-->
+
+<div *ngIf="backend.userAccount">
+  <h1>Your account, {{ backend.userAccount.email }}</h1>
+  <a [routerLink]="['/create-author']">create author</a>
+
+  <div *ngFor="let author of backend.userAccount.authors">
+    <h2><a [routerLink]="['/', author.id]">{{ author.name }}</a></h2>
+    <app-author [author]="author"></app-author>
+
+    <div *ngFor="let publication of author.publications">
+      <h3><a [routerLink]="['/', author.id, publication.id]">{{ publication.name }}</a></h3>
+      <app-publication [publication]="publication"></app-publication>
+      <div *ngFor="let article of publication.articles">
+        <h4>{{ article.title }}</h4>
+      </div>
+    </div>
+    
+  </div>
+</div>
+

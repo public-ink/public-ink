@@ -50,6 +50,7 @@ export class PublicationPageComponent implements OnInit {
             new: true,
             id: this.publicationID,
             name: 'no name yet',
+            articles: [],
           }
         })
         
@@ -79,6 +80,7 @@ export class PublicationPageComponent implements OnInit {
 
   }
 
+  /**old it seems, we use 'save publication' now for new and existing */
   createPublication() {
     const jwt = localStorage.getItem('jwt')
     const query = gql`
@@ -101,7 +103,15 @@ export class PublicationPageComponent implements OnInit {
 
   }
   savePublication() {
-    this.backend.savePublication(this.publication)
+    this.backend.savePublication(this.publication).subscribe(info => {
+      console.log('publication page save publication info')
+    })
+  }
+  deletePublication() {
+    this.backend.deletePublication(this.publication).subscribe(info => {
+      this.ui.message = info.message
+      console.log('pub page delete info', info)
+    })
   }
 
 }

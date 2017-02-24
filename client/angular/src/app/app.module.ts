@@ -24,7 +24,8 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { AuthPageComponent } from './auth-page/auth-page.component';
 import { EmailVerificationPageComponent } from './email-verification-page/email-verification-page.component';
 import { MePageComponent } from './me-page/me-page.component';
-import { LayoutComponent } from './layout/layout.component'
+import { LayoutComponent } from './layout/layout.component';
+import { AccountPageComponent } from './account-page/account-page.component'
 
 
 const apolloClient = new ApolloClient({
@@ -43,6 +44,7 @@ const appRoutes: Routes = [
   { path: '', component: HomePageComponent },
   // pages
   { path: 'me', component: MePageComponent},
+  { path: 'my-account', component: AccountPageComponent},
   { path: 'auth', component: AuthPageComponent },
   { path: 'verify/:email/:token', component: EmailVerificationPageComponent},
   
@@ -69,6 +71,7 @@ const appRoutes: Routes = [
     EmailVerificationPageComponent,
     MePageComponent,
     LayoutComponent,
+    AccountPageComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),
