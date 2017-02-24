@@ -1,4 +1,4 @@
-<div class="content-width">
+<div class="content-width" *ngIf="backend.userAccount">
 
   <form [formGroup]="loginForm" (ngSubmit)="doLogin($event)">
     <flex-col>
@@ -21,8 +21,6 @@
 
     </flex-col>
   </form>
-
-
 
 
   <div id="register-login-forms" *ngIf="!backend.userAccount.authenticated">

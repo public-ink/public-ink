@@ -5,6 +5,7 @@ import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
 
 import { BackendService } from '../backend.service'
+import { UIService } from '../ui.service'
 
 interface Quill {
   new (container: string | Element, options?: any): Quill;
@@ -45,6 +46,7 @@ export class ArticlePageComponent implements OnInit {
     private router: Router,
     private backend: BackendService,
     private apollo: Apollo,
+    private ui: UIService,
   ) { }
 
   ngAfterViewChecked() {
@@ -67,41 +69,13 @@ export class ArticlePageComponent implements OnInit {
         //this.doQuery()
         this.backend.getArticle(this.authorID, this.publicationID, this.articleID).subscribe(article => {
           console.log('article page got an article!', article)
-          this.article = article
+          this.article = JSON.parse(JSON.stringify(article))
+          // make quill, with viewchild
+          this.makeQuill()
         })
       }
     })
   }
-
-  doQuery() {
-    const query = gql`
-      query anArticle {
-        article(authorID:"${this.authorID}", publicationID:"${this.publicationID}", articleID:"${this.articleID}") {
-          title
-          body
-          created
-          updated
-          author {
-            name
-            id
-          }
-        }
-      }
-    `
-    this.apollo.watchQuery({
-      query: query
-    }).subscribe((result) => {
-      // this is not a local object but probably in redux
-      this.data = result.data
-      this.article = JSON.parse(JSON.stringify(result.data)).article
-      console.log('got article!', this.article)
-      // make quill! 
-      let el = document.getElementById('articleBodyEditor')
-      console.log(el)
-      this.makeQuill()
-    })
-  }
-
 
 
   save() {
@@ -111,11 +85,20 @@ export class ArticlePageComponent implements OnInit {
       this.publicationID,
       this.articleID,
       this.article).subscribe(info => {
-      console.log('article page save result', info)
+        this.ui.message = 'article saved - need to rework this message'
+        this.router.navigate(['/', this.authorID, this.publicationID])
+    })
+  }
+  delete() {
+
+    this.backend.deleteArticle(this.article).subscribe(info => {
+      this.ui.message = info.message
+      this.router.navigate(['/', this.authorID, this.publicationID])
     })
   }
 
   makeQuill() {
+    // this needs to change to a ref, in case there are more than one.
     let el = document.getElementById('articleBodyEditor')
     if (!el || !this.article || this.madeQuill) {
       return

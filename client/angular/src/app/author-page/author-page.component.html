@@ -17,6 +17,7 @@
             <!-- publications -->
             <h2>{{ author.name }} has {{ author.publications.length }} publication(s).</h2>
             <div *ngFor="let publication of author.publications">
+                <app-publication [publication]="publication"></app-publication>
                 <a [routerLink]="['/', author.id, publication.id]">{{ publication.name }}</a>
             </div>
         <!-- end of center lane -->

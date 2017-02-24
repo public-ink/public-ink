@@ -27,12 +27,7 @@ from google.appengine.ext import ndb
 
 
 
-class InkModel(ndb.Model):
-    """
-    A common NDB entity model
-    """
-    created = ndb.DateTimeProperty(auto_now_add=True)
-    updated = ndb.DateTimeProperty(auto_now=True)
+
 
 
 
@@ -89,13 +84,14 @@ class AccountSchema(graphene.ObjectType):
         authors = AuthorModel.query(AuthorModel.user == user_key)
         return authors
 
-
 class AccountResponse(graphene.ObjectType):
     """
-    happens to return both of the above :) - name is not so good maybe
+    Returned on account calls, like login, registration
     """
     info = graphene.Field(InfoSchema)
     account = graphene.Field(AccountSchema)
+
+
 
 class ArticleResponse(graphene.ObjectType):
     """
@@ -104,12 +100,32 @@ class ArticleResponse(graphene.ObjectType):
     info = graphene.Field(InfoSchema)
     article = graphene.Field(lambda: ArticleSchema)
 
+class PublicationResponse(graphene.ObjectType):
+    """
+    Returned for savePublication calls
+    """
+    info = graphene.Field(InfoSchema)
+    publication = graphene.Field(lambda: PublicationSchema)
 
 
+
+""" 
+MODELS AND THEIR SCHEMAS 
+"""
+
+class InkModel(ndb.Model):
+    """
+    A common NDB entity model
+    """
+    created = ndb.DateTimeProperty(auto_now_add=True)
+    updated = ndb.DateTimeProperty(auto_now=True)
 
 """ USER """
 
 class UserModel(InkModel):
+    """
+    The NDB UserModel [root entity]
+    """
     email = ndb.StringProperty(required=True)
     email_verified_at = ndb.DateTimeProperty()
     verification_token = ndb.StringProperty()
@@ -119,36 +135,15 @@ class UserModel(InkModel):
     def is_verified(self):
         return True if self.email_verified_at else False
 
-    
 
 class UserSchema(graphene.ObjectType):
     """
-    The User Schema: email, verified, activated
-    to add: list of authors...
+    Simple User Schema: email and verified
     """
     email = graphene.String()
-
-    # any of this in use?
-
     verified = graphene.Boolean()
     def resolve_verified(self, args, context, info):
         return self.is_verified
-
-    
-    authenticated = graphene.Boolean(email=graphene.String(), token=graphene.String())
-    def resolve_authenticated(self, args, context, info):
-        print 'resolve authenticated'
-        print args
-        email = args.get('email')
-        token = args.get('token')
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        if claim_email == payload.get('email'):
-            return True if email == claim_email else False
-        
-    jwt = graphene.String()
-    def resolve_jwt(self, args, context, info):
-        return 'abc'
-
 
 
 """ AUTHOR """
@@ -183,10 +178,12 @@ class AuthorSchema(graphene.ObjectType):
 
 
 
-"""
-PUBLICATION 
-"""
+""" PUBLICATION """
+
 class PublicationModel(InkModel):
+    """ 
+    NDB model for publications 
+    """
     name = ndb.StringProperty()
 
 class PublicationSchema(graphene.ObjectType):
@@ -194,39 +191,45 @@ class PublicationSchema(graphene.ObjectType):
     The schema for representing a publication
     """
     id = graphene.String()
+    articles = graphene.List(lambda: ArticleSchema, order=graphene.String())
+    author = graphene.Field(AuthorSchema)
+    name = graphene.String()
+
     def resolve_id(self, *args):
         return self.key.id()
-    name = graphene.String()
-    articles = graphene.List(lambda: ArticleSchema, order=graphene.String())
     def resolve_articles(self, *args):
         return ArticleModel.query(ancestor=self.key)
-    author = graphene.Field(AuthorSchema)
     def resolve_author(self, *args):
         return self.key.parent().get()
 
 
-""" 
-ARTICLE
-"""
+""" ARTICLE """
+
 class ArticleModel(InkModel):
+    """ Article NDB model """
     title = ndb.StringProperty()
 
 class ArticleSchema(graphene.ObjectType):
     """
     The schema for representing an article.
     """
+    title = graphene.String()
     id = graphene.String()
     def resolve_id(self, *args):
         return self.key.id()
-    title = graphene.String()
+
     # related
     publication = graphene.Field(PublicationSchema)
     def resolve_publication(self, *args):
-        return self.parent().get()
+        return self.key.parent().get()
     author = graphene.Field(AuthorSchema)
-    def resolve_author():
-        return self.parent().parent().get()
+    def resolve_author(self, *args):
+        return self.key.parent().parent().get()
 
+
+"""
+Playground - remove at some point
+"""
 
 class Hoff(graphene.ObjectType):
     name = graphene.String()
@@ -241,9 +244,8 @@ class Evening(graphene.ObjectType):
     beer = graphene.Field(Beer)
 
 
-"""
-##############  THE BIG FAT QUERY  ############################
-"""
+"""  #####################  THE BIG FAT QUERY  #########################  """
+
 class Query(graphene.ObjectType):
     """
     Tutorial
@@ -279,6 +281,8 @@ class Query(graphene.ObjectType):
         beer = Beer(brand='jever', volume=5)
         return Evening(hoff=hoff, beer=beer)
 
+    """ end of documentation """
+
 
     """ Now getting real """
     epLogin = graphene.Field(AccountResponse)
@@ -289,63 +293,30 @@ class Query(graphene.ObjectType):
         user = ndb.Key('UserModel', email).get()
 
         if not user:
-            info = InfoSchema(
-                success=False,
-                message='account_not_found'
-            )
-            return AccountResponse(
-                info=info
-            )
+            return AccountResponse(info=InfoSchema(success=False, message='account_not_found'))
         
         matches = verify_password(user.password_hash_sha256, password)
         if not matches:
-            info = InfoSchema(
-                success=False,
-                message='password_incorrect'
-            )
-            return AccountResponse(
-                info=info
-            )
+            return AccountResponse(info=InfoSchema(success=False, message='password_mismatch'))
 
-        # Proper big response
+        # create account and return AccountResponse
         account = AccountSchema(
             email=email,
             verified=user.is_verified,
             authenticated=True,
             jwt=generate_jwt(email)
         )
-        info = InfoSchema(
-            success=True,
-            message='login_success'
-        )
+        
         return AccountResponse(
             account=account,
-            info=info
-        )
+            info=InfoSchema(success=True, message='login_successful'))
 
-    """
-    Query all the things!
-    """
-    """ TEST """
-    test = graphene.Int()
-    def resolve_test(*args):
-        return randint(0,100)
-
-    #accountTest = graphene.Field(AccountSnippet)
-    accountTest = graphene.Boolean()
-    def resolve_accountTest(self, *args):
-        print 'resolve acount test'
-        return AccountSnippet(
-            email='jo',
-            verified=True,
-            authenticated=True
-        )
 
     """ AUTH: JWT LOGIN"""
     jwtLogin = graphene.Field(AccountResponse, jwt=graphene.String())
     def resolve_jwtLogin(self, args, *more):
         """
-        Checks the JWT and returns an Auth Object, if successful
+        Checks the JWT and returns an AccountResponse
         """
         token = args.get('jwt')
         try:
@@ -355,23 +326,43 @@ class Query(graphene.ObjectType):
             user = user_key.get()
 
             if not user:
-                return AccountResponse(info=InfoSchema(success=False, message='account not found'))
+                return AccountResponse(info=InfoSchema(success=False, message='account_not_found'))
 
             return AccountResponse(
-                info=InfoSchema(success=True, message="token login successful"),
+                info=InfoSchema(success=True, message="jwt_login_successful"),
                 account=AccountSchema(
                     email=email, verified=user.is_verified, 
                     authenticated=True, jwt=generate_jwt(email))
                 )
             
         except jwt.ExpiredSignatureError, e:
-            return AccountResponse(info=InfoSchema(success=False, message='token expired'))
+            return AccountResponse(info=InfoSchema(success=False, message='token_expired'))
         except jwt.DecodeError, e:
-            return AccountResponse(info=InfoSchema(success=False, message='token invalid'))
+            return AccountResponse(info=InfoSchema(success=False, message='token_invalid'))
 
 
 
+    verifyEmail = graphene.Field(AccountResponse, email=graphene.String(), token=graphene.String())
+    def resolve_verifyEmail(self, args, context, info):
+        email = args.get('email')
+        token = args.get('token')
+        user = ndb.Key('UserModel', email).get()
+        if token == user.verification_token:
+            """ success """
+            user.email_verified_at = datetime.now()
+            user.put()
+            return AccountResponse(
+                info=InfoSchema(success=True, message="email verification successful"),
+                account=AccountSchema(
+                    email=user.email, verified=user.is_verified, 
+                    authenticated=True, jwt=generate_jwt(user.email)))
+        else:
+            """ failure """
+            return AccountResponse(info=InfoSchema(success=False, message='email verification failed'))
 
+    
+
+    """ CREATE ACCOUNT """
     createAccount = graphene.Field(AccountResponse, email=graphene.String(), password=graphene.String())
     def resolve_createAccount(self, args, *more):
         """
@@ -410,27 +401,7 @@ class Query(graphene.ObjectType):
         )
 
 
-
-    verifyEmail = graphene.Field(AccountResponse, email=graphene.String(), token=graphene.String())
-    def resolve_verifyEmail(self, args, context, info):
-        email = args.get('email')
-        token = args.get('token')
-        user = ndb.Key('UserModel', email).get()
-        if token == user.verification_token:
-            """ success """
-            user.email_verified_at = datetime.now()
-            user.put()
-            return AccountResponse(
-                info=InfoSchema(success=True, message="email verification successful"),
-                account=AccountSchema(
-                    email=user.email, verified=user.is_verified, 
-                    authenticated=True, jwt=generate_jwt(user.email)))
-        else:
-            """ failure """
-            return AccountResponse(info=InfoSchema(success=False, message='email verification failed'))
-
-    """ AUTHOR !!! """
-
+    """ CREATE AUTHOR => should become save (create and update) """
     createAuthor = graphene.Field(AuthorSchema)
     def resolve_createAuthor(self, args, *more):
         print "resolve create author"
@@ -452,39 +423,7 @@ class Query(graphene.ObjectType):
         author = author_key.get()
         return author
 
-        
-
-    """ delete author"""
-    deleteAuthor = graphene.Field(InfoSchema, jwt=graphene.String(), authorID=graphene.String())
-    def resolve_deleteAuthor(self, args, *more):
-        ndb.Key('AuthorModel', args.get('authorID')).delete()
-        return InfoSchema(success=True, message='author_deleted')
-
-    """ delete publication """
-    deletePublication = graphene.Field(InfoSchema)
-    def resolve_deletePublication(self, *args):
-        ndb.Key('AuthorModel', self.get('authorID'), 'PublicationModel', self.get('publicationID')).delete()
-        return InfoSchema(success=True, message='publication_deleted')
-
-
-    """ PUBLICATION !!! """
-
-    createPublication = graphene.Field(PublicationSchema, 
-        jwt=graphene.String(), 
-        authorID=graphene.String(), 
-        name=graphene.String()
-        )
-    def resolve_createPublication(self, args, *more):
-        authorID = args.get('authorID')
-        name = args.get('name')
-        publication = PublicationModel(
-            parent=ndb.Key('AuthorModel', authorID),
-            id=slugify(name),
-            name=name
-        ).put()
-        return publication.get()
-
-    """ save publication (existing or new!) """
+    """ SAVE PUBLICATION (create and update) -> change to publication response! """
     savePublication = graphene.Field(PublicationSchema, 
         jwt=graphene.String(), 
         publicationID=graphene.String(),
@@ -503,14 +442,14 @@ class Query(graphene.ObjectType):
                 id=slugify(name),
                 name=name
             ).put()
-            print 'save pub'
-            print publication_key
         else:
             """ update publication """
             publication = ndb.Key('AuthorModel', authorID, 'PublicationModel', publicationID).get()
-            publication.name = args.get('name')
-            publicion_key = publication.put()
-        return publication_key.get()
+            publication.name = self.get('name') # rework below
+            publication_key = publication.put()
+            publication = publication_key.get()
+        return publication
+
 
     """ SAVE ARTICLE (create and update) """
     saveArticle = graphene.Field(ArticleResponse)
@@ -537,7 +476,7 @@ class Query(graphene.ObjectType):
             article_key = ndb.Key(
                 'AuthorModel', authorID, 
                 'PublicationModel', publicationID,
-                'ArticleID', articleID
+                'ArticleModel', articleID
             )
             article = article_key.get()
             article.title = title
@@ -548,18 +487,10 @@ class Query(graphene.ObjectType):
             article=article
         )
 
-    deleteArticle = graphene.Field(InfoSchema)
-    def resolve_deleteArticle(self, *args):
-        ndb.Key(
-            'AuthorModel', self.get('authorID'), 
-            'PublicationModel', self.get('publicationID'),
-            'ArticleModel', self.get('articleID')
-            ).delete()
-        return InfoSchema(success=True, message='article_deleted')
-
     
-        
-    """ DATA RETRIEVAL """
+    """ 
+    DATA RETRIEVAL / RESOURCES
+    """
     user = graphene.Field(UserSchema, email=graphene.String(), jwt=graphene.String())
     def resolve_user(self, args, context, info):
         print 'resolve user'
@@ -567,7 +498,6 @@ class Query(graphene.ObjectType):
             'UserModel', args.get('email')
         ).get()
         return user
-
 
     author = graphene.Field(AuthorSchema, authorID=graphene.String())
     def resolve_author(self, args, context, info):
@@ -578,11 +508,9 @@ class Query(graphene.ObjectType):
         ).get()
         return author
 
-
     publication = graphene.Field(PublicationSchema, authorID=graphene.String(), publicationID=graphene.String())
     def resolve_publication(self, args, context, info):
         print 'resolve publication'
-        print self
         authorID = args.get('authorID') or self.get('authorID') 
         publicationID =  args.get('publicationID') or self.get('publicationID')
         publication = ndb.Key(
@@ -590,7 +518,6 @@ class Query(graphene.ObjectType):
             'PublicationModel', publicationID
         ).get()
         return publication
-
 
     article = graphene.Field(ArticleSchema, authorID=graphene.String(), publicationID=graphene.String(), articleID=graphene.String())
     def resolve_article(self, args, context, info):
@@ -600,8 +527,44 @@ class Query(graphene.ObjectType):
             'PublicationModel', self.get('publicationID'),
             'ArticleModel',     self.get('articleID')       
         ).get()
-        print article
         return article
+
+
+    """
+    DELETIONS
+    """
+
+    """ delete account"""
+    deleteAccount = graphene.Field(InfoSchema)
+    def resolve_deleteAccount(self, *args):
+        jwt = self.get('jwt')
+        email = self.get('email')
+        # verifiy token, compare emails
+        UserModel.query(UserModel.email == email).delete()
+        return InfoSchema(success=True, message='account_deleted')
+
+    """ delete author"""
+    deleteAuthor = graphene.Field(InfoSchema, jwt=graphene.String(), authorID=graphene.String())
+    def resolve_deleteAuthor(self, args, *more):
+        ndb.Key('AuthorModel', args.get('authorID')).delete()
+        return InfoSchema(success=True, message='author_deleted')
+
+    """ delete publication """
+    deletePublication = graphene.Field(InfoSchema)
+    def resolve_deletePublication(self, *args):
+        ndb.Key('AuthorModel', self.get('authorID'), 'PublicationModel', self.get('publicationID')).delete()
+        return InfoSchema(success=True, message='publication_deleted')
+
+    """ delete article, delete TODOs """
+    deleteArticle = graphene.Field(InfoSchema)
+    def resolve_deleteArticle(self, *args):
+        """ TODO: check ownership, get jwt """
+        ndb.Key(
+            'AuthorModel', self.get('authorID'), 
+            'PublicationModel', self.get('publicationID'),
+            'ArticleModel', self.get('articleID')
+            ).delete()
+        return InfoSchema(success=True, message='article_deleted')
 
     
 

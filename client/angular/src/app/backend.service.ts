@@ -444,7 +444,7 @@ export class BackendService {
   /**
    * SAVE ARTICLE - create new / update existing!
    */
-  saveArticle(authorID: string, publicationID: string, articleID: string, article): Observable<iArticle> {
+  saveArticle(authorID: string, publicationID: string, articleID: string, article): Observable<any> {
     const jwt = localStorage.getItem('jwt')
     const endpoint = 'saveArticle'
     const query = gql`
@@ -476,11 +476,13 @@ export class BackendService {
         const article = result.data.article
         const info = result.data.info
         console.log('backend saved article', result)
+        stream.next(info)
       })
     })
   }
 
   deleteArticle(article): Observable<iInfo> {
+    console.log('be delete', article)
     const jwt = localStorage.getItem('jwt')
     const query = gql`
       {deleteArticle {
@@ -499,7 +501,7 @@ export class BackendService {
     })
     return new Observable(stream => {
       apolloQuery.subscribe(result => {
-        const info = result.data.deleteArticle.info
+        const info = result.data.deleteArticle
         stream.next(info)
       })
     })
@@ -510,6 +512,12 @@ export class BackendService {
       {article {
         id
         title
+        publication {
+          id
+        }
+        author {
+          id
+        }
       }}
     `
     const apolloQuery = this.apollo.watchQuery<any>({

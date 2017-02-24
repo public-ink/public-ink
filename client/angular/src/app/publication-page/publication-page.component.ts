@@ -59,7 +59,7 @@ export class PublicationPageComponent implements OnInit {
       console.log('new get')
       this.backend.getPublication(this.authorID, this.publicationID).subscribe(publication => {
         console.log('pub page got put', publication)
-        this.publication = publication
+        this.publication = JSON.parse(JSON.stringify(publication))
       })
     })
   }
@@ -72,8 +72,14 @@ export class PublicationPageComponent implements OnInit {
    * Save (creates of updates) the local publication!
    */
   savePublication() {
+    console.log(this.publication)
+    if (this.publication.name === '') {
+      alert('no name on publication')
+      return
+    }
     this.backend.savePublication(this.publication).subscribe(info => {
       console.log('publication page save publication info')
+      this.ui.message = 'publication_saved, i guess'
     })
   }
   /**
