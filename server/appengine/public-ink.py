@@ -503,6 +503,8 @@ class Query(graphene.ObjectType):
                 id=slugify(name),
                 name=name
             ).put()
+            print 'save pub'
+            print publication_key
         else:
             """ update publication """
             publication = ndb.Key('AuthorModel', authorID, 'PublicationModel', publicationID).get()
@@ -513,6 +515,7 @@ class Query(graphene.ObjectType):
     """ SAVE ARTICLE (create and update) """
     saveArticle = graphene.Field(ArticleResponse)
     def resolve_saveArticle(self, *args):
+        
         authorID = self.get('authorID')
         publicationID = self.get('publicationID')
         articleID = self.get('articleID')
@@ -520,7 +523,8 @@ class Query(graphene.ObjectType):
 
         if articleID == 'create-article':
             """ create article """
-            publication_key = ndb.Key('AuthorID', authorID, 'PublicationID', publicationID)
+            publication_key = ndb.Key('AuthorModel', authorID, 'PublicationModel', publicationID)
+            # TODO: check if publication exists
             article_key = ArticleModel(
                 parent=publication_key,
                 id=slugify(title),
@@ -577,13 +581,10 @@ class Query(graphene.ObjectType):
 
     publication = graphene.Field(PublicationSchema, authorID=graphene.String(), publicationID=graphene.String())
     def resolve_publication(self, args, context, info):
-        print 'resolve publication / zero'
-        print 'self:'
+        print 'resolve publication'
         print self
-        print 'args:'
-        print args
-        authorID = self.get('authorID') or self.args.get('authorID')
-        publicationID = self.get('publicationID') or self.args.get('publicationID')
+        authorID = args.get('authorID') or self.get('authorID') 
+        publicationID =  args.get('publicationID') or self.get('publicationID')
         publication = ndb.Key(
             'AuthorModel',      authorID, 
             'PublicationModel', publicationID
