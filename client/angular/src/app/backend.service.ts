@@ -61,6 +61,12 @@ export class BackendService {
             articles {
               id
               title
+              bodyOps
+            }
+            author {
+              id
+              name
+              imageURL
             }
           }
         }
@@ -445,6 +451,7 @@ export class BackendService {
    * SAVE ARTICLE - create new / update existing!
    */
   saveArticle(authorID: string, publicationID: string, articleID: string, article): Observable<any> {
+    console.log('save article', article)
     const jwt = localStorage.getItem('jwt')
     const endpoint = 'saveArticle'
     const query = gql`
@@ -468,8 +475,10 @@ export class BackendService {
         authorID: authorID,
         publicationID: publicationID,
         articleID: articleID,
-        title: article.title
-      }
+        title: article.title,
+        bodyOps: article.bodyOps
+      },
+      forceFetch: true,
     })
     return new Observable(stream => {
       apolloQuery.subscribe(result => {
@@ -512,6 +521,7 @@ export class BackendService {
       {article {
         id
         title
+        bodyOps
         publication {
           id
         }

@@ -12,7 +12,8 @@
       <h3><a [routerLink]="['/', author.id, publication.id]">pub: {{ publication.name }}</a></h3>
       <app-publication [publication]="publication"></app-publication>
       <div *ngFor="let article of publication.articles">
-        <h4>article: {{ article.title }}</h4>
+        <h4><a [routerLink]="['/', author.id, publication.id, article.id]"> article: {{ article.title }}</a></h4>
+        <app-article [article]="article"></app-article>
       </div>
     </div>
     

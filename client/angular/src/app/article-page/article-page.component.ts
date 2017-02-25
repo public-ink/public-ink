@@ -63,14 +63,12 @@ export class ArticlePageComponent implements OnInit {
 
       if (this.articleID === 'create-article') {
         this.article = {
-          title: 'no title yet'
+          title: 'no title yet',
+          bodyOps: '{}',
         }
       } else {
-        //this.doQuery()
         this.backend.getArticle(this.authorID, this.publicationID, this.articleID).subscribe(article => {
-          console.log('article page got an article!', article)
           this.article = JSON.parse(JSON.stringify(article))
-          // make quill, with viewchild
           this.makeQuill()
         })
       }

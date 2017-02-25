@@ -208,12 +208,15 @@ class PublicationSchema(graphene.ObjectType):
 class ArticleModel(InkModel):
     """ Article NDB model """
     title = ndb.StringProperty()
+    bodyOps = ndb.TextProperty()
 
 class ArticleSchema(graphene.ObjectType):
     """
     The schema for representing an article.
     """
     title = graphene.String()
+    bodyOps = graphene.String()
+
     id = graphene.String()
     def resolve_id(self, *args):
         return self.key.id()
@@ -466,7 +469,8 @@ class Query(graphene.ObjectType):
             article_key = ArticleModel(
                 parent=publication_key,
                 id=slugify(title),
-                title=title
+                title=title,
+                bodyOps=self.get('bodyOps')
             ).put()
             article = article_key.get()
             message = 'article_created'
@@ -479,6 +483,7 @@ class Query(graphene.ObjectType):
             )
             article = article_key.get()
             article.title = title
+            article.bodyOps = self.get('bodyOps')
             article.put()
             message = 'article_updated'
         return ArticleResponse(
@@ -521,10 +526,14 @@ class Query(graphene.ObjectType):
     article = graphene.Field(ArticleSchema, authorID=graphene.String(), publicationID=graphene.String(), articleID=graphene.String())
     def resolve_article(self, args, context, info):
         print 'resolve article / zero'
+        authorID = args.get('authorID') or self.get('authorID')
+        publicationID =  args.get('publicationID') or self.get('publicationID')
+        articleID =  args.get('articleID') or self.get('articleID')
+        
         article = ndb.Key(
-            'AuthorModel',      self.get('authorID'), 
-            'PublicationModel', self.get('publicationID'),
-            'ArticleModel',     self.get('articleID')       
+            'AuthorModel',      authorID, 
+            'PublicationModel', publicationID,
+            'ArticleModel',     articleID       
         ).get()
         return article
 

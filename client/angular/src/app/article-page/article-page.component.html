@@ -1,16 +1,11 @@
 
 <div *ngIf="article">
 
-<div class="content-width">
-  <h1>{{ article.title }}</h1>
-  <textarea [(ngModel)]="article.title"></textarea>
+  <app-article [article]="article"></app-article>
 
-   <!--<p>by {{ article.author.name }} updated on {{ article.updated | date:'medium'}}</p>-->
-    
-    <div id="articleBodyEditor">jojo</div>
+  <div class="form-button" (click)="save()">save</div>
+  <div class="form-button" (click)="delete()">delete</div>
 
-    <div class="form-button" (click)="save()">save</div>
-    <div class="form-button" (click)="delete()">delete</div>
-</div>
+
 
 </div>
