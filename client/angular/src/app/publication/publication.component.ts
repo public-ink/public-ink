@@ -26,6 +26,7 @@ export class PublicationComponent implements OnInit {
 
   // the publication that is passed into us
   @Input() publication: Publication
+  @Input() editable: boolean = false
 
   // emit the fact that the save button has been clicked - do your thing
   // called straight from save button

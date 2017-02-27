@@ -1,4 +1,4 @@
-<div class="content-width" *ngIf="backend.userAccount">
+<div class="content-width" >
 
   <form [formGroup]="loginForm" (ngSubmit)="doLogin($event)">
     <flex-col>
@@ -8,7 +8,7 @@
       <input id="loginEmail" class="form-input" formControlName="email" type="email" placeholder="your email address">
 
       <div class="form-label">
-        <label for="loginPassword">Password</label>
+      <label for="loginPassword">Password</label>
       </div>
       <input id="loginPassword" class="form-input" formControlName="password" type="password" placeholder="your password">
       <br>
@@ -23,7 +23,7 @@
   </form>
 
 
-  <div id="register-login-forms" *ngIf="!backend.userAccount.authenticated">
+  <div id="register-login-forms" *ngIf="!backend.userAccount?.authenticated">
 
 
 

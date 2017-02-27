@@ -1,5 +1,5 @@
 // Angular
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, Input } from '@angular/core'
 import { Router, ActivatedRoute, Params } from '@angular/router'
 
 // Services
@@ -21,6 +21,8 @@ import { Apollo } from 'apollo-angular'
   styleUrls: ['./author-page.component.css']
 })
 export class AuthorPageComponent implements OnInit {
+
+  @Input() editable: boolean = false
 
   // the ID is taken from the current route
   authorID: string

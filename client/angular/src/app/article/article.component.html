@@ -1,15 +1,13 @@
 <div class="content-width">
 
+   
 
-    <input type="text" style="font-size:28px; width: 100%; font-weight: bold;" [(ngModel)]="article.title" />
+    <div style="height: 80px"></div>
 
-    <div style="position:fixed; top:0; left: 0; width: 100%">
-        <div class="content-width" #toolbar>
-            <!-- toolbar controls go here! -->
-        </div>
-    </div>
+    <input type="text" style="font-size:28px; width: 100%; font-weight: bold;" [(ngModel)]="article.title" />    
     <div #editor>editor goes here</div>
 
+    <div #hidden style="display: none; background-color:lime;">jo</div>
+
+    
 </div>
-
-

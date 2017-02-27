@@ -17,7 +17,6 @@ import {
 } from './models'
 
 import { iPublication } from './publication/publication.component'
-
 import { iAccount } from './auth-page/auth-page.component'
 
 export interface iInfo {
@@ -36,7 +35,7 @@ export interface iArticle {
 export class BackendService {
 
   backendHost: string = 'http://localhost:8080'
-  backendDelay: number = 1000
+  backendDelay: number = 0
 
   /* the object containing everything by the current user */
   userAccount: iAccount

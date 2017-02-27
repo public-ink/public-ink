@@ -33,10 +33,17 @@
       [style.background-color]="ui.colors.debug ? ui.colors.lightred : ''"
       [style.color]="size === 'sticker' ? 'white' : '8px solid black'"
     >
-      <input type="text"
+        
+      <input *ngIf="editable"
+      type="text"
       placeholder="Name your Author here"
       [(ngModel)]="author.name" 
       [ngStyle]="nameStyle()" />
+
+      <a *ngIf=!editable
+      [routerLink]="['/', author.id]"><h3
+      [ngStyle]="nameStyle()"
+      >{{ author.name}}</h3></a> 
       
       <textarea
         [(ngModel)]="author.about"

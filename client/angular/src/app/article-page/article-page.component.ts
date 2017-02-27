@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core'
 import { Router, ActivatedRoute } from '@angular/router'
 
+import { Observable } from 'rxjs/Observable'
+import 'rxjs/Rx'
+
 import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
 
@@ -47,7 +50,19 @@ export class ArticlePageComponent implements OnInit {
     private backend: BackendService,
     private apollo: Apollo,
     private ui: UIService,
-  ) { }
+  ) { 
+
+    // keyboard shortcuts
+    Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
+
+      // save article
+      if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) { /*ctrl s */
+        this.save()
+        event.preventDefault()
+      }
+    })
+
+  }
 
   ngAfterViewChecked() {
     this.makeQuill()
@@ -83,8 +98,8 @@ export class ArticlePageComponent implements OnInit {
       this.publicationID,
       this.articleID,
       this.article).subscribe(info => {
-        this.ui.message = 'article saved - need to rework this message'
-        this.router.navigate(['/', this.authorID, this.publicationID])
+        this.ui.message = 'article saved'
+        setTimeout(() => this.ui.message = '', 1000)
     })
   }
   delete() {

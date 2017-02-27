@@ -25,7 +25,8 @@ import { AuthPageComponent } from './auth-page/auth-page.component';
 import { EmailVerificationPageComponent } from './email-verification-page/email-verification-page.component';
 import { MePageComponent } from './me-page/me-page.component';
 import { LayoutComponent } from './layout/layout.component';
-import { AccountPageComponent } from './account-page/account-page.component'
+import { AccountPageComponent } from './account-page/account-page.component';
+import { BottomBarComponent } from './bottom-bar/bottom-bar.component'
 
 
 const apolloClient = new ApolloClient({
@@ -72,6 +73,7 @@ const appRoutes: Routes = [
     MePageComponent,
     LayoutComponent,
     AccountPageComponent,
+    BottomBarComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),

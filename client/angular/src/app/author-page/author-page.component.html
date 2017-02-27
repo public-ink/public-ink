@@ -7,8 +7,7 @@
 
             <!-- if NEW! -->
             <button (click)="create()" class="form-button" *ngIf="author.new">Create Author</button>
-            <!-- if Existing -->
-            <button (click)="delete()" class="form-button" *ngIf="!author.new">Delete Author!</button>
+            
             
         
             <!-- if EXISTING AUTHOR: create new publication -->
@@ -24,32 +23,13 @@
     </flex-col>
 </flex-row-center>
 
-<!-- if the author has no publications, offer to create! nope!-->
-<!--<div *ngIf="author">
-    <div *ngIf="author.publications.length === 0">
-        <div class="content-width" style="margin:0px auto;">
-            <h2>{{ author.name }} has no publications yet</h2>
-            <p>Publications are a way or organizing articles. An author can have one or many publications.
-                Others can chose to follow individual publication, or all of an author's  articles. Time to create 
-                your first publication!
-            </p>
-        </div>
-        
-        <a [routerLink]="['/', author.id, 'create-publication']">start publication</a>
+
+
+<app-bottom-bar>
+    <div class="content-width" >
+        <flex-row-between>
+            <!-- if Existing -->
+            <button (click)="delete()" class="form-button" *ngIf="1">Delete Author!</button>
+        </flex-row-between>
     </div>
-</div>-->
-
-
-
-
-<!--<div *ngIf="!author">Author Page did not receive an author input!</div>
-<div *ngIf="author">
-    <div *ngIf="authorID === 'create-author'">
-        <h2>Create an author</h2>
-        <p>Authors are the public actors on publik.ink. You create have multiple author, or just use one.
-            You can use your real name, your nickname, or a Pseudonym. You decide how identifiable your author is.
-        </p>
-        <app-author [author]="author"></app-author>
-    </div>
-</div>
--->
+</app-bottom-bar>

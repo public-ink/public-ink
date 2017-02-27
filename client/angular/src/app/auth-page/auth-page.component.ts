@@ -69,7 +69,7 @@ f
         this.loginLoading = false
         this.ui.message = info.message
         if (info.success === true) {
-          this.router.navigate(['/', 'me'])
+          this.router.navigate(['/', 'my-account'])
         }
       })
     // we only care about the status. the account is handled by the backend.
@@ -90,7 +90,7 @@ f
         this.registrationLoading = false
         this.ui.message = info.message
         if (info.success === true) {
-          this.router.navigate(['/', 'me'])
+          this.router.navigate(['/', 'my-account'])
         }
       }
     )

@@ -11,48 +11,64 @@ import { Article } from '../models'
 export class ArticleComponent implements OnInit {
 
   @Input() article: any // iArticle
+  @Input() editable: boolean = false
   @ViewChild('editor') editor: ElementRef
-  @ViewChild('toolbar') toolbar: ElementRef
-  
+  @ViewChild('hidden') hidden: ElementRef
 
   quill: any
 
   constructor() { }
 
   ngOnInit() {
-    console.log('got article', this.article)
-    console.log('jo', this.editor)
     this.makeQuill()
   }
 
   makeQuill() {
-    this.quill = new Quill(this.editor.nativeElement, {
-      modules: {
+
+    let modules
+    if (this.editable) {
+      console.log('editbale article!')
+      modules = {
         toolbar: {
-          container: this.toolbar.nativeElement,
+          container: document.getElementById('toolbar'),
           //handlers: {'image': this.titleImageHandler},
         },
-      },
+      }
+    } else {
+      console.log('making quill with hidden toolbar', this.hidden.nativeElement)
+      modules = {
+        toolbar: {
+          container: this.hidden.nativeElement,
+          //handlers: {'image': this.titleImageHandler},
+        },
+      }
+    }
+
+    this.quill = new Quill(this.editor.nativeElement, {
+      modules: modules,
       theme: 'snow',
       placeholder: 'here is where you lay your words down...',
     })
 
-    let ops 
+    let ops
     try {
       ops = JSON.parse(this.article.bodyOps)
-    } catch(e) {
+    } catch (e) {
       console.warn('error parsing json, this is the offender:', this.article.bodyOps)
-      ops = {"ops":[{"insert":"error parsing json\n"}]}
+      ops = { "ops": [{ "insert": "error parsing json\n" }] }
     }
 
     this.quill.setContents(ops)
+    if (!this.editable) {
+      this.quill.disable()
+    }
 
     this.quill.on('text-change', (delta, oldDelta, source) => {
       /* 
       keep the article bodyOps property in sync, for saving.
       */
       this.article.bodyOps = JSON.stringify(this.quill.getContents())
-      
+
     })
   }
 

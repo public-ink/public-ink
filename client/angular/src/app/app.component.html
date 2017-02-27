@@ -1,15 +1,37 @@
-<flex-col-center-center *ngIf="ui.message" (click)="ui.message = false" style="position:fixed; top: 0; left:0; width: 100vw; height: 100vh; background-color: rgba(255,255,255,0.8);">
-
+<!-- full screen message overlay -->
+<flex-col-center-center *ngIf="ui.message" (click)="ui.message = false" style="z-index: 9999; position:fixed; top: 0; left:0; width: 100vw; height: 100vh; background-color: rgba(255,255,255,0.8);">
     <h1>{{ ui.message }}</h1>
-
 </flex-col-center-center>
 
-<div id="topBar">
-    <a [routerLink]="['/my-account']">my account</a>
+<flex-row-center style="z-index: 9999; border-bottom: 2px solid #444; background-color:white; height: 50px; position:fixed; top: 0; left:0; width: 100%;">
+    <flex-row-between-center class="content-width">
+        <flex-col >
+            <a [routerLink]="['/']">Home</a>
+        </flex-col>
 
+        <flex-col>
+            public.ink
+        </flex-col>
+
+        <!-- login / signup -->
+        <flex-row *ngIf="!backend.userAccount?.authenticated">
+            <a [routerLink]="['/auth']">Log In</a>
+            / 
+            <a [routerLink]="['/auth']">Sign Up</a>
+        </flex-row>
+        <!-- your account -->
+        <flex-col *ngIf="backend.userAccount?.authenticated" >
+            <a [routerLink]="['/my-account']">Your Account</a>
+        </flex-col>
+
+
+    </flex-row-between-center>
+</flex-row-center>
+
+<div style="height: 50px;">just space behind the top bar</div>
+
+<div id="topBar" *ngIf="0">
     <div class="content-width" *ngIf="backend.userAccount">
-       
-
         <div *ngIf="backend.userAccount.authenticated">
             {{ backend.userAccount.email }}
 
@@ -26,7 +48,15 @@
             <button (click)="backend.logoutUser()">Log out</button>
             </div>
 
-        <div *ngIf="!backend.userAccount.authenticated">Not authenticated. Please register or log in below.</div>
+
+        <!-- not authenticated -->
+        <div *ngIf="!backend.userAccount.authenticated">
+            <a [routerLink]="['/', 'auth']">Log In/Sign Up</a>
+        </div>
+        <!-- authenticated -->
+        <div *ngIf="backend.userAccount.authenticated">
+            <a [routerLink]="['/my-account']">your account</a>
+        </div>
         
     </div>
 </div>

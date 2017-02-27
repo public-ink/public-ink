@@ -13,10 +13,17 @@
     class="content-width"
     [style.padding.px]="40"
     [style.background-color]="ui.colors.debug ? ui.colors.lightyellow : ''">
-      <textarea
+
+      <textarea *ngIf="editable"
         [(ngModel)]="publication.name"
         [style.font-size.px]="40"
       style="color: #333; text-align: center;"></textarea>
+
+      <a *ngIf="!editable"
+      [routerLink]="['/', 'hm', publication.id]"
+        [style.font-size.px]="40"
+      >{{ publication.name}} editable? {{ editable }}</a>
+
       <app-author [author]="publication.author" [size]="'sticker'"></app-author> 
   </flex-col-center>
   

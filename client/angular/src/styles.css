@@ -82,6 +82,19 @@ input[type="checkbox"]:checked + label:before {
 .grow {
     flex-grow: 1;
 }
+flex-row-between {
+    display: flex;
+    justify-content: space-between;
+}
+flex-row-between-center {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+flex-row-around {
+    display: flex;
+    justify-content: space-around;
+}
 
 flex-row {
     display: flex;

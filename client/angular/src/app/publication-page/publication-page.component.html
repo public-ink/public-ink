@@ -2,22 +2,26 @@
 
   <app-publication 
     [publication]="publication"
+    [editable]="true"
     (saveClicked)="savePublication()"
     >
   </app-publication>
 
-  <!-- if NEW! -->
-  <button (click)="savePublication()" class="form-button" *ngIf="publication.new">Create publication</button>
-  <!-- if Existing -->
-  <button (click)="deletePublication()" class="form-button" *ngIf="!publication.new">Delete publication!</button>
-  <button (click)="savePublication()" class="form-button" *ngIf="!publication.new">Save publication</button>
+  
 
   This publication has {{ publication.articles.length }} articles.
 <div *ngFor="let article of publication.articles">
   <a [routerLink]="['/', authorID, publicationID, article.id]">{{ article.title }}</a>
 </div>
 
-  <a [routerLink]="['/', publication.author.id, publication.id, 'create-article']">Create Article</a>
+  <a [routerLink]="['/', publication.id, 'create-article']">Create Article</a>
 
 </div>
 
+<app-bottom-bar *ngIf="publication">
+  <!-- if NEW! -->
+  <button (click)="savePublication()" class="form-button" *ngIf="publication.new">Create publication</button>
+  <!-- if Existing -->
+  <button (click)="deletePublication()" class="form-button" *ngIf="!publication.new">Delete publication!</button>
+  <button (click)="savePublication()" class="form-button" *ngIf="!publication.new">Save publication</button>
+</app-bottom-bar>

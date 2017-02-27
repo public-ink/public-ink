@@ -1,11 +1,42 @@
 
 <div *ngIf="article">
 
-  <app-article [article]="article"></app-article>
+  <app-article [article]="article" [editable]="true"></app-article>
 
+ <!-- 
   <div class="form-button" (click)="save()">save</div>
   <div class="form-button" (click)="delete()">delete</div>
 
+-->
+   <div style="position:fixed; top:52px; left: 0; width: 100%; border-bottom: 1px solid #333; background-color: white; z-index:3;">
+        <div id="toolbar" class="content-width" >
+            <!-- toolbar controls go here! -->
+            <button class="ql-bold">Bold</button>
+            <button class="ql-italic">Italic</button>
+            <button class="ql-underline">under</button>
+            <button class="ql-strike">strike</button>
+            <button class="ql-blockquote"></button>
+            <button class="ql-image">img</button>
+            <button class="ql-link">link</button>
+            <button class="ql-header" value="1" type="button"></button>
+            <button class="ql-header" value="2" type="button"></button>
+            <button class="ql-clean">clean</button>
+        </div>
+    </div>
 
+
+    <app-bottom-bar>
+
+      <div class="content-width" >
+            <flex-row-between>
+                <div (click)="save()">save</div>
+                 <div (click)="save()">publish</div>
+                <div (click)="delete()">delete</div>
+            </flex-row-between>
+        </div>
+
+    </app-bottom-bar>
+
+    
 
 </div>
