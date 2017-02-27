@@ -38,8 +38,8 @@ export class AuthorComponent implements OnInit {
     }
     else {
       return {
-        'width.px': 100,
-        'height.px': 100,
+        'width.px': 150,
+        'height.px': 150,
       }
     }
   }
@@ -47,12 +47,14 @@ export class AuthorComponent implements OnInit {
     if (this.size === 'sticker') {
       return {
         'font-size.px': 14,
-        'margin': '5px 0'
+        'margin': '5px 0',
+        'font-weight': 'bold',
       }
     }
     else {
       return {
-        'font-size.px': 32,
+        'font-size.px': 50,
+        'font-weight': 'bold',
         'margin': '10px 0',
       }
     }

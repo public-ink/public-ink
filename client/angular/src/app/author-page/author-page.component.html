@@ -14,7 +14,6 @@
             <a [routerLink]="['/', author.id, 'create-publication']">start publication</a>
 
             <!-- publications -->
-            <h2>{{ author.name }} has {{ author.publications.length }} publication(s).</h2>
             <div *ngFor="let publication of author.publications">
                 <app-publication [publication]="publication"></app-publication>
                 <a [routerLink]="['/', author.id, publication.id]">{{ publication.name }}</a>
@@ -29,7 +28,7 @@
     <div class="content-width" >
         <flex-row-between>
             <!-- if Existing -->
-            <button (click)="delete()" class="form-button" *ngIf="1">Delete Author!</button>
+            <button (click)="delete()" *ngIf="1">Delete Author!</button>
         </flex-row-between>
     </div>
 </app-bottom-bar>

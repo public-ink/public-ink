@@ -2,6 +2,10 @@
 import { Component, OnInit, Input } from '@angular/core'
 import { Router, ActivatedRoute, Params } from '@angular/router'
 
+// RX
+import { Observable } from 'rxjs/Observable'
+import 'rxjs/Rx'
+
 // Services
 import { BackendService, iInfo } from '../backend.service'
 import { UIService } from '../ui.service'
@@ -65,6 +69,11 @@ export class AuthorPageComponent implements OnInit {
           publications {
             name
             id
+            author {
+              name
+              id
+              imageURL
+            }
           }
         }}
       `
@@ -78,6 +87,15 @@ export class AuthorPageComponent implements OnInit {
 
     })
     console.log(this.authorID)
+
+    // keyboard shortcuts
+    Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
+      // save article
+      if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) { /*ctrl s */
+        this.saveAuthor()
+        event.preventDefault()
+      }
+    })
   }
 
   create() {
@@ -106,15 +124,7 @@ export class AuthorPageComponent implements OnInit {
    * and trigger an update here
    */
   saveAuthor() {
-    this.backend.postResource(this.author).subscribe(
-      (authorData: AuthorData) => {
-      this.author = new Author(authorData)
-    },
-      (error: ValidationError | ServerError) => {
-        
-        this.ui.handleError(error)
-      }
-    )
+    this.backend.save
   }
 
   ngOnInit() {

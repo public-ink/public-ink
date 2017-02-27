@@ -9,7 +9,7 @@
 
 -->
    <div style="position:fixed; top:52px; left: 0; width: 100%; border-bottom: 1px solid #333; background-color: white; z-index:3;">
-        <div id="toolbar" class="content-width" >
+        <flex-row-center id="toolbar" class="content-width" >
             <!-- toolbar controls go here! -->
             <button class="ql-bold">Bold</button>
             <button class="ql-italic">Italic</button>
@@ -21,18 +21,18 @@
             <button class="ql-header" value="1" type="button"></button>
             <button class="ql-header" value="2" type="button"></button>
             <button class="ql-clean">clean</button>
-        </div>
+        </flex-row-center>
     </div>
 
 
     <app-bottom-bar>
 
       <div class="content-width" >
-            <flex-row-between>
+            <flex-row-between-center style="height:50px;">
                 <div (click)="save()">save</div>
                  <div (click)="save()">publish</div>
                 <div (click)="delete()">delete</div>
-            </flex-row-between>
+            </flex-row-between-center>
         </div>
 
     </app-bottom-bar>

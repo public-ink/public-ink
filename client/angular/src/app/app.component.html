@@ -5,24 +5,24 @@
 
 <flex-row-center style="z-index: 9999; border-bottom: 2px solid #444; background-color:white; height: 50px; position:fixed; top: 0; left:0; width: 100%;">
     <flex-row-between-center class="content-width">
-        <flex-col >
+        <flex-col-center class="grow">
             <a [routerLink]="['/']">Home</a>
-        </flex-col>
+        </flex-col-center>
 
-        <flex-col>
+        <flex-col-center class="grow">
             public.ink
-        </flex-col>
+        </flex-col-center>
 
         <!-- login / signup -->
-        <flex-row *ngIf="!backend.userAccount?.authenticated">
+        <flex-row-center *ngIf="!backend.userAccount?.authenticated" class="grow">
             <a [routerLink]="['/auth']">Log In</a>
             / 
             <a [routerLink]="['/auth']">Sign Up</a>
-        </flex-row>
+        </flex-row-center>
         <!-- your account -->
-        <flex-col *ngIf="backend.userAccount?.authenticated" >
+        <flex-col-center *ngIf="backend.userAccount?.authenticated" class="grow">
             <a [routerLink]="['/my-account']">Your Account</a>
-        </flex-col>
+        </flex-col-center>
 
 
     </flex-row-between-center>

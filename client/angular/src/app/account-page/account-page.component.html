@@ -19,16 +19,11 @@
     <div *ngFor="let publication of author.publications">
 
       <!-- pubs -->
-      <div class="content-width">
-        <h3><a [routerLink]="['/', author.id, publication.id]">pub: {{ publication.name }}</a></h3>
-      </div>
+      
       <app-publication [publication]="publication"></app-publication>
 
       <!-- articles -->
       <div *ngFor="let article of publication.articles">
-        <div class="content-width">
-          <h4><a [routerLink]="['/', author.id, publication.id, article.id]"> article: {{ article.title }}</a></h4>
-        </div>
         <app-article [article]="article"></app-article>
       </div>
     </div>

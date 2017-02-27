@@ -51,17 +51,14 @@ export class ArticlePageComponent implements OnInit {
     private apollo: Apollo,
     private ui: UIService,
   ) { 
-
     // keyboard shortcuts
     Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
-
       // save article
       if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) { /*ctrl s */
         this.save()
         event.preventDefault()
       }
     })
-
   }
 
   ngAfterViewChecked() {

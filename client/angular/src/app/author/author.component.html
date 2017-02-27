@@ -13,7 +13,7 @@
 
 
   <!-- display pattern: author! -->
-  <flex-row class="content-width" *ngIf="author">
+  <flex-col-center class="content-width" *ngIf="author">
 
     <!-- circle container -->
     <flex-center
@@ -40,10 +40,11 @@
       [(ngModel)]="author.name" 
       [ngStyle]="nameStyle()" />
 
-      <a *ngIf=!editable
+      <a *ngIf=!editable style="color:#333; text-decoration: none;"
       [routerLink]="['/', author.id]"><h3
       [ngStyle]="nameStyle()"
       >{{ author.name}}</h3></a> 
+      2 publications
       
       <textarea
         [(ngModel)]="author.about"
@@ -51,5 +52,5 @@
         [ngStyle]="aboutStyle()"
       ></textarea>
     </flex-col-left-center>
-  </flex-row><!-- end of display pattern author -->
+  </flex-col-center><!-- end of display pattern author -->
 </flex-col-center>

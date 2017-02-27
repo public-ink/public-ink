@@ -41,10 +41,10 @@ export function provideClient(): ApolloClient {
 
 
 const appRoutes: Routes = [
-  { path: '', component: LayoutComponent },
+  //{ path: '', component: LayoutComponent },
   { path: '', component: HomePageComponent },
   // pages
-  { path: 'me', component: MePageComponent},
+  //{ path: 'me', component: MePageComponent},
   { path: 'my-account', component: AccountPageComponent},
   { path: 'auth', component: AuthPageComponent },
   { path: 'verify/:email/:token', component: EmailVerificationPageComponent},

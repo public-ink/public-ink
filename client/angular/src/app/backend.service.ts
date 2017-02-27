@@ -61,6 +61,13 @@ export class BackendService {
               id
               title
               bodyOps
+              author {
+                id
+                name
+              }
+              publication {
+                id
+              }
             }
             author {
               id
@@ -109,7 +116,7 @@ export class BackendService {
   }
 
   /**
-   * testing requesting and returning of nexted stuff!
+   * Email / Password Login
    */
   epLogin(email: string, password: string): Observable<any> {
     const endpoint = 'epLogin'
@@ -155,8 +162,7 @@ export class BackendService {
 
   /**
    * Verify and email with token (usually by following email link)
-   *
-   * */
+   */
   verifyEmail(email: string, token: string) {
     const query = gql`
       {verifyEmail(email:"${email}", token:"${token}"){
@@ -267,14 +273,13 @@ export class BackendService {
     ${this.fragments.account}
     ${this.fragments.info}
     `
-    // continue here!
-    const apolloQuery = this.apollo.query<any>({
+    const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
       variables: {
         email: email,
         password: password,
       },
-      forceFetch: true, // this is important
+      forceFetch: true,
     })
 
     return new Observable<iAccount>(stream => {
@@ -354,7 +359,7 @@ export class BackendService {
       {deleteAuthor(jwt:"${jwt}", authorID: "${authorID}"){
         ...info
       }}
-       ${this.fragments.info}
+      ${this.fragments.info}
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
@@ -392,6 +397,7 @@ export class BackendService {
           articles {
             id
             title
+            bodyOps
           }
         }}
       `

@@ -1,18 +1,4 @@
 
-<div *ngFor="let pub of publications">
-  <flex-col-center-center>
-    <h1>{{ pub.name }}</h1>
-    <p>by {{ pub.author.name }}</p>
-  </flex-col-center-center>
-  <!-- articles -->
-  <div *ngFor="let article of pub.articles" class="content-width">
-    <h1><a [routerLink]="['/', article.author.id, pub.id, article.id ]">{{ article.title }}</a></h1>
-    <p>by {{ article.author.name }} on {{ article.created | date:'mediumDate'}}
-
-      updated {{ article.updated | date:'mediumDate' }}
-
-    </p>
-    <p>{{ article.teaser }}</p>
-  </div>
+<div class="content-width">
+  <h1>public.ink home</h1>
 </div>
-

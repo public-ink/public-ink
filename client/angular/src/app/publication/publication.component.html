@@ -7,7 +7,7 @@
 
 <flex-col-center
  class="bgCircut"
- 
+ style="background-color: black;"
   >
   <flex-col-center
     class="content-width"
@@ -16,15 +16,18 @@
 
       <textarea *ngIf="editable"
         [(ngModel)]="publication.name"
-        [style.font-size.px]="40"
-      style="color: #333; text-align: center;"></textarea>
+        [style.font-size.px]="60"
+      style="color: white; text-align: center;"></textarea>
 
       <a *ngIf="!editable"
-      [routerLink]="['/', 'hm', publication.id]"
-        [style.font-size.px]="40"
-      >{{ publication.name}} editable? {{ editable }}</a>
+      [routerLink]="['/', publication.author.id, publication.id]"
+        [style.font-size.px]="90"
+        style="color: white; text-decoration: none; font-weight:bold;"
+      >{{ publication.name}}</a>
 
-      <app-author [author]="publication.author" [size]="'sticker'"></app-author> 
+      <p style="color: white">An investgation into bullshit</p>
+
+      <!--<app-author [author]="publication.author" [size]="'sticker'"></app-author> -->
   </flex-col-center>
   
 
