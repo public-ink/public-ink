@@ -416,13 +416,11 @@ export class BackendService {
           }
         }
       }
-
       // attaching an onprogres handler breaks cors
       /*xhr.upload.onprogress = (event) => {
           this.progress = Math.round(event.loaded / event.total * 100);
           this.progressObserver.next(this.progress);
       };*/
-
       // get an upload url, then post!
       this.http.get(this.BACKEND_URL + '/image/upload-url').map(res => { return res.json() }).subscribe(data => {
         console.log('posting to ' + data.url)

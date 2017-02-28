@@ -3,6 +3,7 @@
 *.pyc
 backend/env
 server/*/env
+server/appengine/dev_logs.txt
 
 *secrets.py
 *.idea

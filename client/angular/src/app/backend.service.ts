@@ -39,6 +39,7 @@ export class BackendService {
 
   /* the object containing everything by the current user */
   userAccount: iAccount
+  userImages: any[]
 
 
   fragments = {
@@ -112,7 +113,26 @@ export class BackendService {
       }, error => {
         console.warn(error)
       })
+      this.loadImages(jwt)
     }
+  }
+
+  /** Load User Images */
+  loadImages(jwt: string) {
+    const query = gql`
+      {images(jwt:"${jwt}"){
+        url
+        id
+      }}
+    `
+    const apolloQuery = this.apollo.watchQuery<any>({
+      query: query,
+      forceFetch: true
+    })
+    apolloQuery.subscribe(result => {
+      this.userImages = result.data.images
+    })
+
   }
 
   /**
@@ -588,6 +608,54 @@ export class BackendService {
   }
 
 
+
+/**
+ * IMAGE UPLOAD
+ */
+uploadFile(file: File): Observable<any> {
+    return Observable.create(observer => {
+      let formData: FormData = new FormData()
+      let xhr: XMLHttpRequest = new XMLHttpRequest()
+
+      xhr.addEventListener("progress", event => {
+        console.log(event)
+      });
+
+      // can the string be anything?
+      formData.append('uploads[]', file, file.name)
+      let jwt = localStorage.getItem('jwt')
+      if (!jwt) {
+        alert('no jwt in upload file handler!')
+        return
+      }
+      formData.append('jwt', jwt)
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            let data = JSON.parse(xhr.response)
+            observer.next(JSON.parse(xhr.response));
+            observer.complete()
+            // add the new image to your list of images!
+            console.log('wanna add', data)
+          } else {
+            observer.error(xhr.response);
+          }
+        }
+      }
+      // attaching an onprogres handler breaks cors
+      /*xhr.upload.onprogress = (event) => {
+          console.log('progress', event)
+          
+      };*/
+      // get an upload url, then post!
+      this.http.get(this.backendHost + '/image/upload-url').map(res => { return res.json() }).subscribe(data => {
+        console.log('posting to ' + data.url)
+        xhr.open('POST', data.url, true)
+        xhr.send(formData);
+      })
+    })
+  }
 
 
 

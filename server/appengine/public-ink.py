@@ -1,3 +1,4 @@
+#import logging
 import graphene
 import webapp2
 import hashlib
@@ -13,21 +14,19 @@ from datetime import datetime, timedelta
 from slugify import slugify
 import re
 from random import randint
+from google.appengine.ext import blobstore
 
+# image
+from google.appengine.ext.webapp import blobstore_handlers
+from google.appengine.api import images
 
 # ink stuff
-from shared import RequestHandler, cross_origin, ninja
+from shared import RequestHandler, cross_origin, ninja, allow_cors, return_json
 from secrets.jwt import JWT_SECRET, JWT_EXP_DELTA_SECONDS, JWT_ALGORITHM, JWT_EXP_DELTA_DAYS
 
 # app engine
 from google.appengine.api import mail
 from google.appengine.ext import ndb
-
-
-
-
-
-
 
 
 
@@ -144,6 +143,28 @@ class UserSchema(graphene.ObjectType):
     verified = graphene.Boolean()
     def resolve_verified(self, args, context, info):
         return self.is_verified
+
+
+""" USER IMAGE """
+class ImageModel(InkModel):
+    """
+    The NDB model for user-uploaded images
+    The id is set by us, and is the file name
+    """
+    blob_key = ndb.BlobKeyProperty()
+    user_key = ndb.KeyProperty(kind=UserModel)
+
+class ImageSchema(graphene.ObjectType):
+    """
+    The simple schema representing a user-uploaded image
+    """
+    url = graphene.String()
+    def resolve_url(self, *args):
+        return images.get_serving_url(self.blob_key)
+
+    id = graphene.String()
+    def resolve_id(self, *args):
+        return self.key.id()
 
 
 """ AUTHOR """
@@ -290,26 +311,35 @@ class Query(graphene.ObjectType):
     """ Now getting real """
     epLogin = graphene.Field(AccountResponse)
     def resolve_epLogin(self, *args):
-        print 'epLogin root'
+        #logging.debug('emailPasswordLogin')
         email = self.get('email')
         password = self.get('password')
-        user = ndb.Key('UserModel', email).get()
 
+        """ check required arguments """      
+        if not email or not password:
+            return AccountResponse(info=InfoSchema(success=False, message='missing_arguments'))
+
+        """ retrieve user """
+        user = ndb.Key('UserModel', email).get()
         if not user:
             return AccountResponse(info=InfoSchema(success=False, message='account_not_found'))
-        
+
+        """ check for stored, hashed password on account """
+        if not user.password_hash_sha256:
+            return AccountResponse(info=InfoSchema(success=False, message='password_hash_missing'))
+            
+        """ check password """
         matches = verify_password(user.password_hash_sha256, password)
         if not matches:
             return AccountResponse(info=InfoSchema(success=False, message='password_mismatch'))
 
-        # create account and return AccountResponse
+        """ all good: respond with account and info """
         account = AccountSchema(
             email=email,
             verified=user.is_verified,
             authenticated=True,
             jwt=generate_jwt(email)
         )
-        
         return AccountResponse(
             account=account,
             info=InfoSchema(success=True, message='login_successful'))
@@ -537,6 +567,17 @@ class Query(graphene.ObjectType):
         ).get()
         return article
 
+    """ Images """
+    images = graphene.List(lambda: ImageSchema, jwt=graphene.String())
+    def resolve_images(self, args, *more):
+        print 'resolve images'
+        jwt = args.get('jwt') or self.get('jwt')
+        email = email_from_jwt(jwt)
+        user_key = ndb.Key('UserModel', email)
+        images = ImageModel.query(ImageModel.user_key==user_key).fetch()
+        return images
+
+
 
     """
     DELETIONS
@@ -628,9 +669,8 @@ class GraphQLEndpoint(RequestHandler):
         data = json.loads(self.request.body)
         query = data.get('query', '')
         variables = data.get('variables')
-        print 'executing schema with variables'
-        print variables
-        print query
+        #logging.debug(variables)
+        #loggin.debug(query)
         result = schema.execute(query, variables)
         error_list = []
         for error in result.errors:
@@ -642,23 +682,66 @@ class GraphQLEndpoint(RequestHandler):
 
 class HomeEndpoint(webapp2.RequestHandler):
     def get(self):
-        
-        # create user
-        user = UserModel(id="hoff@hoff.com", email="hoff@hoff.com")
-        user_key = user.put()
-        author = AuthorModel(id="hoff", user=user_key, name='hoff')
-        author_key = author.put()
-        
+        upload_url = blobstore.create_upload_url('/image/upload')
         template_values = {
+            'upload_url': upload_url
         }
         template = ninja.get_template('home.html')
         output = template.render(template_values)
         return self.response.write(output)
 
+
+
+""" classic multi-part form upload for images """
+class UploadUrl(RequestHandler):
+    def get(self):
+        #todo: make URL const
+        allow_cors(self)
+        upload_url = blobstore.create_upload_url('/image/upload')
+        return_json(self, {'url': upload_url })
+
+
+class ImageUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
+    """
+    upload image endpoint (only works with post)
+    """
+    def post(self):
+        # works!
+        allow_cors(self)
+        print 'Image Upload Handler here!'
+        jwt=self.request.get('jwt')
+        email = email_from_jwt(jwt)
+        user_key = ndb.Key('UserModel', email)
+        print jwt
+        
+        try:
+            upload = self.get_uploads()[0]
+            user_image = ImageModel(
+                id = upload.filename,
+                blob_key=upload.key(),
+                user_key=user_key
+            )
+            user_image.put()
+            return_json(self, {'very': 'good'})
+
+        except Exception, e:
+            print str(e)
+            self.error(500)
+
+    def optionss(self):
+        allow_cors(self)
+
+#from image       import UploadUrl, ImageUploadHandler, UserImageEndpoint
+
 app = webapp2.WSGIApplication(
     [
         ('/', HomeEndpoint),
-        ('/graphql', GraphQLEndpoint)
+        ('/graphql', GraphQLEndpoint),
+        # images
+        # upload url
+        ('/image/upload-url', UploadUrl),
+        # this is where things are posted to, because get upload url specified this url
+        ('/image/upload', ImageUploadHandler)
     ], debug=True
 )
 
@@ -695,8 +778,4 @@ def email_from_jwt(token):
 def is_email_valid(email):
     expression = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
     matches = re.match(expression, email)
-    if matches:
-        print "email is valid"
-    else:
-        print "email NOT VALID"
     return True if matches else False

@@ -124,7 +124,7 @@ export class AuthorPageComponent implements OnInit {
    * and trigger an update here
    */
   saveAuthor() {
-    this.backend.save
+    //this.backend.save
   }
 
   ngOnInit() {

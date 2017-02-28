@@ -16,7 +16,14 @@ interface results {
 })
 export class HomePageComponent implements OnInit {
 
+  constructor(
+    private backend: BackendService,
+  ) {
+
+  }
+
   ngOnInit() {
 
   }
+  
 }

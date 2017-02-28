@@ -26,7 +26,8 @@ import { EmailVerificationPageComponent } from './email-verification-page/email-
 import { MePageComponent } from './me-page/me-page.component';
 import { LayoutComponent } from './layout/layout.component';
 import { AccountPageComponent } from './account-page/account-page.component';
-import { BottomBarComponent } from './bottom-bar/bottom-bar.component'
+import { BottomBarComponent } from './bottom-bar/bottom-bar.component';
+import { FileDropComponent } from './file-drop/file-drop.component'
 
 
 const apolloClient = new ApolloClient({
@@ -74,6 +75,7 @@ const appRoutes: Routes = [
     LayoutComponent,
     AccountPageComponent,
     BottomBarComponent,
+    FileDropComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),
