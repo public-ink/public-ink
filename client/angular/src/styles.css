@@ -24,7 +24,15 @@ textarea {
 .form-input:focus, .form-button:focus, input[type="checkbox"] + label{
     outline:2px solid dodgerblue;
 }
-
+button {
+    box-sizing: border-box;
+    border: 1px solid #333;
+    font-family: Courier New, Courier, monospace;
+    padding: 5px 10px;
+    font-size: 16px;
+    background-color: #333;
+    color: white;
+}
 .form-button {
     box-sizing: border-box;
     width: 400px;

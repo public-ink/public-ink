@@ -58,6 +58,8 @@ export class BackendService {
           publications {
             id
             name
+            about
+            imageURL
             articles {
               id
               title
@@ -107,7 +109,7 @@ export class BackendService {
       console.log('no jwt in local storage! not signed in!')
     }
     else {
-      this.jwtLogin(jwt).subscribe(info => {
+      this.jwtLogin().subscribe(info => {
         console.log('jwt reply', info)
         // we don't care about the response here
       }, error => {
@@ -225,9 +227,10 @@ export class BackendService {
   /**
    * Authentication with jwt token from localStorage
    */
-  jwtLogin(jwt: string): Observable<any> {
+  jwtLogin(): Observable<any> {
     console.log('attempting jwt login')
     const endpoint = 'jwtLogin'
+    const jwt = localStorage.getItem('jwt')
     const query = gql`
     {jwtLogin(jwt: "${jwt}") {
       info {
@@ -321,38 +324,35 @@ export class BackendService {
   }
 
 
-  /**
-   * AUTHOR CREATION
-   */
+  
 
-  createAuthor(author: any) {
+  /** new kid */
+  saveAuthor(author: any) {
     const jwt = localStorage.getItem('jwt')
     const query = gql`
-      {
-        createAuthor{
-          id
-          name
-          about
-          imageURL
+      {saveAuthor {
+        info {
+          ...info
         }
-      }
+      }}
+      ${this.fragments.info}
     `
-    const subscription = this.apollo.watchQuery<any>({
+    const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
       variables: {
         jwt: jwt,
+        authorID: author.id,
         name: author.name,
         about: author.about,
-        imageURL: author.imageURL,
-      }
-
+        imageURL: author.imageURL
+      },
+      forceFetch: true,
     })
-    subscription.subscribe(result => {
-      console.log('create author result', result)
-    },error => {
-      console.error('caught create author error!', error)
+    return new Observable(stream => {
+      apolloQuery.subscribe(result => {
+        stream.next(result.data.saveAuthor.info)
+      })
     })
-    return subscription
   }
 
   /** GET OR LOAD AUTHOR */
@@ -369,7 +369,7 @@ export class BackendService {
     })
     return sub
   }
-  deleteAuthor(authorID):Observable<iInfo> {
+  deleteAuthor(authorID): Observable<iInfo> {
     /**
      * Deletes an Author, removes it from the userAccount's authors, 
      * and returns information about the status
@@ -387,7 +387,7 @@ export class BackendService {
     return new Observable(stream => {
       apolloQuery.subscribe(result => {
         const info = result.data.deleteAuthor
-        let authors = this.userAccount.authors 
+        let authors = this.userAccount.authors
         if (info.success) {
           // remove author from userAccount's authors
           authors = authors.filter(author => author.id !== authorID)
@@ -408,6 +408,8 @@ export class BackendService {
         {publication {
           id
           name
+          about
+          imageURL
           author {
             id
             name
@@ -418,6 +420,14 @@ export class BackendService {
             id
             title
             bodyOps
+            author {
+              id
+              name
+            }
+            publication {
+              id
+              
+            }
           }
         }}
       `
@@ -459,6 +469,8 @@ export class BackendService {
         authorID: publication.author.id,
         publicationID: publication.id,
         name: publication.name,
+        about: publication.about,
+        imageURL: publication.imageURL,
       }
     })
     return new Observable(stream => {
@@ -525,7 +537,7 @@ export class BackendService {
        ${this.fragments.info}
     `
     const apolloQuery = this.apollo.watchQuery<any>({
-      query:query,
+      query: query,
       variables: {
         jwt: jwt,
         authorID: article.author.id,
@@ -541,7 +553,7 @@ export class BackendService {
     })
   }
 
-  getArticle(authorID: string, publicationID:string, articleID: string) {
+  getArticle(authorID: string, publicationID: string, articleID: string) {
     const query = gql`
       {article {
         id
@@ -563,7 +575,7 @@ export class BackendService {
         articleID: articleID,
       }
     })
-    return new Observable(stream => {
+    return new Observable(stream =>  {
       apolloQuery.subscribe(result => {
         console.log('get article result', result)
         stream.next(result.data.article)
@@ -572,7 +584,7 @@ export class BackendService {
   }
 
 
-  deletePublication(publication:iPublication):Observable<iInfo> {
+  deletePublication(publication: iPublication): Observable<iInfo> {
     /**
      * Deletes a publication, removes it from the respetive's userAccount's author's publications TODO, 
      * and returns information about the status
@@ -595,7 +607,7 @@ export class BackendService {
     return new Observable(stream => {
       apolloQuery.subscribe(result => {
         const info = result.data.deletePublication
-        let authors = this.userAccount.authors 
+        let authors = this.userAccount.authors
         if (info.success) {
           // TODO
           // remove publication from userAccount's author's publications
@@ -609,48 +621,49 @@ export class BackendService {
 
 
 
-/**
- * IMAGE UPLOAD
- */
-uploadFile(file: File): Observable<any> {
-    return Observable.create(observer => {
+  /**
+   * IMAGE UPLOAD
+   */
+  uploadFile(file: File): Observable<any> {
+    let jwt = localStorage.getItem('jwt')
+    if (!jwt) {
+      alert('no jwt in upload file handler! ui needs to prevent this')
+      return
+    }
+
+    return Observable.create(progressStream => {
+
       let formData: FormData = new FormData()
       let xhr: XMLHttpRequest = new XMLHttpRequest()
 
-      xhr.addEventListener("progress", event => {
-        console.log(event)
-      });
-
-      // can the string be anything?
+      // uploads[] is how we pick things up in the backend
       formData.append('uploads[]', file, file.name)
-      let jwt = localStorage.getItem('jwt')
-      if (!jwt) {
-        alert('no jwt in upload file handler!')
-        return
-      }
       formData.append('jwt', jwt)
 
+      /** on progress, push to stream! */
+      xhr.addEventListener('progress', event => {
+        let percent = Math.ceil((event.loaded / event.total) * 100)
+        progressStream.next(percent)
+      })
+
+      /** listen to a success message from the server */
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4) {
           if (xhr.status === 200) {
             let data = JSON.parse(xhr.response)
-            observer.next(JSON.parse(xhr.response));
-            observer.complete()
-            // add the new image to your list of images!
+            progressStream.next(100)
+            //progressStream.next(JSON.parse(xhr.response));
+            progressStream.complete() // next would also be an option...
+            // we should pass the server response down stream!
             console.log('wanna add', data)
           } else {
-            observer.error(xhr.response);
+            // on error - what do they look like?
+            progressStream.error(xhr.response);
           }
         }
       }
-      // attaching an onprogres handler breaks cors
-      /*xhr.upload.onprogress = (event) => {
-          console.log('progress', event)
-          
-      };*/
-      // get an upload url, then post!
+      // request an upload URL, then kick off upload!
       this.http.get(this.backendHost + '/image/upload-url').map(res => { return res.json() }).subscribe(data => {
-        console.log('posting to ' + data.url)
         xhr.open('POST', data.url, true)
         xhr.send(formData);
       })

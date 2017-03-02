@@ -15,6 +15,7 @@ export interface iPublication {
   name?: string
   author?: iAuthor 
   articles: any[]
+  imageURL: string
 }
 
 @Component({
@@ -23,6 +24,8 @@ export interface iPublication {
   styleUrls: ['./publication.component.css']
 })
 export class PublicationComponent implements OnInit {
+
+  safeBG: any
 
   // the publication that is passed into us
   @Input() publication: Publication
@@ -37,7 +40,7 @@ export class PublicationComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-
+    
     console.log('pub got pub?', this.publication)
   }
 

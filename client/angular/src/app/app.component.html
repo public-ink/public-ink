@@ -30,35 +30,16 @@
 
 <div style="height: 50px;">just space behind the top bar</div>
 
-<div id="topBar" *ngIf="0">
-    <div class="content-width" *ngIf="backend.userAccount">
-        <div *ngIf="backend.userAccount.authenticated">
-            {{ backend.userAccount.email }}
 
-            your have <b>{{ backend.userAccount.authors.length }}</b> authors!
-
-            <span *ngIf="!backend.userAccount.verified">
-                You are logged in, but your account requires email verification.
-                Please check your inbox and spam folder for an email from us, and follow the link in it.
-            </span>
-
-            <span *ngIf="backend.userAccount.verified">
-                All good, your account is verified :)
-            </span>
-            <button (click)="backend.logoutUser()">Log out</button>
-            </div>
-
-
-        <!-- not authenticated -->
-        <div *ngIf="!backend.userAccount.authenticated">
-            <a [routerLink]="['/', 'auth']">Log In/Sign Up</a>
-        </div>
-        <!-- authenticated -->
-        <div *ngIf="backend.userAccount.authenticated">
-            <a [routerLink]="['/my-account']">your account</a>
-        </div>
-        
-    </div>
-</div>
 
 <router-outlet></router-outlet>
+
+
+<!-- media bar! -->
+<div style="position:fixed; bottom: 0px; left:0px; width: 100%;" [hidden]="!ui.mediaBar">
+    <div>
+        <flex-row style="overflow-x:scroll; background-color: white;">
+             <img (click)="ui.mediaClickStream.next(image)" *ngFor="let image of backend.userImages" [src]="image.url + '&w=200&h=200'" style="margin:5px;" />
+        </flex-row>
+    </div>
+</div>

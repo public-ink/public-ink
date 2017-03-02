@@ -13,6 +13,8 @@ export class AccountPageComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    // force reload of data
+    this.backend.jwtLogin().subscribe()
   }
 
 }

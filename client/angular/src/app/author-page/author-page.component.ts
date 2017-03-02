@@ -26,12 +26,13 @@ import { Apollo } from 'apollo-angular'
 })
 export class AuthorPageComponent implements OnInit {
 
-  @Input() editable: boolean = false
+  
 
   // the ID is taken from the current route
   authorID: string
   // the author is retrieved from the backend
   author: any
+  editable: boolean = false
 
   constructor(
     // angular
@@ -48,10 +49,12 @@ export class AuthorPageComponent implements OnInit {
       this.authorID = params['authorID']
 
       if (this.authorID === 'create-author') {
+        this.editable = true
         this.author = {
           new: true,
-          name: 'chose wisely!',
-          about: 'about this author',
+          id: 'create-author', // not ideal
+          name: '',
+          about: '',
           imageURL: '/assets/images/mask.png',
           publications: [],
         }
@@ -81,7 +84,7 @@ export class AuthorPageComponent implements OnInit {
         query: query
       }).subscribe(result => {
         console.log('author result', result)
-        this.author = result.data.author
+        this.author = JSON.parse(JSON.stringify(result.data.author))
         // is this an immutable fucker?
       }) 
 
@@ -98,18 +101,7 @@ export class AuthorPageComponent implements OnInit {
     })
   }
 
-  create() {
-    /**
-     * called from the child <app-author> component. 
-     * create an author from the bound author data!
-     * on success, navigate to the new author's page
-     */
-    this.backend.createAuthor(this.author).subscribe(result => {
-      const id = result.data.createAuthor.id
-      this.backend.userAccount.authors.push(this.author)
-      this.router.navigate(['/', id])
-    })
-  }
+  
   delete() {
     this.backend.deleteAuthor(this.authorID).subscribe((info: iInfo) => {
       console.log('author page received delete result', info)
@@ -124,11 +116,19 @@ export class AuthorPageComponent implements OnInit {
    * and trigger an update here
    */
   saveAuthor() {
-    //this.backend.save
+    console.log('save!')
+    this.backend.saveAuthor(this.author).subscribe((info: any) => {
+      this.ui.message = info.message
+    })
   }
 
   ngOnInit() {
-    
+    this.ui.mediaClickObservable.subscribe(image => {
+      this.author.imageURL = image.url
+    })
   }
+
+  // listen to media clicks, to set the author image (only for new, or editing)
+  
 
 }

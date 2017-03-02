@@ -15,7 +15,7 @@
   <!--<a [routerLink]="['/', authorID, publicationID, article.id]">{{ article.title }}</a>-->
 </div>
 
-  <a [routerLink]="['/', publication.id, 'create-article']">Create Article</a>
+  <a [routerLink]="['/', publication.author.id, publication.id, 'create-article']">Create Article</a>
 
 </div>
 

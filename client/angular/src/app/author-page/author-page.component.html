@@ -3,17 +3,13 @@
 <flex-row-center *ngIf="author">
     <flex-col class="content-width">
         <!-- center lane -->
-            <app-author [author]="author" (create)="create()"></app-author>
-
-            <!-- if NEW! -->
-            <button (click)="create()" class="form-button" *ngIf="author.new">Create Author</button>
-            
-            
+            <app-author [author]="author" [editable]="editable" (create)="create()"></app-author>
+            <button (click)="saveAuthor()">create author</button>
         
             <!-- if EXISTING AUTHOR: create new publication -->
-            <a [routerLink]="['/', author.id, 'create-publication']">start publication</a>
+            <a *ngIf="!author.new" [routerLink]="['/', author.id, 'create-publication']">start publication</a>
 
-            <!-- publications -->
+            <!-- publications (there will be none for new) -->
             <div *ngFor="let publication of author.publications">
                 <app-publication [publication]="publication"></app-publication>
                 <a [routerLink]="['/', author.id, publication.id]">{{ publication.name }}</a>
@@ -24,10 +20,12 @@
 
 
 
-<app-bottom-bar>
+<app-bottom-bar *ngIf="author && !author.new">
     <div class="content-width" >
         <flex-row-between>
             <!-- if Existing -->
+            <button (click)="editable = !editable">Toggle Editing</button>
+            <button (click)="saveAuthor()">save changes / create</button>
             <button (click)="delete()" *ngIf="1">Delete Author!</button>
         </flex-row-between>
     </div>

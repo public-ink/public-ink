@@ -2,6 +2,10 @@
 import { Component, OnInit } from '@angular/core'
 import { Router, ActivatedRoute, Params } from '@angular/router'
 
+// RX
+import { Observable } from 'rxjs/Observable'
+import 'rxjs/Rx'
+
 // GraphQL Tools
 import { Apollo } from 'apollo-angular'
 import gql from 'graphql-tag'
@@ -42,6 +46,15 @@ export class PublicationPageComponent implements OnInit {
       this.authorID = params['authorID']
       this.publicationID = params['publicationID']
 
+      // keyboard shortcuts
+      Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
+        // save article
+        if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) { /*ctrl s */
+          this.savePublication()
+          event.preventDefault()
+        }
+      })
+
       if (this.publicationID === 'create-publication') {
         this.backend.getAuthor(this.authorID).subscribe(result => {
           this.publication = {
@@ -51,6 +64,7 @@ export class PublicationPageComponent implements OnInit {
             id: this.publicationID,
             name: 'no name yet',
             articles: [],
+            imageURL: '',
           }
         })
 
@@ -65,7 +79,10 @@ export class PublicationPageComponent implements OnInit {
   }
 
   ngOnInit() {
-
+    // listen to media click
+    this.ui.mediaClickObservable.subscribe(image => {
+      this.publication.imageURL = image.url
+    })
   }
 
   /** 

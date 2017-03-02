@@ -3,6 +3,8 @@ import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core'
 // ink
 import { Article } from '../models'
 
+import { UIService } from '../ui.service'
+
 @Component({
   selector: 'app-article',
   templateUrl: './article.component.html',
@@ -16,11 +18,17 @@ export class ArticleComponent implements OnInit {
   @ViewChild('hidden') hidden: ElementRef
 
   quill: any
+  lastRange: any
 
-  constructor() { }
+  constructor(
+    private ui: UIService,
+  ) { }
 
   ngOnInit() {
     this.makeQuill()
+    this.ui.mediaClickObservable.subscribe(image => {
+      this.insertImage(image.url + '&w=700')
+    })
   }
 
   makeQuill() {
@@ -68,8 +76,12 @@ export class ArticleComponent implements OnInit {
       keep the article bodyOps property in sync, for saving.
       */
       this.article.bodyOps = JSON.stringify(this.quill.getContents())
-
+      this.lastRange = this.quill.getSelection()
     })
+  }
+
+  insertImage(url: string) {
+    this.quill.insertEmbed(this.lastRange.index, 'image', url, 'user')
   }
 
 }

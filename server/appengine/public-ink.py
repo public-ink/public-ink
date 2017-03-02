@@ -59,59 +59,6 @@ def generate_jwt(email):
 Models and Schemas
 """
 
-class InfoSchema(graphene.ObjectType):
-    """
-    container for part of ANY response
-    """
-    success = graphene.Boolean()
-    message = graphene.String()
-
-class AccountSchema(graphene.ObjectType):
-    """
-    container for account part of ANY response
-    """
-    email = graphene.String()
-    verified = graphene.Boolean()
-    authenticated = graphene.Boolean()
-    jwt = graphene.String()
-
-    # related: authors!
-    authors = graphene.List(lambda: AuthorSchema)
-    def resolve_authors(self, *args):
-        # query authors that are pointing to this user
-        user_key = ndb.Key('UserModel', self.email)
-        authors = AuthorModel.query(AuthorModel.user == user_key)
-        return authors
-
-class AccountResponse(graphene.ObjectType):
-    """
-    Returned on account calls, like login, registration
-    """
-    info = graphene.Field(InfoSchema)
-    account = graphene.Field(AccountSchema)
-
-
-
-class ArticleResponse(graphene.ObjectType):
-    """
-    Returned for saveArticle calls
-    """
-    info = graphene.Field(InfoSchema)
-    article = graphene.Field(lambda: ArticleSchema)
-
-class PublicationResponse(graphene.ObjectType):
-    """
-    Returned for savePublication calls
-    """
-    info = graphene.Field(InfoSchema)
-    publication = graphene.Field(lambda: PublicationSchema)
-
-
-
-""" 
-MODELS AND THEIR SCHEMAS 
-"""
-
 class InkModel(ndb.Model):
     """
     A common NDB entity model
@@ -160,11 +107,70 @@ class ImageSchema(graphene.ObjectType):
     """
     url = graphene.String()
     def resolve_url(self, *args):
-        return images.get_serving_url(self.blob_key)
+        #return images.get_serving_url(self.blob_key)
+        return 'http://localhost:8080/image/serve?key=' + str(self.blob_key)
 
     id = graphene.String()
     def resolve_id(self, *args):
         return self.key.id()
+
+
+class InfoSchema(graphene.ObjectType):
+    """
+    container for part of ANY response
+    """
+    success = graphene.Boolean()
+    message = graphene.String()
+
+class AccountSchema(graphene.ObjectType):
+    """
+    container for account part of ANY response
+    """
+    email = graphene.String()
+    verified = graphene.Boolean()
+    authenticated = graphene.Boolean()
+    jwt = graphene.String()
+
+    # related: authors!
+    authors = graphene.List(lambda: AuthorSchema)
+    def resolve_authors(self, *args):
+        # query authors that are pointing to this user
+        user_key = ndb.Key('UserModel', self.email)
+        authors = AuthorModel.query(AuthorModel.user == user_key)
+        return authors
+
+class AccountResponse(graphene.ObjectType):
+    """
+    Returned on account calls, like login, registration
+    """
+    info = graphene.Field(InfoSchema)
+    account = graphene.Field(AccountSchema)
+
+class AuthorResponse(graphene.ObjectType):
+    """
+    Returned for author saves
+    """
+    info = graphene.Field(InfoSchema)
+    author = graphene.Field(lambda: AuthorSchema)
+
+class ArticleResponse(graphene.ObjectType):
+    """
+    Returned for saveArticle calls
+    """
+    info = graphene.Field(InfoSchema)
+    article = graphene.Field(lambda: ArticleSchema)
+
+class PublicationResponse(graphene.ObjectType):
+    """
+    Returned for savePublication calls
+    """
+    info = graphene.Field(InfoSchema)
+    publication = graphene.Field(lambda: PublicationSchema)
+
+
+
+
+
 
 
 """ AUTHOR """
@@ -206,6 +212,8 @@ class PublicationModel(InkModel):
     NDB model for publications 
     """
     name = ndb.StringProperty()
+    about = ndb.StringProperty()
+    imageURL = ndb.StringProperty()
 
 class PublicationSchema(graphene.ObjectType):
     """
@@ -215,6 +223,8 @@ class PublicationSchema(graphene.ObjectType):
     articles = graphene.List(lambda: ArticleSchema, order=graphene.String())
     author = graphene.Field(AuthorSchema)
     name = graphene.String()
+    about = graphene.String()
+    imageURL = graphene.String()
 
     def resolve_id(self, *args):
         return self.key.id()
@@ -456,6 +466,46 @@ class Query(graphene.ObjectType):
         author = author_key.get()
         return author
 
+    """ new kid """
+    saveAuthor = graphene.Field(AuthorResponse)
+    def resolve_saveAuthor(self, args, *more):
+        authorID = self.get('authorID')
+        print 'resolve saveAuthor'
+        print authorID
+        name = self.get('name')
+        about = self.get('about')
+        imageURL = self.get('imageURL')
+        token = self.get('jwt')
+        email = email_from_jwt(token)
+        user_key = ndb.Key('UserModel', email)
+        
+        if authorID == 'create-author': # not cool
+            """ create author """
+            author_key = AuthorModel(
+                id=slugify(name),
+                name=name,
+                about=about,
+                imageURL=imageURL,
+                user=user_key
+            ).put()
+            message = 'author_created'
+        else:
+            author_key = ndb.Key('AuthorModel', authorID)
+            # compare emails!
+            # then
+            author = author_key.get()
+            author.name = name
+            author.about = about
+            author.imageURL = imageURL
+            author_key = author.put()
+            message = 'author_updated'
+        
+        return AuthorResponse(
+            info=InfoSchema(success=True, message=message),
+            author=author_key.get()
+        )
+        
+
     """ SAVE PUBLICATION (create and update) -> change to publication response! """
     savePublication = graphene.Field(PublicationSchema, 
         jwt=graphene.String(), 
@@ -467,18 +517,24 @@ class Query(graphene.ObjectType):
         publicationID = self.get('publicationID')
         name = self.get('name')
         authorID = self.get('authorID')
+        about = self.get('about')
+        imageURL = self.get('imageURL')
         
         if publicationID == 'create-publication': #not ideal
             """ create publication """
             publication_key = PublicationModel(
                 parent=ndb.Key('AuthorModel', authorID),
                 id=slugify(name),
-                name=name
+                name=name,
+                about=about,
+                imageURL=imageURL
             ).put()
         else:
             """ update publication """
             publication = ndb.Key('AuthorModel', authorID, 'PublicationModel', publicationID).get()
-            publication.name = self.get('name') 
+            publication.name = name
+            publication.about = about
+            publication.imageURL = imageURL
             publication_key = publication.put()
         return publication_key.get()
 
@@ -716,8 +772,9 @@ class ImageUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         
         try:
             upload = self.get_uploads()[0]
+            id = uuid.uuid4().hex + upload.filename
             user_image = ImageModel(
-                id = upload.filename,
+                id=id,
                 blob_key=upload.key(),
                 user_key=user_key
             )
@@ -728,10 +785,116 @@ class ImageUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
             print str(e)
             self.error(500)
 
+    """
     def optionss(self):
         allow_cors(self)
+    """
 
-#from image       import UploadUrl, ImageUploadHandler, UserImageEndpoint
+
+
+"""
+Image Serving
+"""
+
+class ServeImage(webapp2.RequestHandler):
+    def get(self):
+        blob_key = self.request.get("key")
+        image = images.Image(blob_key=blob_key)
+
+        transforms = False
+
+        # allows user defined crops!
+        crop = self.request.get("crop")
+        if crop:
+            box = map(float, crop.split(','))
+            image.crop(box[0],box[1],box[2],box[3])
+            transforms = True
+
+        crop_h = self.request.get("crop_h")
+        if crop_h:
+            percent = float(crop_h) / 100.0
+            left = (1 - percent )/ 2
+            right = 1 - left
+            image.crop(left, 0.0, right, 1.0)
+        # resize (width=0, height=0, crop_to_fit=False, crop_offset_x=0.5, crop_offset_y=0.5, allow_stretch=False)
+        resize_w = self.request.get("w")
+        resize_h = self.request.get("h")
+        #fit = bool(self.request.get("fit", False))
+        if resize_w and resize_h:
+            image.resize(width=int(resize_w), height=int(resize_h), crop_to_fit=True) 
+            transforms = True
+        elif resize_w:
+            image.resize(width=int(resize_w))
+            transforms = True
+        elif resize_h:
+            image.resize(height=int(resize_h))
+            transforms = True
+
+        if transforms:
+            result = image.execute_transforms(output_encoding=images.JPEG)
+        else:
+            # this is a hack...
+            image.im_feeling_lucky()
+            result = image.execute_transforms(output_encoding=images.JPEG)
+        self.response.headers['Content-Type'] = 'image/jpeg'
+        self.response.out.write(result)
+        return
+
+class ServeImagex(webapp2.RequestHandler):
+    def get(self):
+        blob_key = self.request.get('key')
+        image = rescale(blob_key, 1400,400)
+        #self.response.headers['Content-Type'] = 'image/jpeg'
+        self.response.out.write(image)
+        #image = images.Image(blob_key=blob_key)
+
+def rescale(blob_key, width, height, halign='middle', valign='middle'):
+    """Resize then optionally crop a given image.
+
+    Attributes:
+    blob_key: The image data
+    width: The desired width
+    height: The desired height
+    halign: Acts like photoshop's 'Canvas Size' function, horizontally
+            aligning the crop to left, middle or right
+    valign: Verticallly aligns the crop to top, middle or bottom
+
+    """
+    #image_data = blobstore.get(blob_key)
+    image_data = blobstore.BlobReader(blob_key).read()
+    #image = images.Image(blob_key=blob_key)
+    image = images.Image(image_data)
+    #image.im_feeling_lucky()
+
+    desired_wh_ratio = float(width) / float(height)
+    wh_ratio = float(image.width) / float(image.height)
+
+    if desired_wh_ratio > wh_ratio:
+        # resize to width, then crop to height
+        image.resize(width=width)
+        image.execute_transforms()
+        trim_y = (float(image.height - height) / 2) / image.height
+        if valign == 'top':
+            image.crop(0.0, 0.0, 1.0, 1 - (2 * trim_y))
+        elif valign == 'bottom':
+            image.crop(0.0, (2 * trim_y), 1.0, 1.0)
+        else:
+            image.crop(0.0, trim_y, 1.0, 1 - trim_y)
+    else:
+        # resize to height, then crop to width
+        image.resize(height=height)
+        image.execute_transforms()
+        trim_x = (float(image.width - width) / 2) / image.width
+        if halign == 'left':
+            image.crop(0.0, 0.0, 1 - (2 * trim_x), 1.0)
+        elif halign == 'right':
+            image.crop((2 * trim_x), 0.0, 1.0, 1.0)
+        else:
+            image.crop(trim_x, 0.0, 1 - trim_x, 1.0)
+
+    return image.execute_transforms()
+
+
 
 app = webapp2.WSGIApplication(
     [
@@ -741,7 +904,8 @@ app = webapp2.WSGIApplication(
         # upload url
         ('/image/upload-url', UploadUrl),
         # this is where things are posted to, because get upload url specified this url
-        ('/image/upload', ImageUploadHandler)
+        ('/image/upload', ImageUploadHandler),
+        ('/image/serve', ServeImage)
     ], debug=True
 )
 

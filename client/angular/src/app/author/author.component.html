@@ -24,33 +24,46 @@
         [style.box-shadow]="imageStyle.boxShadow"
         [style.border]="size === 'sticker' ? '4px solid #000' : '8px solid #fff'"
         [ngStyle]="imgStyle()"
+        (click)="ui.mediaBar = !ui.mediaBar"
       style="border-radius: 500px;" [src]="author.imageURL" />
       
     </flex-center>
     <!-- author text -->
     <flex-col-left-center class="grow"
-      [style.padding.px]="pad"
+      [style.padding.px]="0"
       [style.background-color]="ui.colors.debug ? ui.colors.lightred : ''"
       [style.color]="size === 'sticker' ? 'white' : '8px solid black'"
     >
         
+    <!-- AUTHOR NAME -->
+    <!-- name input -->
       <input *ngIf="editable"
       type="text"
-      placeholder="Name your Author here"
+      placeholder="Author Name"
       [(ngModel)]="author.name" 
       [ngStyle]="nameStyle()" />
 
+      <!-- name link -->
       <a *ngIf=!editable style="color:#333; text-decoration: none;"
       [routerLink]="['/', author.id]"><h3
       [ngStyle]="nameStyle()"
       >{{ author.name}}</h3></a> 
-      2x publications
       
-      <textarea
+      <!-- AUTHOR ABOUT -->
+      <!-- about input -->
+      <textarea *ngIf="editable"
         [(ngModel)]="author.about"
-       *ngIf="size != 'sticker'"
+        placeholder="A short introduction about this author. [optional]"
         [ngStyle]="aboutStyle()"
       ></textarea>
+
+      <p *ngIf="!editable">
+        {{ author.about }}
+      </p>
+
+      <!-- about text -->
+
+
     </flex-col-left-center>
   </flex-col-center><!-- end of display pattern author -->
 </flex-col-center>

@@ -18,6 +18,7 @@ export class AuthorComponent implements OnInit {
   authorID: string
   // the author is retrieved from the backend, or 'new'
   @Input() author
+  @Input() editable: boolean = false
   @Input() size: string
   @Output() onSave: EventEmitter<any> = new EventEmitter()
 
@@ -43,7 +44,7 @@ export class AuthorComponent implements OnInit {
       }
     }
   }
-  nameStyle() {
+  nameStyle(): any {
     if (this.size === 'sticker') {
       return {
         'font-size.px': 14,
@@ -56,6 +57,9 @@ export class AuthorComponent implements OnInit {
         'font-size.px': 50,
         'font-weight': 'bold',
         'margin': '10px 0',
+        'border': 0,
+        'width.%': 100,
+        'textAlign': 'center',
       }
     }
   }

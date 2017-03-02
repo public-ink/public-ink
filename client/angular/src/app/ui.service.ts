@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core'
 import { DomSanitizer} from '@angular/platform-browser'
 
+import { Observable, Subscribable } from 'rxjs/Observable'
+import 'rxjs/Rx'
+
 import { ServerError, ValidationError } from './models'
 
 @Injectable()
@@ -41,9 +44,33 @@ export class UIService {
     'background-color': 'black',
   }
 
+  mediaBar: boolean = false
+  mediaClickStream: any
+  mediaClickObservable: Subscribable<any>
+
   constructor(
     private sanitizer: DomSanitizer,
-  ) { }
+  ) { 
+    // keyboard shortcuts
+    Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
+    
+      //console.log(event.keyCode)
+      // toggle media bar
+      if ((event.metaKey || event.ctrlKey) && event.keyCode === 77) { /*ctrl s */
+        this.mediaBar = !this.mediaBar
+        event.preventDefault()
+      }
+    })
+
+    this.mediaClickObservable = new Observable(stream => {
+      this.mediaClickStream = stream
+    })
+    this.mediaClickObservable.subscribe(image => {
+      console.log('media bar image clicked', image)
+    })
+
+
+  }
 
   handleError(error: ServerError | ValidationError) {
     console.log(error)
