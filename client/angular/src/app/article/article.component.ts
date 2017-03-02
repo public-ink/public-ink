@@ -14,6 +14,8 @@ export class ArticleComponent implements OnInit {
 
   @Input() article: any // iArticle
   @Input() editable: boolean = false
+  @Input() preview: boolean = false
+
   @ViewChild('editor') editor: ElementRef
   @ViewChild('hidden') hidden: ElementRef
 
@@ -61,7 +63,13 @@ export class ArticleComponent implements OnInit {
     let ops
     try {
       ops = JSON.parse(this.article.bodyOps)
+      if (this.preview) {
+        console.warn(ops)
+        let OpsObs = ops.ops.slice(0,5)
+        ops.ops = OpsObs
+      }
     } catch (e) {
+      console.error(e)
       console.warn('error parsing json, this is the offender:', this.article.bodyOps)
       ops = { "ops": [{ "insert": "error parsing json\n" }] }
     }

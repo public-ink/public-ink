@@ -24,7 +24,7 @@ textarea {
 .form-input:focus, .form-button:focus, input[type="checkbox"] + label{
     outline:2px solid dodgerblue;
 }
-button {
+button.dark {
     box-sizing: border-box;
     border: 1px solid #333;
     font-family: Courier New, Courier, monospace;
@@ -33,6 +33,16 @@ button {
     background-color: #333;
     color: white;
 }
+button {
+    border:0;
+    background-color:none;
+    font-family: Courier New, Courier, monospace;
+    padding: 5px 10px;
+    font-size: 16px;
+    color: #000;
+}
+
+
 .form-button {
     box-sizing: border-box;
     width: 400px;

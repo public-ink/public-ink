@@ -7,11 +7,12 @@
     >
   </app-publication>
 
-  
+  <!-- if NEW! -->
+  <button (click)="savePublication()" class="" *ngIf="publication.new">Create publication</button>
 
   This publication has {{ publication.articles.length }} articles.
 <div *ngFor="let article of publication.articles">
-  <app-article [article]="article" [editable]="false"></app-article>
+  <app-article [article]="article" [editable]="false" [preview]="true"></app-article>
   <!--<a [routerLink]="['/', authorID, publicationID, article.id]">{{ article.title }}</a>-->
 </div>
 
@@ -20,9 +21,12 @@
 </div>
 
 <app-bottom-bar *ngIf="publication">
-  <!-- if NEW! -->
-  <button (click)="savePublication()" class="form-button" *ngIf="publication.new">Create publication</button>
+  <!-- new inline -->
   <!-- if Existing -->
-  <button (click)="deletePublication()" class="form-button" *ngIf="!publication.new">Delete publication!</button>
-  <button (click)="savePublication()" class="form-button" *ngIf="!publication.new">Save publication</button>
+  <button>edit publication</button>
+
+  <button (click)="deletePublication()" class="" *ngIf="!publication.new">Delete publication!</button>
+ <!--
+  <button (click)="savePublication()" class="" *ngIf="!publication.new">Save publication</button>
+-->
 </app-bottom-bar>
