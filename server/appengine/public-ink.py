@@ -169,10 +169,6 @@ class PublicationResponse(graphene.ObjectType):
 
 
 
-
-
-
-
 """ AUTHOR """
 
 class AuthorModel(InkModel):
@@ -443,30 +439,7 @@ class Query(graphene.ObjectType):
                 authenticated=True, jwt=generate_jwt(email))
         )
 
-
-    """ CREATE AUTHOR => should become save (create and update) """
-    createAuthor = graphene.Field(AuthorSchema)
-    def resolve_createAuthor(self, args, *more):
-        print "resolve create author"
-        name = self.get('name')
-        about = self.get('about')
-        imageURL = self.get('imageURL')
-        token = self.get('jwt')
-        email = email_from_jwt(token)
-        user_key = ndb.Key('UserModel', email)
-        # create author!
-        author_key = AuthorModel(
-            id=slugify(name),
-            name=name,
-            about=about,
-            imageURL=imageURL,
-            user=user_key
-        ).put()
-        # return the author, plain and simple
-        author = author_key.get()
-        return author
-
-    """ new kid """
+    """ SAVE AUTHOR (CREATE AND UPDATE) """
     saveAuthor = graphene.Field(AuthorResponse)
     def resolve_saveAuthor(self, args, *more):
         authorID = self.get('authorID')
@@ -627,7 +600,7 @@ class Query(graphene.ObjectType):
     images = graphene.List(lambda: ImageSchema, jwt=graphene.String())
     def resolve_images(self, args, *more):
         print 'resolve images'
-        jwt = args.get('jwt') or self.get('jwt')
+        jwt = args.get('jwt') or args.get('jwt')
         email = email_from_jwt(jwt)
         user_key = ndb.Key('UserModel', email)
         images = ImageModel.query(ImageModel.user_key==user_key).fetch()
@@ -670,6 +643,14 @@ class Query(graphene.ObjectType):
             'ArticleModel', self.get('articleID')
             ).delete()
         return InfoSchema(success=True, message='article_deleted')
+
+    deleteImage = graphene.Field(InfoSchema, id=graphene.String())
+    def resolve_deleteImage(self, args, *more):
+        """ todo: check ownership """
+        id = args.get('id') or self.get('id')
+        ndb.Key('ImageModel', id).delete()
+        return InfoSchema(success=True, message='image_deleted')
+
 
     
 

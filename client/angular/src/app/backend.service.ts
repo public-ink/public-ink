@@ -670,6 +670,28 @@ export class BackendService {
     })
   }
 
+  deleteImage(id: string) {
+    const query = gql`
+      {
+        deleteImage(id: "${id}") {
+          message
+        }
+      }
+    `
+    const apolloQuery = this.apollo.watchQuery<any>({
+      query: query,
+      forceFetch: true
+    })
+    return new Observable(stream => {
+      apolloQuery.subscribe(result => {
+        stream.next(result.data.deleteImage.message)
+        alert(result.data.deleteImage.message)
+      })
+      
+      
+    }).subscribe()
+
+  }
 
 
   /**
