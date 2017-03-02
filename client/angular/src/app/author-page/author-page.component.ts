@@ -72,6 +72,7 @@ export class AuthorPageComponent implements OnInit {
           publications {
             name
             id
+            imageURL
             author {
               name
               id
