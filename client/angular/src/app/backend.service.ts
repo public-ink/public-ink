@@ -59,6 +59,7 @@ export class BackendService {
             id
             name
             about
+            imageURL
             author {
               id
               name
@@ -70,9 +71,11 @@ export class BackendService {
               publication {
                 id
                 name
+                imageURL
                 author {
                   id
                   name
+                  imageURL
                 }
               }
             }

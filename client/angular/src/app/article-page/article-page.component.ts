@@ -80,6 +80,10 @@ export class ArticlePageComponent implements OnInit {
 
   ngOnInit() {
 
+    // subscribe to media clicks
+    this.ui.mediaClickObservable.subscribe(image => {
+      this.articleCmp.insertImage(image.url + '&w=600')
+    })
     
     this.route.params.subscribe(params => {
 

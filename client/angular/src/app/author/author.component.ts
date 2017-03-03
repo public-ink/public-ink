@@ -83,11 +83,7 @@ export class AuthorComponent implements OnInit {
     private ui: UIService,
     private sanitizer: DomSanitizer,
   ) {
-    this.author = {
-      name: 'uninited',
-      id: 'noneyet',
-      about: 'yee',
-    }
+    
   }
 
 

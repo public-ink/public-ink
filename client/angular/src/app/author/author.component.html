@@ -29,7 +29,7 @@
       
     </flex-center>
     <!-- author text -->
-    <flex-col-left-center class="grow"
+    <flex-col-center-center class="grow"
       [style.padding.px]="0"
       [style.background-color]="ui.colors.debug ? ui.colors.lightred : ''"
       [style.color]="size === 'sticker' ? 'white' : '8px solid black'"
@@ -41,6 +41,7 @@
       type="text"
       placeholder="Author Name"
       [(ngModel)]="author.name" 
+      style="text-align:center;"
       [ngStyle]="nameStyle()" />
 
       <!-- name link -->
@@ -64,6 +65,6 @@
       <!-- about text -->
 
 
-    </flex-col-left-center>
+    </flex-col-center-center>
   </flex-col-center><!-- end of display pattern author -->
 </flex-col-center>

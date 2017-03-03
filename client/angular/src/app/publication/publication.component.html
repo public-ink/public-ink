@@ -17,9 +17,9 @@
       [routerLink]="['/', publication.author.id, publication.id]"
         [style.font-size.px]="90"
         style="color: white; text-decoration: none; font-weight:bold;"
-      >{{ publication.name}}</a>
+      >{{ publication.name}}  </a>
 
-      <p style="color: white">An investgation into bullshit</p>
+      <p style="color: white"> {{ publication.imageURL }} An investgation into bullshit</p>
 
       <!--<app-author [author]="publication.author" [size]="'sticker'"></app-author> -->
   </flex-col-center>

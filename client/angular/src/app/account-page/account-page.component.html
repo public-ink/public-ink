@@ -2,11 +2,7 @@
 
 <div *ngIf="backend.userAccount">
   <div class="content-width">
-    <h3>Your account, {{ backend.userAccount.email }} <a href="#" (click)="backend.logoutUser()">Log Out</a></h3>
-    
-    <span *ngIf="backend.userAccount.verified">verified.</span>
-
-    <a [routerLink]="['/create-author']">create author</a>
+    <div>{{ backend.userAccount.email }}, <span *ngIf="backend.userAccount.verified">is verified.</span> <a [routerLink]="['/create-author']">Create Author</a> <a href="#" (click)="backend.logoutUser()">Log Out</a></div>
   </div>
 
 

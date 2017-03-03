@@ -81,6 +81,7 @@ export class PublicationPageComponent implements OnInit {
   ngOnInit() {
     // listen to media click
     this.ui.mediaClickObservable.subscribe(image => {
+      console.log('pub page:', image)
       this.publication.imageURL = image.url
     })
   }
@@ -96,7 +97,8 @@ export class PublicationPageComponent implements OnInit {
     }
     this.backend.savePublication(this.publication).subscribe(info => {
       console.log('publication page save publication info')
-      this.ui.message = 'publication_saved, i guess'
+      this.ui.message = 'publication_saved'
+      setTimeout(() => {this.ui.message = ''})
     })
   }
   /**

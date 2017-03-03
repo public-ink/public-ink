@@ -36,7 +36,7 @@ export class ArticleComponent implements OnInit {
 
     this.makeQuill()
     this.ui.mediaClickObservable.subscribe(image => {
-      this.insertImage(image.url + '&w=700')
+      //this.insertImage(image.url + '&w=700')
     })
   }
 
@@ -98,8 +98,6 @@ export class ArticleComponent implements OnInit {
   insertImage(url: string) {
     this.quill.insertEmbed(this.lastRange.index, 'image', url, 'user')
   }
-  test() {
-    alert('article called!')
-  }
+  
 
 }

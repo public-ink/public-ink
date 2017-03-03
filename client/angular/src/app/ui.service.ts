@@ -64,7 +64,7 @@ export class UIService {
 
     this.mediaClickObservable = new Observable(stream => {
       this.mediaClickStream = stream
-    })
+    }).share()
     this.mediaClickObservable.subscribe(image => {
       console.log('media bar image clicked', image)
     })

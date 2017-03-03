@@ -130,6 +130,7 @@ export class AuthorPageComponent implements OnInit {
 
   ngOnInit() {
     this.ui.mediaClickObservable.subscribe(image => {
+      console.log('author page', image)
       this.author.imageURL = image.url
     })
   }
