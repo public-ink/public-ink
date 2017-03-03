@@ -1,12 +1,11 @@
 
-<flex-col-center
- 
+<flex-col-center 
  [style.background-image]="'url(' + publication.imageURL +'&w=1440&h=300' + ')'"
- style="background-color: black;"
+ style="background-color: gray; width: 100%"
   >
   <flex-col-center
     class="content-width"
-[style.padding.px]="40"
+    [style.padding.px]="40"
     [style.background-color]="ui.colors.debug ? ui.colors.lightyellow : ''">
 
       <textarea *ngIf="editable"

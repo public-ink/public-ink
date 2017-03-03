@@ -12,6 +12,7 @@
 
   This publication has {{ publication.articles.length }} articles.
 <div *ngFor="let article of publication.articles">
+
   <app-article [article]="article" [editable]="false" [preview]="true"></app-article>
   <!--<a [routerLink]="['/', authorID, publicationID, article.id]">{{ article.title }}</a>-->
 </div>

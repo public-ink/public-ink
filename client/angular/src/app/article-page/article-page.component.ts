@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, ViewChild } from '@angular/core'
 import { Router, ActivatedRoute } from '@angular/router'
 
 import { Observable } from 'rxjs/Observable'
@@ -9,6 +9,9 @@ import { Apollo } from 'apollo-angular'
 
 import { BackendService } from '../backend.service'
 import { UIService } from '../ui.service'
+import { ArticleComponent } from '../article/article.component'
+
+import { iArticle } from '../models'
 
 interface Quill {
   new (container: string | Element, options?: any): Quill;
@@ -31,13 +34,15 @@ interface UpdateResponse {
 })
 export class ArticlePageComponent implements OnInit {
 
+  @ViewChild(ArticleComponent) articleCmp: ArticleComponent
+
   authorID: string
   publicationID: string
   articleID: string
 
   // loaded via graphql
   data: any
-  article: any
+  article: iArticle
   // quill
   bodyQuill: any
   madeQuill: boolean = false
@@ -51,6 +56,7 @@ export class ArticlePageComponent implements OnInit {
     private apollo: Apollo,
     private ui: UIService,
   ) { 
+    
     // keyboard shortcuts
     Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
       // save article
@@ -62,11 +68,19 @@ export class ArticlePageComponent implements OnInit {
   }
 
   ngAfterViewChecked() {
-    this.makeQuill()
+    //this.makeQuill()
+    
+  }
+
+  ngAfterViewInit() {
+    if (this.articleCmp) {
+      //this.articleCmp.test()
+    }
   }
 
   ngOnInit() {
 
+    
     this.route.params.subscribe(params => {
 
       this.authorID = params['authorID']
@@ -75,13 +89,29 @@ export class ArticlePageComponent implements OnInit {
 
       if (this.articleID === 'create-article') {
         this.article = {
+          id: 'create-article',
           title: 'no title yet',
           bodyOps: '{}',
+          publication: {
+            id: this.publicationID,
+            name: 'need to get',
+            about: 'need to get about',
+            imageURL: '/needtoget',
+            author: {
+              id: this.authorID,
+              name: 'need to get',
+              about: 'jo',
+              imageURL: 'need'
+            }
+          }
+          // need to retrieve publication and author, else, article component won't work.
+          // consider passing them separately
         }
       } else {
         this.backend.getArticle(this.authorID, this.publicationID, this.articleID).subscribe(article => {
+          console.log('received article', article)
           this.article = JSON.parse(JSON.stringify(article))
-          this.makeQuill()
+          //this.makeQuill()
         })
       }
     })
@@ -107,41 +137,7 @@ export class ArticlePageComponent implements OnInit {
     })
   }
 
-  makeQuill() {
-    // this needs to change to a ref, in case there are more than one.
-    let el = document.getElementById('articleBodyEditor')
-    if (!el || !this.article || this.madeQuill) {
-      return
-    }
-    this.bodyQuill = new Quill('#articleBodyEditor', {
-      modules: {
-        /*toolbar: {
-          container: '#articleBodyToolbar',
-          //handlers: {'image': this.titleImageHandler},
-        },*/
-      },
-      theme: 'snow',
-      placeholder: 'here is where you lay your words down...',
-    })
-    let bodyContents = "{}"
-    try {
-      bodyContents = JSON.parse(this.article.body)
-      console.warn('successfully parsed json')
-      console.warn(this.article.body)
-    } catch(e) {
-      console.warn('error parsing json, this is the offender')
-      console.warn(this.article.body)
-    }
-    this.bodyQuill.setContents(bodyContents)
-
-    this.bodyQuill.on('text-change', (delta, oldDelta, source) => {
-      /* currently, we don't need to do anything here
-      at the time of saving, we converting quill content to json
-      */
-      
-    })
-    this.madeQuill = true
-  }
+  
 
 
 }

@@ -1,3 +1,29 @@
+/** NEW MODELS! */
+export interface iAuthor {
+    id: string
+    name: string
+    about: string
+    imageURL: string
+    new?: boolean
+}
+export interface iPublication {
+    id: string    
+    name: string
+    about: string
+    imageURL: string
+    // parent
+    author: iAuthor
+    new?: boolean
+}
+export interface iArticle {
+    id: string    
+    title: string
+    bodyOps: string
+    // parent
+    publication: iPublication
+    new?: boolean
+}
+
 
 /**
  * The shape of a Resource instance (an Author, Publication,.. instance)

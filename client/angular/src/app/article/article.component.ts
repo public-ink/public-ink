@@ -1,9 +1,11 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core'
 
 // ink
-import { Article } from '../models'
+import { iArticle } from '../models'
 
 import { UIService } from '../ui.service'
+
+
 
 @Component({
   selector: 'app-article',
@@ -12,7 +14,7 @@ import { UIService } from '../ui.service'
 })
 export class ArticleComponent implements OnInit {
 
-  @Input() article: any // iArticle
+  @Input() article: iArticle
   @Input() editable: boolean = false
   @Input() preview: boolean = false
 
@@ -27,6 +29,11 @@ export class ArticleComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    /* check your input */
+    if (!this.article.publication || !this.article.publication.author) {
+      alert('inputs fucked')
+    }
+
     this.makeQuill()
     this.ui.mediaClickObservable.subscribe(image => {
       this.insertImage(image.url + '&w=700')
@@ -90,6 +97,9 @@ export class ArticleComponent implements OnInit {
 
   insertImage(url: string) {
     this.quill.insertEmbed(this.lastRange.index, 'image', url, 'user')
+  }
+  test() {
+    alert('article called!')
   }
 
 }

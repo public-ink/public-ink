@@ -32,6 +32,7 @@ export class AuthorPageComponent implements OnInit {
   authorID: string
   // the author is retrieved from the backend
   author: any
+  publications: any
   editable: boolean = false
 
   constructor(
@@ -61,6 +62,9 @@ export class AuthorPageComponent implements OnInit {
         return
       }
 
+      /** Like we said, we want to show publications, so we have to get their path up to author as well
+       * Or, we could just stick it the author we already got. Try that!
+       */
       const query = gql`
         {author(authorID:"${this.authorID}"){
           id          
@@ -86,6 +90,7 @@ export class AuthorPageComponent implements OnInit {
       }).subscribe(result => {
         console.log('author result', result)
         this.author = JSON.parse(JSON.stringify(result.data.author))
+        this.publications = this.author.publications
         // is this an immutable fucker?
       }) 
 

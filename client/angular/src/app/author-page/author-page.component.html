@@ -8,14 +8,16 @@
         
             <!-- if EXISTING AUTHOR: create new publication -->
             <a *ngIf="!author.new" [routerLink]="['/', author.id, 'create-publication']">start publication</a>
-
-            <!-- publications (there will be none for new) -->
-            <div *ngFor="let publication of author.publications">
-                <app-publication [publication]="publication"></app-publication>
-                <a [routerLink]="['/', author.id, publication.id]">{{ publication.name }}</a>
-            </div>
+           
         <!-- end of center lane -->
     </flex-col>
+</flex-row-center>
+
+
+<!-- this author's publications -->
+<flex-row-center *ngIf="publications">
+    <app-publication *ngFor="let publication of publications" [publication]="publication"></app-publication>
+    <!-- could potentially add some articles in here -->
 </flex-row-center>
 
 

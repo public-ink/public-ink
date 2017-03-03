@@ -59,23 +59,22 @@ export class BackendService {
             id
             name
             about
-            imageURL
+            author {
+              id
+              name
+            }
             articles {
               id
               title
               bodyOps
-              author {
-                id
-                name
-              }
               publication {
                 id
+                name
+                author {
+                  id
+                  name
+                }
               }
-            }
-            author {
-              id
-              name
-              imageURL
             }
           }
         }
@@ -245,6 +244,7 @@ export class BackendService {
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
+      forceFetch: true,
       // consider sticking jwt into variables 
     })
 
@@ -420,13 +420,13 @@ export class BackendService {
             id
             title
             bodyOps
-            author {
-              id
-              name
-            }
             publication {
               id
-              
+              name
+              author {
+                name
+                id
+              }
             }
           }
         }}
@@ -554,6 +554,7 @@ export class BackendService {
   }
 
   getArticle(authorID: string, publicationID: string, articleID: string) {
+    /** now, we load the path up to author. */
     const query = gql`
       {article {
         id
@@ -561,9 +562,13 @@ export class BackendService {
         bodyOps
         publication {
           id
-        }
-        author {
-          id
+          name
+          imageURL
+          author {
+            id
+            name
+            about
+          }
         }
       }}
     `

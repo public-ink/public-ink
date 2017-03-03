@@ -3,7 +3,7 @@ import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core'
 import { DomSanitizer } from '@angular/platform-browser'
 
 // Ink
-import { Author } from '../models'
+import { iAuthor } from '../models'
 import { UIService } from '../ui.service'
 
 
@@ -17,7 +17,7 @@ export class AuthorComponent implements OnInit {
   // the ID is taken from the current route
   authorID: string
   // the author is retrieved from the backend, or 'new'
-  @Input() author
+  @Input() author: iAuthor
   @Input() editable: boolean = false
   @Input() size: string
   @Output() onSave: EventEmitter<any> = new EventEmitter()
