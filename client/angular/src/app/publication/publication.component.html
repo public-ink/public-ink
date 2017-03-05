@@ -1,7 +1,7 @@
 
 <flex-col-center 
  [style.background-image]="'url(' + publication.imageURL +'&w=1440&h=300' + ')'"
- style="background-color: gray; width: 100%"
+ style="background-color: black; width: 100%"
   >
   <flex-col-center
     class="content-width"
@@ -10,8 +10,9 @@
 
       <textarea *ngIf="editable"
         [(ngModel)]="publication.name"
-        [style.font-size.px]="60"
-      style="color: white; text-align: center; background-color: transparent;"></textarea>
+        [style.font-size.px]="90"
+
+      style="height: 120px; font-weight: bold; color: white; text-align: center; background-color: transparent;"></textarea>
 
       <a *ngIf="!editable"
       [routerLink]="['/', publication.author.id, publication.id]"
@@ -19,7 +20,7 @@
         style="color: white; text-decoration: none; font-weight:bold;"
       >{{ publication.name}}  </a>
 
-      <p style="color: white"> {{ publication.imageURL }} An investgation into bullshit</p>
+      <p style="color: white">An investgation into bullshit</p>
 
       <!--<app-author [author]="publication.author" [size]="'sticker'"></app-author> -->
   </flex-col-center>

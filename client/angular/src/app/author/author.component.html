@@ -25,7 +25,7 @@
         [style.border]="size === 'sticker' ? '4px solid #000' : '8px solid #fff'"
         [ngStyle]="imgStyle()"
         (click)="ui.mediaBar = !ui.mediaBar"
-      style="border-radius: 500px;" [src]="author.imageURL" />
+      style="border-radius: 500px;" [src]="author.imageURL +'&w=150&h=150'" />
       
     </flex-center>
     <!-- author text -->

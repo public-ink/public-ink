@@ -122,10 +122,21 @@ export class AuthorPageComponent implements OnInit {
    * and trigger an update here
    */
   saveAuthor() {
-    console.log('save!')
-    this.backend.saveAuthor(this.author).subscribe((info: any) => {
-      this.ui.message = info.message
+    console.log('save author')
+    this.backend.saveAuthor(this.author).subscribe((authorResponse: any) => {
+      this.ui.message = authorResponse.info.message
+      // generalize
+      //this.ui.flash(authorResponse.info.message)
+      setTimeout(() => this.ui.message = '', 1000)
+
+      // could be that you're already there
+      this.router.navigate(['/', authorResponse.author.id])
     })
+  }
+
+  saveResource() {
+    
+    this.backend.saveResource(this.author)
   }
 
   ngOnInit() {

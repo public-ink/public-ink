@@ -55,8 +55,8 @@ export class ArticlePageComponent implements OnInit {
     private backend: BackendService,
     private apollo: Apollo,
     private ui: UIService,
-  ) { 
-    
+  ) {
+
     // keyboard shortcuts
     Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
       // save article
@@ -69,7 +69,7 @@ export class ArticlePageComponent implements OnInit {
 
   ngAfterViewChecked() {
     //this.makeQuill()
-    
+
   }
 
   ngAfterViewInit() {
@@ -84,7 +84,7 @@ export class ArticlePageComponent implements OnInit {
     this.ui.mediaClickObservable.subscribe(image => {
       this.articleCmp.insertImage(image.url + '&w=600')
     })
-    
+
     this.route.params.subscribe(params => {
 
       this.authorID = params['authorID']
@@ -92,25 +92,15 @@ export class ArticlePageComponent implements OnInit {
       this.articleID = params['articleID']
 
       if (this.articleID === 'create-article') {
-        this.article = {
-          id: 'create-article',
-          title: 'no title yet',
-          bodyOps: '{}',
-          publication: {
-            id: this.publicationID,
-            name: 'need to get',
-            about: 'need to get about',
-            imageURL: '/needtoget',
-            author: {
-              id: this.authorID,
-              name: 'need to get',
-              about: 'jo',
-              imageURL: 'need'
-            }
+        this.backend.getPublication(this.authorID, this.publicationID).subscribe(pub => {
+          this.article = {
+            id: 'create-article',
+            title: 'no title yet',
+            bodyOps: '{}',
+            publication: JSON.parse(JSON.stringify(pub))
           }
-          // need to retrieve publication and author, else, article component won't work.
-          // consider passing them separately
-        }
+        })
+
       } else {
         this.backend.getArticle(this.authorID, this.publicationID, this.articleID).subscribe(article => {
           console.log('received article', article)
@@ -131,7 +121,7 @@ export class ArticlePageComponent implements OnInit {
       this.article).subscribe(info => {
         this.ui.message = 'article saved'
         setTimeout(() => this.ui.message = '', 1000)
-    })
+      })
   }
   delete() {
 
@@ -141,7 +131,7 @@ export class ArticlePageComponent implements OnInit {
     })
   }
 
-  
+
 
 
 }

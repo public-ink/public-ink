@@ -327,7 +327,7 @@ export class BackendService {
   }
 
 
-  
+
 
   /** new kid */
   saveAuthor(author: any) {
@@ -336,6 +336,9 @@ export class BackendService {
       {saveAuthor {
         info {
           ...info
+        }
+        author {
+          id
         }
       }}
       ${this.fragments.info}
@@ -353,10 +356,33 @@ export class BackendService {
     })
     return new Observable(stream => {
       apolloQuery.subscribe(result => {
-        stream.next(result.data.saveAuthor.info)
+        stream.next(result.data.saveAuthor)
       })
     })
   }
+
+
+  /* an attempt at saving a resource */
+  saveResource(resource) {
+    const jwt = localStorage.getItem('jwt')
+    if (resource.type === 'author') {
+      // create this query, or mutation
+      // tomorrow is 'text franzi flugangst und filiz' day
+      const query = gql`
+        {saveResource {
+          info {
+            ...info
+          }
+          author {
+            id
+          }
+        }}
+        ${this.fragments.info}
+      `
+    }
+
+  }
+
 
   /** GET OR LOAD AUTHOR */
   getAuthor(authorID: string) {
@@ -583,7 +609,7 @@ export class BackendService {
         articleID: articleID,
       }
     })
-    return new Observable(stream =>  {
+    return new Observable(stream => {
       apolloQuery.subscribe(result => {
         console.log('get article result', result)
         stream.next(result.data.article)
@@ -695,8 +721,8 @@ export class BackendService {
         stream.next(result.data.deleteImage.message)
         alert(result.data.deleteImage.message)
       })
-      
-      
+
+
     }).subscribe()
 
   }

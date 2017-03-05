@@ -98,7 +98,7 @@ export class PublicationPageComponent implements OnInit {
     this.backend.savePublication(this.publication).subscribe(info => {
       console.log('publication page save publication info')
       this.ui.message = 'publication_saved'
-      setTimeout(() => {this.ui.message = ''})
+      setTimeout(() => {this.ui.message = ''}, 1000)
     })
   }
   /**

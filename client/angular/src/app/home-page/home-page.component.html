@@ -1,14 +1,14 @@
 
 <div class="content-width">
-  <h1>public.ink home</h1>
+  <!--<h1>public.ink home</h1>-->
 
-  <h2>upload test</h2>
+  <h2>your images</h2>
   <app-file-drop></app-file-drop>
 
 
   <!-- user images -->
-  <div *ngFor="let image of backend.userImages">
-    <img [src]="image.url + '&w=300'" />
-  </div>
+  <flex-row-between style="flex-wrap: wrap">
+    <img *ngFor="let image of backend.userImages" [src]="image.url + '&w=200&h=200'" style="margin:5px;" />
+  </flex-row-between>
 </div>
 
