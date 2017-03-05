@@ -1,15 +1,9 @@
-
 <div *ngIf="article">
 
-  <app-article [article]="article" [editable]="true"></app-article>
+    <app-article [article]="article" [editable]="true"></app-article>
 
- <!-- 
-  <div class="form-button" (click)="save()">save</div>
-  <div class="form-button" (click)="delete()">delete</div>
-
--->
-   <div style="position:fixed; top:52px; left: 0; width: 100%; border-bottom: 1px solid #333; background-color: white; z-index:3;">
-        <flex-row-center id="toolbar" class="content-width" >
+    <div style="position:fixed; top:52px; left: 0; width: 100%; border-bottom: 1px solid #333; background-color: white; z-index:3;">
+        <flex-row-center id="toolbar" class="content-width">
             <!-- toolbar controls go here! -->
             <button class="ql-bold">Bold</button>
             <button class="ql-italic">Italic</button>
@@ -25,18 +19,19 @@
     </div>
 
 
+    
     <app-bottom-bar>
 
-      <div class="content-width" >
+        <div class="content-width">
             <flex-row-between-center style="height:50px;">
-                <div (click)="save()">save</div>
-                 <div (click)="save()">publish</div>
-                <div (click)="delete()">delete</div>
+                <div (click)="save()">Save Chages </div>
+                <div (click)="save()">Publish Article</div>
+                <div (click)="delete()">Delete Article</div>
             </flex-row-between-center>
         </div>
 
     </app-bottom-bar>
 
-    
+
 
 </div>

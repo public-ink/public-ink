@@ -23,13 +23,12 @@
 
 </div>
 
-<app-bottom-bar *ngIf="publication">
-  <!-- new inline -->
-  <!-- if Existing -->
-  <button>edit publication</button>
 
-  <button (click)="deletePublication()" class="" *ngIf="!publication.new">Delete publication!</button>
- <!--
-  <button (click)="savePublication()" class="" *ngIf="!publication.new">Save publication</button>
--->
+ <!-- if Existing -->
+<app-bottom-bar *ngIf="publication">
+   <flex-row-between-center style="height:50px;">
+    <button (click)="savePublication()">Save Changes</button>
+    <button (click)="deletePublication()" class="" *ngIf="!publication.new">Delete Publication</button>
+   </flex-row-between-center>
+
 </app-bottom-bar>

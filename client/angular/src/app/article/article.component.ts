@@ -58,7 +58,7 @@ export class ArticleComponent implements OnInit {
           container: this.hidden.nativeElement,
           //handlers: {'image': this.titleImageHandler},
         },
-      }
+    }
     }
 
     this.quill = new Quill(this.editor.nativeElement, {
@@ -71,13 +71,11 @@ export class ArticleComponent implements OnInit {
     try {
       ops = JSON.parse(this.article.bodyOps)
       if (this.preview) {
-        console.warn(ops)
         let OpsObs = ops.ops.slice(0,5)
         ops.ops = OpsObs
       }
     } catch (e) {
-      console.error(e)
-      console.warn('error parsing json, this is the offender:', this.article.bodyOps)
+      console.log('error parsing json, this is the offender:', this.article.bodyOps)
       ops = { "ops": [{ "insert": "error parsing json\n" }] }
     }
 

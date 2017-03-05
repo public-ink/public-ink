@@ -3,11 +3,21 @@
 <flex-row-center *ngIf="author">
     <flex-col class="content-width">
         <!-- center lane -->
-            <app-author [author]="author" [editable]="editable" (create)="create()"></app-author>
-            <button (click)="saveAuthor()">create author</button>
+            <app-author [author]="author" [editable]="1" (create)="create()"></app-author>
+            
+            <!-- if NEW: create him inline button -->
+            <button *ngIf="author.new" (click)="saveAuthor()">create author</button>
         
             <!-- if EXISTING AUTHOR: create new publication -->
-            <a *ngIf="!author.new" [routerLink]="['/', author.id, 'create-publication']">start publication</a>
+            <flex-col *ngIf="!author.new">
+                <h2>create a publication</h2>
+                <p>publication is our way of grouping articles together. You can think of them as blogs, and you can create one or multiple of them.
+                <a  
+                    [routerLink]="['/', author.id, 'create-publication']">
+                    start publication
+                    
+                </a>
+            </flex-col>
            
         <!-- end of center lane -->
     </flex-col>
@@ -21,14 +31,12 @@
 </flex-row-center>
 
 
-
+ <!-- update / delete existing -->
 <app-bottom-bar *ngIf="author && !author.new">
     <div class="content-width" >
         <flex-row-between>
-            <!-- if Existing -->
-            <button (click)="editable = !editable">Toggle Editing</button>
-            <button (click)="saveAuthor()">save changes / create</button>
-            <button (click)="delete()" *ngIf="1">Delete Author!</button>
+            <button (click)="saveAuthor()">save changes</button>
+            <button (click)="delete()" *ngIf="1">delete author</button>
         </flex-row-between>
     </div>
 </app-bottom-bar>

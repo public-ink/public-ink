@@ -345,8 +345,6 @@ export class BackendService {
   }
 
 
-
-
   /** new kid */
   saveAuthor(author: any) {
     const jwt = localStorage.getItem('jwt')
@@ -374,31 +372,10 @@ export class BackendService {
     })
     return new Observable(stream => {
       apolloQuery.subscribe(result => {
+        console.log('backend saved author, result', result)
         stream.next(result.data.saveAuthor)
       })
     })
-  }
-
-
-  /* an attempt at saving a resource */
-  saveResource(resource) {
-    const jwt = localStorage.getItem('jwt')
-    if (resource.type === 'author') {
-      // create this query, or mutation
-      // tomorrow is 'text franzi flugangst und filiz' day
-      const query = gql`
-        {saveResource {
-          info {
-            ...info
-          }
-          author {
-            id
-          }
-        }}
-        ${this.fragments.info}
-      `
-    }
-
   }
 
 
@@ -406,16 +383,29 @@ export class BackendService {
   getAuthor(authorID: string) {
     // check locally: ToDo!
     const query = gql`
-      {author(authorID:"${authorID}"){
+      {author {
         id, name, about, imageURL
       }}
     `
-    const sub = this.apollo.watchQuery<any>({ query: query })
-    sub.subscribe(result => {
-      console.log('be get author:', result.data.author)
+    const querySubscription = this.apollo.watchQuery<any>({
+      query: query,
+      variables: {
+        authorID: authorID,
+      },
+      forceFetch: true,
     })
-    return sub
+    return new Observable(stream => {
+      querySubscription.subscribe(result => {
+        const author = result.data.author
+        stream.next(author)
+      },
+        error => {
+          stream.error('error getting author')
+        })
+    })
   }
+
+
   deleteAuthor(authorID): Observable<iInfo> {
     /**
      * Deletes an Author, removes it from the userAccount's authors, 
@@ -430,6 +420,7 @@ export class BackendService {
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
+      forceFetch: true,
     })
     return new Observable(stream => {
       apolloQuery.subscribe(result => {
@@ -483,7 +474,8 @@ export class BackendService {
       variables: {
         authorID: authorID,
         publicationID: publicationID
-      }
+      },
+      forceFetch: true,
     })
     return new Observable(stream => {
       querySubscription.subscribe(result => {
@@ -506,6 +498,9 @@ export class BackendService {
        savePublication {
           publication {
             ...publication
+            author {
+              ...author
+            }
           }
           info {
             ...info
@@ -514,6 +509,7 @@ export class BackendService {
       }
       ${this.fragments.info}
       ${this.fragments.publication}
+      ${this.fragments.author}
     `
     const querySubscription = this.apollo.watchQuery<any>({
       query: query,
@@ -524,13 +520,15 @@ export class BackendService {
         name: publication.name,
         about: publication.about,
         imageURL: publication.imageURL,
-      }
+      },
+      forceFetch: true,
     })
     return new Observable(stream => {
       querySubscription.subscribe(result => {
         const publication: iPublication = result.data.savePublication.publication
         const info = result.data.savePublication.info
-        stream.next(info)
+        // pass back the whole response
+        stream.next(result.data.savePublication)
       },
         error => {
           stream.error('error saving publication')
@@ -553,10 +551,18 @@ export class BackendService {
           }
           article {
             ...article
+            publication {
+              ...publication
+              author {
+                ...author
+              }
+            }
           }
         }
       }
       ${this.fragments.article}
+      ${this.fragments.publication}
+      ${this.fragments.author}
       ${this.fragments.info}
     `
     const apolloQuery = this.apollo.watchQuery<any>({
@@ -573,15 +579,18 @@ export class BackendService {
     })
     return new Observable(stream => {
       apolloQuery.subscribe(result => {
-        const article = result.data.article
-        const info = result.data.info
-        console.log('backend saved article', result)
-        stream.next(info)
+        const article = result.data[endpoint].article
+        const info = result.data[endpoint].info
+
+        const reply = result.data[endpoint]
+        console.log('backend saved article, result', result)
+        stream.next(reply)
       })
     })
   }
 
   deleteArticle(article): Observable<iInfo> {
+    console.log(article)
     console.log('be delete', article)
     const jwt = localStorage.getItem('jwt')
     const query = gql`
@@ -594,10 +603,11 @@ export class BackendService {
       query: query,
       variables: {
         jwt: jwt,
-        authorID: article.author.id,
+        authorID: article.publication.author.id,
         publicationID: article.publication.id,
         articleID: article.id
-      }
+      },
+      forceFetch: true,
     })
     return new Observable(stream => {
       apolloQuery.subscribe(result => {
@@ -632,7 +642,8 @@ export class BackendService {
         authorID: authorID,
         publicationID: publicationID,
         articleID: articleID,
-      }
+      },
+      forceFetch: true,
     })
     return new Observable(stream => {
       apolloQuery.subscribe(result => {
@@ -661,7 +672,8 @@ export class BackendService {
         jwt: jwt,
         authorID: publication.author.id,
         publicationID: publication.id,
-      }
+      },
+      forceFetch: true,
     })
     return new Observable(stream => {
       apolloQuery.subscribe(result => {

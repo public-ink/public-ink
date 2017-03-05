@@ -4,6 +4,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router'
 
 // RX
 import { Observable } from 'rxjs/Observable'
+import { Subscription } from 'rxjs/Subscription'
 import 'rxjs/Rx'
 
 // GraphQL Tools
@@ -26,9 +27,10 @@ import { iPublicationResponse } from '../models'
 export class PublicationPageComponent implements OnInit {
 
   authorID: string
-
   publicationID: string
   publication: iPublication
+
+  keyboardSubscription: Subscription
 
   constructor(
     // angular
@@ -40,27 +42,34 @@ export class PublicationPageComponent implements OnInit {
     // graphql
     private apollo: Apollo,
   ) {
+    console.log('publication page constructed')
     this.route.params.subscribe(params => {
 
-      console.log(params)
+      console.log('pub page router change, constructor')
 
       this.authorID = params['authorID']
       this.publicationID = params['publicationID']
 
       // keyboard shortcuts
-      Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
-        // save article
-        if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) { /*ctrl s */
+      this.keyboardSubscription = Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
+
+        if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) {
+          // cmd + s
           this.savePublication()
+          event.preventDefault()
+
+        } else if ((event.metaKey || event.ctrlKey) && event.keyCode === 68) {
+          // cmd + d
+          this.deletePublication()
           event.preventDefault()
         }
       })
 
       if (this.publicationID === 'create-publication') {
-        this.backend.getAuthor(this.authorID).subscribe(result => {
+        this.backend.getAuthor(this.authorID).subscribe((author: any) => {
           this.publication = {
             // got to get author!
-            author: result.data.author,
+            author: author,
             new: true,
             id: this.publicationID,
             name: 'no name yet',
@@ -71,9 +80,7 @@ export class PublicationPageComponent implements OnInit {
 
         return
       }
-      console.log('new get')
       this.backend.getPublication(this.authorID, this.publicationID).subscribe(publication => {
-        console.log('pub page got put', publication)
         this.publication = JSON.parse(JSON.stringify(publication))
       })
     })
@@ -81,9 +88,9 @@ export class PublicationPageComponent implements OnInit {
 
   ngOnInit() {
     // listen to media click
+    // simply sets the imageURL of the publication
     this.ui.mediaClickObservable.subscribe(image => {
-      console.log('pub page:', image)
-      this.publication.imageURL = image.url
+      this.publication.imageURL = image.url // size?
     })
   }
 
@@ -91,13 +98,12 @@ export class PublicationPageComponent implements OnInit {
    * Save (creates of updates) the local publication!
    */
   savePublication() {
-    console.log(this.publication)
-    if (this.publication.name === '') {
-      alert('no name on publication')
-      return
-    }
-    this.backend.savePublication(this.publication).subscribe((info: any) => {
-      this.ui.flashMessage(info.message)
+    // todo: validation
+    this.backend.savePublication(this.publication).subscribe((publicationResponse: any) => {
+      this.ui.flashMessage(publicationResponse.info.message)
+      // coule be that we are already here, this is for creates
+      console.log(publicationResponse)
+      this.router.navigate(['/', publicationResponse.publication.author.id, publicationResponse.publication.id])
     })
   }
   /**
@@ -108,6 +114,11 @@ export class PublicationPageComponent implements OnInit {
       this.ui.flashMessage(info.message)
       this.router.navigate(['/', this.authorID])
     })
+  }
+
+  ngOnDestroy() {
+    console.log('publication page destroyed')
+    this.keyboardSubscription.unsubscribe()
   }
 
 }

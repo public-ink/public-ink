@@ -571,9 +571,9 @@ class Query(graphene.ObjectType):
     author = graphene.Field(AuthorSchema, authorID=graphene.String())
     def resolve_author(self, args, context, info):
         print 'resolve author / zero'
-        authorID = args.get('authorID')
+        authorID = args.get('authorID') or self.get('authorID')
         author = ndb.Key(
-            'AuthorModel', args.get('authorID')
+            'AuthorModel', authorID
         ).get()
         return author
 

@@ -2,7 +2,8 @@ import { Component, OnInit, ViewChild } from '@angular/core'
 import { Router, ActivatedRoute } from '@angular/router'
 
 import { Observable } from 'rxjs/Observable'
-import 'rxjs/Rx'
+import { Subscription } from 'rxjs/Subscription'
+import 'rxjs/Rx' // why?
 
 import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
@@ -43,11 +44,8 @@ export class ArticlePageComponent implements OnInit {
   // loaded via graphql
   data: any
   article: iArticle
-  // quill
-  bodyQuill: any
-  madeQuill: boolean = false
 
-
+  keyboardSubscription: Subscription
 
   constructor(
     private route: ActivatedRoute,
@@ -56,27 +54,24 @@ export class ArticlePageComponent implements OnInit {
     private apollo: Apollo,
     private ui: UIService,
   ) {
+    console.log('article page constructed')
 
     // keyboard shortcuts
-    Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
-      // save article
+    this.keyboardSubscription = Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
+
       if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) { /*ctrl s */
-        this.save()
+        // cmd + s
+        this.saveArticle()
+        event.preventDefault()
+
+      } else if ((event.metaKey || event.ctrlKey) && event.keyCode === 68) {
+        // cmd + d
+        this.deleteArticle()
         event.preventDefault()
       }
     })
   }
 
-  ngAfterViewChecked() {
-    //this.makeQuill()
-
-  }
-
-  ngAfterViewInit() {
-    if (this.articleCmp) {
-      //this.articleCmp.test()
-    }
-  }
 
   ngOnInit() {
 
@@ -85,6 +80,7 @@ export class ArticlePageComponent implements OnInit {
       this.articleCmp.insertImage(image.url + '&w=600')
     })
 
+    // get route params
     this.route.params.subscribe(params => {
 
       this.authorID = params['authorID']
@@ -103,35 +99,43 @@ export class ArticlePageComponent implements OnInit {
 
       } else {
         this.backend.getArticle(this.authorID, this.publicationID, this.articleID).subscribe(article => {
-          console.log('received article', article)
           this.article = JSON.parse(JSON.stringify(article))
-          //this.makeQuill()
         })
       }
     })
   }
 
-
-  save() {
-    console.log('saving' + this.article.title)
+  /**
+   * Creates a new article, or updates an exisiting one
+   */
+  saveArticle(): void {
     this.backend.saveArticle(
       this.authorID,
       this.publicationID,
       this.articleID,
-      this.article).subscribe(info => {
-        this.ui.message = 'article saved'
-        setTimeout(() => this.ui.message = '', 1000)
+      this.article).subscribe(reply => {
+        this.ui.flashMessage(reply.info.message)
+        // in case of create-article, navigate to created article
+        this.router.navigate(['/', reply.article.publication.author.id, reply.article.publication.id, reply.article.id])
       })
   }
-  delete() {
 
+  /**
+   * Deletes the article
+   */
+  deleteArticle(): void {
     this.backend.deleteArticle(this.article).subscribe(info => {
-      this.ui.message = info.message
+      this.ui.flashMessage(info.message)
       this.router.navigate(['/', this.authorID, this.publicationID])
     })
   }
 
-
-
+  /**
+   * on destroy: unsubscribe from keyboard
+   */
+  ngOnDestroy() {
+    console.log('article page destroyed')
+    this.keyboardSubscription.unsubscribe()
+  }
 
 }

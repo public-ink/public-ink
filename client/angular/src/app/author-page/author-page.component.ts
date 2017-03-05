@@ -1,9 +1,10 @@
 // Angular
-import { Component, OnInit, Input } from '@angular/core'
+import { Component, OnInit, OnDestroy, Input } from '@angular/core'
 import { Router, ActivatedRoute, Params } from '@angular/router'
 
 // RX
 import { Observable } from 'rxjs/Observable'
+import { Subscription } from 'rxjs/Subscription'
 import 'rxjs/Rx'
 
 // Services
@@ -11,7 +12,7 @@ import { BackendService, iInfo } from '../backend.service'
 import { UIService } from '../ui.service'
 
 // Models (hmm)
-import { 
+import {
   Author, AuthorData,
   ValidationError, ServerError,
 } from '../models'
@@ -24,9 +25,7 @@ import { Apollo } from 'apollo-angular'
   templateUrl: './author-page.component.html',
   styleUrls: ['./author-page.component.css']
 })
-export class AuthorPageComponent implements OnInit {
-
-  
+export class AuthorPageComponent implements OnInit, OnDestroy {
 
   // the ID is taken from the current route
   authorID: string
@@ -34,6 +33,10 @@ export class AuthorPageComponent implements OnInit {
   author: any
   publications: any
   editable: boolean = false
+
+  // keyboard observation
+  keyboardSubscription: Subscription
+
 
   constructor(
     // angular
@@ -45,6 +48,7 @@ export class AuthorPageComponent implements OnInit {
     // graphql
     private apollo: Apollo,
   ) {
+    console.log('author page constructed')
 
     this.route.params.subscribe(params => {
       this.authorID = params['authorID']
@@ -59,60 +63,35 @@ export class AuthorPageComponent implements OnInit {
           imageURL: '/assets/images/mask.png',
           publications: [],
         }
-        return
+      } else {
+        this.backend.getAuthor(this.authorID).subscribe(author => {
+          this.author = JSON.parse(JSON.stringify(author))
+        })
       }
-
-      /** Like we said, we want to show publications, so we have to get their path up to author as well
-       * Or, we could just stick it the author we already got. Try that!
-       */
-      const query = gql`
-        {author(authorID:"${this.authorID}"){
-          id          
-          name
-          about
-          imageURL
-          created
-          updated
-          publications {
-            name
-            id
-            imageURL
-            author {
-              name
-              id
-              imageURL
-            }
-          }
-        }}
-      `
-      this.apollo.watchQuery<any>({
-        query: query
-      }).subscribe(result => {
-        console.log('author result', result)
-        this.author = JSON.parse(JSON.stringify(result.data.author))
-        this.publications = this.author.publications
-        // is this an immutable fucker?
-      }) 
-
     })
-    console.log(this.authorID)
 
-    // keyboard shortcuts
-    Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
-      // save article
-      if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) { /*ctrl s */
+    // observe keyboard
+    this.keyboardSubscription = Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
+      
+      if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) {
+        // cmd + s
         this.saveAuthor()
+        event.preventDefault()
+      } else if ((event.metaKey || event.ctrlKey) && event.keyCode === 68) {
+        // cmd + d
+        this.deleteAuthor()
         event.preventDefault()
       }
     })
   }
 
-  
-  delete() {
+
+  /**
+   * Deletes the author, and redirects to my-account
+   */
+  deleteAuthor() {
     this.backend.deleteAuthor(this.authorID).subscribe((info: iInfo) => {
-      console.log('author page received delete result', info)
-      this.ui.message = info.message
-      // todo: remove from backend!! actually, backend should do that
+      this.ui.flashMessage(info.message)
       this.router.navigate(['/my-account'])
     })
   }
@@ -124,29 +103,28 @@ export class AuthorPageComponent implements OnInit {
   saveAuthor() {
     console.log('save author')
     this.backend.saveAuthor(this.author).subscribe((authorResponse: any) => {
-      this.ui.message = authorResponse.info.message
-      // generalize
-      //this.ui.flash(authorResponse.info.message)
-      setTimeout(() => this.ui.message = '', 1000)
-
-      // could be that you're already there
+      this.ui.flashMessage(authorResponse.info.message)
+      // in case of create-author, we need to redirect
       this.router.navigate(['/', authorResponse.author.id])
+      console.log(authorResponse.author.id)
     })
   }
 
-  saveResource() {
-    
-    this.backend.saveResource(this.author)
-  }
-
   ngOnInit() {
+    /**
+     * On media click, we update the author's image url
+     */
     this.ui.mediaClickObservable.subscribe(image => {
-      console.log('author page', image)
       this.author.imageURL = image.url
     })
   }
 
-  // listen to media clicks, to set the author image (only for new, or editing)
-  
+  /**
+   * Unsubscribe from keyboard events
+   */
+  ngOnDestroy() {
+    console.log('author page destroyed')
+    this.keyboardSubscription.unsubscribe()
+  }
 
 }
