@@ -16,6 +16,7 @@ import { UIService } from '../ui.service'
 
 // Ink Interfaces
 import { iPublication } from '../publication/publication.component'
+import { iPublicationResponse } from '../models'
 
 @Component({
   selector: 'app-publication-page',
@@ -95,10 +96,8 @@ export class PublicationPageComponent implements OnInit {
       alert('no name on publication')
       return
     }
-    this.backend.savePublication(this.publication).subscribe(info => {
-      console.log('publication page save publication info')
-      this.ui.message = 'publication_saved'
-      setTimeout(() => {this.ui.message = ''}, 1000)
+    this.backend.savePublication(this.publication).subscribe((info: any) => {
+      this.ui.flashMessage(info.message)
     })
   }
   /**
@@ -106,8 +105,8 @@ export class PublicationPageComponent implements OnInit {
    */
   deletePublication() {
     this.backend.deletePublication(this.publication).subscribe(info => {
-      this.ui.message = info.message
-      console.log('pub page delete info', info)
+      this.ui.flashMessage(info.message)
+      this.router.navigate(['/', this.authorID])
     })
   }
 

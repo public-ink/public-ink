@@ -314,7 +314,7 @@ class Query(graphene.ObjectType):
     """ end of documentation """
 
 
-    """ Now getting real """
+    """ Email / Password Login """
     epLogin = graphene.Field(AccountResponse)
     def resolve_epLogin(self, *args):
         #logging.debug('emailPasswordLogin')
@@ -380,7 +380,9 @@ class Query(graphene.ObjectType):
             return AccountResponse(info=InfoSchema(success=False, message='token_invalid'))
 
 
-
+    """
+    Verfiy email (by following verification link in email)
+    """
     verifyEmail = graphene.Field(AccountResponse, email=graphene.String(), token=graphene.String())
     def resolve_verifyEmail(self, args, context, info):
         email = args.get('email')
@@ -444,7 +446,6 @@ class Query(graphene.ObjectType):
     def resolve_saveAuthor(self, args, *more):
         authorID = self.get('authorID')
         print 'resolve saveAuthor'
-        print authorID
         name = self.get('name')
         about = self.get('about')
         imageURL = self.get('imageURL')
@@ -479,8 +480,8 @@ class Query(graphene.ObjectType):
         )
         
 
-    """ SAVE PUBLICATION (create and update) -> change to publication response! """
-    savePublication = graphene.Field(PublicationSchema, 
+    """ SAVE PUBLICATION (create and update)  """
+    savePublication = graphene.Field(PublicationResponse, 
         jwt=graphene.String(), 
         publicationID=graphene.String(),
         authorID=graphene.String(), 
@@ -502,6 +503,7 @@ class Query(graphene.ObjectType):
                 about=about,
                 imageURL=imageURL
             ).put()
+            message = 'publication_created'
         else:
             """ update publication """
             publication = ndb.Key('AuthorModel', authorID, 'PublicationModel', publicationID).get()
@@ -509,7 +511,11 @@ class Query(graphene.ObjectType):
             publication.about = about
             publication.imageURL = imageURL
             publication_key = publication.put()
-        return publication_key.get()
+            message = 'publication_updated'
+        return PublicationResponse(
+            info=InfoSchema(success=True, message=message),
+            publication=publication_key.get()
+        )
 
 
     """ SAVE ARTICLE (create and update) """

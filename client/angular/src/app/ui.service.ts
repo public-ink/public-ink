@@ -77,4 +77,9 @@ export class UIService {
     alert('error: ' + error.status)
   }
 
+  flashMessage(message: string) {
+    this.message = message
+    setTimeout(() => {this.message = ''}, 1000)
+  }
+
 }

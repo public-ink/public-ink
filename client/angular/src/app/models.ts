@@ -24,6 +24,14 @@ export interface iArticle {
     new?: boolean
 }
 
+export interface iPublicationResponse {
+    info: {
+        message: string
+        susccess: boolean
+    }
+    publication: iPublication
+}
+
 
 /**
  * The shape of a Resource instance (an Author, Publication,.. instance)

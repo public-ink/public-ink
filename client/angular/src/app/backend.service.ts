@@ -19,6 +19,8 @@ import {
 import { iPublication } from './publication/publication.component'
 import { iAccount } from './auth-page/auth-page.component'
 
+import { iPublicationResponse } from './models'
+
 export interface iInfo {
   success: boolean
   message: string
@@ -87,6 +89,22 @@ export class BackendService {
       fragment info on InfoSchema {
         success
         message
+      }
+    `,
+    author: gql`
+      fragment author on AuthorSchema {
+        id
+        name
+        about
+        imageURL
+      }
+    `,
+    publication: gql`
+      fragment publication on PublicationSchema {
+        id
+        name
+        about
+        imageURL
       }
     `,
     article: gql`
@@ -481,15 +499,21 @@ export class BackendService {
   /**
    * SAVE PUBLICATION (new or existing)
    */
-  savePublication(publication): Observable<iPublication> {
+  savePublication(publication): Observable<iInfo> {
     const jwt = localStorage.getItem('jwt')
     const query = gql`
       {
-        savePublication {
-          id
-          name
+       savePublication {
+          publication {
+            ...publication
+          }
+          info {
+            ...info
+          }
         }
       }
+      ${this.fragments.info}
+      ${this.fragments.publication}
     `
     const querySubscription = this.apollo.watchQuery<any>({
       query: query,
@@ -504,8 +528,9 @@ export class BackendService {
     })
     return new Observable(stream => {
       querySubscription.subscribe(result => {
-        const publication: iPublication = result.data.savePublication
-        stream.next(publication)
+        const publication: iPublication = result.data.savePublication.publication
+        const info = result.data.savePublication.info
+        stream.next(info)
       },
         error => {
           stream.error('error saving publication')

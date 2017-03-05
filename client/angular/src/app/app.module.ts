@@ -27,7 +27,8 @@ import { MePageComponent } from './me-page/me-page.component';
 import { LayoutComponent } from './layout/layout.component';
 import { AccountPageComponent } from './account-page/account-page.component';
 import { BottomBarComponent } from './bottom-bar/bottom-bar.component';
-import { FileDropComponent } from './file-drop/file-drop.component'
+import { FileDropComponent } from './file-drop/file-drop.component';
+import { AutosizeDirective } from './autosize.directive'
 
 
 const apolloClient = new ApolloClient({
@@ -76,6 +77,7 @@ const appRoutes: Routes = [
     AccountPageComponent,
     BottomBarComponent,
     FileDropComponent,
+    AutosizeDirective,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),

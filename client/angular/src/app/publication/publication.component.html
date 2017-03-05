@@ -11,7 +11,8 @@
       <textarea *ngIf="editable"
         [(ngModel)]="publication.name"
         [style.font-size.px]="90"
-
+        autosize
+        rows="1"
       style="height: 120px; font-weight: bold; color: white; text-align: center; background-color: transparent;"></textarea>
 
       <a *ngIf="!editable"
@@ -20,7 +21,14 @@
         style="color: white; text-decoration: none; font-weight:bold;"
       >{{ publication.name}}  </a>
 
-      <p style="color: white">An investgation into bullshit</p>
+      <textarea *ngIf="editable"
+        rows="1"
+        autosize
+        [(ngModel)]="publication.about"
+        class="about"
+        ></textarea>
+
+      <p class="about" style="color: white">{{ publication.about }}</p>
 
       <!--<app-author [author]="publication.author" [size]="'sticker'"></app-author> -->
   </flex-col-center>
