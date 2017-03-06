@@ -16,6 +16,8 @@ interface results {
 })
 export class HomePageComponent implements OnInit {
 
+  article: any
+
   constructor(
     private backend: BackendService,
   ) {
@@ -23,7 +25,10 @@ export class HomePageComponent implements OnInit {
   }
 
   ngOnInit() {
-
+    // home article
+    this.backend.getArticle('public-ink', 'about-public-ink', 'hi-there').subscribe(article => {
+      this.article = article
+    })
   }
   
 }

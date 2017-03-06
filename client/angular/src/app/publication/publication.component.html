@@ -1,37 +1,48 @@
+<div style="background-color:#000; position:relative; height: 30vh;">
+  <!-- background image -->
+  <div 
+    style="opacity: 0.6; position:absolute; top: 0; left:0; width: 100%; height: 100%;"
+  [style.background-image]="'url(' + publication.imageURL +'&w=1440&h=300' + ')'">
 
-<flex-col-center 
- [style.background-image]="'url(' + publication.imageURL +'&w=1440&h=300' + ')'"
- style="background-color: black; width: 100%"
-  >
-  <flex-col-center
-    class="content-width"
-    [style.padding.px]="40"
-    [style.background-color]="ui.colors.debug ? ui.colors.lightyellow : ''">
+  </div>
+  <flex-col-center-center  style="position:absolute; top: 0; left:0; width: 100%; height: 100%;">
+    
+    <flex-col-center class="content-width">
 
+      <!-- name / link -->
+        <h1 [routerLink]="['/', publication.author.id, publication.id]" 
+          *ngIf="!editable" [ngStyle]="style.name"
+          [style.cursor]="'pointer'"
+          >
+          {{ publication.name }}
+        </h1>
+      <!-- Name editable -->
+      <textarea 
+          *ngIf="editable"
+          class="focus-bg"
+          [(ngModel)]="publication.name"
+          [ngStyle]="style.name"
+          [style.cursor]="'default'"
+          autosize
+          rows="1">
+      </textarea>
+
+      <!-- ABOUT -->
+      <p *ngIf="!editable"
+        [ngStyle]="style.about"
+      > {{ publication.about }}</p>
+      <!-- Name editable -->
       <textarea *ngIf="editable"
-        [(ngModel)]="publication.name"
-        [style.font-size.px]="90"
-        autosize
-        rows="1"
-      style="height: 120px; font-weight: bold; color: white; text-align: center; background-color: transparent;"></textarea>
+          class="focus-bg"
+          [(ngModel)]="publication.about"
+          [ngStyle]="style.about"
+          autosize
+          rows="1">
+      </textarea>
 
-      <a *ngIf="!editable"
-      [routerLink]="['/', publication.author.id, publication.id]"
-        [style.font-size.px]="90"
-        style="color: white; text-decoration: none; font-weight:bold;"
-      >{{ publication.name}}  </a>
+    </flex-col-center>
 
-      <textarea *ngIf="editable"
-        rows="1"
-        autosize
-        [(ngModel)]="publication.about"
-        class="about"
-        ></textarea>
 
-      <p class="about" style="color: white">{{ publication.about }}</p>
+  </flex-col-center-center>
+</div>
 
-      <!--<app-author [author]="publication.author" [size]="'sticker'"></app-author> -->
-  </flex-col-center>
-  
-
-</flex-col-center>

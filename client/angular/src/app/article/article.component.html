@@ -4,7 +4,11 @@
 
     <div style="height: 80px"></div>
 
-    <textarea *ngIf="editable" type="text" style="font-size:50px; width: 100%; font-weight: bold; border:0px;" [(ngModel)]="article.title" ></textarea>    
+    <textarea *ngIf="editable" type="text" 
+        class="focus-bg"
+        autosize
+        rows="1"
+    style="font-size:50px; width: 100%; font-weight: bold; border:0px;" [(ngModel)]="article.title" ></textarea>    
     <h1 *ngIf="!editable"><a style="color: #333; text-decoration: none;" [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]">{{ article.title}}</a></h1>
     
     <!-- punchline -->

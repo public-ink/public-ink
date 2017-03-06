@@ -42,6 +42,7 @@
       placeholder="Author Name"
       [(ngModel)]="author.name" 
       style="text-align:center;"
+      class="focus-bg"
       [ngStyle]="nameStyle()" />
 
       <!-- name link -->
@@ -56,6 +57,7 @@
         [(ngModel)]="author.about"
         placeholder="A short introduction about this author. [optional]"
         [ngStyle]="aboutStyle()"
+        class="focus-bg"
       ></textarea>
 
       <p *ngIf="!editable">

@@ -16,6 +16,14 @@ textarea {
 app-publication {
     width: 100%;
 }
+.focus-bg {
+    background-color: transparent;
+    outline: 0;
+    resize: none;
+}
+.focus-bg:focus {
+    background-color: rgba(0,0,0,0.4);
+}
 
 .form-input {
     box-sizing: border-box;
@@ -126,6 +134,11 @@ flex-row-between-center {
 flex-row-around {
     display: flex;
     justify-content: space-around;
+}
+flex-row-around-center {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
 }
 
 flex-row {
