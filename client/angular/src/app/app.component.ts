@@ -4,7 +4,14 @@ import { Component } from '@angular/core'
 import { BackendService } from './backend.service'
 import { UIService } from './ui.service'
 
-// Models
+import { environment } from '../environments/environment'
+
+// RX
+import { Observable } from 'rxjs/Observable'
+import { Subscription } from 'rxjs/Subscription'
+import 'rxjs/Rx'
+
+// Models (old remove)
 import { 
   Author,
   AuthorData,
@@ -21,13 +28,24 @@ declare function stopTimer(timestamp: number): void
 })
 export class AppComponent {
 
+  public: boolean
+
   constructor(
     private backend: BackendService,
     private ui: UIService,
   ) {
     let now = new Date().getTime()
     stopTimer(now)
-  }
 
-  title = 'public.ink'
+    this.public = environment.public
+
+    // observe keyboard
+    Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.keyCode === 27) {
+        // cmd + escape
+        this.public = !this.public
+        event.preventDefault()
+      } 
+    })
+  }
 }

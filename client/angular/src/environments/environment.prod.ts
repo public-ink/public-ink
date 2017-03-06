@@ -1,3 +1,6 @@
 export const environment = {
-  production: true
+  name: 'production',
+  production: true,
+  public: false,
+  backend: 'https://public-ink.appspot.com'
 };

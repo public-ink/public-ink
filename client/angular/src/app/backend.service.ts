@@ -9,6 +9,7 @@ import { Apollo } from 'apollo-angular'
 
 // ink services
 import { UIService } from './ui.service'
+import { environment } from '../environments/environment'
 
 
 import {
@@ -19,8 +20,9 @@ import {
 import { iPublication } from './publication/publication.component'
 import { iAccount } from './auth-page/auth-page.component'
 
-import { iPublicationResponse } from './models'
 
+/** clean up typings */
+import { iPublicationResponse } from './models'
 export interface iInfo {
   success: boolean
   message: string
@@ -36,7 +38,7 @@ export interface iArticle {
 @Injectable()
 export class BackendService {
 
-  backendHost: string = 'http://localhost:8080'
+  backendHost: string = environment.backend
   backendDelay: number = 0
 
   /* the object containing everything by the current user */

@@ -1,3 +1,9 @@
+<!-- cover for production currently -->
+<flex-col-center-center *ngIf="!public" style="z-index: 10000; position:fixed; top: 0; left:0; width: 100vw; height: 100vh; background-color: rgba(255,255,255,1);">
+    <h1>public.ink</h1>
+</flex-col-center-center>
+
+
 <!-- full screen message overlay -->
 <flex-col-center-center *ngIf="ui.message" (click)="ui.message = false" style="z-index: 9999; position:fixed; top: 0; left:0; width: 100vw; height: 100vh; background-color: rgba(255,255,255,0.8);">
     <h1>{{ ui.message }}</h1>
@@ -10,7 +16,7 @@
         </flex-col-center>
 
         <flex-col-center class="grow">
-            public.ink
+            public.ink {{ env }}
         </flex-col-center>
 
         <!-- login / signup -->
@@ -31,7 +37,6 @@
 <div style="height: 50px;">just space behind the top bar</div>
 
 
-
 <router-outlet></router-outlet>
 
 
@@ -47,3 +52,4 @@
         </flex-row>
     </div>
 </div>
+
