@@ -627,11 +627,13 @@ export class BackendService {
         publication {
           id
           name
+          about
           imageURL
           author {
             id
             name
             about
+            imageURL
           }
         }
       }}
