@@ -38,6 +38,7 @@ export class AppComponent {
     stopTimer(now)
 
     this.public = environment.public
+    console.log('app environment', environment)
 
     // observe keyboard
     Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
