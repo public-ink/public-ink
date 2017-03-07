@@ -34,8 +34,12 @@ Environment
 """
 if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
     env = 'production'
+    backend_host  = 'https://public-ink.appspot.com'
+    frontend_host = 'https://www.public.ink'
 else:
     env = 'local'
+    backend_host  = 'http://localhost:8080'
+    frontend_host = 'http://localhost:4200'
 
 
 
@@ -75,8 +79,8 @@ class InkModel(ndb.Model):
     created = ndb.DateTimeProperty(auto_now_add=True)
     updated = ndb.DateTimeProperty(auto_now=True)
 
-""" USER """
 
+""" USER """
 class UserModel(InkModel):
     """
     The NDB UserModel [root entity]
@@ -100,7 +104,6 @@ class UserSchema(graphene.ObjectType):
     def resolve_verified(self, args, context, info):
         return self.is_verified
 
-
 """ USER IMAGE """
 class ImageModel(InkModel):
     """
@@ -112,7 +115,7 @@ class ImageModel(InkModel):
 
     @property
     def url(self):
-        return 'http://localhost:8080/image/serve?key=' + str(self.blob_key)
+        return backend_host + '/image/serve?key=' + str(self.blob_key)
 
     @property
     def id(self):
@@ -121,19 +124,12 @@ class ImageModel(InkModel):
 class ImageSchema(graphene.ObjectType):
     """
     The simple schema representing a user-uploaded image
-
-    -> now that we have id and url properties, do we need the resolves?
     """
-    url = graphene.String()
     id = graphene.String()
+    url = graphene.String()
+    created = graphene.String()
 
-    """
-    def resolve_url(self, *args):
-        return 'http://localhost:8080/image/serve?key=' + str(self.blob_key)
-
-    def resolve_id(self, *args):
-        return self.key.id()
-    """
+    
 
 class InfoSchema(graphene.ObjectType):
     """
@@ -207,13 +203,13 @@ class AuthorSchema(graphene.ObjectType):
     about = graphene.String()
     imageURL = graphene.String()
 
+    # generic
     created = graphene.String()
     updated = graphene.String()
 
     # related
     publications = graphene.List(lambda: PublicationSchema)
     def resolve_publications(self, args, *more):
-        print 'resolve publication of author'
         return PublicationModel.query(ancestor=self.key).fetch()
 
     def resolve_id(self, *args):
@@ -927,7 +923,7 @@ def send_verification_email(email, token):
         subject="Public.Ink Verification")
 
     message.to = email
-    host = 'http://localhost:4200'
+    host = frontend_host
     message.body = """Hello there,
 
 You or somebody else submitted this email address to us. To create a public.ink account, let follow this link:
