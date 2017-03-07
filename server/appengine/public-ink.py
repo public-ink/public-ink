@@ -29,6 +29,15 @@ from google.appengine.api import mail
 from google.appengine.ext import ndb
 
 
+"""
+Environment
+"""
+if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
+    env = 'production'
+else:
+    env = 'local'
+
+
 
 """
 Hashing
@@ -101,19 +110,30 @@ class ImageModel(InkModel):
     blob_key = ndb.BlobKeyProperty()
     user_key = ndb.KeyProperty(kind=UserModel)
 
+    @property
+    def url(self):
+        return 'http://localhost:8080/image/serve?key=' + str(self.blob_key)
+
+    @property
+    def id(self):
+        return self.key.id()
+
 class ImageSchema(graphene.ObjectType):
     """
     The simple schema representing a user-uploaded image
+
+    -> now that we have id and url properties, do we need the resolves?
     """
     url = graphene.String()
+    id = graphene.String()
+
+    """
     def resolve_url(self, *args):
-        #return images.get_serving_url(self.blob_key)
         return 'http://localhost:8080/image/serve?key=' + str(self.blob_key)
 
-    id = graphene.String()
     def resolve_id(self, *args):
         return self.key.id()
-
+    """
 
 class InfoSchema(graphene.ObjectType):
     """
@@ -727,7 +747,8 @@ class HomeEndpoint(webapp2.RequestHandler):
     def get(self):
         upload_url = blobstore.create_upload_url('/image/upload')
         template_values = {
-            'upload_url': upload_url
+            'upload_url': upload_url,
+            'env': env
         }
         template = ninja.get_template('home.html')
         output = template.render(template_values)
@@ -760,13 +781,14 @@ class ImageUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         try:
             upload = self.get_uploads()[0]
             id = uuid.uuid4().hex + upload.filename
-            user_image = ImageModel(
+            user_image_key = ImageModel(
                 id=id,
                 blob_key=upload.key(),
                 user_key=user_key
-            )
-            user_image.put()
-            return_json(self, {'very': 'good'})
+            ).put()
+            user_image = user_image_key.get()
+            image_info = {'url': user_image.url, 'id': user_image.id }
+            return_json(self, image_info)
 
         except Exception, e:
             print str(e)

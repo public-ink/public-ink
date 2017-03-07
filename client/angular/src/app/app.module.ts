@@ -28,7 +28,8 @@ import { LayoutComponent } from './layout/layout.component';
 import { AccountPageComponent } from './account-page/account-page.component';
 import { BottomBarComponent } from './bottom-bar/bottom-bar.component';
 import { FileDropComponent } from './file-drop/file-drop.component';
-import { AutosizeDirective } from './autosize.directive'
+import { AutosizeDirective } from './autosize.directive';
+import { MediaPageComponent } from './media-page/media-page.component'
 
 
 const apolloClient = new ApolloClient({
@@ -48,6 +49,7 @@ const appRoutes: Routes = [
   // pages
   //{ path: 'me', component: MePageComponent},
   { path: 'my-account', component: AccountPageComponent},
+  { path: 'my-media', component: MediaPageComponent },
   { path: 'auth', component: AuthPageComponent },
   { path: 'verify/:email/:token', component: EmailVerificationPageComponent},
   
@@ -78,6 +80,7 @@ const appRoutes: Routes = [
     BottomBarComponent,
     FileDropComponent,
     AutosizeDirective,
+    MediaPageComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),

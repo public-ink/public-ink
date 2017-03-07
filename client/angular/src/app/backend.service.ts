@@ -154,7 +154,7 @@ export class BackendService {
       forceFetch: true
     })
     apolloQuery.subscribe(result => {
-      this.userImages = result.data.images
+      this.userImages = JSON.parse(JSON.stringify(result.data.images))
     })
 
   }
@@ -725,12 +725,13 @@ export class BackendService {
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4) {
           if (xhr.status === 200) {
-            let data = JSON.parse(xhr.response)
+            let imageInfo = JSON.parse(xhr.response)
             progressStream.next(100)
             //progressStream.next(JSON.parse(xhr.response));
             progressStream.complete() // next would also be an option...
             // we should pass the server response down stream!
-            console.log('wanna add', data)
+            console.log('wanna add', imageInfo)
+            this.userImages.unshift(imageInfo)
           } else {
             // on error - what do they look like?
             progressStream.error(xhr.response);

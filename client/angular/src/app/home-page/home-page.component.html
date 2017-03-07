@@ -1,17 +1,8 @@
+<!--<h1>public.ink home</h1>-->
+<app-author [author]="article.publication.author" *ngIf="article"></app-author>
+<app-publication [publication]="article.publication" *ngIf="article"></app-publication>
+<app-article [article]="article" *ngIf="article"></app-article>
 
-<div class="content-widthx">
-  <!--<h1>public.ink home</h1>-->
-  <app-author [author]="article.publication.author" *ngIf="article"></app-author>
-  <app-publication [publication]="article.publication" *ngIf="article"></app-publication>
-  <app-article [article]="article" *ngIf="article"></app-article>
+<div class="content-width">
 
-  <h2>your images</h2>
-  <app-file-drop></app-file-drop>
-
-
-  <!-- user images -->
-  <flex-row-between style="flex-wrap: wrap">
-    <img *ngFor="let image of backend.userImages" [src]="image.url + '&w=200&h=200'" style="margin:5px;" />
-  </flex-row-between>
 </div>
-

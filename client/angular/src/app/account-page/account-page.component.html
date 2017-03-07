@@ -2,7 +2,10 @@
 
 <div *ngIf="backend.userAccount">
   <div class="content-width">
-    <div>{{ backend.userAccount.email }}, <span *ngIf="backend.userAccount.verified">is verified.</span> <a [routerLink]="['/create-author']">Create Author</a> <a href="#" (click)="backend.logoutUser()">Log Out</a></div>
+    <div>{{ backend.userAccount.email }}, <span *ngIf="backend.userAccount.verified">is verified.</span> <a [routerLink]="['/create-author']">Create Author</a> 
+    
+    <a [routerLink]="['/my-media']">Your Media</a>
+    <a href="#" (click)="backend.logoutUser()">Log Out</a></div>
   </div>
 
 

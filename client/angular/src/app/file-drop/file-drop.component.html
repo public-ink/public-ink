@@ -1,3 +1,26 @@
-<p>
-  file-drop works!
-</p>
+
+<!-- drag / click area -->
+<div 
+  (dragover)="onDragOver($event)"
+  (drop)="onDrop($event)"
+  (click)="clickFileinput()"
+  style="width: 100%; height: 100%; border: 2px dotted gray; padding: 10px; background-color: white; color:black">
+  drop files or click
+  <!-- hidden standard file input (because it's not pretty, we simulate a click on it) -->
+  <input style="width:0; height:0;" (change)="fileinputChange($event)" type="file" multiple="multiple" name="fileinput"  id="fileinput" #fileinput />
+</div>
+
+<!-- running and completed uploads row -->
+<flex-row>
+  <!-- upload tile with preview and percent! -->
+  <flex-col-center-center  *ngFor="let upload of uploads" 
+    style="width:200px; height: 200px; background-repeat: no-repeat; background-position: center center; background-size: cover;"
+    [style.background-image]="upload.preview">
+
+      <flex-col-center-center style="width: 50px; height: 50px; background-color: white; border-radius: 100%; border: 1px solid #333; ">
+        {{ upload.percent }}%
+      </flex-col-center-center>
+    <!--{{ upload.filename }}
+    {{ upload.status }}-->
+  </flex-col-center-center>
+</flex-row>
