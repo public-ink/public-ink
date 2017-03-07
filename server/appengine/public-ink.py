@@ -22,7 +22,7 @@ from google.appengine.api import images
 
 # ink stuff
 from shared import RequestHandler, cross_origin, ninja, allow_cors, return_json
-from secrets.jwt import JWT_SECRET, JWT_EXP_DELTA_SECONDS, JWT_ALGORITHM, JWT_EXP_DELTA_DAYS
+from secrets import JWT_SECRET, JWT_EXP_DELTA_SECONDS, JWT_ALGORITHM, JWT_EXP_DELTA_DAYS
 
 # app engine
 from google.appengine.api import mail
