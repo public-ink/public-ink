@@ -31,10 +31,12 @@ import { FileDropComponent } from './file-drop/file-drop.component';
 import { AutosizeDirective } from './autosize.directive';
 import { MediaPageComponent } from './media-page/media-page.component'
 
+import { environment } from '../environments/environment'
+
 
 const apolloClient = new ApolloClient({
   networkInterface: createNetworkInterface({
-    uri: 'http://localhost:8080/graphql'
+    uri: environment.backend + '/graphql'
   }),
 })
 
