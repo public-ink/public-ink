@@ -115,7 +115,7 @@ class ImageModel(InkModel):
 
     @property
     def url(self):
-        return backend_host + '/image/serve?key=' + str(self.blob_key)
+        return backend_host + '/api/image/serve?key=' + str(self.blob_key)
 
     @property
     def id(self):
@@ -904,13 +904,14 @@ def rescale(blob_key, width, height, halign='middle', valign='middle'):
 app = webapp2.WSGIApplication(
     [
         ('/', HomeEndpoint),
-        ('/graphql', GraphQLEndpoint),
+        #('/graphql', GraphQLEndpoint),
+        ('/api/graphql', GraphQLEndpoint),
         # images
         # upload url
-        ('/image/upload-url', UploadUrl),
+        ('/api/image/upload-url', UploadUrl),
         # this is where things are posted to, because get upload url specified this url
-        ('/image/upload', ImageUploadHandler),
-        ('/image/serve', ServeImage)
+        ('/api/image/upload', ImageUploadHandler),
+        ('/api/image/serve', ServeImage)
     ], debug=True
 )
 
