@@ -839,6 +839,7 @@ class ServeImage(webapp2.RequestHandler):
             result = image.execute_transforms(output_encoding=images.JPEG)
         else:
             # this is a hack...
+            # server a maximum size instead
             image.im_feeling_lucky()
             result = image.execute_transforms(output_encoding=images.JPEG)
         self.response.headers['Content-Type'] = 'image/jpeg'
@@ -900,6 +901,11 @@ def rescale(blob_key, width, height, halign='middle', valign='middle'):
     return image.execute_transforms()
 
 
+class CertificateHandler(webapp2.RequestHandler):
+    def get(self, hash):
+        response = 'abc'
+        self.response.write(response)
+    
 
 app = webapp2.WSGIApplication(
     [
@@ -911,7 +917,9 @@ app = webapp2.WSGIApplication(
         ('/api/image/upload-url', UploadUrl),
         # this is where things are posted to, because get upload url specified this url
         ('/api/image/upload', ImageUploadHandler),
-        ('/api/image/serve', ServeImage)
+        ('/api/image/serve', ServeImage),
+        # for let's encrypt:
+        (r'/\.well-known/acme-challenge/(.+)?', CertificateHandler)
     ], debug=True
 )
 

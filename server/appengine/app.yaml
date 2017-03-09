@@ -19,6 +19,10 @@ handlers:
 - url: /api/.*
   script: public-ink.app
 
+# certificate validation
+- url: /\.well-known/acme-challenge/.*
+  script: public-ink.app
+
 # serve index.html at all other urls
 - url: /.*
   static_files: angular/index.html
