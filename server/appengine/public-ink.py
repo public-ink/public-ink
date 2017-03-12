@@ -21,25 +21,13 @@ from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.api import images
 
 # ink stuff
-from shared import RequestHandler, cross_origin, ninja, allow_cors, return_json
+from shared import RequestHandler, cross_origin, ninja, allow_cors, return_json, ENV_NAME, FRONTEND_URL, BACKEND_URL
 from secrets import JWT_SECRET, JWT_EXP_DELTA_SECONDS, JWT_ALGORITHM, JWT_EXP_DELTA_DAYS
 
 # app engine
 from google.appengine.api import mail
 from google.appengine.ext import ndb
 
-
-"""
-Environment
-"""
-if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
-    env = 'production'
-    backend_host  = 'https://public-ink.appspot.com'
-    frontend_host = 'https://www.public.ink'
-else:
-    env = 'local'
-    backend_host  = 'http://localhost:8080'
-    frontend_host = 'http://localhost:4200'
 
 
 
@@ -115,7 +103,7 @@ class ImageModel(InkModel):
 
     @property
     def url(self):
-        return backend_host + '/api/image/serve?key=' + str(self.blob_key)
+        return BACKEND_URL + '/api/image/serve?key=' + str(self.blob_key)
 
     @property
     def id(self):
@@ -677,7 +665,6 @@ class Query(graphene.ObjectType):
     
 
 """ MUTATION """
-""" OUTDATED """
 class ReferenceMutation(graphene.Mutation):
     class Input:
         email = graphene.String()
@@ -741,10 +728,10 @@ class GraphQLEndpoint(RequestHandler):
 
 class HomeEndpoint(webapp2.RequestHandler):
     def get(self):
-        upload_url = blobstore.create_upload_url('/image/upload')
+        upload_url = blobstore.create_upload_url(IMAGE_UPLOAD_URL)
         template_values = {
             'upload_url': upload_url,
-            'env': env
+            'env': ENV_NAME
         }
         template = ninja.get_template('home.html')
         output = template.render(template_values)
@@ -755,9 +742,8 @@ class HomeEndpoint(webapp2.RequestHandler):
 """ classic multi-part form upload for images """
 class UploadUrl(RequestHandler):
     def get(self):
-        #todo: make URL const
         allow_cors(self)
-        upload_url = blobstore.create_upload_url('/image/upload')
+        upload_url = blobstore.create_upload_url(IMAGE_UPLOAD_URL)
         return_json(self, {'url': upload_url })
 
 
@@ -769,7 +755,7 @@ class ImageUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         # works!
         allow_cors(self)
         print 'Image Upload Handler here!'
-        jwt=self.request.get('jwt')
+        jwt = self.request.get('jwt')
         email = email_from_jwt(jwt)
         user_key = ndb.Key('UserModel', email)
         print jwt
@@ -790,10 +776,8 @@ class ImageUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
             print str(e)
             self.error(500)
 
-    """
-    def optionss(self):
+    def options(self):
         allow_cors(self)
-    """
 
 
 
@@ -903,9 +887,10 @@ def rescale(blob_key, width, height, halign='middle', valign='middle'):
 
 class CertificateHandler(webapp2.RequestHandler):
     def get(self, hash):
-        response = 'abc'
+        response = 'B6j215uAJciGPNxnIszvcOlTNnoDwySeht3TkucAdoM.EcoLxzYWRubjzLXalHcppF9GQW4-y0H0oabtKMij-XI'
         self.response.write(response)
     
+IMAGE_UPLOAD_URL = '/api/image/upload'
 
 app = webapp2.WSGIApplication(
     [
@@ -929,20 +914,21 @@ app = webapp2.WSGIApplication(
 def send_verification_email(email, token):
     message = mail.EmailMessage(
         sender="auth@public-ink.appspotmail.com",
-        subject="Public.Ink Verification")
+        subject="Public.Ink Acount Verification")
 
     message.to = email
-    host = frontend_host
-    message.body = """Hello there,
+    host = FRONTEND_URL
+    message.body = """
+Hello there,
 
 You or somebody else submitted this email address to us. To create a public.ink account, let follow this link:
 {}/verify/{}/{}
 
 Awesome!
     """.format(host, email, token)
-    #message.send()
-    print 'sending message to ' + email
-    print message.body
+    #print 'sending message to ' + email
+    #print message.body
+    message.send()
 
 
 def email_from_jwt(token):

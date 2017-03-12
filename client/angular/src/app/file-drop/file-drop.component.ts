@@ -28,7 +28,14 @@ export class FileDropComponent {
   /** on classic file(s) selection */
   fileinputChange($event) {
     //console.log($event)
-    const files = $event.target.files
+    
+    let files
+    if ($event.dataTransfer) {
+      files = $event.dataTransfer.files
+    } else {
+      files = $event.target.files
+    }
+
     //console.log(files)
     for (let file of files) {
 
@@ -41,13 +48,11 @@ export class FileDropComponent {
       }
 
       this.uploads.push(uploadObject)
+      console.log('uploads:', this.uploads)
 
       // attach a preview callback
       var reader = new FileReader()
       reader.onload = (event: any) => {
-        //uploadObject.preview = event.target.result
-
-        //uploadObject.preview = this.sanitizer.bypassSecurityTrustUrl('url(' + event.target.result + ')'),
         uploadObject.preview = this.sanitizer.bypassSecurityTrustStyle('url(' + event.target.result + ')')
         console.log('preview ready')
       }
@@ -76,23 +81,12 @@ export class FileDropComponent {
   }
 
   onDrop($event) {
+    console.log('dropped')
     $event.preventDefault()
     $event.stopPropagation()
+    this.fileinputChange($event)
 
-    const files = $event.dataTransfer.files
-    console.log('dropped!', $event)
-
-    var reader = new FileReader()
-    reader.onload = (event: any) => {
-      this.testSRC = event.target.result
-    }
-    reader.readAsDataURL(files[0])
-
-    for (let file of files) {
-      this.backend.uploadFile(file).subscribe((res) => {
-        console.log('single file upload completed', res)
-      })
-    }
+   
   }
 
   constructor(

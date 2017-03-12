@@ -405,6 +405,7 @@ export class BackendService {
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4) {
           if (xhr.status === 200) {
+            console.log('image upload resonse!', xhr.response)
             let data = JSON.parse(xhr.response)
             observer.next(JSON.parse(xhr.response));
             observer.complete()

@@ -9,6 +9,19 @@ from google.appengine.ext import ndb
 from google.appengine.api import users
 
 
+"""
+Environment
+"""
+if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
+    ENV_NAME = 'production'
+    BACKEND_URL = 'https://www.public.ink'
+    FRONTEND_URL = 'https://www.public.ink'
+    ALLOW_ORIGIN = BACKEND_URL
+else:
+    ENV_NAME = 'develop'
+    BACKEND_URL = 'http://localhost:8080'
+    FRONTEND_URL = 'http://localhost:4200'
+    ALLOW_ORIGIN = '*'
 
 
 """
@@ -25,7 +38,6 @@ def epoch(dt):
 """
 Decorators
 """
-
 def cross_origin(fn):
     """
     Generic decorators to allow CORS requests
@@ -111,7 +123,7 @@ def allow_cors(request):
     set the appropriate response headers for cross-origin requests
     """
     request.response.headers['Access-Control-Allow-Credentials'] = 'true'
-    request.response.headers['Access-Control-Allow-Origin']  = 'http://localhost:4200'
+    request.response.headers['Access-Control-Allow-Origin']  = ALLOW_ORIGIN
     request.response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
     request.response.headers['Access-Control-Allow-Methods'] = 'PUT, GET, POST, DELETE'
 

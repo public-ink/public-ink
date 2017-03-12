@@ -718,13 +718,16 @@ export class BackendService {
       /** on progress, push to stream! */
       xhr.addEventListener('progress', event => {
         let percent = Math.ceil((event.loaded / event.total) * 100)
+        console.log('upload percent', percent)
         progressStream.next(percent)
       })
 
       /** listen to a success message from the server */
       xhr.onreadystatechange = () => {
+        console.log('read state change', xhr.readyState, xhr.status)
         if (xhr.readyState === 4) {
           if (xhr.status === 200) {
+            console.log('image upload response', xhr.response)
             let imageInfo = JSON.parse(xhr.response)
             progressStream.next(100)
             //progressStream.next(JSON.parse(xhr.response));
