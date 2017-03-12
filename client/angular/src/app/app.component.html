@@ -44,8 +44,10 @@
 <div style="position:fixed; bottom: 0px; left:0px; width: 100%;" [hidden]="!ui.mediaBar">
     <div>
         <flex-row style="overflow-x:scroll; background-color: white;">
-             
-             <flex-col *ngFor="let image of backend.userImages">
+            
+            <app-file-drop></app-file-drop>
+
+             <flex-col *ngFor="let image of backend.userImages | slice:0:8 ">
                 <img (click)="ui.mediaClickStream.next(image)"  [src]="image.url + '&w=200&h=200'" style="margin:5px;" />
                 <button (click)="backend.deleteImage(image.id)">delete</button>
              </flex-col>

@@ -11,7 +11,10 @@
 </div>
 
 <!-- running and completed uploads row -->
-<flex-row>
+<!--
+CURRENTLY DISABLED
+-->
+<flex-row *ngIf="0">
   <!-- upload tile with preview and percent! -->
   <flex-col-center-center  *ngFor="let upload of uploads" 
     style="width:200px; height: 200px; background-repeat: no-repeat; background-position: center center; background-size: cover;"

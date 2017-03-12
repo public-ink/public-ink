@@ -4,7 +4,7 @@
   <app-file-drop></app-file-drop>
   <!-- user images -->
   <flex-row-between style="flex-wrap: wrap">
-    <flex-col *ngFor="let image of backend.userImages">
+    <flex-col *ngFor="let image of backend.userImages | slice:0:8">
       <img [src]="image.url + '&w=200&h=200'" style="margin:5px;" />
       <button (click)="backend.deleteImage(image.id)">delete</button>
     </flex-col>
