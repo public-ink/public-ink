@@ -1,6 +1,15 @@
 import os
 from subprocess import call
 
+"""
+color!
+from colorama import init, Fore, Back, Style
+
+init()
+print(Fore.RED + 'some red text')
+print(Back.GREEN + 'and with a green background')
+"""
+
 print "Let's deploy public.ink"
 
 """
