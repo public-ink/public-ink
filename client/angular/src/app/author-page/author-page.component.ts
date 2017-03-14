@@ -102,8 +102,10 @@ export class AuthorPageComponent implements OnInit, OnDestroy {
    */
   saveAuthor() {
     console.log('save author')
+    this.ui.show('loading', 'saving')
     this.backend.saveAuthor(this.author).subscribe((authorResponse: any) => {
-      this.ui.flashMessage(authorResponse.info.message)
+      //this.ui.flashMessage(authorResponse.info.message)
+      this.ui.show('success', 'done', 1000)
       // in case of create-author, we need to redirect
       this.router.navigate(['/', authorResponse.author.id])
       console.log(authorResponse.author.id)

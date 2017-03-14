@@ -24,11 +24,12 @@ declare function stopTimer(timestamp: number): void
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
 
   public: boolean
+  environment
 
   constructor(
     private backend: BackendService,
@@ -38,6 +39,7 @@ export class AppComponent {
     stopTimer(now)
 
     this.public = environment.public
+    this.environment = environment
     console.log('app environment', environment)
 
     // observe keyboard

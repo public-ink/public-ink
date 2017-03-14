@@ -27,8 +27,8 @@
  <!-- if Existing -->
 <app-bottom-bar *ngIf="publication">
    <flex-row-between-center style="height:50px;">
-    <button (click)="savePublication()">Save Changes</button>
-    <button (click)="deletePublication()" class="" *ngIf="!publication.new">Delete Publication</button>
+    <button class="page-button" (click)="savePublication()">Save Changes</button>
+    <button class="page-button" (click)="deletePublication()" class="" *ngIf="!publication.new">Delete Publication</button>
    </flex-row-between-center>
 
 </app-bottom-bar>

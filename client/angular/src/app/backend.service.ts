@@ -39,7 +39,7 @@ export interface iArticle {
 export class BackendService {
 
   backendHost: string = environment.backend
-  backendDelay: number = 0
+  backendDelay: number = 1000
 
   /* the object containing everything by the current user */
   userAccount: iAccount
@@ -373,7 +373,7 @@ export class BackendService {
       forceFetch: true,
     })
     return new Observable(stream => {
-      apolloQuery.subscribe(result => {
+      apolloQuery.delay(this.backendDelay).subscribe(result => {
         console.log('backend saved author, result', result)
         stream.next(result.data.saveAuthor)
       })

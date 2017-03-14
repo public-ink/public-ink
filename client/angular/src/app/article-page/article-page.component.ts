@@ -115,8 +115,10 @@ export class ArticlePageComponent implements OnInit {
       this.articleID,
       this.article).subscribe(reply => {
         this.ui.flashMessage(reply.info.message)
-        // in case of create-article, navigate to created article
-        this.router.navigate(['/', reply.article.publication.author.id, reply.article.publication.id, reply.article.id])
+        /* not sure why this check is required here but not on publication page */
+        if (this.articleID === 'create-article') {
+          this.router.navigate(['/', reply.article.publication.author.id, reply.article.publication.id, reply.article.id])
+        }
       })
   }
 

@@ -9,7 +9,12 @@ import { ServerError, ValidationError } from './models'
 @Injectable()
 export class UIService {
 
+  stateName: string
+  overlay: boolean
   message: string
+  loading: boolean
+  success: boolean
+  error:   boolean
 
   colors = {
     black: '#000',
@@ -77,9 +82,57 @@ export class UIService {
     alert('error: ' + error.status)
   }
 
+  /**
+   * Shows a given message for 1 second.
+   * @param message: string
+   */
   flashMessage(message: string) {
     this.message = message
     setTimeout(() => {this.message = ''}, 1000)
+  }
+
+  /**
+   * Updates local state variables for the UI to pick up
+   */
+  show(stateName: string, message?:string, duration?: number) {
+    this.resetState()
+    this.overlay = true
+
+    this.stateName = stateName
+    let state = this.states[stateName]
+
+    // passed in message, or generic state message
+    this.message = message ? message : state.message
+    // the state's state
+    this.loading = state.loading
+    this.success = state.success
+    this.error = state.error
+
+    if (duration) {
+      setTimeout(() => {this.overlay = false}, duration)
+    }
+  }
+
+  /**
+   * Set all state variables to false
+   */
+  resetState() {
+    this.loading = this.success = this.error = false
+  }
+
+  states = {
+    loading: {
+      message: 'loading',
+      loading: true
+    },
+    success: {
+      message: 'saved',
+      success: true,
+    },
+    error: {
+      message: 'something bad just happened',
+      error: true,
+    }
   }
 
 }

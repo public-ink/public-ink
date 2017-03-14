@@ -35,8 +35,8 @@
 <app-bottom-bar *ngIf="author && !author.new">
     <div class="content-width" >
         <flex-row-between>
-            <button (click)="saveAuthor()">save changes</button>
-            <button (click)="delete()" *ngIf="1">delete author</button>
+            <button class="page-button" (click)="saveAuthor()">save changes</button>
+            <button class="page-button" (click)="delete()" *ngIf="1">delete author</button>
         </flex-row-between>
     </div>
 </app-bottom-bar>
