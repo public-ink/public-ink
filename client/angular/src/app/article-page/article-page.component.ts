@@ -109,12 +109,13 @@ export class ArticlePageComponent implements OnInit {
    * Creates a new article, or updates an exisiting one
    */
   saveArticle(): void {
+    this.ui.show('loading', 'saving article...')
     this.backend.saveArticle(
       this.authorID,
       this.publicationID,
       this.articleID,
       this.article).subscribe(reply => {
-        this.ui.flashMessage(reply.info.message)
+        this.ui.show('success', 'done!', 1000)
         /* not sure why this check is required here but not on publication page */
         if (this.articleID === 'create-article') {
           this.router.navigate(['/', reply.article.publication.author.id, reply.article.publication.id, reply.article.id])

@@ -22,8 +22,9 @@
       <app-publication [publication]="publication"></app-publication>
 
       <!-- articles -->
-      <div *ngFor="let article of publication.articles">
+      <div *ngFor="let article of publication.articles; let last = last;">
         <app-article [article]="article" [preview]="true"></app-article>
+        <hr *ngIf="!last" />
       </div>
     </div>
     

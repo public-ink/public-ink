@@ -99,8 +99,9 @@ export class PublicationPageComponent implements OnInit {
    */
   savePublication() {
     // todo: validation
+    this.ui.show('loading', 'saving publication')
     this.backend.savePublication(this.publication).subscribe((publicationResponse: any) => {
-      this.ui.flashMessage(publicationResponse.info.message)
+     this.ui.show('success', 'done!', 1000)
       // coule be that we are already here, this is for creates
       console.log(publicationResponse)
       this.router.navigate(['/', publicationResponse.publication.author.id, publicationResponse.publication.id])

@@ -634,8 +634,26 @@ class Query(graphene.ObjectType):
     """ delete author"""
     deleteAuthor = graphene.Field(InfoSchema, jwt=graphene.String(), authorID=graphene.String())
     def resolve_deleteAuthor(self, args, *more):
-        ndb.Key('AuthorModel', args.get('authorID')).delete()
-        return InfoSchema(success=True, message='author_deleted')
+        
+        """ validate request! """
+        token = args.get('jwt') or self.get('jwt')
+        author_id = args.get('authorID') or self.get('authorID')
+
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        claim_email = payload.get('email')
+        user_key = ndb.Key('UserModel', claim_email)
+        user = user_key.get()
+
+        author = ndb.Key('AuthorModel', author_id).get()
+        # improve this, rename to key, make a @property
+        author_user = author.user.get()
+        if (author_user.email == claim_email):
+            print "yes, you can delete this author"
+            ndb.Key('AuthorModel', args.get('authorID')).delete()
+            return InfoSchema(success=True, message='author_deleted (not really')
+        else: 
+            print "you don't have permission to delete this author"
+            return InfoSchema(success=False, message='unauthorized')
 
     """ delete publication """
     deletePublication = graphene.Field(InfoSchema)
@@ -722,6 +740,12 @@ class GraphQLEndpoint(RequestHandler):
         for error in result.errors:
             error_list.append(str(error))
         response = {'data' : result.data, 'errors': error_list}
+        """ Test Cookies! (not showing up) """
+        print 'cookie ' * 5
+        self.response.set_cookie('jwt', 'myjwt', max_age=360, path='/', 
+            domain='localhost:4200', secure=True, httponly=True)
+        self.response.set_cookie('jwt', 'myjwt', max_age=360, path='/', 
+            domain=None, secure=False, httponly=False)
         self.response.headers['Content-Type'] = 'application/json; charset=utf-8'
         self.response.out.write(json.dumps(response))
 
@@ -886,6 +910,7 @@ def rescale(blob_key, width, height, halign='middle', valign='middle'):
 
 
 class CertificateHandler(webapp2.RequestHandler):
+    """Todo: write / read from database """
     def get(self, hash):
         response = 'B6j215uAJciGPNxnIszvcOlTNnoDwySeht3TkucAdoM.EcoLxzYWRubjzLXalHcppF9GQW4-y0H0oabtKMij-XI'
         self.response.write(response)

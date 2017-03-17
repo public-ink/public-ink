@@ -18,12 +18,14 @@
         -->
         <div style="color: #666;">By 
             <a style="color:dodgerblue;" [routerLink]="['/', article.publication.author.id]">{{ article.publication.author.name }}</a>
-            in <a style="color: dodgerblue;" [routerLink]="['/', article.publication.author.id, article.publication.id]">{{ article.publication.name }}</a> | February 2017
+            in <a style="color: dodgerblue;" [routerLink]="['/', article.publication.author.id, article.publication.id]">{{ article.publication.name }}</a> <span style="color: #999;">|  February 2017</span>
         </div>
         
     </flex-row-start-center>
     <div style="height:50px;"></div>
-    <div #editor>editor goes here</div>
+    <div #editor
+        [style.background-color]="quill.hasFocus() ? 'yellow' : 'white'"
+    >editor goes here</div>
 
     <div #hidden style="display: none; background-color:lime;">jo</div>
 

@@ -6,6 +6,7 @@ import 'rxjs/add/operator/map'
 // graphql
 import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
+import { print } from 'graphql-tag/printer'
 
 // ink services
 import { UIService } from './ui.service'
@@ -408,24 +409,25 @@ export class BackendService {
   }
 
 
-  deleteAuthor(authorID): Observable<iInfo> {
+  deleteAuthor(authorID): Observable<any> {
     /**
      * Deletes an Author, removes it from the userAccount's authors, 
      * and returns information about the status
      */
     const jwt = localStorage.getItem('jwt')
-    const query = gql`
+    let query = gql`
       {deleteAuthor(jwt:"${jwt}", authorID: "${authorID}"){
         ...info
       }}
       ${this.fragments.info}
     `
+
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
       forceFetch: true,
     })
     return new Observable(stream => {
-      apolloQuery.subscribe(result => {
+      apolloQuery.delay(this.backendDelay).subscribe(result => {
         const info = result.data.deleteAuthor
         let authors = this.userAccount.authors
         if (info.success) {
@@ -434,6 +436,8 @@ export class BackendService {
           this.userAccount.authors = authors
         }
         stream.next(info)
+      }, (error) => {
+        stream.error(error)
       })
     })
   }
@@ -526,7 +530,7 @@ export class BackendService {
       forceFetch: true,
     })
     return new Observable(stream => {
-      querySubscription.subscribe(result => {
+      querySubscription.delay(this.backendDelay).subscribe(result => {
         const publication: iPublication = result.data.savePublication.publication
         const info = result.data.savePublication.info
         // pass back the whole response
@@ -580,7 +584,7 @@ export class BackendService {
       forceFetch: true,
     })
     return new Observable(stream => {
-      apolloQuery.subscribe(result => {
+      apolloQuery.delay(this.backendDelay).subscribe(result => {
         const article = result.data[endpoint].article
         const info = result.data[endpoint].info
 
@@ -612,7 +616,7 @@ export class BackendService {
       forceFetch: true,
     })
     return new Observable(stream => {
-      apolloQuery.subscribe(result => {
+      apolloQuery.delay(this.backendDelay).subscribe(result => {
         const info = result.data.deleteArticle
         stream.next(info)
       })
@@ -680,7 +684,7 @@ export class BackendService {
       forceFetch: true,
     })
     return new Observable(stream => {
-      apolloQuery.subscribe(result => {
+      apolloQuery.delay(this.backendDelay).subscribe(result => {
         const info = result.data.deletePublication
         let authors = this.userAccount.authors
         if (info.success) {

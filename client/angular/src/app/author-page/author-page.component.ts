@@ -72,7 +72,7 @@ export class AuthorPageComponent implements OnInit, OnDestroy {
 
     // observe keyboard
     this.keyboardSubscription = Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
-      
+
       if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) {
         // cmd + s
         this.saveAuthor()
@@ -90,10 +90,24 @@ export class AuthorPageComponent implements OnInit, OnDestroy {
    * Deletes the author, and redirects to my-account
    */
   deleteAuthor() {
-    this.backend.deleteAuthor(this.authorID).subscribe((info: iInfo) => {
-      this.ui.flashMessage(info.message)
-      this.router.navigate(['/my-account'])
-    })
+    // confirm dialog
+    this.ui.confirm('Are you sure you want to delete ' + this.author.name).subscribe(
+      // user confirms
+      (yes) => {
+        this.ui.show('loading', 'deleting author')
+
+        this.backend.deleteAuthor(this.authorID).subscribe((info: iInfo) => {
+          this.ui.show('success', 'done!', 1000)
+          this.router.navigate(['/my-account'])
+        }, (error) => {
+          // think about displaying multiple errors
+          this.ui.show('error', error.graphQLErrors[0])
+        })
+      // user cancels
+      }, (no) => {
+        this.ui.hide()
+      })
+
   }
 
   /**

@@ -9,10 +9,17 @@
 
     <div class="spinner-black" *ngIf="ui.loading"></div>
     <flex-center class="success-mark" *ngIf="ui.success">✔</flex-center>
-    <div class="error-mark" *ngIf="ui.error"></div>
+    <div class="error-mark" *ngIf="ui.error">x</div>
     
 
     <h1>{{ ui.message }}</h1>
+
+    <!-- confirm -->
+    <flex-row-center *ngIf="ui.toConfirm">
+        <button (click)="ui.confirmStream.next('yes')">Yes</button>
+        <button (click)="ui.confirmStream.error('no')">No</button>
+    </flex-row-center>
+
 </flex-col-center-center>
 
 <!-- main -->

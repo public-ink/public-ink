@@ -1,10 +1,15 @@
 import { Injectable } from '@angular/core'
 import { DomSanitizer} from '@angular/platform-browser'
+import { Router, NavigationEnd } from '@angular/router'
 
+// RX
 import { Observable, Subscribable } from 'rxjs/Observable'
 import 'rxjs/Rx'
 
+// INK
 import { ServerError, ValidationError } from './models'
+
+
 
 @Injectable()
 export class UIService {
@@ -15,6 +20,16 @@ export class UIService {
   loading: boolean
   success: boolean
   error:   boolean
+
+  toConfirm: boolean
+  confirmStream: any
+
+  // dimensions (initial)
+  initialWidth: number
+  initialHeight: number
+  // dimensions (dynamic)
+  deviceWidth: number
+  deviceHeight: number
 
   colors = {
     black: '#000',
@@ -53,9 +68,37 @@ export class UIService {
   mediaClickStream: any
   mediaClickObservable: Subscribable<any>
 
+  recordSize() {
+    this.deviceWidth = window.innerWidth
+    this.deviceHeight = window.innerHeight
+  }
+
+  vh(percent: number) {
+    return Math.floor(this.deviceHeight * (percent / 100))
+  }
+  vw(percent: number) {
+    return Math.floor(this.deviceWidth * (percent / 100))
+  }
+  initialVH(percent: number) {
+    return Math.floor(this.initialHeight * (percent / 100))    
+  }
+  initialVW(percent: number) {
+    return Math.floor(this.initialWidth * (percent / 100))    
+  }
+
   constructor(
     private sanitizer: DomSanitizer,
+    private router: Router,
   ) { 
+    // device dimensions
+    this.initialWidth = window.innerWidth
+    this.initialHeight = window.innerHeight
+
+    this.recordSize()
+    Observable.fromEvent(window, 'resize').subscribe(() => {
+      this.recordSize()
+    })
+
     // keyboard shortcuts
     Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
     
@@ -66,7 +109,10 @@ export class UIService {
         event.preventDefault()
       }
     })
-
+    
+    /**
+     * media click observables
+     */
     this.mediaClickObservable = new Observable(stream => {
       this.mediaClickStream = stream
     }).share()
@@ -74,7 +120,15 @@ export class UIService {
       console.log('media bar image clicked', image)
     })
 
-
+    /**
+     * router events
+     */
+    router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        console.log('navigation end!')
+        //document.getElementById('app').scrollTop = 0
+      }
+    })
   }
 
   handleError(error: ServerError | ValidationError) {
@@ -114,10 +168,34 @@ export class UIService {
   }
 
   /**
+   * Open a confirm dialog with a given questions
+   * @param question 
+   */
+  confirm(question: string): Observable<any> {
+    this.resetState()
+    this.toConfirm = true
+    this.message = question
+    this.overlay = true
+
+    return new Observable(stream => {
+      this.confirmStream = stream
+    })
+  }
+
+  /**
+   * Hides the overlay
+   */
+  hide(): void {
+    this.overlay = false
+    this.resetState()
+  }
+
+
+  /**
    * Set all state variables to false
    */
   resetState() {
-    this.loading = this.success = this.error = false
+    this.loading = this.success = this.error = this.toConfirm = false
   }
 
   states = {
@@ -133,6 +211,20 @@ export class UIService {
       message: 'something bad just happened',
       error: true,
     }
+  }
+
+  
+
+
+  /**
+   * dynamically add elements into head
+   * ui.loadTag('link', )
+   */
+  public loadLink(url) {
+    let node = document.createElement('link');
+    node.href = url;
+    node.rel = 'stylesheet';
+    document.getElementsByTagName('head')[0].appendChild(node);
   }
 
 }
