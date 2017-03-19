@@ -1,5 +1,5 @@
 <!-- cover for production currently -->
-<flex-col-center-center *ngIf="!public" style="z-index: 10000; position:fixed; top: 0; left:0; width: 100vw; height: 100vh; background-color: rgba(255,255,255,1);">
+<flex-col-center-center *ngIf="!public" style="z-index: 2; position:fixed; top: 0; left:0; width: 100vw; height: 100vh; background-color: rgba(255,255,255,1);">
     <h1>public.ink</h1>
 </flex-col-center-center>
 
@@ -22,12 +22,36 @@
 
 </flex-col-center-center>
 
+<div style="height: 49px; z-index: 3; background-color:rgba(255,255,255,0.95); position:fixed; top: 0; left:0; width: 100%; border-bottom: 1px solid lightgray">
+    <app-extra-width>
+        <flex-row-between-center>
+            <h2><a [routerLink]="['/']">Public.Ink</a></h2>
+            <!-- logo -->
+           <!-- <flex-center style="width:30px; height: 30px; background:#444; border-radius: 100%; color: white; ">
+                π
+            </flex-center>-->
+           
+            <!-- login / signup -->
+            <flex-row *ngIf="!backend.userAccount?.authenticated">
+                <h2><a [routerLink]="['/auth']">Log In</a> | <a [routerLink]="['/auth']">Sign Up</a></h2>
+            </flex-row>
+            <!-- your account -->
+            <flex-row *ngIf="backend.userAccount?.authenticated">
+                <h2><a [routerLink]="['/my-account']">Your Things</a></h2>
+            </flex-row>
+
+        </flex-row-between-center>
+        
+    </app-extra-width>
+</div>
+
+
 <!-- main -->
-<flex-row-center style="z-index: 9999; border-bottom: 2px solid #444; background-color:white; height: 50px; position:fixed; top: 0; left:0; width: 100%;">
-    <flex-row-around-center class="content-width">
-        <flex-col-center class="grow">
+<flex-row-center style="display: none; z-index: 2; box-shadow: 0 2px 2px -2px rgba(0,0,0,.35); border-bottom: 0px solid #444; background-color:rgba(255,255,255,0.95); height: 50px; position:fixed; top: 0; left:0; width: 100%;">
+    <app-extra-width [bg]="'red'">
+        <flex-col-start class="grow">
             <a [routerLink]="['/']">Home</a>
-        </flex-col-center>
+        </flex-col-start>
 
         <flex-col-center class="grow">
             public.ink {{ environment.name }}
@@ -40,12 +64,11 @@
             <a [routerLink]="['/auth']">Sign Up</a>
         </flex-row-center>
         <!-- your account -->
-        <flex-col-center *ngIf="backend.userAccount?.authenticated" class="grow">
+        <flex-col-end *ngIf="backend.userAccount?.authenticated" class="grow">
             <a [routerLink]="['/my-account']">Your Account</a>
-        </flex-col-center>
+        </flex-col-end>
 
-
-    </flex-row-around-center>
+    </app-extra-width>
 </flex-row-center>
 
 <div style="height: 50px;">just space behind the top bar</div>
@@ -55,13 +78,13 @@
 
 
 <!-- media bar! -->
-<div style="position:fixed; bottom: 0px; left:0px; width: 100%;" [hidden]="!ui.mediaBar">
+<div style="position:fixed; bottom: 0px; left:0px; width: 100%;" [hidden]="!ui.mediaBar" *ngIf="ui.mediaBar">
     <div>
         <flex-row style="overflow-x:scroll; background-color: white;">
             
             <app-file-drop></app-file-drop>
 
-             <flex-col *ngFor="let image of backend.userImages | slice:0:8 ">
+             <flex-col *ngFor="let image of backend.userImages ">
                 <img (click)="ui.mediaClickStream.next(image)"  [src]="image.url + '&w=200&h=200'" style="margin:5px;" />
                 <button (click)="backend.deleteImage(image.id)">delete</button>
              </flex-col>

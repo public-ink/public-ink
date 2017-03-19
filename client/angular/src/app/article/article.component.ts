@@ -18,15 +18,31 @@ export class ArticleComponent implements OnInit {
   @Input() editable: boolean = false
   @Input() preview: boolean = false
 
+  @ViewChild('titleArea') titleArea: ElementRef;
   @ViewChild('editor') editor: ElementRef
   @ViewChild('hidden') hidden: ElementRef
 
   quill: any
   lastRange: any
 
+  space = {
+    metaThenBody: 50,
+  }
+  colors = {
+    highlight: 'rgb(255, 251, 242)'
+  }
+
   constructor(
     private ui: UIService,
   ) { }
+
+  titleHasFocus() {
+    if (!this.titleArea) {
+      return false
+    } else {
+      return this.titleArea.nativeElement === document.activeElement
+    }
+  }
 
   ngOnInit() {
     /* check your input */
@@ -58,7 +74,7 @@ export class ArticleComponent implements OnInit {
           container: this.hidden.nativeElement,
           //handlers: {'image': this.titleImageHandler},
         },
-    }
+      }
     }
 
     this.quill = new Quill(this.editor.nativeElement, {
@@ -71,7 +87,7 @@ export class ArticleComponent implements OnInit {
     try {
       ops = JSON.parse(this.article.bodyOps)
       if (this.preview) {
-        let OpsObs = ops.ops.slice(0,5)
+        let OpsObs = ops.ops.slice(0, 5)
         ops.ops = OpsObs
       }
     } catch (e) {
@@ -96,6 +112,6 @@ export class ArticleComponent implements OnInit {
   insertImage(url: string) {
     this.quill.insertEmbed(this.lastRange.index, 'image', url, 'user')
   }
-  
+
 
 }

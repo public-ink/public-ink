@@ -19,8 +19,10 @@ if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
     ALLOW_ORIGIN = BACKEND_URL
 else:
     ENV_NAME = 'develop'
-    BACKEND_URL = 'http://localhost:8080'
-    FRONTEND_URL = 'http://localhost:4200'
+    #BACKEND_URL = 'http://localhost:8080'
+    #FRONTEND_URL = 'http://localhost:4200'
+    BACKEND_URL = 'http://192.168.0.103:8080'
+    FRONTEND_URL = 'http://192.168.0.103:4200'
     ALLOW_ORIGIN = '*'
 
 

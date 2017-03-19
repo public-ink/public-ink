@@ -31,7 +31,8 @@ import { FileDropComponent } from './file-drop/file-drop.component';
 import { AutosizeDirective } from './autosize.directive';
 import { MediaPageComponent } from './media-page/media-page.component'
 
-import { environment } from '../environments/environment'
+import { environment } from '../environments/environment';
+import { ExtraWidthComponent } from './extra-width/extra-width.component'
 
 
 const apolloClient = new ApolloClient({
@@ -83,6 +84,7 @@ const appRoutes: Routes = [
     FileDropComponent,
     AutosizeDirective,
     MediaPageComponent,
+    ExtraWidthComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),

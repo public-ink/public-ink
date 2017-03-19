@@ -17,13 +17,31 @@ textarea {
 app-publication {
     width: 100%;
 }
+
+/* HORIZONTAL RULES */
+hr.dashed {
+	height: 6px;
+	background: url(http://ibrahimjabbari.com/english/images/hr-11.png) repeat-x 0 0;
+    border: 0;
+    margin: 100px 0 50px 0;
+}
+a {
+    color: dodgerblue;
+}
+
+a:focus {
+    color: white;
+    background: dodgerblue;
+    outline: 0;
+}
+
 .focus-bg {
     background-color: transparent;
     outline: 0;
     resize: none;
 }
 .focus-bg:focus {
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgb(255, 251, 242);
 }
 
 .form-input {
@@ -174,6 +192,18 @@ flex-col-center {
     flex-direction: column;
     align-items: center;
 }
+flex-col-start {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+flex-col-end {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+
 flex-col-left {
     display: flex;
     flex-direction: column;
@@ -185,6 +215,13 @@ flex-col-center-center {
     align-items: center;
     justify-content: center;
 }
+flex-col-center-around {
+    display: flex;
+    flex-direction: column;
+    align-items: space-around;
+    justify-content: center;
+}
+
 flex-col-left-center {
     display: flex;
     flex-direction: column;
@@ -194,7 +231,7 @@ flex-col-left-center {
 
 .content-width {
     width: 100%;
-    max-width: 700px;
+    max-width: 780px;
     margin: 0px auto;
     box-sizing: border-box;
 }

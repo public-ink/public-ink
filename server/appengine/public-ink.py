@@ -6,7 +6,6 @@ import jinja2
 import json
 import uuid
 import os
-import json
 import jwt
 import hashlib
 import uuid
@@ -208,8 +207,8 @@ class AuthorSchema(graphene.ObjectType):
 """ PUBLICATION """
 
 class PublicationModel(InkModel):
-    """ 
-    NDB model for publications 
+    """
+    NDB model for publications
     """
     name = ndb.StringProperty()
     about = ndb.StringProperty()
@@ -851,6 +850,7 @@ class ServeImage(webapp2.RequestHandler):
             image.im_feeling_lucky()
             result = image.execute_transforms(output_encoding=images.JPEG)
         self.response.headers['Content-Type'] = 'image/jpeg'
+        self.response.headers['Cache-Control'] = 'public, max-age=31536000'
         self.response.out.write(result)
         return
 

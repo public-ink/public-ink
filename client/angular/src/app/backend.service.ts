@@ -40,7 +40,9 @@ export interface iArticle {
 export class BackendService {
 
   backendHost: string = environment.backend
-  backendDelay: number = 1000
+  // all possible backends
+  backends: string[] = environment.backends
+  backendDelay: number = 400
 
   /* the object containing everything by the current user */
   userAccount: iAccount
@@ -68,6 +70,7 @@ export class BackendService {
             author {
               id
               name
+              imageURL
             }
             articles {
               id
@@ -125,7 +128,12 @@ export class BackendService {
 
     private ui: UIService,
   ) {
-    //this.epLogin('xxhoff@hoff.com', 'hoffi')
+    // find a backend
+    this.http.post(this.backendHost + '/graphql', {}).subscribe(res => {
+      console.log(res)
+    }, (error) => {
+      console.log(error)
+    })
 
     const jwt = localStorage.getItem('jwt')
     if (!jwt) {

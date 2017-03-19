@@ -1,0 +1,16 @@
+<flex-row-center>
+    <div 
+        id="extra-width"
+        [style.width.%]="100"
+        [style.max-width.px]="900"
+        [style.background-color]="bg"
+        >
+        <div 
+            id="content-width"
+            [style.margin-left.px]="ui.responsiveValue(20,100)"
+            [style.margin-right.px]="ui.responsiveValue(20,100)"
+            >
+            <ng-content></ng-content>
+        </div>
+    </div>
+</flex-row-center>

@@ -1,8 +1,11 @@
 <div *ngIf="article">
 
+    <!-- space for toolbar -->
+    <div style="height: 80px"></div>
+
     <app-article [article]="article" [editable]="true"></app-article>
 
-    <div style="position:fixed; top:52px; left: 0; width: 100%; border-bottom: 1px solid #333; background-color: white; z-index:3;">
+    <div style="position:fixed; top:50px; left: 0; width: 100%; border-bottom: 1px solid #ddd; background-color: white; z-index:3;">
         <flex-row-center id="toolbar" class="content-width">
             <!-- toolbar controls go here! -->
             <button class="ql-bold">Bold</button>

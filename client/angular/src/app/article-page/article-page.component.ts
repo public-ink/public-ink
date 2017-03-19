@@ -77,7 +77,7 @@ export class ArticlePageComponent implements OnInit {
 
     // subscribe to media clicks
     this.ui.mediaClickObservable.subscribe(image => {
-      this.articleCmp.insertImage(image.url + '&w=600')
+      this.articleCmp.insertImage(image.url + '&w=' + this.ui.contentWidth)
     })
 
     // get route params

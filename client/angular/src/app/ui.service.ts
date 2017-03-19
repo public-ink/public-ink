@@ -14,6 +14,9 @@ import { ServerError, ValidationError } from './models'
 @Injectable()
 export class UIService {
 
+  // style
+  contentWidth: number = 700
+
   stateName: string
   overlay: boolean
   message: string
@@ -30,6 +33,9 @@ export class UIService {
   // dimensions (dynamic)
   deviceWidth: number
   deviceHeight: number
+
+  // CONSTANTS
+  mainWidth: number = 900
 
   colors = {
     black: '#000',
@@ -225,6 +231,24 @@ export class UIService {
     node.href = url;
     node.rel = 'stylesheet';
     document.getElementsByTagName('head')[0].appendChild(node);
+  }
+
+  /**
+   * Returns a value adjusted to the viewport width,
+   * inside a given range
+   */
+  responsiveValue(min: number, max: number) {
+    let requestedWidth = this.mainWidth
+    let availableWidth = this.deviceWidth
+    let minimumWidth = 400
+    let delta = requestedWidth - minimumWidth
+    let into = availableWidth - minimumWidth
+    let percent = into / delta
+    let boundPercent = Math.min(Math.max(percent, 0), 1)
+    let totalBonus = max - min
+    let actualBonus = totalBonus * boundPercent
+    let actual = min + actualBonus
+    return actual
   }
 
 }
