@@ -40,25 +40,27 @@ export class PublicationComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    
-    console.log('pub got pub?', this.publication)
   }
 
   style = {
-    name: {
-      'font-size.px': 60,
-      'font-weight': 'bold',
-      'color': 'white',
-      'text-align': 'center',
-      'text-decoration': 'none',
-      'margin': '10px 0px',
+    name: () => {
+      return {
+        'font-size.px': this.ui.responsiveValue(40,60),
+        'font-weight': 'bold',
+        'color': 'white',
+        'text-align': 'center',
+        'text-decoration': 'none',
+        'margin': '10px 0px',
+      }
     },
-    about: {
-      'font-size.px': 28,
-      'font-weight': 'normal',
-      'color': 'white',
-      'text-align': 'center',
-      'margin': '10px 0px',
+    about: () => {
+      return {
+        'font-size.px': this.ui.responsiveValue(20,30),
+        'font-weight': 'normal',
+        'color': 'white',
+        'text-align': 'center',
+        'margin': '10px 0px',
+      }
     }
   }
 

@@ -25,19 +25,20 @@
 <div style="height: 49px; z-index: 3; background-color:rgba(255,255,255,0.95); position:fixed; top: 0; left:0; width: 100%; border-bottom: 1px solid lightgray">
     <app-extra-width>
         <flex-row-between-center>
-            <h2><a [routerLink]="['/']">Public.Ink</a></h2>
+            <h3><a [routerLink]="['/']">Home</a></h3>
             <!-- logo -->
            <!-- <flex-center style="width:30px; height: 30px; background:#444; border-radius: 100%; color: white; ">
                 π
             </flex-center>-->
+            <h3>public.ink</h3>
            
             <!-- login / signup -->
             <flex-row *ngIf="!backend.userAccount?.authenticated">
-                <h2><a [routerLink]="['/auth']">Log In</a> | <a [routerLink]="['/auth']">Sign Up</a></h2>
+                <h3><a [routerLink]="['/auth']">Log In</a> | <a [routerLink]="['/auth']">Sign Up</a></h3>
             </flex-row>
             <!-- your account -->
             <flex-row *ngIf="backend.userAccount?.authenticated">
-                <h2><a [routerLink]="['/my-account']">Your Things</a></h2>
+                <h3><a [routerLink]="['/my-account']">Your Things</a></h3>
             </flex-row>
 
         </flex-row-between-center>

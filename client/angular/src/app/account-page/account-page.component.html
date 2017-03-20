@@ -2,6 +2,8 @@
 
 <div *ngIf="backend.userAccount">
   <div class="content-width">
+    <h1>Howdy!</h1>
+    <p>Here is all your stuff!</p>
     <div>{{ backend.userAccount.email }}, <span *ngIf="backend.userAccount.verified">is verified.</span> <a [routerLink]="['/create-author']">Create Author</a> 
     
     <a [routerLink]="['/my-media']">Your Media</a>
