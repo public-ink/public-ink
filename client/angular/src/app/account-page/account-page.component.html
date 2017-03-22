@@ -22,8 +22,10 @@
       <!-- pubs -->
       
       <app-publication [publication]="publication"></app-publication>
+      <div style="height: 50px"></div>
 
-      <!-- articles -->
+      <!-- ARTICLES -->
+      <div *ngIf="0">
       <div *ngFor="let article of publication.articles; let first = first; let last = last;">
 
         <!-- space for first -->
@@ -37,7 +39,9 @@
           <div *ngIf="last" style="height: 100px;"></div>
         </flex-row-center>
       </div>
+      </div>
     </div>
+
     
   </div>
 </div>

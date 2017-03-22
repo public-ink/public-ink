@@ -19,10 +19,27 @@ if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
     ALLOW_ORIGIN = BACKEND_URL
 else:
     ENV_NAME = 'develop'
-    #BACKEND_URL = 'http://localhost:8080'
-    #FRONTEND_URL = 'http://localhost:4200'
-    BACKEND_URL = 'http://192.168.0.103:8080'
-    FRONTEND_URL = 'http://192.168.0.103:4200'
+
+    BACKEND_URL = 'http://localhost:8080'
+    FRONTEND_URL = 'http://localhost:4200'
+    """
+    When the above settings are actice, run:
+
+    dev_appserver.py .
+    ng serve
+    """
+    
+    #BACKEND_URL = 'http://192.168.0.103:8080'
+    #FRONTEND_URL = 'http://192.168.0.103:4200' 
+    """
+    When the above settings are active, run these two:
+    
+    dev_appserver.py . --host 192.168.0.103
+    ng serve --host 192.168.0.103
+
+    and change the backendHost in environment.ts to 192.168.0.103
+    """
+    
     ALLOW_ORIGIN = '*'
 
 

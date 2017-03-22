@@ -95,7 +95,7 @@ class UserSchema(graphene.ObjectType):
 class ImageModel(InkModel):
     """
     The NDB model for user-uploaded images
-    The id is set by us, and is the file name
+    The id is set by us, and is a uuid plus the file name
     """
     blob_key = ndb.BlobKeyProperty()
     user_key = ndb.KeyProperty(kind=UserModel)
@@ -455,7 +455,7 @@ class Query(graphene.ObjectType):
         token = self.get('jwt')
         email = email_from_jwt(token)
         user_key = ndb.Key('UserModel', email)
-        
+
         if authorID == 'create-author': # not cool
             """ create author """
             author_key = AuthorModel(
@@ -558,9 +558,7 @@ class Query(graphene.ObjectType):
             info=InfoSchema(success=True, message=message),
             article=article
         )
-
-    
-    """ 
+    """
     DATA RETRIEVAL / RESOURCES
     """
     user = graphene.Field(UserSchema, email=graphene.String(), jwt=graphene.String())
@@ -597,11 +595,11 @@ class Query(graphene.ObjectType):
         authorID = args.get('authorID') or self.get('authorID')
         publicationID =  args.get('publicationID') or self.get('publicationID')
         articleID =  args.get('articleID') or self.get('articleID')
-        
+
         article = ndb.Key(
-            'AuthorModel',      authorID, 
+            'AuthorModel', authorID,
             'PublicationModel', publicationID,
-            'ArticleModel',     articleID       
+            'ArticleModel', articleID
         ).get()
         return article
 
@@ -633,7 +631,7 @@ class Query(graphene.ObjectType):
     """ delete author"""
     deleteAuthor = graphene.Field(InfoSchema, jwt=graphene.String(), authorID=graphene.String())
     def resolve_deleteAuthor(self, args, *more):
-        
+
         """ validate request! """
         token = args.get('jwt') or self.get('jwt')
         author_id = args.get('authorID') or self.get('authorID')
@@ -646,11 +644,11 @@ class Query(graphene.ObjectType):
         author = ndb.Key('AuthorModel', author_id).get()
         # improve this, rename to key, make a @property
         author_user = author.user.get()
-        if (author_user.email == claim_email):
+        if author_user.email == claim_email:
             print "yes, you can delete this author"
             ndb.Key('AuthorModel', args.get('authorID')).delete()
             return InfoSchema(success=True, message='author_deleted (not really')
-        else: 
+        else:
             print "you don't have permission to delete this author"
             return InfoSchema(success=False, message='unauthorized')
 
@@ -781,8 +779,6 @@ class ImageUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         jwt = self.request.get('jwt')
         email = email_from_jwt(jwt)
         user_key = ndb.Key('UserModel', email)
-        print jwt
-        
         try:
             upload = self.get_uploads()[0]
             id = uuid.uuid4().hex + upload.filename

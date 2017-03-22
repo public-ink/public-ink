@@ -37,7 +37,7 @@ import { ExtraWidthComponent } from './extra-width/extra-width.component'
 
 const apolloClient = new ApolloClient({
   networkInterface: createNetworkInterface({
-    uri: environment.backend + '/graphql'
+    uri: environment.backendHost + '/api/graphql'
   }),
 })
 

@@ -2,8 +2,10 @@ import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core'
 
 // ink
 import { iArticle } from '../models'
-
 import { UIService } from '../ui.service'
+
+// environment
+import { environment } from '../../environments/environment'
 
 
 
@@ -13,6 +15,8 @@ import { UIService } from '../ui.service'
   styleUrls: ['./article.component.css']
 })
 export class ArticleComponent implements OnInit {
+
+  backendHost: string = environment.backendHost
 
   @Input() article: iArticle
   @Input() editable: boolean = false
@@ -84,8 +88,28 @@ export class ArticleComponent implements OnInit {
     })
 
     let ops
+    let transformedOps
     try {
       ops = JSON.parse(this.article.bodyOps)
+      let quillData = JSON.parse(this.article.bodyOps)
+      let quillOps = quillData.ops
+      console.log('original', quillOps)
+
+      /** replace the image backend url in case it is different, because we running on a differnt IP or localhost */
+      transformedOps = quillOps.map(o => {  
+        //console.log(o)
+        if (o.insert && o.insert.image) {
+          console.log(o.insert.image)
+          let url = o.insert.image
+          let host = url.split('/', 3).join('/')
+          let newUrl = url.replace(host, this.backendHost)
+          //return {insert: {image: o.insert.image.replace('http://localhost:8080', 'http://192.168.0.103:8080')}}
+          return {insert: {image: newUrl}}
+        } else {
+          return o
+        }
+      })
+      console.log('transformed', transformedOps)
       if (this.preview) {
         let OpsObs = ops.ops.slice(0, 5)
         ops.ops = OpsObs
@@ -94,8 +118,8 @@ export class ArticleComponent implements OnInit {
       console.log('error parsing json, this is the offender:', this.article.bodyOps)
       ops = { "ops": [{ "insert": "error parsing json\n" }] }
     }
-
-    this.quill.setContents(ops)
+    console.log('setting contents!', transformedOps)
+    this.quill.setContents({ "ops": transformedOps })
     if (!this.editable) {
       this.quill.disable()
     }
@@ -111,6 +135,10 @@ export class ArticleComponent implements OnInit {
 
   insertImage(url: string) {
     this.quill.insertEmbed(this.lastRange.index, 'image', url, 'user')
+  }
+
+  getPosition(string, subString, index) {
+    return string.split(subString, index).join(subString).length;
   }
 
 

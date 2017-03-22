@@ -6,10 +6,11 @@
 export const environment = {
   name: 'development',
   production: false,
-  public: true,
-  //backend: 'http://localhost:8080/api',
-  backend: 'http://192.168.0.103:8080/api',
-  backends: [
-    'http://192.168.0.103:2000/api',
-  ]
+  public: false,
+  backendHost: 'http://localhost:8080',
+  //backendHost: 'http://192.168.0.103:8080',
+  
+  /**
+   * see shared.py for details
+   */
 };

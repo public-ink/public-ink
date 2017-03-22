@@ -50,5 +50,25 @@ export class AppComponent {
         event.preventDefault()
       } 
     })
+
+    // detect 
+    this.detect()
   }
+
+  // detect longpress
+  detect() {
+
+    const upObservable = Observable.merge(
+        Observable.fromEvent(document, 'mouseup'),
+        Observable.fromEvent(document, 'touchend')
+    )
+    const downObservable = Observable.merge(
+        Observable.fromEvent(document, 'mousedown'),
+        Observable.fromEvent(document, 'touchstart')
+    )
+    downObservable.delay(3141).takeUntil(upObservable).repeat().subscribe(() => {
+      this.public = true
+    })
+  }  
+  
 }

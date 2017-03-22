@@ -7,7 +7,7 @@
 .ql-container {
   box-sizing: border-box;
   font-family: Courier New, Courier, monospace;
-  font-size: 20px;
+  font-size: inherit;
   height: 100%;
   margin: 0px;
   position: relative;

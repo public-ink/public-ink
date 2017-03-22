@@ -39,9 +39,9 @@ export interface iArticle {
 @Injectable()
 export class BackendService {
 
-  backendHost: string = environment.backend
-  // all possible backends
-  backends: string[] = environment.backends
+  backendHost: string = environment.backendHost
+  
+  
   backendDelay: number = 400
 
   /* the object containing everything by the current user */
@@ -128,12 +128,7 @@ export class BackendService {
 
     private ui: UIService,
   ) {
-    // find a backend
-    this.http.post(this.backendHost + '/graphql', {}).subscribe(res => {
-      console.log(res)
-    }, (error) => {
-      console.log(error)
-    })
+    
 
     const jwt = localStorage.getItem('jwt')
     if (!jwt) {
@@ -754,7 +749,7 @@ export class BackendService {
         }
       }
       // request an upload URL, then kick off upload!
-      this.http.get(this.backendHost + '/image/upload-url').map(res => { return res.json() }).subscribe(data => {
+      this.http.get(this.backendHost + '/api/image/upload-url').map(res => { return res.json() }).subscribe(data => {
         xhr.open('POST', data.url, true)
         xhr.send(formData);
       })
@@ -818,6 +813,7 @@ export class BackendService {
   }
 
   /**
+   * OUTDATED
    * Gets a resource, given its IDs
    * -authorID (required)
    * -publicationID
