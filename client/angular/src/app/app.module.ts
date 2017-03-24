@@ -32,7 +32,8 @@ import { AutosizeDirective } from './autosize.directive';
 import { MediaPageComponent } from './media-page/media-page.component'
 
 import { environment } from '../environments/environment';
-import { ExtraWidthComponent } from './extra-width/extra-width.component'
+import { ExtraWidthComponent } from './extra-width/extra-width.component';
+import { UseHostPipe } from './use-host.pipe'
 
 
 const apolloClient = new ApolloClient({
@@ -85,6 +86,7 @@ const appRoutes: Routes = [
     AutosizeDirective,
     MediaPageComponent,
     ExtraWidthComponent,
+    UseHostPipe,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),
