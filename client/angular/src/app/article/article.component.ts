@@ -46,7 +46,7 @@ export class ArticleComponent implements OnInit {
   }
 
   constructor(
-    private ui: UIService,
+    public ui: UIService,
   ) { }
 
   titleHasFocus() {

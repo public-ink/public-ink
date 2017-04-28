@@ -147,9 +147,10 @@ export class Publication extends Resource implements IResource {
     nameText: string
     about: string
     aboutText: string
-    imageURL: string
+    imageUrl: string
     // related
     articles: Article[] = []
+    author: Author
 
     constructor(data: PublicationData) {
         super(data)

@@ -11,7 +11,7 @@ import { BackendService } from '../backend.service'
 export class MediaPageComponent implements OnInit {
 
   constructor(
-    private backend: BackendService,
+    public backend: BackendService,
   ) { }
 
   ngOnInit() {

@@ -13,7 +13,7 @@ export class ExtraWidthComponent implements OnInit {
   @Input('bg') bg: string = 'transparent'
 
   constructor(
-    private ui: UIService,
+    public ui: UIService,
   ) { }
 
   ngOnInit() {

@@ -13,12 +13,12 @@ import { UIService } from './ui.service'
 import { environment } from '../environments/environment'
 
 
+
 import {
   PublicationData,
   IBackendData, IResource, Author, AuthorData, Publication, Resource
 } from './models'
 
-import { iPublication } from './publication/publication.component'
 import { iAccount } from './auth-page/auth-page.component'
 
 
@@ -451,7 +451,7 @@ export class BackendService {
   /**
    * GET a single Publication, from cache or backend
    */
-  getPublication(authorID: string, publicationID: string): Observable<iPublication> {
+  getPublication(authorID: string, publicationID: string): Observable<Publication> {
 
     const query = gql`
         {publication {
@@ -536,7 +536,7 @@ export class BackendService {
     })
     return new Observable(stream => {
       querySubscription.delay(this.backendDelay).subscribe(result => {
-        const publication: iPublication = result.data.savePublication.publication
+        const publication: Publication = result.data.savePublication.publication
         const info = result.data.savePublication.info
         // pass back the whole response
         stream.next(result.data.savePublication)
@@ -667,7 +667,7 @@ export class BackendService {
   }
 
 
-  deletePublication(publication: iPublication): Observable<iInfo> {
+  deletePublication(publication: Publication): Observable<iInfo> {
     /**
      * Deletes a publication, removes it from the respetive's userAccount's author's publications TODO, 
      * and returns information about the status

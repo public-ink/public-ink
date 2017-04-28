@@ -16,8 +16,7 @@ import { BackendService } from '../backend.service'
 import { UIService } from '../ui.service'
 
 // Ink Interfaces
-import { iPublication } from '../publication/publication.component'
-import { iPublicationResponse } from '../models'
+import { Publication, iPublicationResponse } from '../models'
 
 @Component({
   selector: 'app-publication-page',
@@ -28,7 +27,7 @@ export class PublicationPageComponent implements OnInit {
 
   authorID: string
   publicationID: string
-  publication: iPublication
+  publication: any //Publication
 
   keyboardSubscription: Subscription
 
@@ -70,9 +69,13 @@ export class PublicationPageComponent implements OnInit {
           this.publication = {
             // got to get author!
             author: author,
-            new: true,
+            // new: true,
             id: this.publicationID,
             name: 'no name yet',
+            nameText: 'this seems old, remove me!',
+            about: 'what about',
+            aboutText: 'yea right',
+            data: {},
             articles: [],
             imageURL: '',
           }

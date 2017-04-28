@@ -49,10 +49,10 @@ export class AuthPageComponent {
   })
 
   constructor(
-    private backend: BackendService,
+    public backend: BackendService,
     private apollo: Apollo,
     public fb: FormBuilder,
-    private ui: UIService,
+    public ui: UIService,
     private router: Router,
   ) { }
 f

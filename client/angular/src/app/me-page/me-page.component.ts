@@ -12,7 +12,7 @@ export class MePageComponent implements OnInit {
   newAuthorName = ""
 
   constructor(
-    private backend: BackendService
+    public backend: BackendService
   ) { }  
 
   ngOnInit() {

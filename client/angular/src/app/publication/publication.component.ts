@@ -5,19 +5,6 @@ import { DomSanitizer } from '@angular/platform-browser'
 import { Publication } from '../models'
 import { UIService } from '../ui.service'
 
-interface iAuthor {
-  id: string
-  name?: string
-}
-
-export interface iPublication {
-  new?: boolean
-  id: string
-  name?: string
-  author?: iAuthor 
-  articles: any[]
-  imageURL: string
-}
 
 @Component({
   selector: 'app-publication',
@@ -43,13 +30,15 @@ export class PublicationComponent implements OnInit {
   ngOnInit() {
     this.ui.mediaClickObservable.subscribe(image => {
       console.log('sup')
-      this.publication.imageURL = image.url // size?
+      this.publication.imageUrl = image.url // size?
     })
   }
 
+  jo() {
+    return 'sup'
+  }
   safeBG() {
-    console.log(this.publication.imageURL)
-    let str = `url(${this.publication.imageURL})`
+    let str = `url(${this.publication.imageUrl})`
     return this.sanitizer.bypassSecurityTrustStyle(str)
   }
 

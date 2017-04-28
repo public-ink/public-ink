@@ -21,8 +21,8 @@ export class LayoutComponent implements OnInit {
   }
 
   constructor(
-    private ui: UIService,
-    private sanitizer: DomSanitizer,
+    public ui: UIService,
+    public sanitizer: DomSanitizer,
   ) { }
 
   ngOnInit() { 

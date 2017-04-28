@@ -9,7 +9,7 @@ import { BackendService } from '../backend.service'
 export class AccountPageComponent implements OnInit {
 
   constructor(
-    private backend: BackendService,
+    public backend: BackendService,
   ) { }
 
   ngOnInit() {

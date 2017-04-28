@@ -32,8 +32,8 @@ export class AppComponent {
   environment
 
   constructor(
-    private backend: BackendService,
-    private ui: UIService,
+    public backend: BackendService,
+    public ui: UIService,
   ) {
     let now = new Date().getTime()
     stopTimer(now)
