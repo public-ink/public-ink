@@ -90,6 +90,7 @@ export class PublicationPageComponent implements OnInit {
     // listen to media click
     // simply sets the imageURL of the publication
     this.ui.mediaClickObservable.subscribe(image => {
+      console.log('jo')
       this.publication.imageURL = image.url // size?
     })
   }

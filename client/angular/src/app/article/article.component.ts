@@ -1,8 +1,17 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core'
 
 // ink
-import { iArticle } from '../models'
+// import { iArticle } from '../models'
 import { UIService } from '../ui.service'
+
+interface iArticle {
+    id: string    
+    title: string
+    bodyOps: string
+    // parent
+    publication: any //iPublication
+    new?: boolean
+}
 
 // environment
 import { environment } from '../../environments/environment'

@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core'
+import { DomSanitizer } from '@angular/platform-browser'
 
 // ink
 import { Publication } from '../models'
@@ -25,7 +26,6 @@ export interface iPublication {
 })
 export class PublicationComponent implements OnInit {
 
-  safeBG: any
 
   // the publication that is passed into us
   @Input() publication: Publication
@@ -37,9 +37,20 @@ export class PublicationComponent implements OnInit {
 
   constructor(
     private ui: UIService,
+    private sanitizer: DomSanitizer,
   ) { }
 
   ngOnInit() {
+    this.ui.mediaClickObservable.subscribe(image => {
+      console.log('sup')
+      this.publication.imageURL = image.url // size?
+    })
+  }
+
+  safeBG() {
+    console.log(this.publication.imageURL)
+    let str = `url(${this.publication.imageURL})`
+    return this.sanitizer.bypassSecurityTrustStyle(str)
   }
 
   style = {

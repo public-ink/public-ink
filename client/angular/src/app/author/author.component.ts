@@ -3,8 +3,16 @@ import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core'
 import { DomSanitizer } from '@angular/platform-browser'
 
 // Ink
-import { iAuthor } from '../models'
+//import { iAuthor } from '../models'
 import { UIService } from '../ui.service'
+
+interface iAuthor {
+    id: string
+    name: string
+    about: string
+    imageURL: string
+    new?: boolean
+}
 
 
 @Component({

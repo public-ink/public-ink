@@ -3,7 +3,7 @@
   <!-- background image -->
   <div 
     style="opacity: 0.6; position:absolute; top: 0; left:0; width: 100%; height: 100%; background-size: cover; background-position: center;"
-  [style.background-image]="'url(' + publication.imageURL +'&w='+ ui.initialWidth +'&h='+ ui.initialVH(75)+ ')' ">
+  [style.background-image]="safeBG()">
 
   </div>
   <flex-col-center-around  style="position:absolute; top: 0; left:0; width: 100%; height: 100%;">
@@ -33,7 +33,7 @@
       <p *ngIf="!editable"
         [ngStyle]="style.about()"
       > {{ publication.about }}
-      {{ publication.imageURL | useHost }}
+      <!--{{ publication.imageURL | useHost }}-->
       </p>
 
       <!-- editable -->

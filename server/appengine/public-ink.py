@@ -45,7 +45,7 @@ def verify_password(hashed_password, user_password):
 
 
 def generate_jwt(email):
-    print 'generating token for ' + email 
+    print 'generating token for  ' + email 
     payload = {
         'email': email,
         'exp': datetime.utcnow() + timedelta(days=JWT_EXP_DELTA_DAYS)

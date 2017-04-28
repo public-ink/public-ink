@@ -147,7 +147,7 @@ export class Publication extends Resource implements IResource {
     nameText: string
     about: string
     aboutText: string
-    imageUrl: string
+    imageURL: string
     // related
     articles: Article[] = []
 

@@ -6,7 +6,7 @@ import 'rxjs/add/operator/map'
 // graphql
 import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
-import { print } from 'graphql-tag/printer'
+// import { print } from 'graphql-tag/printer'
 
 // ink services
 import { UIService } from './ui.service'
@@ -155,7 +155,7 @@ export class BackendService {
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
-      forceFetch: true
+      // forceFetch: true
     })
     apolloQuery.subscribe(result => {
       this.userImages = JSON.parse(JSON.stringify(result.data.images))
@@ -188,7 +188,7 @@ export class BackendService {
         email: email,
         password: password,
       },
-      forceFetch: true
+      // forceFetch: true
     })
 
     return new Observable(stream => {
@@ -271,7 +271,7 @@ export class BackendService {
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
-      forceFetch: true,
+      // forceFetch: true,
       // consider sticking jwt into variables 
     })
 
@@ -294,7 +294,9 @@ export class BackendService {
   test() {
     return new Observable(stream => {
       const query = gql`{test}`
-      const wq = this.apollo.query({ query: query, forceFetch: true })
+      const wq = this.apollo.query({ query: query,
+         // forceFetch: true
+         })
       wq.subscribe(result => {
         console.log(result.data)
       })
@@ -329,7 +331,7 @@ export class BackendService {
         email: email,
         password: password,
       },
-      forceFetch: true,
+      // forceFetch: true,
     })
 
     return new Observable<iAccount>(stream => {
@@ -374,7 +376,7 @@ export class BackendService {
         about: author.about,
         imageURL: author.imageURL
       },
-      forceFetch: true,
+      // forceFetch: true,
     })
     return new Observable(stream => {
       apolloQuery.delay(this.backendDelay).subscribe(result => {
@@ -398,7 +400,7 @@ export class BackendService {
       variables: {
         authorID: authorID,
       },
-      forceFetch: true,
+      // forceFetch: true,
     })
     return new Observable(stream => {
       querySubscription.subscribe(result => {
@@ -427,7 +429,7 @@ export class BackendService {
 
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
-      forceFetch: true,
+      // forceFetch: true,
     })
     return new Observable(stream => {
       apolloQuery.delay(this.backendDelay).subscribe(result => {
@@ -484,7 +486,7 @@ export class BackendService {
         authorID: authorID,
         publicationID: publicationID
       },
-      forceFetch: true,
+      // forceFetch: true,
     })
     return new Observable(stream => {
       querySubscription.subscribe(result => {
@@ -530,7 +532,7 @@ export class BackendService {
         about: publication.about,
         imageURL: publication.imageURL,
       },
-      forceFetch: true,
+      // forceFetch: true,
     })
     return new Observable(stream => {
       querySubscription.delay(this.backendDelay).subscribe(result => {
@@ -584,7 +586,7 @@ export class BackendService {
         title: article.title,
         bodyOps: article.bodyOps
       },
-      forceFetch: true,
+      // forceFetch: true,
     })
     return new Observable(stream => {
       apolloQuery.delay(this.backendDelay).subscribe(result => {
@@ -616,7 +618,7 @@ export class BackendService {
         publicationID: article.publication.id,
         articleID: article.id
       },
-      forceFetch: true,
+      // forceFetch: true,
     })
     return new Observable(stream => {
       apolloQuery.delay(this.backendDelay).subscribe(result => {
@@ -654,7 +656,7 @@ export class BackendService {
         publicationID: publicationID,
         articleID: articleID,
       },
-      forceFetch: true,
+      // forceFetch: true,
     })
     return new Observable(stream => {
       apolloQuery.subscribe(result => {
@@ -684,7 +686,7 @@ export class BackendService {
         authorID: publication.author.id,
         publicationID: publication.id,
       },
-      forceFetch: true,
+      // forceFetch: true,
     })
     return new Observable(stream => {
       apolloQuery.delay(this.backendDelay).subscribe(result => {
@@ -766,7 +768,7 @@ export class BackendService {
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
-      forceFetch: true
+      // forceFetch: true
     })
     return new Observable(stream => {
       apolloQuery.subscribe(result => {
