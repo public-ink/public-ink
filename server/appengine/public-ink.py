@@ -260,6 +260,15 @@ class ArticleSchema(graphene.ObjectType):
         return self.key.parent().parent().get()
 
 
+""" Song """ 
+class SongModel(InkModel):
+    """ A midi song in json format """
+    title = ndb.StringProperty()
+    artist = ndb.StringProperty()
+    bpm = ndb.IntegerProperty()
+    track_count = ndb.IntegerProperty()
+    tracks = ndb.JsonProperty(repeated=True)
+
 """
 Playground - remove at some point
 """
@@ -942,7 +951,7 @@ def send_verification_email(email, token):
     message.body = """
 Hello there,
 
-You or somebody else submitted this email address to us. To create a public.ink account, let follow this link:
+You or somebody else submitted this email address to us. To create a public.ink account, please follow this link:
 {}/verify/{}/{}
 
 Awesome!
