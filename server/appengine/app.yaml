@@ -10,6 +10,8 @@ handlers:
 # static, use by backend... graphql frontend sits here
 - url: /static
   static_dir: static
+  http_headers:
+    Access-Control-Allow-Origin: http://localhost:4200
 
 # static angular files (dist content from build)
 - url: /angular

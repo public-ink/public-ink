@@ -5,7 +5,7 @@
 
       <!-- instruments -->
       <div *ngFor="let instrument of midi.instruments">
-        <button (click)="midi.loadInstrument(instrument.id)">{{ instrument.id }}</button>
+        <button (click)="midi.loadInstrument(instrument.id)" style="color: white;">{{ instrument.id }}</button>
       </div>
 
       <button (click)="makeSong()">make song!</button>
