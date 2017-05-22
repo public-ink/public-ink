@@ -11,6 +11,7 @@ import { AuthorComponent } from './author/author.component'
 import { SlugifyPipe } from './slugify.pipe'
 import { StringifyPipe } from './stringify.pipe'
 import { UIService } from './ui.service'
+import { MIDIService } from './midi.service'
 import { AuthorPageComponent } from './author-page/author-page.component'
 import { HomePageComponent } from './home-page/home-page.component'
 import { PublicationPageComponent } from './publication-page/publication-page.component'
@@ -33,7 +34,8 @@ import { MediaPageComponent } from './media-page/media-page.component'
 
 import { environment } from '../environments/environment';
 import { ExtraWidthComponent } from './extra-width/extra-width.component';
-import { UseHostPipe } from './use-host.pipe'
+import { UseHostPipe } from './use-host.pipe';
+import { HeroComponent } from './hero/hero.component'
 
 
 const apolloClient = new ApolloClient({
@@ -56,12 +58,16 @@ const appRoutes: Routes = [
   { path: 'my-media', component: MediaPageComponent },
   { path: 'auth', component: AuthPageComponent },
   { path: 'verify/:email/:token', component: EmailVerificationPageComponent},
+
+  // hero
+  { path: 'hero', component: HeroComponent},
   
-  // graph
+  // GraphQL
   { path: ':authorID', component: AuthorPageComponent },
   { path: ':authorID/:publicationID', component: PublicationPageComponent },
   { path: ':authorID/:publicationID/:articleID', component: ArticlePageComponent },
   //{ path: '**', component: PageNotFoundComponent }
+  
 ]
 
 @NgModule({
@@ -87,6 +93,7 @@ const appRoutes: Routes = [
     MediaPageComponent,
     ExtraWidthComponent,
     UseHostPipe,
+    HeroComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),
@@ -96,7 +103,7 @@ const appRoutes: Routes = [
     ReactiveFormsModule,
     HttpModule,
   ],
-  providers: [BackendService, UIService],
+  providers: [BackendService, UIService, MIDIService],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

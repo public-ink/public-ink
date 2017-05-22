@@ -1,0 +1,25 @@
+<flex-row id="screen" style="background: white;">
+  <div #sidebar style="display:flex; background-color: #111; color: white; box-sizing: border-box; overflow: hidden;" [style.width.px]="sidebarVisible ? sidebarWidth : 0">
+    <div #sidebarContent style="padding: 20px; height: 100vh; overflow-y: scroll;">
+
+      <button (click)="makeSong()">make song!</button>
+      <button (click)="dimensions.song.playing = true">play song</button>
+      <button (click)="dimensions.song.playing = false">stop song</button>
+
+      number of tracks: {{ song?.songMidi.tracks }}
+      
+
+      chosse a file!
+      <input #midiFile type="file" />
+
+      <button (click)="heroRunning = !heroRunning">start / stop hero</button>
+
+      Hero Speed {{ dimensions.heroSpeed }}
+      <app-slider [from]="-5" [to]="5" [step]="0.05" (onChange)="dimensions.heroSpeed = $event"></app-slider>
+      
+      
+    </div>
+  </div>
+  <div #sceneContainer style="display:flex; flex-grow: 1;" [style.height.vh]="100">
+  </div>
+</flex-row>
