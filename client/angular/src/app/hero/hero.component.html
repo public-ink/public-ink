@@ -2,6 +2,12 @@
   <div #sidebar style="display:flex; background-color: #111; color: white; box-sizing: border-box; overflow: hidden;" [style.width.px]="sidebarVisible ? sidebarWidth : 0">
     <div #sidebarContent style="padding: 20px; height: 100vh; overflow-y: scroll;">
 
+
+      <!-- instruments -->
+      <div *ngFor="let instrument of midi.instruments">
+        <button (click)="midi.loadInstrument(instrument.id)">{{ instrument.id }}</button>
+      </div>
+
       <button (click)="makeSong()">make song!</button>
       <button (click)="dimensions.song.playing = true">play song</button>
       <button (click)="dimensions.song.playing = false">stop song</button>

@@ -25,8 +25,147 @@ export interface MIDIMessage {
 declare var MIDI: any
 declare var sketch: any
 
+
+
+
+
+
+
+
 @Injectable()
 export class MIDIService {
+
+  // FluidR3_GM
+  instruments = [
+    { id: 'accordion' },
+    { id: 'electric_guitar_muted' },
+    { id: 'lead_7_fifths' },
+    { id: 'slap_bass_1' },
+    { id: 'acoustic_bass' },
+    { id: 'electric_piano_1' },
+    { id: 'lead_8_bass__lead' },
+    { id: 'slap_bass_2' },
+    { id: 'acoustic_grand_piano' },
+    { id: 'electric_piano_2' },
+    { id: 'marimba' },
+    { id: 'soprano_sax' },
+    { id: 'acoustic_guitar_nylon' },
+    { id: 'english_horn' },
+    { id: 'melodic_tom' },
+    { id: 'steel_drums' },
+    { id: 'acoustic_guitar_steel' },
+    { id: 'fiddle' },
+    { id: 'music_box' },
+    { id: 'string_ensemble_1' },
+    { id: 'agogo' },
+    { id: 'flute' },
+    { id: 'muted_trumpet' },
+    { id: 'string_ensemble_2' },
+    { id: 'alto_sax' },
+    { id: 'french_horn' },
+    { id: 'oboe' },
+    { id: 'synth_bass_1' },
+    { id: 'applause' },
+    { id: 'fretless_bass' },
+    { id: 'ocarina' },
+    { id: 'synth_bass_2' },
+    { id: 'bagpipe' },
+    { id: 'fx_1_rain' },
+    { id: 'orchestra_hit' },
+    { id: 'synth_brass_1' },
+    { id: 'banjo' },
+    { id: 'fx_2_soundtrack' },
+    { id: 'orchestral_harp' },
+    { id: 'synth_brass_2' },
+    { id: 'baritone_sax' },
+    { id: 'fx_3_crystal' },
+    { id: 'overdriven_guitar' },
+    { id: 'synth_choir' },
+    { id: 'bassoon' },
+    { id: 'fx_4_atmosphere' },
+    { id: 'pad_1_new_age' },
+    { id: 'synth_drum' },
+    { id: 'bird_tweet' },
+    { id: 'fx_5_brightness' },
+    { id: 'pad_2_warm' },
+    { id: 'synth_strings_1' },
+    { id: 'blown_bottle' },
+    { id: 'fx_6_goblins' },
+    { id: 'pad_3_polysynth' },
+    { id: 'synth_strings_2' },
+    { id: 'brass_section' },
+    { id: 'fx_7_echoes' },
+    { id: 'pad_4_choir' },
+    { id: 'taiko_drum' },
+    { id: 'breath_noise' },
+    { id: 'fx_8_scifi' },
+    { id: 'pad_5_bowed' },
+    { id: 'tango_accordion' },
+    { id: 'bright_acoustic_piano' },
+    { id: 'glockenspiel' },
+    { id: 'pad_6_metallic' },
+    { id: 'telephone_ring' },
+    { id: 'celesta' },
+    { id: 'guitar_fret_noise' },
+    { id: 'pad_7_halo' },
+    { id: 'tenor_sax' },
+    { id: 'cello' },
+    { id: 'guitar_harmonics' },
+    { id: 'pad_8_sweep' },
+    { id: 'timpani' },
+    { id: 'choir_aahs' },
+    { id: 'gunshot' },
+    { id: 'pan_flute' },
+    { id: 'tinkle_bell' },
+    { id: 'church_organ' },
+    { id: 'harmonica' },
+    { id: 'percussive_organ' },
+    { id: 'tremolo_strings' },
+    { id: 'clarinet' },
+    { id: 'harpsichord' },
+    { id: 'piccolo' },
+    { id: 'trombone' },
+    { id: 'clavinet' },
+    { id: 'helicopter' },
+    { id: 'pizzicato_strings' },
+    { id: 'trumpet' },
+    { id: 'contrabass' },
+    { id: 'honkytonk_piano' },
+    { id: 'recorder' },
+    { id: 'tuba' },
+    { id: 'distortion_guitar' },
+    { id: 'kalimba' },
+    { id: 'reed_organ' },
+    { id: 'tubular_bells' },
+    { id: 'drawbar_organ' },
+    { id: 'koto' },
+    { id: 'reverse_cymbal' },
+    { id: 'vibraphone' },
+    { id: 'dulcimer' },
+    { id: 'lead_1_square' },
+    { id: 'rock_organ' },
+    { id: 'viola' },
+    { id: 'electric_bass_finger' },
+    { id: 'lead_2_sawtooth' },
+    { id: 'seashore' },
+    { id: 'violin' },
+    { id: 'electric_bass_pick' },
+    { id: 'lead_3_calliope' },
+    { id: 'shakuhachi' },
+    { id: 'voice_oohs' },
+    { id: 'electric_grand_piano' },
+    { id: 'lead_4_chiff' },
+    { id: 'shamisen' },
+    { id: 'whistle' },
+    { id: 'electric_guitar_clean' },
+    { id: 'lead_5_charang' },
+    { id: 'shanai' },
+    { id: 'woodblock' },
+    { id: 'electric_guitar_jazz' },
+    { id: 'lead_6_voice' },
+    { id: 'sitar' },
+    { id: 'xylophone' },
+  ]
 
   // test: count downs
   downCount = 0
@@ -104,12 +243,16 @@ export class MIDIService {
 
   parsedMidi
 
+  // soundfont player, with current instrument
+  instrument
 
 
   constructor(
   ) {
 
-    let player = Soundfont.instrument(new AudioContext(), 'marimba').then(function (marimba) {
+
+
+    /*let player = Soundfont.instrument(new AudioContext(), 'acoustic_grand_piano').then(function (marimba) {
       console.log('made an insturment marimba', marimba)
       marimba.play('C4')
 
@@ -120,17 +263,17 @@ export class MIDIService {
           marimba.listenToMidi(midiInput)
         })
       })
-    })
+    })*/
 
 
 
     // new parser test
     // console.log('mega', MIDIParser)
     // this.parsedMidi = MIDIParser.Base64( this.songList[1].data)
-    console.log(this.parsedMidi)
+    // console.log(this.parsedMidi)
 
     /**
-     * create MIDI Stream
+     * create MIDI Stream ( do a subject instead)
      */
     this.stream = new Observable(source => {
       this.source = source
@@ -163,46 +306,25 @@ export class MIDIService {
       alert('no midi support, sorry')
     }
 
-    /**
-     * create MIDI Player
-     */
-    /*MIDI.loader = new sketch.ui.Timer
-    MIDI.loadPlugin({
-      soundfontUrl: '/assets/soundfont/',
-      onprogress: function (state, progress) {
-        MIDI.loader.setValue(progress * 100);
-      },
-      onsuccess: () => {
-        /// player setup
-        this.player = MIDI.Player
-        // player speed
-        this.player.timeWarp = 1
 
-        // load song and do nothing
-        this.player.loadFile(this.songList[0].data, () => {
-          console.log('song loaded')
+  }
+
+  loadInstrument(name: string = 'acoustic_grand_piano') {
+
+    Soundfont.instrument(new AudioContext(), name).then( (instrument) => {
+      console.log('made an insturment', instrument)
+      this.instrument = instrument
+      this.instrument.play('C4')
+
+      let nav: any = window.navigator
+
+      nav.requestMIDIAccess().then( (midiAccess) => {
+        midiAccess.inputs.forEach( (midiInput) => {
+          this.instrument.listenToMidi(midiInput)
         })
+      })
+    })
 
-        // listen to player events
-        this.player.addListener((data) => {
-
-          // let now = data.now; // where we are now
-          // let end = data.end; // time when song ends
-          // let channel = data.channel; // channel note is playing on
-
-          let message = data.message; // 128 is noteOff, 144 is noteOn
-          let note = data.note; // the note
-          let velocity = data.velocity; // the velocity of the note
-
-          if (message === 144) {
-            this.downCount ++
-          }
-
-          // stream the event
-          this.streamMessage({ data: [message, note, velocity] })
-        })
-      }
-    })*/
   }
 
   /* browser and midi device success */
