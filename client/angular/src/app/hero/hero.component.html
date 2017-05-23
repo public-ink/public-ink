@@ -2,17 +2,33 @@
   <div #sidebar style="display:flex; background-color: #111; color: white; box-sizing: border-box; overflow: hidden;" [style.width.px]="sidebarVisible ? sidebarWidth : 0">
     <div #sidebarContent style="padding: 20px; height: 100vh; overflow-y: scroll;">
 
+      playing? {{ dimensions.song.playing }}
+      <div (click)="dimensions.song.playing = !dimensions.song.playing">play / pause song</div>
+
+      <!-- songs -->
+      <div *ngFor="let song of backend.songs">
+        title: {{ song.title }} 
+        <button style="background: lightblue" (click)="songSetup(song)">load this song</button>
+        tracks:
+        <div *ngFor="let track of song.tracks">
+          name: {{ track.name }} ({{ track.duration}})
+          
+        </div>
+      </div>
 
       <!-- instruments -->
       <div *ngFor="let instrument of midi.instruments">
-        <button (click)="midi.loadInstrument(instrument.id)" style="color: white;">{{ instrument.id }}</button>
+        <div (click)="instrument.active = !instrument.active; ; midi.currentInstrument = instrument;" 
+          (mouseenter)="instrument.demo()"
+          (mouseleave)="instrument.cancelDemo()"
+          [ngStyle]="{color: instrument.loaded ? 'white': 'gray', background: instrument.active ? 'blue': 'red'}"
+        >{{ instrument.name() }}</div>
       </div>
 
       <button (click)="makeSong()">make song!</button>
       <button (click)="dimensions.song.playing = true">play song</button>
       <button (click)="dimensions.song.playing = false">stop song</button>
 
-      number of tracks: {{ song?.songMidi.tracks }}
       
 
       chosse a file!

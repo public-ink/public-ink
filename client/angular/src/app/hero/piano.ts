@@ -129,7 +129,7 @@ export class PianoKey {
             this.keyMesh.position.y = this.keyMesh.position.y - 0.4
 
             // keydown: fire vessel
-            // let vessel = new Vessel(this, this.scene, this.animationStream, msg.velocity)
+            let vessel = new Vessel(this, this.scene, this.animationStream, msg.velocity)
 
             // test: hightern launchpad!
             this.launchpadMesh.scale.setY(10)

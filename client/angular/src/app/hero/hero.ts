@@ -37,11 +37,11 @@ export class Hero {
         private piano: Piano,
         private scene: THREE.Scene,
         public trackDelta: number,
-        public eigenDelta: number,
         private midiKey: number,
         private velocity: number,
         private type: string,
         private dimensions: any,
+        private noteName: string,
     ) {
 
         // get your partner key
@@ -116,7 +116,8 @@ export class Hero {
 
         // if you crossed the line, play the note
         if (this.mesh.position.z > 0 && !this.played) {
-            this.midi.soundNote(0, this.midiKey, this.velocity)
+            this.midi.currentInstrument.player.play(this.noteName)
+            // this.midi.soundNote(0, this.midiKey, this.velocity)
             this.played = true
         }
         // if you have not been hit but are at zero: make the song wait!

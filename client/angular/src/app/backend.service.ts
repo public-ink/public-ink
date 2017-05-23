@@ -48,6 +48,8 @@ export class BackendService {
   userAccount: iAccount
   userImages: any[]
 
+  songs = []
+
 
   fragments = {
     account: gql`
@@ -142,6 +144,7 @@ export class BackendService {
         console.warn(error)
       })
       this.loadImages(jwt)
+      this.loadSongs()
     }
   }
 
@@ -161,6 +164,28 @@ export class BackendService {
       this.userImages = JSON.parse(JSON.stringify(result.data.images))
     })
 
+  }
+
+  /** Load Songs */
+  loadSongs() {
+    const query = gql`
+      {songs {
+        title
+        tracks
+        text
+      }}
+    `
+    const apolloQuery = this.apollo.watchQuery<any>({
+      query: query,
+      // forceFetch: true
+    })
+    apolloQuery.subscribe(result => {
+      this.songs = JSON.parse(JSON.stringify(result.data.songs))
+      for (let song of this.songs){
+        // unpack tracks json string (currently store in .text, change that!)
+        song.tracks = JSON.parse(song.text)
+      }
+    })
   }
 
   /**

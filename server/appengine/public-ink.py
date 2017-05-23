@@ -14,6 +14,7 @@ from slugify import slugify
 import re
 from random import randint
 from google.appengine.ext import blobstore
+import urllib
 
 # image
 from google.appengine.ext.webapp import blobstore_handlers
@@ -268,6 +269,16 @@ class SongModel(InkModel):
     bpm = ndb.IntegerProperty()
     track_count = ndb.IntegerProperty()
     tracks = ndb.JsonProperty(repeated=True)
+    text = ndb.TextProperty()
+
+
+class SongSchema(graphene.ObjectType):
+    """
+    the schema for a song
+    """
+    title = graphene.String()
+    tracks = graphene.String()
+    text = graphene.String()
 
 """
 Playground - remove at some point
@@ -622,6 +633,17 @@ class Query(graphene.ObjectType):
         images = ImageModel.query(ImageModel.user_key==user_key).fetch()
         return images
 
+    """ Songs """
+    songs = graphene.List(lambda: SongSchema)
+    def resolve_songs(self, args, *more):
+        print 'resolve songs'
+        songs = SongModel.query().fetch(10)
+        for song in songs: 
+            #song.tracks = json.loads(song.tracks)
+            #song.tracks = json.loads(song.tracks)
+            pass
+        return songs
+
 
 
     """
@@ -922,9 +944,26 @@ class CertificateHandler(webapp2.RequestHandler):
     
 IMAGE_UPLOAD_URL = '/api/image/upload'
 
+
+class MIDIUploadHandler(RequestHandler):
+    """
+    accepts a JSON midi object and stores it 
+    """
+    def get(self, data):
+        dataString = urllib.unquote(data)#.decode('utf8') 
+        midi = json.loads(dataString)
+        # todo: extract data, title stuff...
+        song = SongModel(title = 'test', tracks = midi['tracks'], text = json.dumps(midi['tracks']) )
+        song.put()
+        self.response.write('cool')
+
 app = webapp2.WSGIApplication(
     [
         ('/', HomeEndpoint),
+        
+        # midi upload
+        (r'/api/midi-upload/(.+)?', MIDIUploadHandler),
+
         #('/graphql', GraphQLEndpoint),
         ('/api/graphql', GraphQLEndpoint),
         # images

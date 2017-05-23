@@ -6,7 +6,7 @@
 export const environment = {
   name: 'development',
   production: false,
-  public: false,
+  public: true,
   backendHost: 'http://localhost:8080',
   //backendHost: 'http://192.168.0.103:8080',
   

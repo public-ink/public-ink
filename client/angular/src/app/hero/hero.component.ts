@@ -9,6 +9,7 @@ import OrbitControls from 'orbit-controls-es6'
 
 // Services
 import { MIDIService } from '../midi.service'
+import { BackendService } from '../backend.service'
 
 // hero classes
 import { Hero } from './hero'
@@ -54,18 +55,18 @@ export interface BoxParams {
 
 
 export const COLORS = {
-  'A': {h: 56 / 360, s: 1.0, l: .60}, // yellow
-  'Bb': {h: (56 +  323) / 2, s: .99, l: .63}, // 'brown',
-  'B': {h: 323 / 350, s: .96, l: .67}, // 'pink',
-  'C': {h: .44, s: .96, l: 1}, // 'white',
-  'C#': {h: .44, s: .96, l: .1}, // 'dunno',
-  'D': {h: 39 / 360, s: 1, l: .50}, // 'orange',
-  'D#': {h: .24, s: .50, l: .2}, // 'dunno',
-  'E': {h: 112 / 360, s: .65, l: .55}, // 'green',
-  'F': {h: 226 / 360, s: .65, l: .55}, // 'blue',
-  'F#':  {h: 266 / 360, s: .65, l: .46}, // 'violet',
-  'G': {h: 350 / 360, s: 1, l: .50}, // 'red',
-  'G#': {h: 0, s: .36, l: .31}, // brown,
+  'A': { h: 56 / 360, s: 1.0, l: .60 }, // yellow
+  'Bb': { h: (56 + 323) / 2, s: .99, l: .63 }, // 'brown',
+  'B': { h: 323 / 350, s: .96, l: .67 }, // 'pink',
+  'C': { h: .44, s: .96, l: 1 }, // 'white',
+  'C#': { h: .44, s: .96, l: .1 }, // 'dunno',
+  'D': { h: 39 / 360, s: 1, l: .50 }, // 'orange',
+  'D#': { h: .24, s: .50, l: .2 }, // 'dunno',
+  'E': { h: 112 / 360, s: .65, l: .55 }, // 'green',
+  'F': { h: 226 / 360, s: .65, l: .55 }, // 'blue',
+  'F#': { h: 266 / 360, s: .65, l: .46 }, // 'violet',
+  'G': { h: 350 / 360, s: 1, l: .50 }, // 'red',
+  'G#': { h: 0, s: .36, l: .31 }, // brown,
 
 }
 
@@ -150,6 +151,7 @@ export class HeroComponent implements OnInit, AfterViewChecked, AfterViewInit {
   constructor(
 
     public midi: MIDIService,
+    public backend: BackendService,
 
   ) {
     console.log('hero component constructed')
@@ -184,7 +186,7 @@ export class HeroComponent implements OnInit, AfterViewChecked, AfterViewInit {
     this.sceneSetup(this.dimensions)
     window.addEventListener('resize', this.onWindowResize, false)
   }
-  
+
 
   ngAfterViewChecked() {
     // console.log('view checked')
@@ -266,7 +268,7 @@ export class HeroComponent implements OnInit, AfterViewChecked, AfterViewInit {
      */
     this.midi.stream.filter(msg => msg.keyName === 'modulation').subscribe(msg => {
 
-        // nothing here
+      // nothing here
 
     })
 
@@ -279,8 +281,8 @@ export class HeroComponent implements OnInit, AfterViewChecked, AfterViewInit {
 
     /** hero setup via song */
     // this.makeSong()
-    let hsl = {h: 1, s: 0.5, l: 0.5}
-    let testBox: BoxParams = {y: 10, scene: this.scene, colorHSL: hsl}
+    let hsl = { h: 1, s: 0.5, l: 0.5 }
+    let testBox: BoxParams = { y: 10, scene: this.scene, colorHSL: hsl }
     let testMesh = makeBox(testBox)
 
   }
@@ -294,9 +296,15 @@ export class HeroComponent implements OnInit, AfterViewChecked, AfterViewInit {
   /** 
    * create a song for testing
    */
-   makeSong() {
-     this.song = new Song(this.midi, this.scene, this.animationStream, this.piano, this.dimensions)
-   }
+  makeSong() {
+    //this.song = new Song(this.midi, this.scene, this.animationStream, this.piano, this.dimensions)
+  }
+
+  songSetup(midiData) {
+    this.song = new Song(this.midi, this.scene, this.animationStream, this.piano, this.dimensions, midiData)
+
+    
+  }
 
 
 

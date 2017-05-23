@@ -5,6 +5,8 @@ import { Observable, Subscribable } from 'rxjs/Observable'
 import { Subscriber } from 'rxjs/Subscriber'
 import { Subject } from 'rxjs/Subject'
 
+import { midimessage } from 'midimessage'
+
 // new parser
 // import { MIDIParser } from './3rd/midi-parser'
 
@@ -36,14 +38,14 @@ declare var sketch: any
 export class MIDIService {
 
   // FluidR3_GM
-  instruments = [
+  instrumentIDs = [
     { id: 'accordion' },
     { id: 'electric_guitar_muted' },
     { id: 'lead_7_fifths' },
     { id: 'slap_bass_1' },
     { id: 'acoustic_bass' },
     { id: 'electric_piano_1' },
-    { id: 'lead_8_bass__lead' },
+    //{ id: 'lead_8_bass__lead' },
     { id: 'slap_bass_2' },
     { id: 'acoustic_grand_piano' },
     { id: 'electric_piano_2' },
@@ -69,18 +71,18 @@ export class MIDIService {
     { id: 'fretless_bass' },
     { id: 'ocarina' },
     { id: 'synth_bass_2' },
-    { id: 'bagpipe' },
+    //{ id: 'bagpipe' },
     { id: 'fx_1_rain' },
     { id: 'orchestra_hit' },
-    { id: 'synth_brass_1' },
+    // { id: 'synth_brass_1' },
     { id: 'banjo' },
     { id: 'fx_2_soundtrack' },
     { id: 'orchestral_harp' },
-    { id: 'synth_brass_2' },
+    // { id: 'synth_brass_2' },
     { id: 'baritone_sax' },
     { id: 'fx_3_crystal' },
     { id: 'overdriven_guitar' },
-    { id: 'synth_choir' },
+    // { id: 'synth_choir' },
     { id: 'bassoon' },
     { id: 'fx_4_atmosphere' },
     { id: 'pad_1_new_age' },
@@ -88,11 +90,11 @@ export class MIDIService {
     { id: 'bird_tweet' },
     { id: 'fx_5_brightness' },
     { id: 'pad_2_warm' },
-    { id: 'synth_strings_1' },
+    // { id: 'synth_strings_1' },
     { id: 'blown_bottle' },
     { id: 'fx_6_goblins' },
     { id: 'pad_3_polysynth' },
-    { id: 'synth_strings_2' },
+    // { id: 'synth_strings_2' },
     { id: 'brass_section' },
     { id: 'fx_7_echoes' },
     { id: 'pad_4_choir' },
@@ -125,7 +127,7 @@ export class MIDIService {
     { id: 'harpsichord' },
     { id: 'piccolo' },
     { id: 'trombone' },
-    { id: 'clavinet' },
+    // { id: 'clavinet' },
     { id: 'helicopter' },
     { id: 'pizzicato_strings' },
     { id: 'trumpet' },
@@ -177,6 +179,10 @@ export class MIDIService {
   source: Subscriber<MIDIMessage>
   stream: Observable<MIDIMessage>
 
+  // raw stream
+  rawStream: Subject<any>
+
+
   /**
    * keyboard state: knobs
    */
@@ -206,6 +212,7 @@ export class MIDIService {
     // continue
   }
   player: any // midi.js player
+  currentInstrument: any
 
   /**
    * loads then play a given song
@@ -245,32 +252,24 @@ export class MIDIService {
 
   // soundfont player, with current instrument
   instrument
+  audioContext = new AudioContext()
 
+  instruments: Instrument[] = []
 
   constructor(
   ) {
 
-
-
-    /*let player = Soundfont.instrument(new AudioContext(), 'acoustic_grand_piano').then(function (marimba) {
-      console.log('made an insturment marimba', marimba)
-      marimba.play('C4')
-
-      let nav: any = window.navigator
-
-      nav.requestMIDIAccess().then(function (midiAccess) {
-        midiAccess.inputs.forEach(function (midiInput) {
-          marimba.listenToMidi(midiInput)
-        })
-      })
-    })*/
+    this.rawStream = new Subject()
 
 
 
-    // new parser test
-    // console.log('mega', MIDIParser)
-    // this.parsedMidi = MIDIParser.Base64( this.songList[1].data)
-    // console.log(this.parsedMidi)
+    this.instrument = new Instrument('accordion', this, this.audioContext)
+
+    // make (and load for now) all instruments
+    for (let instrumentObj of this.instrumentIDs.slice(0, 2)) {
+      let instrument = new Instrument(instrumentObj.id, this, this.audioContext)
+      this.instruments.push(instrument)
+    }
 
     /**
      * create MIDI Stream ( do a subject instead)
@@ -311,20 +310,13 @@ export class MIDIService {
 
   loadInstrument(name: string = 'acoustic_grand_piano') {
 
-    Soundfont.instrument(new AudioContext(), name).then( (instrument) => {
-      console.log('made an insturment', instrument)
-      this.instrument = instrument
-      this.instrument.play('C4')
+    this.instrument.active = false
+    this.instrument = new Instrument(name, this, this.audioContext)
 
-      let nav: any = window.navigator
+  }
 
-      nav.requestMIDIAccess().then( (midiAccess) => {
-        midiAccess.inputs.forEach( (midiInput) => {
-          this.instrument.listenToMidi(midiInput)
-        })
-      })
-    })
-
+  loadSong(song) {
+    console.log('midi want to load song', song)
   }
 
   /* browser and midi device success */
@@ -355,6 +347,8 @@ export class MIDIService {
    */
 
   streamMessage = (message) => {
+
+    this.rawStream.next(message)
 
     // console.log(message.data)
 
@@ -442,3 +436,194 @@ export class MIDIService {
   ]
 }
 
+export class Instrument {
+
+  player
+  started = {}
+  //  var gain = opts.gain || function (vel) { return vel / 127 }
+
+  active = false
+  loaded = false
+  demoPlayer
+
+  constructor(private id: string = 'accoustic-grand-piano', private midi: MIDIService, private audioContext: AudioContext, private opts = { channel: 1 }) {
+
+    this.loadInstrument()
+
+  }
+  name() {
+    return this.id.toUpperCase()
+  }
+
+  demo() {
+    this.demoPlayer = this.player.play('C4')
+  }
+  cancelDemo() {
+    if (this.demoPlayer) {
+
+      this.demoPlayer.stop()
+    }
+  }
+
+  loadInstrument() {
+    // load! move out of constructor, and make a method
+    Soundfont.instrument(this.audioContext, this.id).then((player) => {
+      console.log('made an insturment', player)
+      this.player = player
+      console.log('instrument constructed', this.player)
+      // this.player.play('C4')
+      this.loaded = true
+
+      // needs to be raw midi stream
+      this.midi.rawStream.subscribe(msg => {
+
+        if (!this.active || !this.loaded) return
+
+        console.log('raw midi stream!', msg)
+
+        // play da funky music!
+        let newMessage = new MMessage(msg)
+        var mm = msg.messageType ? msg : newMessage
+        console.log(newMessage)
+        if (mm.messageType === 'noteon' && mm.velocity === 0) {
+          mm.messageType = 'noteoff'
+        }
+        // if (opts.channel && mm.channel !== opts.channel) return
+
+        switch (mm.messageType) {
+          case 'noteon':
+            console.log('noteon, rock!')
+            this.started[mm.key] = this.player.play(mm.key, 0, { gain: this.gain(mm.velocity) })
+            break
+          case 'noteoff':
+            if (this.started[mm.key]) {
+              this.started[mm.key].stop()
+              delete this.started[mm.key]
+            }
+            break
+        }
+      })
+
+    })
+  }
+
+  gain(vel) {
+    return vel / 127
+  }
+
+  toggle() {
+    this.active = !this.active
+  }
+
+}
+
+/**
+ * used to convert a raw midi message to human friendly messages
+ */
+
+export class MMessage {
+  _event
+  _data
+  receivedTime
+  _messageCode
+  channel
+  messageType
+  key
+  velocity
+  pressure
+  controllerNumber
+  controllerValue
+  channelModeMessage
+  program
+  pitchBend
+
+
+  constructor(event) {
+    console.log(event)
+    this._event = event;
+    this._data = event.data;
+    this.receivedTime = event.receivedTime;
+
+    if (this._data && this._data.length < 2) {
+      console.warn("Illegal MIDI message of length", this._data.length);
+      return;
+    }
+
+    this._messageCode = event.data[0] & 0xf0;
+    this.channel = event.data[0] & 0x0f;
+
+    switch (this._messageCode) {
+
+      // Note Off
+      case 0x80:
+        this.messageType = "noteoff";
+        this.key = event.data[1] & 0x7F;
+        this.velocity = event.data[2] & 0x7F;
+        break;
+
+      // Note On
+      case 0x90:
+        this.messageType = "noteon";
+        this.key = event.data[1] & 0x7F;
+        this.velocity = event.data[2] & 0x7F;
+        break;
+
+      // Polyphonic Key Pressure
+      case 0xA0:
+        this.messageType = "keypressure";
+        this.key = event.data[1] & 0x7F;
+        this.pressure = event.data[2] & 0x7F;
+        break;
+
+      // Control Change
+      case 0xB0:
+        this.messageType = "controlchange";
+        this.controllerNumber = event.data[1] & 0x7F;
+        this.controllerValue = event.data[2] & 0x7F;
+
+        if (this.controllerNumber === 120 && this.controllerValue === 0) {
+          this.channelModeMessage = "allsoundoff";
+        } else if (this.controllerNumber === 121) {
+          this.channelModeMessage = "resetallcontrollers";
+        } else if (this.controllerNumber === 122) {
+          if (this.controllerValue === 0) {
+            this.channelModeMessage = "localcontroloff";
+          } else {
+            this.channelModeMessage = "localcontrolon";
+          }
+        } else if (this.controllerNumber === 123 && this.controllerValue === 0) {
+          this.channelModeMessage = "allnotesoff";
+        } else if (this.controllerNumber === 124 && this.controllerValue === 0) {
+          this.channelModeMessage = "omnimodeoff";
+        } else if (this.controllerNumber === 125 && this.controllerValue === 0) {
+          this.channelModeMessage = "omnimodeon";
+        } else if (this.controllerNumber === 126) {
+          this.channelModeMessage = "monomodeon";
+        } else if (this.controllerNumber === 127) {
+          this.channelModeMessage = "polymodeon";
+        }
+        break;
+
+      // Program Change
+      case 0xC0:
+        this.messageType = "programchange";
+        this.program = event.data[1];
+        break;
+
+      // Channel Pressure
+      case 0xD0:
+        this.messageType = "channelpressure";
+        this.pressure = event.data[1] & 0x7F;
+        break;
+
+      // Pitch Bend Change
+      case 0xE0:
+        this.messageType = "pitchbendchange";
+        var msb = event.data[2] & 0x7F;
+        var lsb = event.data[1] & 0x7F;
+        this.pitchBend = (msb << 8) + lsb;
+        break;
+    }
+
+  }
+}
