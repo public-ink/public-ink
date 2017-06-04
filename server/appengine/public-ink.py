@@ -1,4 +1,4 @@
-#import logging
+import logging
 import graphene
 import webapp2
 import hashlib
@@ -21,15 +21,16 @@ from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.api import images
 
 # ink stuff
-from shared import RequestHandler, cross_origin, ninja, allow_cors, return_json, ENV_NAME, FRONTEND_URL, BACKEND_URL
+from shared import dt_to_epoch, RequestHandler, cross_origin, ninja, allow_cors, return_json, ENV_NAME, FRONTEND_URL, BACKEND_URL
 from secrets import JWT_SECRET, JWT_EXP_DELTA_SECONDS, JWT_ALGORITHM, JWT_EXP_DELTA_DAYS
 
 # app engine
 from google.appengine.api import mail
 from google.appengine.ext import ndb
+from google.appengine.api import search
 
 
-
+_INDEX_NAME = 'SONG_INDEX'
 
 """
 Hashing
@@ -240,6 +241,15 @@ class ArticleModel(InkModel):
     """ Article NDB model """
     title = ndb.StringProperty()
     bodyOps = ndb.TextProperty()
+    published_at = ndb.DateTimeProperty()
+
+    def publish(self):
+        self.published_at = datetime.now()
+        self.put()
+
+    def unpublish(self):
+        self.published_at = None
+        self.put()
 
 class ArticleSchema(graphene.ObjectType):
     """
@@ -247,15 +257,21 @@ class ArticleSchema(graphene.ObjectType):
     """
     title = graphene.String()
     bodyOps = graphene.String()
+    published_at = graphene.Float()
 
     id = graphene.String()
     def resolve_id(self, *args):
         return self.key.id()
 
-    # related
+    def resolve_published_at(self, *args):
+        return dt_to_epoch(self.published_at)
+
+    # related: parent publication
     publication = graphene.Field(PublicationSchema)
     def resolve_publication(self, *args):
         return self.key.parent().get()
+
+    # related: parent publication's author
     author = graphene.Field(AuthorSchema)
     def resolve_author(self, *args):
         return self.key.parent().parent().get()
@@ -264,21 +280,65 @@ class ArticleSchema(graphene.ObjectType):
 """ Song """ 
 class SongModel(InkModel):
     """ A midi song in json format """
+    path = ndb.StringProperty()
     title = ndb.StringProperty()
     artist = ndb.StringProperty()
     bpm = ndb.IntegerProperty()
+    ppq = ndb.IntegerProperty()
+    tags = ndb.StringProperty(repeated=True)
+    time_signature = ndb.IntegerProperty(repeated=True)
     track_count = ndb.IntegerProperty()
-    tracks = ndb.JsonProperty(repeated=True)
-    text = ndb.TextProperty()
+    tracks_string = ndb.TextProperty()
+    # tracks = ndb.JsonProperty(repeated=True)
+    indexed = ndb.BooleanProperty(default=False)    
+
+    """
+    index yourself so you can be found! (by title only currently)
+    """
+    def index(self):
+        title_tokens = ','.join(tokenize_autocomplete(self.title))
+        document = search.Document(
+            doc_id=self.key.urlsafe(),
+            fields=[
+                search.TextField(name='title', value=title_tokens),
+                search.TextField(name='verbose', value=self.title)
+                ])
+        search.Index(name=_INDEX_NAME).put(document)
+
+"""
+
+        doc = search.Document(
+            
+            fields=[
+                search.TextField(name='title', value=self.title) #,
+                #search.TextField(name='comment', value=content),
+                #search.DateField(name='date', value=datetime.now().date())
+            ])
+        
+"""
 
 
 class SongSchema(graphene.ObjectType):
     """
     the schema for a song
     """
+    path = graphene.String()
     title = graphene.String()
-    tracks = graphene.String()
-    text = graphene.String()
+    tracks_string = graphene.String()
+    title = graphene.String()
+    artist = graphene.String()
+    bpm = graphene.Int()
+    #ppq = graphene.Int()
+    track_count = graphene.Int()
+
+class SongSearchSchema(graphene.ObjectType):
+    """
+    the shema for a song search result
+    """
+    title = graphene.String()
+    key_id = graphene.String()
+
+
 
 """
 Playground - remove at some point
@@ -578,6 +638,32 @@ class Query(graphene.ObjectType):
             info=InfoSchema(success=True, message=message),
             article=article
         )
+
+    """ PUBLISH ARTICLE """
+    publish_article = graphene.Field(ArticleResponse)
+    def resolve_publish_article(self, args, *more):
+        authorID = args.get('authorID') or self.get('authorID')
+        publicationID = self.get('publicationID')
+        articleID = self.get('articleID')
+
+        unpublish = self.get('unpublish')
+
+        article_key = ndb.Key(
+            'AuthorModel', authorID, 
+            'PublicationModel', publicationID,
+            'ArticleModel', articleID
+        )
+        article = article_key.get()
+        if unpublish:
+            article.unpublish()
+        else:
+            article.publish()
+        return ArticleResponse(
+            info=InfoSchema(success=True, message='published!'),
+            article=article
+        )
+
+
     """
     DATA RETRIEVAL / RESOURCES
     """
@@ -633,17 +719,62 @@ class Query(graphene.ObjectType):
         images = ImageModel.query(ImageModel.user_key==user_key).fetch()
         return images
 
-    """ Songs """
-    songs = graphene.List(lambda: SongSchema)
-    def resolve_songs(self, args, *more):
-        print 'resolve songs'
-        songs = SongModel.query().fetch(10)
-        for song in songs: 
-            #song.tracks = json.loads(song.tracks)
-            #song.tracks = json.loads(song.tracks)
-            pass
-        return songs
 
+
+    """ Songs """
+    song = graphene.Field(lambda: SongSchema, id=graphene.String())
+    def resolve_song(self, args, *more):
+        
+        id = args.get('id') or args.get('id')
+        print 'got an id' + id
+
+        song_key = ndb.Key(urlsafe=id)
+        song = song_key.get()
+        return song
+        
+
+    """
+    Song Search
+    """
+    
+
+    song_search = graphene.List(lambda: SongSearchSchema, q=graphene.String())
+    def resolve_song_search(self, args, *more):
+        
+        songs = SongModel.query().fetch(20)
+        for song in songs:
+            song.index()
+            pass
+        
+        q = args.get('q') or args.get('q')
+        print 'got a search query!!' + q
+        # perform search
+        expr_list = [search.SortExpression(
+            expression='title', default_value='',
+            direction=search.SortExpression.DESCENDING)]
+        # construct the sort options
+        sort_opts = search.SortOptions(
+             expressions=expr_list)
+        query_options = search.QueryOptions(
+            limit=3,
+            sort_options=sort_opts)
+        query_obj = search.Query(query_string=q, options=query_options)
+        results = search.Index(name=_INDEX_NAME).search(query=query_obj)
+
+        # pull out info from results
+        to_return = []
+        for result in results:
+            verbose = 'not yet'
+            for field in result.fields:
+                if field.name == 'verbose':
+                    verbose = field.value
+            to_return.append(
+                SongSearchSchema(
+                    title = verbose,
+                    key_id = result.doc_id
+                )
+            )
+        return to_return
 
 
     """
@@ -881,59 +1012,6 @@ class ServeImage(webapp2.RequestHandler):
         self.response.out.write(result)
         return
 
-class ServeImagex(webapp2.RequestHandler):
-    def get(self):
-        blob_key = self.request.get('key')
-        image = rescale(blob_key, 1400,400)
-        #self.response.headers['Content-Type'] = 'image/jpeg'
-        self.response.out.write(image)
-        #image = images.Image(blob_key=blob_key)
-
-def rescale(blob_key, width, height, halign='middle', valign='middle'):
-    """Resize then optionally crop a given image.
-
-    Attributes:
-    blob_key: The image data
-    width: The desired width
-    height: The desired height
-    halign: Acts like photoshop's 'Canvas Size' function, horizontally
-            aligning the crop to left, middle or right
-    valign: Verticallly aligns the crop to top, middle or bottom
-
-    """
-    #image_data = blobstore.get(blob_key)
-    image_data = blobstore.BlobReader(blob_key).read()
-    #image = images.Image(blob_key=blob_key)
-    image = images.Image(image_data)
-    #image.im_feeling_lucky()
-
-    desired_wh_ratio = float(width) / float(height)
-    wh_ratio = float(image.width) / float(image.height)
-
-    if desired_wh_ratio > wh_ratio:
-        # resize to width, then crop to height
-        image.resize(width=width)
-        image.execute_transforms()
-        trim_y = (float(image.height - height) / 2) / image.height
-        if valign == 'top':
-            image.crop(0.0, 0.0, 1.0, 1 - (2 * trim_y))
-        elif valign == 'bottom':
-            image.crop(0.0, (2 * trim_y), 1.0, 1.0)
-        else:
-            image.crop(0.0, trim_y, 1.0, 1 - trim_y)
-    else:
-        # resize to height, then crop to width
-        image.resize(height=height)
-        image.execute_transforms()
-        trim_x = (float(image.width - width) / 2) / image.width
-        if halign == 'left':
-            image.crop(0.0, 0.0, 1 - (2 * trim_x), 1.0)
-        elif halign == 'right':
-            image.crop((2 * trim_x), 0.0, 1.0, 1.0)
-        else:
-            image.crop(trim_x, 0.0, 1 - trim_x, 1.0)
-
-    return image.execute_transforms()
 
 
 class CertificateHandler(webapp2.RequestHandler):
@@ -952,8 +1030,22 @@ class MIDIUploadHandler(RequestHandler):
     def get(self, data):
         dataString = urllib.unquote(data)#.decode('utf8') 
         midi = json.loads(dataString)
-        # todo: extract data, title stuff...
-        song = SongModel(title = 'test', tracks = midi['tracks'], text = json.dumps(midi['tracks']) )
+        print midi
+        header = midi['header']
+        ppq = header['PPQ']
+        bpm = header['bpm']
+        time_signature = header['timeSignature']
+        # create a song
+        song = SongModel(
+            path = midi['path'],
+            title = midi['path'].split('/')[-1].replace('.mid','').replace('_',' ').title(),
+            bpm = int(bpm),
+            ppq = int(ppq),
+            track_count = len(midi['tracks']),
+            time_signature = time_signature,
+            tags = midi['path'].replace('/Users/martin.micklinghoff/Downloads/50000_MIDI_FILES/', '').split('/')[0: -1],
+            tracks_string = json.dumps(midi['tracks'])
+        )
         song.put()
         self.response.write('cool')
 
@@ -977,7 +1069,19 @@ app = webapp2.WSGIApplication(
     ], debug=True
 )
 
+""" Search Index """
 
+def tokenize_autocomplete(phrase):
+    a = []
+    for word in phrase.split():
+        j = 1
+        while True:
+            for i in range(len(word) - j + 1):
+                a.append(word[i:i + j])
+            if j == len(word):
+                break
+            j += 1
+    return a
 
 """ UTILS (move)"""
 def send_verification_email(email, token):

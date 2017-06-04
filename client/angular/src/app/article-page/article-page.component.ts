@@ -47,12 +47,14 @@ export class ArticlePageComponent implements OnInit {
 
   keyboardSubscription: Subscription
 
+  
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private backend: BackendService,
+    public backend: BackendService,
     private apollo: Apollo,
-    private ui: UIService,
+    public ui: UIService,
   ) {
     console.log('article page constructed')
 
@@ -68,7 +70,7 @@ export class ArticlePageComponent implements OnInit {
         // cmd + d
         this.deleteArticle()
         event.preventDefault()
-      }
+      } 
     })
   }
 
@@ -100,6 +102,7 @@ export class ArticlePageComponent implements OnInit {
       } else {
         this.backend.getArticle(this.authorID, this.publicationID, this.articleID).subscribe(article => {
           this.article = JSON.parse(JSON.stringify(article))
+
         })
       }
     })
@@ -139,6 +142,21 @@ export class ArticlePageComponent implements OnInit {
   ngOnDestroy() {
     console.log('article page destroyed')
     this.keyboardSubscription.unsubscribe()
+  }
+
+  /** check if the current article is owned by the current user */
+  isOwner() {
+    let authorIDs = []
+    if (this.backend.userAccount && this.backend.userAccount.authors){
+      authorIDs = this.backend.userAccount.authors.map(author => {
+        return author.id
+      })
+      if (this.article && authorIDs.includes(this.article.publication.author.id) ){
+        return true
+      } else {
+        return false
+      }
+    }
   }
 
 }

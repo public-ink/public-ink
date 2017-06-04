@@ -26,60 +26,45 @@
 
 </flex-col-center-center>
 
-<div style="height: 49px; z-index: 3; background-color:rgba(255,255,255,0.95); position:fixed; top: 0; left:0; width: 100%; border-bottom: 1px solid lightgray">
-    <app-extra-width>
+<div style="height: 49px; z-index: 3; background-color:rgba(0, 0, 0, 0.80); position:fixed; top: 0; left:0; width: 100%; border-bottom: 1px solid rgba(20, 20, 20, 0.80)">
+    <app-content-width>
         <flex-row-between-center>
-            <h3><a [routerLink]="['/']">Home</a></h3>
-            <!-- logo -->
-           <!-- <flex-center style="width:30px; height: 30px; background:#444; border-radius: 100%; color: white; ">
-                π
-            </flex-center>-->
-            <h3>public.ink</h3>
-           
+
+            <h3><a [routerLink]="['/']" class="navlink">public.ink</a></h3>
+
+            <span style="font-size: 20px; color: #333; font-weight: bold;"></span>
+            
             <!-- login / signup -->
             <flex-row *ngIf="!backend.userAccount?.authenticated">
-                <h3><a [routerLink]="['/auth']">Log In</a> | <a [routerLink]="['/auth']">Sign Up</a></h3>
+                <h3><a [routerLink]="['/auth']"  class="navlink">Log In</a> | <a [routerLink]="['/auth']"  class="navlink">Sign Up</a></h3>
             </flex-row>
-            <!-- your account -->
+
+            <!-- your things -->
             <flex-row *ngIf="backend.userAccount?.authenticated">
-                <h3><a [routerLink]="['/my-account']">Your Things</a></h3>
+                <h3><a [routerLink]="['/my-account']"  class="navlink">your things</a></h3>
             </flex-row>
 
         </flex-row-between-center>
         
-    </app-extra-width>
+    </app-content-width>
 </div>
 
 
-<!-- main -->
-<flex-row-center style="display: none; z-index: 2; box-shadow: 0 2px 2px -2px rgba(0,0,0,.35); border-bottom: 0px solid #444; background-color:rgba(255,255,255,0.95); height: 50px; position:fixed; top: 0; left:0; width: 100%;">
-    <app-extra-width [bg]="'red'">
-        <flex-col-start class="grow">
-            <a [routerLink]="['/']">Home</a>
-        </flex-col-start>
-
-        <flex-col-center class="grow">
-            public.ink {{ environment.name }}
-        </flex-col-center>
-
-        <!-- login / signup -->
-        <flex-row-center *ngIf="!backend.userAccount?.authenticated" class="grow">
-            <a [routerLink]="['/auth']">Log In</a>
-            / 
-            <a [routerLink]="['/auth']">Sign Up</a>
-        </flex-row-center>
-        <!-- your account -->
-        <flex-col-end *ngIf="backend.userAccount?.authenticated" class="grow">
-            <a [routerLink]="['/my-account']">Your Account</a>
-        </flex-col-end>
-
-    </app-extra-width>
-</flex-row-center>
-
-<div style="height: 50px;">just space behind the top bar</div>
 
 
-<router-outlet></router-outlet>
+
+<div style="min-height: 100vh;">
+    <router-outlet></router-outlet>
+</div>
+
+<!-- footer -->
+
+<app-content-width>
+    <flex-row-center-center style="height: 50px; margin-top: 50px;">
+        2017 | about | contact me
+    </flex-row-center-center>
+
+</app-content-width>
 
 
 <!-- media bar! -->

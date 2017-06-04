@@ -1,7 +1,5 @@
 <div *ngIf="publication">
 
- 
-
   <app-publication 
     [publication]="publication"
     [editable]="true"
@@ -12,22 +10,31 @@
   <!-- if NEW! -->
   <button (click)="savePublication()" class="" *ngIf="publication.new">Create publication</button>
 
-<div *ngFor="let article of publication.articles">
+  <!-- this publication's article previews -->
+  <div *ngFor="let article of publication.articles">
+    <app-article [article]="article" [editable]="false" [preview]="true"></app-article>
+  </div>
 
-  <app-article [article]="article" [editable]="false" [preview]="true"></app-article>
-  <!--<a [routerLink]="['/', authorID, publicationID, article.id]">{{ article.title }}</a>-->
+  
+
+
 </div>
 
-  <a [routerLink]="['/', publication.author.id, publication.id, 'create-article']">Create Article</a>
 
-</div>
-
-
- <!-- if Existing -->
-<app-bottom-bar *ngIf="publication">
+ <!-- if Existing (do they have shortcuts?) -->
+<app-bottom-bar *ngIf="publication && ui.bottomBarVisible">
+  <app-content-width>
    <flex-row-between-center style="height:50px;">
-    <button class="page-button" (click)="savePublication()">Save Changes</button>
-    <button class="page-button" (click)="deletePublication()" class="" *ngIf="!publication.new">Delete Publication</button>
+
+    <!-- button to start new article in this publication -->
+    <div [routerLink]="['/', publication.author.id, publication.id, 'create-article']">New Article</div>
+
+    <div class="" (click)="savePublication()">Save</div>
+    <div class="" (click)="savePublication()">Media</div>
+    <div class="" (click)="savePublication()">Publish</div>    
+    <div class="" (click)="deletePublication()" *ngIf="!publication.new">Delete</div>
    </flex-row-between-center>
+
+   </app-content-width>
 
 </app-bottom-bar>

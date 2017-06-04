@@ -23,7 +23,7 @@ else:
     BACKEND_URL = 'http://localhost:8080'
     FRONTEND_URL = 'http://localhost:4200'
     """
-    When the above settings are actice, run:
+    When the above settings are active, run:
 
     dev_appserver.py .
     ng serve
@@ -48,11 +48,10 @@ Unix Epoch Helper
 """
 
 zero = datetime.datetime.utcfromtimestamp(0)
-def epoch(dt):
+def dt_to_epoch(dt):
     if not dt:
         return 0
     return int((dt - zero).total_seconds() * 1000)
-
 
 """
 Decorators

@@ -29,16 +29,13 @@ export class PublicationComponent implements OnInit {
 
   ngOnInit() {
     this.ui.mediaClickObservable.subscribe(image => {
-      console.log('sup')
-      this.publication.imageUrl = image.url // size?
+      this.publication.imageURL = image.url // size?
     })
   }
 
-  jo() {
-    return 'sup'
-  }
+  
   safeBG() {
-    let str = `url(${this.publication.imageUrl})`
+    let str = `url(${this.publication.imageURL})`
     return this.sanitizer.bypassSecurityTrustStyle(str)
   }
 

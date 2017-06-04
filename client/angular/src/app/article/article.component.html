@@ -1,13 +1,15 @@
 
-<!-- TITLE -->
-<app-extra-width [bg]="titleHasFocus() ? colors.highlight : 'transparent'">
 
-    <!-- static -->
+
+<!-- TITLE -->
+<app-content-width [bg]="titleHasFocus() ? colors.highlight : 'transparent'">
+
+    <!-- static title -->
     <h1 *ngIf="!editable"
         [style.fontSize.px]="ui.responsiveValue(30, 50)"
     ><a style="color: #333; text-decoration: none;" [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]">{{ article.title}}</a></h1>
 
-    <!-- editable -->
+    <!-- editable title -->
     <textarea 
         #titleArea
         *ngIf="editable" type="text" 
@@ -16,30 +18,48 @@
         [style.fontSize.px]="ui.responsiveValue(30, 50)"
     style="outline: 0; resize: none; background-color: transparent; width: 100%; font-weight: bold; border:0px;" [(ngModel)]="article.title"
     ></textarea> 
-</app-extra-width>
+</app-content-width>
 
 <!-- META -->
-<app-extra-width>
+<app-content-width>
+
     <div style="color: #666;">By 
+
         <a [routerLink]="['/', article.publication.author.id]">{{ article.publication.author.name }}</a>
-        in <a [routerLink]="['/', article.publication.author.id, article.publication.id]">{{ article.publication.name }}</a> <span style="color: #999;">|  February 2017</span>
+        in <a [routerLink]="['/', article.publication.author.id, article.publication.id]">{{ article.publication.name }}</a>
+        
+            <span *ngIf="article.publishedAt"> published {{ article.publishedAt | date:'MMMM y' }}</span>
+            <span *ngIf="!article.publishedAt">  draft</span>
+        
+    
     </div>
-</app-extra-width>
+</app-content-width>
 
 <!-- SPACE -->
 <div [style.height.px]="space.metaThenBody"></div>
 
 <!-- BODY -->
-<app-extra-width [bg]="quill.hasFocus() ? colors.highlight : 'transparent'">
+<app-content-width [bg]="quill.hasFocus() ? colors.highlight : 'transparent'">
     <!-- quill editor -->
     <div #editor
         [style.font-size.px]="ui.responsiveValue(14, 20)"
     ></div>
 
     <!-- hidden toolbar in case of preview -->
-    <div #hidden style="display: none;"></div>
+    <div class="hidden-toolbar" #hidden style="display: none;"></div>
 
+    <br>
+    <br>
     <!-- read more link in case of preview -->
-    <a *ngIf="preview" [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]">read more</a>
+    <span *ngIf="preview">
+    <a [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]"
+        [ngStyle]="{background: '#222', color: 'white', padding: '10px 20px'}"
+        style="display: inline-block;">read on </a> 8 minutes</span>
+    
+    <br>
+    <br>
+    <br>
 
-</app-extra-width>
+</app-content-width>
+
+

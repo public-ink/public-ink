@@ -72,7 +72,7 @@ class Author(ndb.Model):
             'nameText': self.name_text,
             'about': self.about,
             'aboutText': self.about_text,
-            'imageUrl': self.image_url,
+            'imageURL': self.image_url,
             'deleted': self.deleted,
             'created': epoch(self.created),
             'updated': epoch(self.updated),
@@ -131,7 +131,7 @@ class AuthorEndpoint(RequestHandler):
             email=email, # add user id!
             about=data.get('about'),
             about_text = data.get('aboutText'),
-            image_url = data.get('imageUrl')
+            image_url = data.get('imageURL')
         ).put()
         author = author_key.get()
         return_json(self, author.data())
@@ -154,7 +154,7 @@ class AuthorEndpoint(RequestHandler):
         author.name_text = data.get('nameText')
         author.about = data.get('about')
         author.about_text = data.get('aboutText')
-        author.image_url = data.get('imageUrl')
+        author.image_url = data.get('imageURL')
         author.put()
         author_data = author.data()
         return_json(self, author_data)

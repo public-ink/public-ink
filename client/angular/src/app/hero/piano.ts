@@ -132,7 +132,7 @@ export class PianoKey {
             let vessel = new Vessel(this, this.scene, this.animationStream, msg.velocity)
 
             // test: hightern launchpad!
-            this.launchpadMesh.scale.setY(10)
+            this.launchpadMesh.scale.setY(5)
 
 
         })

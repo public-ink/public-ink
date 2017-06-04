@@ -19,6 +19,7 @@ export interface iArticle {
     id: string    
     title: string
     bodyOps: string
+    publishedAt?: number
     // parent
     publication: iPublication
     new?: boolean
@@ -78,7 +79,7 @@ export class Author extends Resource implements IResource {
     nameText: string
     about: string
     aboutText: string
-    imageUrl: string
+    imageURL: string
     publications: Publication[] = []
     deleted: boolean
     created: number
@@ -91,7 +92,7 @@ export class Author extends Resource implements IResource {
         this.nameText = data.nameText
         this.about = data.about
         this.aboutText = data.aboutText
-        this.imageUrl = data.imageUrl
+        this.imageURL = data.imageURL
         this.deleted = data.deleted
         this.created = data.created
         this.updated = data.updated
@@ -109,7 +110,7 @@ export class Author extends Resource implements IResource {
             nameText: this.nameText,
             about: this.about,
             aboutText: this.aboutText,
-            imageUrl: this.imageUrl,
+            imageURL: this.imageURL,
         }
     }
     /**
@@ -134,7 +135,7 @@ export class Author extends Resource implements IResource {
             nameText: '',
             about: '',
             aboutText: '',
-            imageUrl: '',
+            imageURL: '',
             deleted: false,
             publications: [],
         }
@@ -147,7 +148,7 @@ export class Publication extends Resource implements IResource {
     nameText: string
     about: string
     aboutText: string
-    imageUrl: string
+    imageURL: string
     // related
     articles: Article[] = []
     author: Author
@@ -218,7 +219,7 @@ export interface AuthorData extends ResourceData {
     nameText: string
     about: string
     aboutText: string
-    imageUrl: string
+    imageURL: string
     publications: PublicationData[]
     deleted: boolean
     created?: number
@@ -230,7 +231,7 @@ export interface PublicationData extends ResourceData {
     nameText: string
     about: string
     aboutText: string
-    imageUrl: string
+    imageURL: string
     articles: ArticleData[]
 }
 

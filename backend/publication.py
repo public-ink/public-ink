@@ -41,7 +41,7 @@ class Publication(ndb.Model):
             'nameText': self.name_text,
             'about': self.about,
             'aboutText': self.about_text,
-            'imageUrl': self.image_url,
+            'imageURL': self.image_url,
             # related
             'articles': article_list,
             'deleted': self.deleted,
@@ -77,7 +77,7 @@ class PublicationEndpoint(RequestHandler):
             name_text = name_text,
             about = data.get('about'),
             about_text = data.get('aboutText'),
-            image_url  = data.get('imageUrl')
+            image_url  = data.get('imageURL')
         )
         publication.put()
         return_json(self, publication.data())
@@ -118,7 +118,7 @@ class PublicationEndpoint(RequestHandler):
         publication.name_text = data.get('nameText')
         publication.about_text = data.get('aboutText')
         publication.about = data.get('about')
-        publication.image_url  = data.get('imageUrl')
+        publication.image_url  = data.get('imageURL')
         publication.put()
         return_json(self, publication.data())
 

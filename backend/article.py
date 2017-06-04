@@ -54,7 +54,7 @@ class Article(ndb.Model):
             'teaserText': self.teaser_text,
             'body': self.body,
             'bodyText': self.body_text,
-            'imageUrl': self.image_url,
+            'imageURL': self.image_url,
             'deleted': self.deleted,
             'url': '/author/{}/publication/{}/article/{}'.format(author_id, publication_id, article_id),
             # related: author, comments
@@ -98,7 +98,7 @@ class ArticleEndpoint(RequestHandler):
             title_text = title_text,
             body = data.get('body'),
             body_text = data.get('bodyText'),
-            image_url = data.get('imageUrl')
+            image_url = data.get('imageURL')
         ).put().get()
         return_json(self, article.data())
 
@@ -163,6 +163,6 @@ class ArticleEndpoint(RequestHandler):
         article.teaser_text = teaser_text
         article.body = body
         article.body_text = body_text
-        article.image_url = data.get('imageUrl')
+        article.image_url = data.get('imageURL')
         article.put()
         return_json(self, article.data())

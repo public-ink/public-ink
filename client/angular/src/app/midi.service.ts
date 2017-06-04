@@ -24,14 +24,6 @@ export interface MIDIMessage {
   velocity?: number
 }
 
-declare var MIDI: any
-declare var sketch: any
-
-
-
-
-
-
 
 
 @Injectable()
@@ -226,29 +218,10 @@ export class MIDIService {
     })
   }
 
-  /**
-   * Play a sound on the Web-Midi thing
-   *
-   * @param channel The MIDI channel
-   * @param key the MIDI key
-   * @param velocityDecimal the velocity between 0 and 1
-   */
-  soundNote(channel: number, key: number, velocityDecimal) {
+  
 
-    MIDI.noteOn(0, key, velocityDecimal * 127, 0)
-  }
+  
 
-  /**
-   * Send a 'note-off' signal to our midi js setup
-   * @param channel
-   * @param key
-   * @param velocityDecimal 
-   */
-  stopNote(channel: number, key: number, velocityDecimal) {
-    MIDI.noteOff(0, key, velocityDecimal)
-  }
-
-  parsedMidi
 
   // soundfont player, with current instrument
   instrument
@@ -263,10 +236,10 @@ export class MIDIService {
 
 
 
-    this.instrument = new Instrument('accordion', this, this.audioContext)
+    this.instrument = new Instrument('acoustic_grand_piano', this, this.audioContext)
 
     // make (and load for now) all instruments
-    for (let instrumentObj of this.instrumentIDs.slice(0, 2)) {
+    for (let instrumentObj of this.instrumentIDs.slice(0, 10)) {
       let instrument = new Instrument(instrumentObj.id, this, this.audioContext)
       this.instruments.push(instrument)
     }
@@ -477,6 +450,8 @@ export class Instrument {
       // needs to be raw midi stream
       this.midi.rawStream.subscribe(msg => {
 
+        console.log('raw midi', msg, this.active, this.loaded)
+
         if (!this.active || !this.loaded) return
 
         console.log('raw midi stream!', msg)
@@ -519,6 +494,8 @@ export class Instrument {
 
 /**
  * used to convert a raw midi message to human friendly messages
+ * 
+ * refactor a bit for typescript, es6
  */
 
 export class MMessage {

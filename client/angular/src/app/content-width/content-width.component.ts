@@ -4,11 +4,11 @@ import { Component, OnInit, Input } from '@angular/core'
 import { UIService } from '../ui.service'
 
 @Component({
-  selector: 'app-extra-width',
-  templateUrl: './extra-width.component.html',
-  styleUrls: ['./extra-width.component.css']
+  selector: 'app-content-width',
+  templateUrl: './content-width.component.html',
+  styleUrls: ['./content-width.component.css']
 })
-export class ExtraWidthComponent implements OnInit {
+export class ContentWidthComponent implements OnInit {
 
   @Input('bg') bg: string = 'transparent'
 
@@ -17,7 +17,6 @@ export class ExtraWidthComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    console.log(this.bg)
   }
 
 }

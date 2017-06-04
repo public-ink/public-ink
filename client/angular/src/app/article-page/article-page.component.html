@@ -1,12 +1,11 @@
 <div *ngIf="article">
 
-    <!-- space for toolbar -->
-    <div style="height: 80px"></div>
+    <!-- space for toolbar and headroom -->
+    <div style="height: 120px"></div>
 
-    <app-article [article]="article" [editable]="true"></app-article>
-
+    <!-- fixed toolbar -->
     <div style="position:fixed; top:50px; left: 0; width: 100%; border-bottom: 1px solid #ddd; background-color: white; z-index:3;">
-        <flex-row-center id="toolbar" class="content-width">
+        <app-content-width id="toolbar">
             <!-- toolbar controls go here! -->
             <button class="ql-bold">Bold</button>
             <button class="ql-italic">Italic</button>
@@ -19,24 +18,27 @@
             <button class="ql-header" value="2" type="button"></button>
             <button class="ql-align" value="center"></button>
             <button class="ql-clean">clean</button>
-        </flex-row-center>
+        </app-content-width>
     </div>
 
+    owned? <span *ngIf="isOwner()">owned!</span>
+    <app-article [article]="article" [editable]="isOwner()"></app-article>
 
     
-    <app-bottom-bar>
 
-        <div class="content-width">
+    <!-- fixed bottom bar -->
+    <app-bottom-bar *ngIf="ui.bottomBarVisible">
+        <app-content-width>
             <flex-row-between-center style="height:50px;">
-                <div (click)="saveArticle()">Save Chages </div>
-                <div (click)="ui.mediaBar = !ui.mediaBar">Show Media</div>
-                <div (click)="saveArticle()">Publish Article</div>
-                <div (click)="deleteArticle()">Delete Article</div>
+                    <div (click)="saveArticle()">Save Chages </div>
+                    <div (click)="ui.mediaBar = !ui.mediaBar">Show Media</div>
+                    <div *ngIf="!article.publishedAt"(click)="backend.publishArticle(article)">Publish Article</div>
+                    <div *ngIf="article.publishedAt" (click)="backend.publishArticle(article, true)">Un-publish Article</div>
+                    <div (click)="deleteArticle()">Delete Article</div>
             </flex-row-between-center>
-        </div>
+        </app-content-width>
+
 
     </app-bottom-bar>
-
-
 
 </div>

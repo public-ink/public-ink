@@ -34,6 +34,9 @@ export class UIService {
   deviceWidth: number
   deviceHeight: number
 
+  // bottom bar
+  bottomBarVisible = false
+
   // CONSTANTS
   mainWidth: number = 900
 
@@ -110,9 +113,11 @@ export class UIService {
     
       //console.log(event.keyCode)
       // toggle media bar
-      if ((event.metaKey || event.ctrlKey) && event.keyCode === 77) { /*ctrl s */
+      if ((event.metaKey || event.ctrlKey) && event.keyCode === 77) { /*ctrl m */
         this.mediaBar = !this.mediaBar
         event.preventDefault()
+      } else if (event.keyCode === 27) {
+        this.bottomBarVisible = !this.bottomBarVisible
       }
     })
     
@@ -131,8 +136,7 @@ export class UIService {
      */
     router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        console.log('navigation end!')
-        //document.getElementById('app').scrollTop = 0
+        window.scrollTo(0, 0)
       }
     })
   }

@@ -29,6 +29,8 @@ export class PublicationPageComponent implements OnInit {
   publicationID: string
   publication: any //Publication
 
+  bottomBarVisible = false
+
   keyboardSubscription: Subscription
 
   constructor(
@@ -37,7 +39,7 @@ export class PublicationPageComponent implements OnInit {
     private router: Router,
     // ink
     private backend: BackendService,
-    private ui: UIService,
+    public ui: UIService,
     // graphql
     private apollo: Apollo,
   ) {
@@ -115,6 +117,9 @@ export class PublicationPageComponent implements OnInit {
    * Deletes the current publication
    */
   deletePublication() {
+
+    alert('here needs to be a confirmation!')
+
     this.backend.deletePublication(this.publication).subscribe(info => {
       this.ui.flashMessage(info.message)
       this.router.navigate(['/', this.authorID])

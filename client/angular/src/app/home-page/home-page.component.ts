@@ -19,14 +19,14 @@ export class HomePageComponent implements OnInit {
   article: any
 
   constructor(
-    private backend: BackendService,
+    public backend: BackendService,
   ) {
 
   }
 
   ngOnInit() {
     // home article
-    this.backend.getArticle('public-ink', 'about-public-ink', 'hi-there').subscribe(article => {
+    this.backend.getArticle('hoff', 'looking-at-harmony', 'todo-project-merging').subscribe(article => {
       this.article = article
     })
   }

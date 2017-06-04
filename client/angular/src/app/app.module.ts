@@ -33,14 +33,15 @@ import { AutosizeDirective } from './autosize.directive';
 import { MediaPageComponent } from './media-page/media-page.component'
 
 import { environment } from '../environments/environment';
-import { ExtraWidthComponent } from './extra-width/extra-width.component';
+import { ContentWidthComponent } from './content-width/content-width.component';
 import { UseHostPipe } from './use-host.pipe';
-import { HeroComponent } from './hero/hero.component'
+import { HeroComponent } from './hero/hero.component';
+import { RoundPipe } from './round.pipe'
 
 
 const apolloClient = new ApolloClient({
   networkInterface: createNetworkInterface({
-    uri: environment.backendHost + '/api/graphql'
+    uri: environment.backendHost + '/api/graphql' // + '?cachebust=' + new Date().getTime()
   }),
 })
 
@@ -91,9 +92,10 @@ const appRoutes: Routes = [
     FileDropComponent,
     AutosizeDirective,
     MediaPageComponent,
-    ExtraWidthComponent,
+    ContentWidthComponent,
     UseHostPipe,
     HeroComponent,
+    RoundPipe,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),

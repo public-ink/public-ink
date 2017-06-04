@@ -1,7 +1,8 @@
 <!--{{ backend.userAccount | stringify }}-->
 
 <div *ngIf="backend.userAccount">
-  <div class="content-width">
+  <div >
+    <h1>jo</h1>
     <h1>Howdy!</h1>
     <p>Here is all your stuff!</p>
     <div>{{ backend.userAccount.email }}, <span *ngIf="backend.userAccount.verified">is verified.</span> <a [routerLink]="['/create-author']">Create Author</a> 
@@ -11,35 +12,17 @@
   </div>
 
 
-  <div *ngFor="let author of backend.userAccount.authors">
+<!-- there is only 1 author at the moment, but anyway... -->
+  <div *ngFor="let author of backend.userAccount?.authors">
 
-    <!-- authors -->
+    {{ author.id }}
+
+    create publication possible here
   
-    <!--<app-author [author]="author"></app-author>-->
-
+    <!-- publications -->
     <div *ngFor="let publication of author.publications">
-
-      <!-- pubs -->
-      
-      <app-publication [publication]="publication"></app-publication>
-      <div style="height: 50px"></div>
-
-      <!-- ARTICLES -->
-      <div *ngIf="0">
-      <div *ngFor="let article of publication.articles; let first = first; let last = last;">
-
-        <!-- space for first -->
-        <div *ngIf="first" style="height: 100px;"></div>
-
-        <!-- article preview -->
-        <app-article [article]="article" [preview]="true"></app-article>
-        <!-- horizonal ruler -->
-        <flex-row-center>
-          <hr class="dashed content-width" *ngIf="!last" />
-          <div *ngIf="last" style="height: 100px;"></div>
-        </flex-row-center>
-      </div>
-      </div>
+      {{ publication.name }}
+      <!--<app-publication [publication]="publication"></app-publication>-->
     </div>
 
     

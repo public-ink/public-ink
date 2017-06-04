@@ -51,7 +51,7 @@ export class Vessel {
         this.animationStream.subscribe((dimensions) => {
 
             // apply gravity
-            let gravity = new THREE.Vector3(0, -0.001, 0)
+            let gravity = new THREE.Vector3(0, -0.01, 0)
             this.velocity.add(gravity)
 
             // update your position

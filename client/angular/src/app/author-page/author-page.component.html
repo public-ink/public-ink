@@ -1,7 +1,7 @@
 
 
 <flex-row-center *ngIf="author">
-    <flex-col class="content-width">
+    <flex-col >
         <!-- center lane -->
             <app-author [author]="author" [editable]="1" (create)="create()"></app-author>
             
@@ -33,7 +33,7 @@
 
  <!-- update / delete existing -->
 <app-bottom-bar *ngIf="author && !author.new">
-    <div class="content-width" >
+    <div  >
         <flex-row-between>
             <button class="page-button" (click)="saveAuthor()">save changes</button>
             <button class="page-button" (click)="delete()" *ngIf="1">delete author</button>

@@ -5,7 +5,7 @@ import { Subject } from 'rxjs/Subject'
 // project
 import { makeBox, BoxParams } from './hero.component'
 import { Piano, PianoKey } from './piano'
-import { Song } from './song'
+import { Song, Track } from './song'
 import { MIDIService } from '../midi.service'
 
 /**
@@ -31,7 +31,7 @@ export class Hero {
 
     constructor(
         private song: Song,
-        private track: number,
+        private track: Track,
         private midi: MIDIService,
         private animationStream: Subject<any>,
         private piano: Piano,
@@ -42,6 +42,7 @@ export class Hero {
         private type: string,
         private dimensions: any,
         private noteName: string,
+        private note: any, // note object! 
     ) {
 
         // get your partner key
@@ -63,7 +64,7 @@ export class Hero {
             depth: 3,
             x: x,           // as partner
             z: trackDelta * -1,  // depth is time delta
-            y: y + 1,       // one above
+            y: y + 1, // + this.track.trackData.id,       // one above
             colorHSL: this.partnerKey.noteHSL,
         }
 
@@ -97,6 +98,11 @@ export class Hero {
 
             }
         })
+
+        this.track.subject.subscribe(status => {
+            this.mesh.visible = status.visible
+            
+        })
     }
 
     /** 
@@ -115,14 +121,20 @@ export class Hero {
         this.mesh.position.add(velocityVector)
 
         // if you crossed the line, play the note
-        if (this.mesh.position.z > 0 && !this.played) {
-            this.midi.currentInstrument.player.play(this.noteName)
-            // this.midi.soundNote(0, this.midiKey, this.velocity)
+        if (this.mesh.position.z > 0.51 && !this.played) {
+
+            // play on track instrument instead!
+            // only when track is not muted
+            if (this.track.instrument && !this.track.muted && !this.track.playAlong) {
+                this.track.instrument.player.play(this.noteName, 0, {duration: this.note.duration, gain: this.note.velocity})
+            }
+
+            
             this.played = true
         }
         // if you have not been hit but are at zero: make the song wait!
         // why does this keep happening?
-        if (this.mesh.position.z > 0 && !this.hit && !this.pending) {
+        if (this.mesh.position.z > 0.5 && !this.hit && !this.pending && this.track.visible && this.track.playAlong) {
             console.log('hero add herself to pending')
             this.pending = true
             this.song.addToPendingHeros(this)

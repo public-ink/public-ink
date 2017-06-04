@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core'
 import { Http, Headers, RequestOptions, Response } from '@angular/http'
 import { Observable } from 'rxjs/Observable'
+import { Subject } from 'rxjs/Subject'
 import 'rxjs/add/operator/map'
 
 // graphql
@@ -8,9 +9,10 @@ import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
 // import { print } from 'graphql-tag/printer'
 
-// ink services
+// ink
 import { UIService } from './ui.service'
 import { environment } from '../environments/environment'
+import { Song } from './hero/song'
 
 
 
@@ -40,13 +42,16 @@ export interface iArticle {
 export class BackendService {
 
   backendHost: string = environment.backendHost
-  
-  
+
+
   backendDelay: number = 400
 
   /* the object containing everything by the current user */
   userAccount: iAccount
   userImages: any[]
+
+  // fires when a login happened
+  loginSubject = new Subject()
 
   songs = []
 
@@ -119,6 +124,7 @@ export class BackendService {
       fragment article on ArticleSchema {
         id
         title
+        publishedAt
       }
     `
   }
@@ -130,7 +136,9 @@ export class BackendService {
 
     private ui: UIService,
   ) {
-    
+
+    console.log('backend constructed', this.backendHost)
+
 
     const jwt = localStorage.getItem('jwt')
     if (!jwt) {
@@ -144,7 +152,7 @@ export class BackendService {
         console.warn(error)
       })
       this.loadImages(jwt)
-      this.loadSongs()
+      //this.loadSongs()
     }
   }
 
@@ -167,25 +175,55 @@ export class BackendService {
   }
 
   /** Load Songs */
-  loadSongs() {
+  loadSong(id) {
     const query = gql`
-      {songs {
+      {song (id:"${id}"){
         title
-        tracks
-        text
+        tracksString
+        bpm
+        artist
+        trackCount
       }}
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
-      // forceFetch: true
+      fetchPolicy: 'network-only'
     })
+    let songSubject = new Subject()
     apolloQuery.subscribe(result => {
-      this.songs = JSON.parse(JSON.stringify(result.data.songs))
-      for (let song of this.songs){
-        // unpack tracks json string (currently store in .text, change that!)
-        song.tracks = JSON.parse(song.text)
-      }
+      let song = JSON.parse(JSON.stringify(result.data.song))
+      songSubject.next(song)
     })
+    return songSubject
+  }
+
+  searchSongs(searchTerm: string) {
+    const query = gql`
+      {songSearch (q:"${searchTerm}"){
+        title
+        keyId
+      }}
+    `
+    const apolloQuery = this.apollo.watchQuery<any>({
+      query: query,
+      variables: {
+        q: searchTerm,
+      },
+      fetchPolicy: 'network-only',
+    })
+
+    return new Observable(stream => {
+      apolloQuery.delay(this.backendDelay).subscribe(result => {
+        const data = result.data
+        console.log('backend has data', data)
+        // publish the info
+        stream.next(data)
+      })
+    })
+
+
+
+
   }
 
   /**
@@ -312,23 +350,12 @@ export class BackendService {
         }
         // in any case return the info!
         stream.next(info)
+        this.loginSubject.next(this.userAccount)
       })
     })
   }
 
-  test() {
-    return new Observable(stream => {
-      const query = gql`{test}`
-      const wq = this.apollo.query({ query: query,
-         // forceFetch: true
-         })
-      wq.subscribe(result => {
-        console.log(result.data)
-      })
-    }).subscribe(jo => { return })
 
-
-  }
 
   /**
    * ACCOUNT CREATION with email and password
@@ -507,6 +534,7 @@ export class BackendService {
       `
     const querySubscription = this.apollo.watchQuery<any>({
       query: query,
+      fetchPolicy: 'network-only',
       variables: {
         authorID: authorID,
         publicationID: publicationID
@@ -603,6 +631,7 @@ export class BackendService {
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
+      fetchPolicy: 'network-only',
       variables: {
         jwt: jwt,
         authorID: authorID,
@@ -611,7 +640,6 @@ export class BackendService {
         title: article.title,
         bodyOps: article.bodyOps
       },
-      // forceFetch: true,
     })
     return new Observable(stream => {
       apolloQuery.delay(this.backendDelay).subscribe(result => {
@@ -623,6 +651,47 @@ export class BackendService {
         stream.next(reply)
       })
     })
+  }
+
+  publishArticle(article, unpublish = false) {
+    const jwt = localStorage.getItem('jwt')
+    const query = gql`
+      { publishArticle {
+        info {
+          ...info
+        }
+        article {
+          ...article
+          publication {
+            ...publication
+            author {
+              ...author
+            }
+          }
+        }
+      }}
+      ${this.fragments.info}
+      ${this.fragments.article}
+      ${this.fragments.publication}
+      ${this.fragments.author}
+    `
+    const apolloQuery = this.apollo.watchQuery<any>({
+      fetchPolicy: 'network-only',
+      query: query,variables: {
+        jwt: jwt,
+        authorID: article.publication.author.id,
+        publicationID: article.publication.id,
+        articleID: article.id,
+        unpublish: unpublish,
+      },
+    })
+    let publishSubject = new Subject()
+    apolloQuery.delay(this.backendDelay).subscribe(result => {
+      const info = result.data.publishArticle
+      publishSubject.next(info)
+    })
+    return publishSubject
+
   }
 
   deleteArticle(article): Observable<iInfo> {
@@ -660,6 +729,7 @@ export class BackendService {
         id
         title
         bodyOps
+        publishedAt
         publication {
           id
           name
@@ -676,6 +746,7 @@ export class BackendService {
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
+      fetchPolicy: 'network-only',
       variables: {
         authorID: authorID,
         publicationID: publicationID,

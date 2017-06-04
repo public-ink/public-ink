@@ -1,60 +1,46 @@
-
+<!-- publication component container-->
 <div style="background-color:#000; position:relative; height: 75vh;">
+
   <!-- background image -->
-  <div 
-    style="opacity: 0.6; position:absolute; top: 0; left:0; width: 100%; height: 100%; background-size: cover; background-position: center;"
-  [style.background-image]="jo()">
-
+  <div style="opacity: 0.6; position:absolute; top: 0; left:0; width: 100%; height: 100%; background-size: cover; background-position: center;"
+    [style.background-image]="safeBG()">
   </div>
-  <flex-col-center-around  style="position:absolute; top: 0; left:0; width: 100%; height: 100%;">
-    
-    <flex-col-center class="content-width" >
 
-      <!-- name / link -->
-        <h1 [routerLink]="['/', publication.author.id, publication.id]" 
-          *ngIf="!editable" [ngStyle]="style.name()"
-          [style.cursor]="'pointer'"
-          >
-          {{ publication.name }}
-        </h1>
-      <!-- Name editable -->
-      <textarea 
-          *ngIf="editable"
-          class="focus-bg"
-          [(ngModel)]="publication.name"
-          [ngStyle]="style.name()"
-          [style.cursor]="'default'"
-          autosize
-          rows="1">
-      </textarea>
 
-      <!-- ABOUT -->
+  <flex-col-center-center style="position:absolute; top: 0; left:0; width: 100%; height: 100%;">
+
+
+    <app-content-width>
+
+      <!-- Title  STATIC -->
+      <h1 [routerLink]="['/', publication.author.id, publication.id]" *ngIf="!editable" [ngStyle]="style.name()" [style.cursor]="'pointer'">
+        {{ publication.name }}
+      </h1>
+
+      <!-- Title EDITABLE -->
+      <textarea *ngIf="editable" class="focus-bg" [(ngModel)]="publication.name" [ngStyle]="style.name()" [style.cursor]="'default'"
+        autosize rows="1"></textarea>
+
+    </app-content-width>
+
+    <!-- ABOUT -->
+    <app-content-width>
       <!-- static -->
-      <p *ngIf="!editable"
-        [ngStyle]="style.about()"
-      > {{ publication.about }}
-      <!--{{ publication.imageURL | useHost }}-->
-      </p>
-
+      <p *ngIf="!editable" [ngStyle]="style.about()"> {{ publication.about }}</p>
       <!-- editable -->
-      <textarea *ngIf="editable"
-          class="focus-bg"
-          [(ngModel)]="publication.about"
-          [ngStyle]="style.about()"
-          autosize
-          rows="1">
+      <textarea *ngIf="editable" class="focus-bg" [(ngModel)]="publication.about" [ngStyle]="style.about()" autosize rows="1">
+           
       </textarea>
-
-      <!-- AUTHOR -->
-      <br>
-      <!--<img [src]="publication.author.imageURL + '&w=70&h=70'" style="border-radius: 100%; box-shadow: rgba(0, 0, 0, 0.14902) 0px 1.5px 3px 0px inset, rgba(0, 0, 0, 0.14902) 0px 1.5px 3px 0px; border: 8px solid rgb(255, 255, 255);" />
-      -->
-      <br><span style="color: white">A publication by <a [routerLink]="['/', publication.author.id]">{{ publication.author.name }}</a> | {{ publication.articles?.length }} articles</span>
+    </app-content-width>
 
 
-    </flex-col-center>
+    <app-content-width>
+      <flex-row-center>
+        <span style="color: white">{{ publication.articles?.length }} articles by <a style="color:white;" [routerLink]="['/', publication.author.id]">{{ publication.author.name }}</a></span>
+      </flex-row-center>
+    </app-content-width>
 
 
-  </flex-col-center-around>
+  </flex-col-center-center>
+
 </div>
-

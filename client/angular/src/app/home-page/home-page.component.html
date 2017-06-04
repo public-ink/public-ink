@@ -1,8 +1,28 @@
-<!--<h1>public.ink home</h1>-->
-<app-author [author]="article.publication.author" *ngIf="article"></app-author>
-<app-publication [publication]="article.publication" *ngIf="article"></app-publication>
-<app-article [article]="article" *ngIf="article"></app-article>
+<!-- there is only 1 author at the moment, but anyway... -->
+  <div *ngFor="let author of backend.userAccount?.authors">
 
-<div class="content-width">
+  
+    <!-- publications -->
+    <div *ngFor="let publication of author.publications">
+      <app-publication [publication]="publication"></app-publication>
 
-</div>
+      <!-- ARTICLES -->
+      <div *ngIf="0">
+      <div *ngFor="let article of publication.articles; let first = first; let last = last;">
+
+        <!-- space for first -->
+        <div *ngIf="first" style="height: 100px;"></div>
+
+        <!-- article preview -->
+        <app-article [article]="article" [preview]="true"></app-article>
+        <!-- horizonal ruler -->
+        <flex-row-center>
+          <hr class="dashed content-width" *ngIf="!last" />
+          <div *ngIf="last" style="height: 100px;"></div>
+        </flex-row-center>
+      </div>
+      </div>
+    </div>
+
+    
+  </div>

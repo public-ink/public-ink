@@ -2,18 +2,57 @@
   <div #sidebar style="display:flex; background-color: #111; color: white; box-sizing: border-box; overflow: hidden;" [style.width.px]="sidebarVisible ? sidebarWidth : 0">
     <div #sidebarContent style="padding: 20px; height: 100vh; overflow-y: scroll;">
 
+
+      <input type="text" [(ngModel)]="query" placeholder="search songs"/>
+      <button style="color:white;" (click)="search(query)">search</button>
+
+      <h2>current song!</h2>
+      {{ song?.midiData.title }}
+      
+      <div *ngFor="let track of song?.tracks" >
+        track {{ track.trackData.id }}: {{ track.name }} {{ track.instrument }} {{ track.instrumentFamily }}
+
+        <span *ngIf="track.isPercussions">percussion!</span>
+        <div (click)="track.toggleVisible()" [ngStyle]="{background: track.visible ? 'blue': 'transparent'}">toggle visiblity</div>
+        <div (click)="track.toggleMuted()" [ngStyle]="{background: track.muted ? 'black': 'green'}">toggle muted</div>
+        
+        <div (click)="track.solo()">go solo!</div>
+        <!-- track instrument -->
+        <div *ngFor="let instrument of midi.instruments" (click)="track.setInstrument(instrument)">
+          {{ instrument.name() }}
+        </div>
+
+        <hr>
+      </div>
+
+      <hr>
+
+      <h2>search results!</h2>
+      <div *ngFor="let result of searchResults">
+        {{ result.title }}
+        <div style="background:blue; color: white" (click)="loadSong(result.keyId)">load long</div>
+      </div>
+
       playing? {{ dimensions.song.playing }}
       <div (click)="dimensions.song.playing = !dimensions.song.playing">play / pause song</div>
+      
+      hero speed
+      <input type="range" [(ngModel)]="dimensions.heroSpeed" min="-0.5" max="0.5" step="0.001" />
 
       <!-- songs -->
       <div *ngFor="let song of backend.songs">
+        <!-- song info -->
         title: {{ song.title }} 
-        <button style="background: lightblue" (click)="songSetup(song)">load this song</button>
-        tracks:
+        artist: {{ song.artist }}
+         <div>bpm {{ song.bpm }}</div>
+        {{ song.trackCount }} tracks:
+        
         <div *ngFor="let track of song.tracks">
-          name: {{ track.name }} ({{ track.duration}})
-          
+          name: {{ track.name }} ({{ track.duration | round }} seconds)
+          <b>{{ track.sup }}</b>
         </div>
+
+        <button style="background: lightblue" (click)="songSetup(song)">load this song</button>
       </div>
 
       <!-- instruments -->

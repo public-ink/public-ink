@@ -4,7 +4,7 @@
 <flex-col-center>
 
     <!-- information about creating authors (only for /create-author) -->
-    <div class="content-width" *ngIf="author?.new">
+    <div  *ngIf="author?.new">
         <h1>Create an Author</h1>
         <p>Authors are the public actors on public.ink. You can create multiple authors, if you like.
             You can use your real name, a nickname, or pseudonym - up to you. Likewise, you are free to chose whatever photo.
@@ -13,7 +13,7 @@
 
 
   <!-- display pattern: author! -->
-  <flex-col-center class="content-width" *ngIf="author">
+  <flex-col-center  *ngIf="author">
 
     <!-- circle container -->
     <flex-center

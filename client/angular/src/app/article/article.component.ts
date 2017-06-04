@@ -3,11 +3,13 @@ import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core'
 // ink
 // import { iArticle } from '../models'
 import { UIService } from '../ui.service'
+import { BackendService } from '../backend.service'
 
 interface iArticle {
     id: string    
     title: string
     bodyOps: string
+    publishedAt: number
     // parent
     publication: any //iPublication
     new?: boolean
@@ -37,6 +39,7 @@ export class ArticleComponent implements OnInit {
 
   quill: any
   lastRange: any
+  ops: any
 
   space = {
     metaThenBody: 50,
@@ -47,6 +50,7 @@ export class ArticleComponent implements OnInit {
 
   constructor(
     public ui: UIService,
+    public backend: BackendService,
   ) { }
 
   titleHasFocus() {
@@ -63,12 +67,21 @@ export class ArticleComponent implements OnInit {
       alert('inputs fucked')
     }
 
-    this.makeQuill()
+
     this.ui.mediaClickObservable.subscribe(image => {
       //this.insertImage(image.url + '&w=700')
     })
   }
 
+  /**
+   * this fires when either the article is loaded, a user account loaded
+   * now we know if we are the owner
+   */
+  ngOnChanges() {
+     this.makeQuill()
+  }
+
+  // make need to wait for authors to be loaded.
   makeQuill() {
 
     let modules
@@ -85,7 +98,6 @@ export class ArticleComponent implements OnInit {
       modules = {
         toolbar: {
           container: this.hidden.nativeElement,
-          //handlers: {'image': this.titleImageHandler},
         },
       }
     }
@@ -96,38 +108,50 @@ export class ArticleComponent implements OnInit {
       placeholder: 'here is where you lay your words down...',
     })
 
-    let ops
     let transformedOps
+
+    
+    
+
     try {
-      ops = JSON.parse(this.article.bodyOps)
+      this.ops = JSON.parse(this.article.bodyOps)
       let quillData = JSON.parse(this.article.bodyOps)
       let quillOps = quillData.ops
       console.log('original', quillOps)
 
-      /** replace the image backend url in case it is different, because we running on a differnt IP or localhost */
+      /** replace the image backend url in case it is different, because we running on ^a differnt IP or localhost */
       transformedOps = quillOps.map(o => {  
-        //console.log(o)
         if (o.insert && o.insert.image) {
-          console.log(o.insert.image)
           let url = o.insert.image
           let host = url.split('/', 3).join('/')
           let newUrl = url.replace(host, this.backendHost)
-          //return {insert: {image: o.insert.image.replace('http://localhost:8080', 'http://192.168.0.103:8080')}}
           return {insert: {image: newUrl}}
         } else {
           return o
         }
       })
-      console.log('transformed', transformedOps)
+
+      // remove the '---' if the viewer is not the author
+
+      // reduce ops to preview part
       if (this.preview) {
-        let OpsObs = ops.ops.slice(0, 5)
-        ops.ops = OpsObs
-      }
+        let previewOps = [] 
+        for (let op of transformedOps) {
+          if ( typeof op.insert === 'string' && op.insert.indexOf('---') > -1) {
+            break
+          } else {
+            previewOps.push(op)
+          }
+        }
+        transformedOps = previewOps
+
+      } 
     } catch (e) {
-      console.log('error parsing json, this is the offender:', this.article.bodyOps)
-      ops = { "ops": [{ "insert": "error parsing json\n" }] }
+      console.log(e, 'error parsing json, this is the offender:', this.article.bodyOps)
+      this.ops = { "ops": [{ "insert": "error parsing json\n" }] }
     }
-    console.log('setting contents!', transformedOps)
+
+    // set content!
     this.quill.setContents({ "ops": transformedOps })
     if (!this.editable) {
       this.quill.disable()
@@ -140,6 +164,10 @@ export class ArticleComponent implements OnInit {
       this.article.bodyOps = JSON.stringify(this.quill.getContents())
       this.lastRange = this.quill.getSelection()
     })
+  }
+
+  setQuillContent() {
+    
   }
 
   insertImage(url: string) {

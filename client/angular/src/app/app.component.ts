@@ -51,7 +51,7 @@ export class AppComponent {
       } 
     })
 
-    // detect 
+    // detect longpress or click to get past private screen
     this.detect()
   }
 
