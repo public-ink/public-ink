@@ -47,8 +47,8 @@ export class AuthorComponent implements OnInit {
     }
     else {
       return {
-        'width.px': 150,
-        'height.px': 150,
+        'width.px': 250,
+        'height.px': 250,
       }
     }
   }

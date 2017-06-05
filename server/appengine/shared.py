@@ -115,7 +115,6 @@ def login_required(fn):
         else:
             request = args[0]
             return_error(request, 401, "You need to be logged in to perfom this request")
-            return
     return decorated_request
 
 
@@ -141,7 +140,7 @@ def allow_cors(request):
     set the appropriate response headers for cross-origin requests
     """
     request.response.headers['Access-Control-Allow-Credentials'] = 'true'
-    request.response.headers['Access-Control-Allow-Origin']  = ALLOW_ORIGIN
+    request.response.headers['Access-Control-Allow-Origin'] = ALLOW_ORIGIN
     request.response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
     request.response.headers['Access-Control-Allow-Methods'] = 'PUT, GET, POST, DELETE'
 

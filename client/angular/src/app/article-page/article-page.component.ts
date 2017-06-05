@@ -146,17 +146,8 @@ export class ArticlePageComponent implements OnInit {
 
   /** check if the current article is owned by the current user */
   isOwner() {
-    let authorIDs = []
-    if (this.backend.userAccount && this.backend.userAccount.authors){
-      authorIDs = this.backend.userAccount.authors.map(author => {
-        return author.id
-      })
-      if (this.article && authorIDs.includes(this.article.publication.author.id) ){
-        return true
-      } else {
-        return false
-      }
-    }
+    return this.backend.isOwner(this.article.publication.author.id)
+   
   }
 
 }

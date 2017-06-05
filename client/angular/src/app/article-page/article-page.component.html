@@ -1,16 +1,27 @@
 <div *ngIf="article">
 
     <!-- space for toolbar and headroom -->
-    <div style="height: 120px"></div>
+    <div style="height: 130px"></div>
 
-    <!-- fixed toolbar -->
-    <div style="position:fixed; top:50px; left: 0; width: 100%; border-bottom: 1px solid #ddd; background-color: white; z-index:3;">
+    <!-- fixed editor toolbar -->
+    <div [ngStyle]="{display: isOwner() ? 'block' : 'none'}"
+    
+    style="position:fixed; top:50px; left: 0; width: 100%; border-bottom: 1px solid #ddd; background-color: white; z-index:3;">
         <app-content-width id="toolbar">
             <!-- toolbar controls go here! -->
             <button class="ql-bold">Bold</button>
             <button class="ql-italic">Italic</button>
             <button class="ql-underline">under</button>
             <button class="ql-strike">strike</button>
+
+            <select class="ql-size">
+                <option value="small"></option>
+                <!-- Note a missing, thus falsy value, is used to reset to default -->
+                <option selected></option>
+                <option value="large"></option>
+                <option value="huge"></option>
+            </select>
+
             <button class="ql-blockquote"></button>
             <button class="ql-image">img</button>
             <button class="ql-link">link</button>
@@ -21,24 +32,24 @@
         </app-content-width>
     </div>
 
-    owned? <span *ngIf="isOwner()">owned!</span>
+    <br>
+
     <app-article [article]="article" [editable]="isOwner()"></app-article>
 
-    
+
 
     <!-- fixed bottom bar -->
+    <!-- only for owners of this article, checked in ui.service -->
     <app-bottom-bar *ngIf="ui.bottomBarVisible">
         <app-content-width>
             <flex-row-between-center style="height:50px;">
-                    <div (click)="saveArticle()">Save Chages </div>
-                    <div (click)="ui.mediaBar = !ui.mediaBar">Show Media</div>
-                    <div *ngIf="!article.publishedAt"(click)="backend.publishArticle(article)">Publish Article</div>
-                    <div *ngIf="article.publishedAt" (click)="backend.publishArticle(article, true)">Un-publish Article</div>
-                    <div (click)="deleteArticle()">Delete Article</div>
+                <div (click)="saveArticle()">Save Chages </div>
+                <div (click)="ui.mediaBar = !ui.mediaBar">Show Media</div>
+                <div *ngIf="!article.publishedAt" (click)="backend.publishArticle(article)">Publish Article</div>
+                <div *ngIf="article.publishedAt" (click)="backend.publishArticle(article, true)">Un-publish Article</div>
+                <div (click)="deleteArticle()">Delete Article</div>
             </flex-row-between-center>
         </app-content-width>
-
-
     </app-bottom-bar>
 
 </div>

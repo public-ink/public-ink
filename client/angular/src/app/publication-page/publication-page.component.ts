@@ -38,7 +38,7 @@ export class PublicationPageComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     // ink
-    private backend: BackendService,
+    public backend: BackendService,
     public ui: UIService,
     // graphql
     private apollo: Apollo,

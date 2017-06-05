@@ -43,8 +43,8 @@ export class AuthorPageComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     // ink
-    private backend: BackendService,
-    private ui: UIService,
+    public backend: BackendService,
+    public ui: UIService,
     // graphql
     private apollo: Apollo,
   ) {

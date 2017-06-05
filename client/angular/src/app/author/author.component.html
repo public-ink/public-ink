@@ -1,4 +1,7 @@
 
+<!-- just space -->
+<div style="height: 150px;"></div>
+
 <!-- author display pattern -->
 <!-- AUTHOR -->
 <flex-col-center>
@@ -22,10 +25,10 @@
       >
       <img 
         [style.box-shadow]="imageStyle.boxShadow"
-        [style.border]="size === 'sticker' ? '4px solid #000' : '8px solid #fff'"
+        [style.border]="size === 'sticker' ? '4px solid #000' : '10px solid #fff'"
         [ngStyle]="imgStyle()"
         (click)="ui.mediaBar = !ui.mediaBar"
-      style="border-radius: 500px;" [src]="author.imageURL +'&w=150&h=150'" />
+      style="border-radius: 500px;" [src]="author.imageURL +'&w=250&h=250'" />
       
     </flex-center>
     <!-- author text -->

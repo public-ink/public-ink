@@ -134,7 +134,7 @@ export class BackendService {
     private http: Http,
     private apollo: Apollo,
 
-    private ui: UIService,
+    // private ui: UIService,
   ) {
 
     console.log('backend constructed', this.backendHost)
@@ -268,6 +268,15 @@ export class BackendService {
         stream.next(info)
       })
     })
+  }
+
+  /** whether or not an author is one of the user's authors */
+  isOwner(authorID: string) {
+    if (!this.userAccount) { return false }
+    let authorIDs = this.userAccount.authors.map(author => {
+      return author.id
+    })
+    return authorIDs.includes(authorID)
   }
 
 
@@ -677,7 +686,7 @@ export class BackendService {
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       fetchPolicy: 'network-only',
-      query: query,variables: {
+      query: query, variables: {
         jwt: jwt,
         authorID: article.publication.author.id,
         publicationID: article.publication.id,
