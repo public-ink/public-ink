@@ -7,59 +7,53 @@
   <div *ngIf="backend.userAccount">
 
 
-      <div>
-        
-        You are logged in with {{ backend.userAccount.email }} 
-        <span *ngIf="backend.userAccount.verified">(verified / maybe not)</span>
+    <div>
 
-        <a href="#" (click)="backend.logoutUser()" [ngStyle]="{background: 'darkred', color: 'white', padding: '10px 20px'}" style="display: inline-block;">Log Out</a>
-        
+      You are logged in with {{ backend.userAccount.email }}
+      <span *ngIf="backend.userAccount.verified">(verified / maybe not)</span>
 
-        <h3>You have {{ backend.userAccount.authors.length }} authors</h3>
-        <div *ngFor="let author of backend.userAccount.authors">
-          {{ author.name }}
+      <a href="#" (click)="backend.logoutUser()" [ngStyle]="{background: 'darkred', color: 'white', padding: '10px 20px'}" style="display: inline-block;">Log Out</a>
 
-          <a [routerLink]="['/', author.id, 'create-publication']">create publication</a>
+
+      <h3>You have {{ backend.userAccount.authors.length }} authors</h3>
+      <div *ngFor="let author of backend.userAccount.authors">
+        <h1 [routerLink]="['/',author.id]">{{ author.name }}</h1>
+        <img [src]="author.imageURL + '&w=100&h=100'" />
+
+
+        <!-- publications -->
+        <div *ngFor="let publication of author.publications">
+          <h3 [routerLink]="['/', publication.author.id, publication.id]">{{ publication.name }}</h3>
+          <img [src]="publication.imageURL + '&w=700&h=100'" />
+          <div *ngFor="let article of publication.articles">
+            <a [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]">{{ article.title }}</a>
+
+          </div>
         </div>
-        
 
-        <br>
-        <a [routerLink]="['/create-author']" [ngStyle]="{background: '#222', color: 'white', padding: '10px 20px'}" style="display: inline-block;">Create Author</a>
-
-        
-
-
-
+        <a [routerLink]="['/', author.id, 'create-publication']">create publication by {{ author }}</a>
       </div>
 
 
-    <!-- there is only 1 author at the moment, but anyway... -->
-    <div *ngFor="let author of backend.userAccount?.authors">
 
-      {{ author.name }}
-      <img [src]="author.imageURL + '&w=50&h=50'" />
-
-      <!-- publications -->
-      <div *ngFor="let publication of author.publications">
-        <h3>{{ publication.name }}</h3>
-        <img [src]="publication.imageURL + '&w=700&h=100'" />
-        <div *ngFor="let article of publication.articles">
-          {{ article.title }}
-        </div>
-      </div>
-
-
+      <br>
+      <a [routerLink]="['/create-author']" [ngStyle]="{background: '#222', color: 'white', padding: '10px 20px'}" style="display: inline-block;">
+        Create New Author
+        </a>
     </div>
+
+
+
   </div>
 
   <h2><a [routerLink]="['/my-media']">Your Media</a></h2>
 
-        <flex-row style="overflow-y: scroll;">
-          <flex-col *ngFor="let image of backend.userImages | slice:0:20">
-            <img [src]="image.url + '&w=200&h=200'" style="margin:5px;" />
-            <button (click)="backend.deleteImage(image.id)">delete</button>
-          </flex-col>
-        </flex-row>
+  <flex-row style="overflow-y: scroll;">
+    <flex-col *ngFor="let image of backend.userImages | slice:0:20">
+      <img [src]="image.url + '&w=200&h=200'" style="margin:5px;" />
+      <button (click)="backend.deleteImage(image.id)">delete</button>
+    </flex-col>
+  </flex-row>
 
 
 
