@@ -6,6 +6,8 @@ import { Router } from '@angular/router'
 import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
 
+// ink
+import { environment } from '../../environments/environment'
 import { BackendService } from '../backend.service'
 import { UIService } from '../ui.service'
 
@@ -33,8 +35,8 @@ export class AuthPageComponent {
 
   loginEmail: string = ''
   loginPassword: string = ''
-  // network status
-  loginLoading: boolean = false
+
+  signupEnabled = environment.signupEnabled
 
   public loginForm = this.fb.group({
     email: ["", Validators.required],
@@ -48,6 +50,10 @@ export class AuthPageComponent {
     terms: ["", Validators.requiredTrue],
   })
 
+  public resetPasswordForm = this.fb.group({
+    email: ["", Validators.required],
+  })
+
   constructor(
     public backend: BackendService,
     private apollo: Apollo,
@@ -55,7 +61,7 @@ export class AuthPageComponent {
     public ui: UIService,
     private router: Router,
   ) { }
-f
+
   /**
    * Try to authenticate with email and password
    * If successfull, the backend's userAccount will be updated
@@ -64,14 +70,18 @@ f
   doLogin(event) {
     const email = this.loginForm.value.email
     const password = this.loginForm.value.password
-    this.loginLoading = true
+    this.ui.show('loading', 'logging in...')
     this.backend.epLogin(email, password).subscribe(info => {
-        this.loginLoading = false
-        this.ui.message = info.message
+      if (info.success) {
+        this.ui.show('success', 'done!', 1000)
         if (info.success === true) {
           this.router.navigate(['/', 'my-account'])
         }
-      })
+      } else {
+        this.ui.show('error', 'login failed')
+      }
+
+    })
     // we only care about the status. the account is handled by the backend.
   }
 
@@ -83,17 +93,25 @@ f
 
     const email = this.registrationForm.value.email
     const password = this.registrationForm.value.password
-    this.registrationLoading = true
-
+    this.ui.show('loading', 'creating account...')
     this.backend.createAccount(email, password).subscribe(
       info => {
-        this.registrationLoading = false
-        this.ui.message = info.message
         if (info.success === true) {
+          this.ui.show('success', 'account created!', 1000)
           this.router.navigate(['/', 'my-account'])
+        } else {
+          this.ui.show('error', 'could not create account: ' + info.message)
         }
       }
     )
+  }
+
+  requestPasswordResetLink() {
+    const email = this.resetPasswordForm.value.email
+    this.ui.show('loading', 'generating link')
+    this.backend.requestResetPasswordLink(email).subscribe(result => {
+      this.ui.show('success', 'Done, check your email.')
+    })
   }
 
 }

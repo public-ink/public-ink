@@ -78,6 +78,7 @@ class UserModel(InkModel):
     email_verified_at = ndb.DateTimeProperty()
     verification_token = ndb.StringProperty()
     password_hash_sha256 = ndb.StringProperty()
+    reset_password_token = ndb.StringProperty()
 
     @property
     def is_verified(self):
@@ -221,7 +222,7 @@ class PublicationSchema(graphene.ObjectType):
     The schema for representing a publication
     """
     id = graphene.String()
-    articles = graphene.List(lambda: ArticleSchema, order=graphene.String())
+    articles = graphene.List(lambda: ArticleSchema, include_drafts=graphene.Boolean())
     author = graphene.Field(AuthorSchema)
     name = graphene.String()
     about = graphene.String()
@@ -229,8 +230,11 @@ class PublicationSchema(graphene.ObjectType):
 
     def resolve_id(self, *args):
         return self.key.id()
-    def resolve_articles(self, *args):
-        return ArticleModel.query(ancestor=self.key)
+    def resolve_articles(self, args, *more):
+        if args.get('include_drafts'):
+            return ArticleModel.query(ancestor=self.key)
+        else:
+            return ArticleModel.query(ArticleModel.published_at != None, ancestor=self.key)
     def resolve_author(self, *args):
         return self.key.parent().get()
 
@@ -277,7 +281,7 @@ class ArticleSchema(graphene.ObjectType):
         return self.key.parent().parent().get()
 
 
-""" Song """ 
+""" Song """
 class SongModel(InkModel):
     """ A midi song in json format """
     path = ndb.StringProperty()
@@ -416,7 +420,7 @@ class Query(graphene.ObjectType):
         """ check for stored, hashed password on account """
         if not user.password_hash_sha256:
             return AccountResponse(info=InfoSchema(success=False, message='password_hash_missing'))
-            
+
         """ check password """
         matches = verify_password(user.password_hash_sha256, password)
         if not matches:
@@ -505,7 +509,7 @@ class Query(graphene.ObjectType):
             return AccountResponse(info=InfoSchema(success=False, message='email_exists'))
 
         """ Create an Account"""
-        password = args.get('password') or self.get('password')        
+        password = args.get('password') or self.get('password')
         password_hash = hash_password(password)
         verification_token = uuid.uuid4().hex
         user_key = UserModel(
@@ -520,9 +524,38 @@ class Query(graphene.ObjectType):
         return AccountResponse(
             info=InfoSchema(success=True, message="registration_successful"),
             account=AccountSchema(
-                email=email, verified=False, 
+                email=email, verified=False,
                 authenticated=True, jwt=generate_jwt(email))
         )
+
+    """ REQUEST PASSWORD RESET LINK """
+    requestResetPasswordLink = graphene.Field(InfoSchema, email=graphene.String())
+    def resolve_requestResetPasswordLink(self, args, *more):
+        email = args.get('email') or self.get('email')
+        user = ndb.Key('UserModel', email).get()
+        if user:
+            reset_password_token = uuid.uuid4().hex
+            user.reset_password_token = reset_password_token
+            user.put()
+            send_reset_password_email(email, reset_password_token)
+        return InfoSchema(success=True, message='reset_link_sent')
+
+
+    """ ACTUALLY RESET THE PASSWORD """
+    resetPassword = graphene.Field(InfoSchema, email=graphene.String(), token=graphene.String(), password=graphene.String())
+    def resolve_resetPassword(self, args, *more):
+        email = args.get('email') or self.get('email')
+        token = args.get('token') or self.get('token')
+        new_password = args.get('password') or self.get('password')
+        user = ndb.Key('UserModel', email).get()
+        if user and user.reset_password_token == token:
+            user.password_hash_sha256 = hash_password(new_password)
+            user.reset_password_token = None
+            user.put()
+            return InfoSchema(success=True, message='Your password has been reset!')
+        else:
+            return InfoSchema(success=False, message='Password reset failed!')
+
 
     """ SAVE AUTHOR (CREATE AND UPDATE) """
     saveAuthor = graphene.Field(AuthorResponse)
@@ -556,27 +589,27 @@ class Query(graphene.ObjectType):
             author.imageURL = imageURL
             author_key = author.put()
             message = 'author_updated'
-        
+
         return AuthorResponse(
             info=InfoSchema(success=True, message=message),
             author=author_key.get()
         )
-        
+
 
     """ SAVE PUBLICATION (create and update)  """
-    savePublication = graphene.Field(PublicationResponse, 
+    savePublication = graphene.Field(PublicationResponse,
         jwt=graphene.String(), 
         publicationID=graphene.String(),
         authorID=graphene.String(), 
         name=graphene.String()
-        )
+    )
     def resolve_savePublication(self, args, context, info):
         publicationID = self.get('publicationID')
         name = self.get('name')
         authorID = self.get('authorID')
         about = self.get('about')
         imageURL = self.get('imageURL')
-        
+
         if publicationID == 'create-publication': #not ideal
             """ create publication """
             publication_key = PublicationModel(
@@ -604,7 +637,7 @@ class Query(graphene.ObjectType):
     """ SAVE ARTICLE (create and update) """
     saveArticle = graphene.Field(ArticleResponse)
     def resolve_saveArticle(self, *args):
-        
+
         authorID = self.get('authorID')
         publicationID = self.get('publicationID')
         articleID = self.get('articleID')
@@ -625,7 +658,7 @@ class Query(graphene.ObjectType):
         else:
             """ update Article """
             article_key = ndb.Key(
-                'AuthorModel', authorID, 
+                'AuthorModel', authorID,
                 'PublicationModel', publicationID,
                 'ArticleModel', articleID
             )
@@ -649,7 +682,7 @@ class Query(graphene.ObjectType):
         unpublish = self.get('unpublish')
 
         article_key = ndb.Key(
-            'AuthorModel', authorID, 
+            'AuthorModel', authorID,
             'PublicationModel', publicationID,
             'ArticleModel', articleID
         )
@@ -687,10 +720,10 @@ class Query(graphene.ObjectType):
     publication = graphene.Field(PublicationSchema, authorID=graphene.String(), publicationID=graphene.String())
     def resolve_publication(self, args, context, info):
         print 'resolve publication'
-        authorID = args.get('authorID') or self.get('authorID') 
-        publicationID =  args.get('publicationID') or self.get('publicationID')
-        publication = ndb.Key(
-            'AuthorModel',      authorID, 
+        authorID=args.get('authorID') or self.get('authorID') 
+        publicationID=args.get('publicationID') or self.get('publicationID')
+        publication=ndb.Key(
+            'AuthorModel',      authorID,
             'PublicationModel', publicationID
         ).get()
         return publication
@@ -698,9 +731,9 @@ class Query(graphene.ObjectType):
     article = graphene.Field(ArticleSchema, authorID=graphene.String(), publicationID=graphene.String(), articleID=graphene.String())
     def resolve_article(self, args, context, info):
         print 'resolve article / zero'
-        authorID = args.get('authorID') or self.get('authorID')
-        publicationID =  args.get('publicationID') or self.get('publicationID')
-        articleID =  args.get('articleID') or self.get('articleID')
+        authorID=args.get('authorID') or self.get('authorID')
+        publicationID=args.get('publicationID') or self.get('publicationID')
+        articleID=args.get('articleID') or self.get('articleID')
 
         article = ndb.Key(
             'AuthorModel', authorID,
@@ -716,7 +749,7 @@ class Query(graphene.ObjectType):
         jwt = args.get('jwt') or args.get('jwt')
         email = email_from_jwt(jwt)
         user_key = ndb.Key('UserModel', email)
-        images = ImageModel.query(ImageModel.user_key==user_key).fetch()
+        images = ImageModel.query(ImageModel.user_key == user_key).fetch()
         return images
 
 
@@ -724,28 +757,27 @@ class Query(graphene.ObjectType):
     """ Songs """
     song = graphene.Field(lambda: SongSchema, id=graphene.String())
     def resolve_song(self, args, *more):
-        
+
         id = args.get('id') or args.get('id')
         print 'got an id' + id
 
         song_key = ndb.Key(urlsafe=id)
         song = song_key.get()
         return song
-        
+
 
     """
     Song Search
     """
-    
 
     song_search = graphene.List(lambda: SongSearchSchema, q=graphene.String())
     def resolve_song_search(self, args, *more):
-        
+
         songs = SongModel.query().fetch(20)
         for song in songs:
             song.index()
             pass
-        
+
         q = args.get('q') or args.get('q')
         print 'got a search query!!' + q
         # perform search
@@ -754,7 +786,7 @@ class Query(graphene.ObjectType):
             direction=search.SortExpression.DESCENDING)]
         # construct the sort options
         sort_opts = search.SortOptions(
-             expressions=expr_list)
+            expressions=expr_list)
         query_options = search.QueryOptions(
             limit=3,
             sort_options=sort_opts)
@@ -770,8 +802,8 @@ class Query(graphene.ObjectType):
                     verbose = field.value
             to_return.append(
                 SongSearchSchema(
-                    title = verbose,
-                    key_id = result.doc_id
+                    title=verbose,
+                    key_id=result.doc_id
                 )
             )
         return to_return
@@ -901,9 +933,9 @@ class GraphQLEndpoint(RequestHandler):
         response = {'data' : result.data, 'errors': error_list}
         """ Test Cookies! (not showing up) """
         print 'cookie ' * 5
-        self.response.set_cookie('jwt', 'myjwt', max_age=360, path='/', 
+        self.response.set_cookie('jwt', 'myjwt', max_age=360, path='/',
             domain='localhost:4200', secure=True, httponly=True)
-        self.response.set_cookie('jwt', 'myjwt', max_age=360, path='/', 
+        self.response.set_cookie('jwt', 'myjwt', max_age=360, path='/',
             domain=None, secure=False, httponly=False)
         self.response.headers['Content-Type'] = 'application/json; charset=utf-8'
         self.response.out.write(json.dumps(response))
@@ -1101,6 +1133,27 @@ Awesome!
     """.format(host, email, token)
     #print 'sending message to ' + email
     #print message.body
+    message.send()
+
+def send_reset_password_email(email, token):
+    message = mail.EmailMessage(
+        sender="auth@public-ink.appspotmail.com",
+        subject="Public.Ink Reset Password Link")
+
+    message.to = email
+    host = FRONTEND_URL
+    message.body = """
+Hello there,
+
+You or somebody else submitted this email address to us. To reset your password for public.ink, please follow this link:
+{}/reset/{}/{}
+
+If you did not request a reset link, please disregard this email.
+
+Have a nice day!
+    """.format(host, email, token)
+    print 'sending message to ' + email
+    print message.body
     message.send()
 
 

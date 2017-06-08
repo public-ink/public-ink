@@ -36,7 +36,8 @@ import { environment } from '../environments/environment';
 import { ContentWidthComponent } from './content-width/content-width.component';
 import { UseHostPipe } from './use-host.pipe';
 import { HeroComponent } from './hero/hero.component';
-import { RoundPipe } from './round.pipe'
+import { RoundPipe } from './round.pipe';
+import { ResetPasswordPageComponent } from './reset-password-page/reset-password-page.component'
 
 
 const apolloClient = new ApolloClient({
@@ -59,6 +60,7 @@ const appRoutes: Routes = [
   { path: 'my-media', component: MediaPageComponent },
   { path: 'auth', component: AuthPageComponent },
   { path: 'verify/:email/:token', component: EmailVerificationPageComponent},
+  { path: 'reset/:email/:token', component: ResetPasswordPageComponent},
 
   // hero
   { path: 'hero', component: HeroComponent},
@@ -96,6 +98,7 @@ const appRoutes: Routes = [
     UseHostPipe,
     HeroComponent,
     RoundPipe,
+    ResetPasswordPageComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),

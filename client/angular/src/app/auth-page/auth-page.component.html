@@ -1,103 +1,94 @@
-<div  >
+<div style="height: 100px;"></div>
+<app-content-width>
+  <div style="width: 100%; margin: 0px auto;">
 
+  <h1>Log In</h1>
   <form [formGroup]="loginForm" (ngSubmit)="doLogin($event)">
     <flex-col>
       <div class="form-label">
-        <label for="loginEmail">Login Email</label>
+        <label for="loginEmail">Email</label>
       </div>
       <input id="loginEmail" class="form-input" formControlName="email" type="email" placeholder="your email address">
 
       <div class="form-label">
-      <label for="loginPassword">Password</label>
+        <label for="loginPassword">Password</label>
       </div>
       <input id="loginPassword" class="form-input" formControlName="password" type="password" placeholder="your password">
-      <br>
-
-      <!-- use the 2-elements strategy. todo: proper sizing!-->
-      <flex-row-center *ngIf="loginLoading" class="form-button">
-        <div class="spinner"></div>
-      </flex-row-center>
-      <button *ngIf="!loginLoading" class="form-button" type="submit" [disabled]="!loginForm.valid">Log In</button>
+      
+      <div style="height: 20px;"></div>
+      <button class="form-button" type="submit" [disabled]="!loginForm.valid">Log In</button>
 
     </flex-col>
   </form>
 
+  <div style="height: 50px;"></div>
 
-  <div id="register-login-forms" *ngIf="!backend.userAccount?.authenticated">
+  <h1>Reset Password</h1>
+  <form [formGroup]="resetPasswordForm" (ngSubmit)="requestPasswordResetLink()">
 
-
-
-    <simple-spacer></simple-spacer>
-    <h2>About</h2>
-    <p>
-      <b>public.ink</b> is in the ealy days of providing a network to the public that's free of commercial interst.
-      <br>
-      <br> It is an attempted antidode to centralized control over the internet.
-      <br>
-      <br> Where you are in charge, of your data, and of the conduct.
-      <br>
-      <br>
-      If you'd like to try it out, sign up below. More information on what we store, how, and why comes below.
-
-    </p>
-    <form [formGroup]="registrationForm" (ngSubmit)="createAccount($event)">
-      <flex-col>
-        <label class="form-label" for="registrationEmail">Email</label>
-        <input id="registrationEmail" class="form-input" formControlName="email" type="email" placeholder="your email address">
-
-        <!-- password -->
-        <label class="form-label" for="registrationPassword">Password</label>
-        <input id="registrationPassword" class="form-input" formControlName="password" type="password" placeholder="your password">
-
-        <!-- password again -->
-        <label class="form-label" for="registrationPassword2">Repeat Password</label>
-        <input id="registrationPassword2" class="form-input" formControlName="password2" type="password" placeholder="because typos are rael">
-
-        <!-- checkbox galore -->
+    <flex-col>
+      <div class="form-label">
+        <label for="loginEmail">Your Email</label>
+      </div>
+      <input id="loginEmail" class="form-input" formControlName="email" type="email" placeholder="your email address">
+      
+      <div style="height: 20px;"></div>
+      <button class="form-button" type="submit" [disabled]="!resetPasswordForm.valid">Request Reset Link</button>
+    </flex-col>
+  </form>
 
 
-        <label class="form-label" for="termsCheckbox">Them Rules</label>
-
-        <flex-row-100>
-          <!-- the checkbox -->
-          <flex-row>
-            <input type="checkbox" id="termsCheckbox" formControlName="terms" name="cc" />
-            <label tabindex="0" for="termsCheckbox"></label>
-          </flex-row>
-          <flex-row class="grow">I accept the house rules.</flex-row>
-        </flex-row-100>
-
-        <!-- use the 2-elements strategy. todo: proper sizing!-->
-        <flex-row-center *ngIf="registrationLoading" class="form-button">
-          <div class="spinner"></div>
-        </flex-row-center>
-        <button *ngIf="!registrationLoading" class="form-button" type="submit" [disabled]="!registrationForm.valid">Create Account</button>
-
-      </flex-col>
-    </form> <!-- end or registration -->
-
-    <!-- Auth explained -->
-    <simple-spacer></simple-spacer>
-    <h2>How authentication works on public.ink</h2>
-    <p>
-      <b>public.ink</b> employs a simple yet reasonably secure way of authenticating her users.
-      <br>
-      We don't make use of convenient social logins, such as by Facebook or Google, on purpose.
-    </p>
+  <div *ngIf="signupEnabled">
 
     <simple-spacer></simple-spacer>
-    <h2>This is an anti-trend</h2>
-    <p>
-      Google was an anti-trend against big coprs ruling the internet. Then, Google itself became a big corp.
-      <br>
-      Anti-trends happen because many people feel that the status-quo could use some improving. This is what this project is about...
-    </p>
+
+    <div id="register-login-forms" *ngIf="!backend.userAccount?.authenticated">
+
+      <h2>Sign Up / Disabled</h2>
+      <form [formGroup]="registrationForm" (ngSubmit)="createAccount($event)">
+        <flex-col>
+          <label class="form-label" for="registrationEmail">Email</label>
+          <input id="registrationEmail" class="form-input" formControlName="email" type="email" placeholder="your email address">
+
+          <!-- password -->
+          <label class="form-label" for="registrationPassword">Password</label>
+          <input id="registrationPassword" class="form-input" formControlName="password" type="password" placeholder="your password">
+
+          <!-- password again -->
+          <label class="form-label" for="registrationPassword2">Repeat Password</label>
+          <input id="registrationPassword2" class="form-input" formControlName="password2" type="password" placeholder="because typos are rael">
+
+          <!-- checkbox galore -->
 
 
+          <label class="form-label" for="termsCheckbox">Them Rules</label>
+
+          <flex-row-100>
+            <!-- the checkbox -->
+            <flex-row>
+              <input type="checkbox" id="termsCheckbox" formControlName="terms" name="cc" />
+              <label tabindex="0" for="termsCheckbox"></label>
+            </flex-row>
+            <flex-row class="grow">I accept the house rules.</flex-row>
+          </flex-row-100>
+
+          <!-- use the 2-elements strategy. todo: proper sizing!-->
+          <flex-row-center *ngIf="registrationLoading" class="form-button">
+            <div class="spinner"></div>
+          </flex-row-center>
+          <button *ngIf="!registrationLoading" class="form-button" type="submit" [disabled]="!registrationForm.valid">Create Account</button>
+
+        </flex-col>
+      </form>
+      <!-- end of registration -->
 
 
-
+    </div>
 
   </div>
 
-</div>
+
+  <div style="height: 100px"></div>
+
+  </div>
+</app-content-width>

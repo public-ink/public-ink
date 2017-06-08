@@ -1,5 +1,7 @@
 
 
+
+
 <flex-row-center *ngIf="author">
     <flex-col >
         <!-- center lane -->
@@ -8,18 +10,7 @@
             <!-- if NEW: create him inline button -->
             <button *ngIf="author.new" (click)="saveAuthor()">create author</button>
         
-            <!-- if EXISTING AUTHOR: create new publication -->
-            <app-content-width>
-            <flex-col *ngIf="!author.new">
-                <h2>create a publication</h2>
-                <p>publication is our way of grouping articles together. You can think of them as blogs, and you can create one or multiple of them.
-                <a  
-                    [routerLink]="['/', author.id, 'create-publication']">
-                    start publication
-                    
-                </a>
-            </flex-col>
-            </app-content-width>
+            
            
         <!-- end of center lane -->
     </flex-col>
@@ -42,3 +33,4 @@
         </flex-row-between-center>
     </app-content-width>
 </app-bottom-bar>
+

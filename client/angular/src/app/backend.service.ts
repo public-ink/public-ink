@@ -79,7 +79,7 @@ export class BackendService {
               name
               imageURL
             }
-            articles {
+            articles (includeDrafts: true) {
               id
               title
               bodyOps
@@ -134,11 +134,9 @@ export class BackendService {
     private http: Http,
     private apollo: Apollo,
 
-    // private ui: UIService,
   ) {
 
     console.log('backend constructed', this.backendHost)
-
 
     const jwt = localStorage.getItem('jwt')
     if (!jwt) {
@@ -154,6 +152,45 @@ export class BackendService {
       this.loadImages(jwt)
       //this.loadSongs()
     }
+  }
+
+  // load everything for the home screen.
+  loadHoff(authorID: string = 'hoff') {
+    console.log('hoff')
+    const query = gql`
+      {
+        author(authorID: "hoff") {
+          publications {
+            id
+            name
+            about
+            imageURL
+            articles {
+              publishedAt
+            }
+            author {
+              id
+              name
+            }
+            
+          }
+        }
+      }
+    `
+    // ${this.fragments.publication}
+    const apolloQuery = this.apollo.watchQuery<any>({
+      query: query,
+      fetchPolicy: 'network-only'
+    })
+    let hoffSubject = new Subject()
+
+    return new Observable(stream => {
+      apolloQuery.delay(this.backendDelay).subscribe(result => {
+        const data = result.data
+        stream.next(data)
+      })
+    })
+
   }
 
   /** Load User Images */
@@ -215,8 +252,6 @@ export class BackendService {
     return new Observable(stream => {
       apolloQuery.delay(this.backendDelay).subscribe(result => {
         const data = result.data
-        console.log('backend has data', data)
-        // publish the info
         stream.next(data)
       })
     })
@@ -247,11 +282,12 @@ export class BackendService {
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
+      fetchPolicy: 'network-only',
       variables: {
         email: email,
         password: password,
       },
-      // forceFetch: true
+      
     })
 
     return new Observable(stream => {
@@ -270,12 +306,45 @@ export class BackendService {
     })
   }
 
+  requestResetPasswordLink(email: string) {
+    let resetSubject = new Subject()
+    const query = gql`
+      {requestResetPasswordLink(email: "${email}"){
+        success
+        message
+      }}
+    `
+    this.apollo.watchQuery<any>({
+      query: query,
+      fetchPolicy: 'network-only',
+    }).subscribe(result => {
+      resetSubject.next(result)
+    })
+    return resetSubject
+  }
+
+  resetPassword(email: string, token: string, password: string) {
+    let resetSubject = new Subject()
+    const query = gql`
+      {resetPassword(email: "${email}", token: "${token}", password: "${password}")
+          {
+            success
+            message
+          }
+      }
+    `
+    this.apollo.watchQuery<any>({
+      query: query,
+    }).subscribe(result => {
+      resetSubject.next(result)
+    })
+    return resetSubject
+  }
+
   /** whether or not an author is one of the user's authors */
   isOwner(authorID: string) {
     if (!this.userAccount) { return false }
-    let authorIDs = this.userAccount.authors.map(author => {
-      return author.id
-    })
+    let authorIDs = this.userAccount.authors.map(author => { return author.id })
     return authorIDs.includes(authorID)
   }
 

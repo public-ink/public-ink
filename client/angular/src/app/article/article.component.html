@@ -7,7 +7,7 @@
     <!-- static title -->
     <h1 *ngIf="!editable"
         [style.fontSize.px]="ui.responsiveValue(30, 50)"
-    ><a style="color: #333; text-decoration: none;" [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]">{{ article.title}}</a></h1>
+    ><a class="tabable" style="color: #333;" [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]">{{ article.title}}</a></h1>
 
     <!-- editable title -->
     <textarea 
@@ -25,8 +25,8 @@
 
     <div style="color: #666;">By 
 
-        <a [routerLink]="['/', article.publication.author.id]">{{ article.publication.author.name }}</a>
-        in <a [routerLink]="['/', article.publication.author.id, article.publication.id]">{{ article.publication.name }}</a>
+        <a style="text-decoration:underline;" class="tabable" [routerLink]="['/', article.publication.author.id]">{{ article.publication.author.name }}</a>
+        in <a  style="text-decoration:underline;" class="tabable" [routerLink]="['/', article.publication.author.id, article.publication.id]">{{ article.publication.name }}</a>
         
             <span *ngIf="article.publishedAt"> published {{ article.publishedAt | date:'MMMM y' }}</span>
             <span *ngIf="!article.publishedAt">  draft</span>
@@ -52,9 +52,9 @@
     <br>
     <!-- read more link in case of preview -->
     <span *ngIf="preview">
-    <a [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]"
+    <a class="tabable" [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]"
         [ngStyle]="{background: '#222', color: 'white', padding: '10px 20px'}"
-        style="display: inline-block;">read on </a> 8 minutes</span>
+        style="display: inline-block;">read on </a> &nbsp; </span>
     
     <br>
     <br>

@@ -30,16 +30,18 @@ hr.dashed {
 }
 a {
     color: #333;
+    text-decoration: none;
 }
 a.navlink {
     color: white;
     text-decoration: none;
 }
-
 a:focus {
-    color: white;
-    background: #555;
     outline: 0;
+}
+
+.tabable:focus{
+    text-decoration: underline;
 }
 
 .focus-bg {
@@ -291,7 +293,7 @@ simple-spacer{
     width: 30px;
     height: 30px;
 }
-.success-mark {
+.icon-mark {
     height: 40px;
     width: 40px;
     font-size: 30px;

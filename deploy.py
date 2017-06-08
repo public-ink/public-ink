@@ -46,6 +46,7 @@ print "step 3: copying files to target directory"
 cmd  = "cp -r {}/* {}".format(client_dist, server_dist)
 os.system(cmd)
 print "step 3 completed"
+print "from {} to {}".format(client_dist, server_dist)
 
 """
 Step 4: re-write index.html

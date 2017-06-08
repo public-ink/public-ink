@@ -12,8 +12,8 @@
 <flex-col-center-center *ngIf="ui.overlay" (click)="ui.overlay = false" style="z-index: 9999; position:fixed; top: 0; left:0; width: 100vw; height: 100vh; background-color: rgba(255,255,255,0.9);">
 
     <div class="spinner-black" *ngIf="ui.loading"></div>
-    <flex-center class="success-mark" *ngIf="ui.success">✔</flex-center>
-    <div class="error-mark" *ngIf="ui.error">x</div>
+    <flex-center class="icon-mark" *ngIf="ui.success">✔</flex-center>
+    <div class="icon-mark" *ngIf="ui.error">✖</div>
     
 
     <h1>{{ ui.message }}</h1>
@@ -30,18 +30,18 @@
     <app-content-width>
         <flex-row-between-center>
 
-            <h3><a [routerLink]="['/']" class="navlink">public.ink</a></h3>
+            <h3><a [routerLink]="['/']" class="tabable navlink">public.ink</a></h3>
 
             <span style="font-size: 20px; color: #333; font-weight: bold;"></span>
             
             <!-- login / signup -->
             <flex-row *ngIf="!backend.userAccount?.authenticated">
-                <h3><a [routerLink]="['/auth']"  class="navlink">log in</a> | <a [routerLink]="['/auth']"  class="navlink">sign up</a></h3>
+                <h3><a [routerLink]="['/auth']"  class="tabable navlink">log in</a>  <a *ngIf="environment.signupEnabled" [routerLink]="['/auth']"  class="tabable navlink">sign up</a></h3>
             </flex-row>
 
             <!-- your things -->
             <flex-row *ngIf="backend.userAccount?.authenticated">
-                <h3><a [routerLink]="['/my-account']"  class="navlink">your things</a></h3>
+                <h3><a [routerLink]="['/my-account']"  class="tabable navlink">your things</a></h3>
             </flex-row>
 
         </flex-row-between-center>
@@ -59,7 +59,7 @@
 
 <!-- footer -->
 
-<app-content-width>
+<app-content-width *ngIf="0">
     <flex-row-center-center style="height: 50px; margin-top: 50px;">
         2017 | about | contact me
     </flex-row-center-center>

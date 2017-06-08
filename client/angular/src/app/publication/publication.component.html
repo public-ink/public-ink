@@ -13,9 +13,10 @@
     <app-content-width>
 
       <!-- Title  STATIC -->
-      <h1 [routerLink]="['/', publication.author.id, publication.id]" *ngIf="!editable" [ngStyle]="style.name()" [style.cursor]="'pointer'">
+      
+      <a class="tabable" [routerLink]="['/', publication.author.id, publication.id]" *ngIf="!editable" [ngStyle]="style.name()" [style.cursor]="'pointer'">
         {{ publication.name }}
-      </h1>
+      </a>
 
       <!-- Title EDITABLE -->
       <textarea *ngIf="editable" class="focus-bg" [(ngModel)]="publication.name" [ngStyle]="style.name()" [style.cursor]="'default'"

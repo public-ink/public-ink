@@ -17,6 +17,7 @@ interface results {
 export class HomePageComponent implements OnInit {
 
   article: any
+  hoff // currently, the author hoff, with his publications, which is currently displayed on home.
 
   constructor(
     public backend: BackendService,
@@ -25,9 +26,10 @@ export class HomePageComponent implements OnInit {
   }
 
   ngOnInit() {
-    // home article
-    this.backend.getArticle('hoff', 'looking-at-harmony', 'todo-project-merging').subscribe(article => {
-      this.article = article
+    
+    // load hoff for now
+    this.backend.loadHoff('hoff').subscribe(hoff => {
+      this.hoff = hoff
     })
   }
   

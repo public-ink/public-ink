@@ -46,8 +46,10 @@ export class PublicationComponent implements OnInit {
         'font-weight': 'bold',
         'color': 'white',
         'text-align': 'center',
-        'text-decoration': 'none',
+        // 'text-decoration': 'none',
         'margin': '10px 0px',
+        'outline': 0,
+        'display': 'block',
       }
     },
     about: () => {

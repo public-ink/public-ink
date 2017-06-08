@@ -1,0 +1,22 @@
+{
+    "name": "solar",
+    "displayName": "solar",
+    "description": "custom solarized light theme",
+    "version": "0.0.1",
+    "publisher": "hoff",
+    "engines": {
+        "vscode": "^1.12.0"
+    },
+    "categories": [
+        "Themes"
+    ],
+    "contributes": {
+        "themes": [
+            {
+                "label": "solar",
+                "uiTheme": "vs",
+                "path": "./themes/solar-color-theme.json"
+            }
+        ]
+    }
+}
