@@ -79,7 +79,7 @@ export class ArticlePageComponent implements OnInit {
 
     // subscribe to media clicks
     this.ui.mediaClickObservable.subscribe(image => {
-      this.articleCmp.insertImage(image.url + '&w=' + (this.ui.contentWidth - 300))
+      this.articleCmp.insertImage(image.url + '&w=' + (this.ui.contentWidth - 0) + '&size=content')
     })
 
     // get route params
@@ -102,7 +102,6 @@ export class ArticlePageComponent implements OnInit {
       } else {
         this.backend.getArticle(this.authorID, this.publicationID, this.articleID).subscribe(article => {
           this.article = JSON.parse(JSON.stringify(article))
-
         })
       }
     })

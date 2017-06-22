@@ -29,6 +29,8 @@
             <a [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]">{{ article.title }}</a>
 
           </div>
+          <!-- new article in publication -->
+          <a [routerLink]="['/', publication.author.id, publication.id, 'create-article']">new article!</a>
         </div>
 
         <a [routerLink]="['/', author.id, 'create-publication']">create publication by {{ author }}</a>

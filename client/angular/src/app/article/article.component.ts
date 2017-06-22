@@ -136,8 +136,11 @@ export class ArticleComponent implements OnInit {
       if (o.insert && o.insert.image) {
         let url = o.insert.image
         let host = url.split('/', 3).join('/')
-        let newUrl = url.replace(host, this.backendHost)
-        return { insert: { image: newUrl } }
+        let newUrl = url.replace(host, this.backendHost) + '&jo=sup'
+
+        let responsiveURL = this.updateQueryStringParameter(newUrl, 'w', this.ui.actualContentWidth)
+
+        return { insert: { image: responsiveURL } }
       } else {
         return o
       }
@@ -151,7 +154,7 @@ export class ArticleComponent implements OnInit {
       for (let op of transformedOps) {
         if (typeof op.insert === 'string' && op.insert.indexOf('---') > -1) {
           break
-        } else  {
+        } else {
           previewOps.push(op)
         }
       }
@@ -165,9 +168,9 @@ export class ArticleComponent implements OnInit {
       for (let op of transformedOps) {
         if (typeof op.insert === 'string' && op.insert.indexOf('---') > -1) {
           // do not add this ops
-          let replacement = {insert: '---', attributes: {color: '#fff'}}
+          let replacement = { insert: '---', attributes: { color: '#fff' } }
           cleanedOps.push(replacement)
-        } else  {
+        } else {
           cleanedOps.push(op)
         }
       }
@@ -194,5 +197,23 @@ export class ArticleComponent implements OnInit {
     return string.split(subString, index).join(subString).length;
   }
 
+  /**
+   * Update a query string paramter in a given URL
+   * 
+   * @param uri the url to manipulate
+   * @param key the key in question
+   * @param value the new value for the above key
+   */
+
+  updateQueryStringParameter(uri, key, value) {
+    var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+    var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+    if (uri.match(re)) {
+      return uri.replace(re, '$1' + key + "=" + value + '$2');
+    }
+    else {
+      return uri + separator + key + "=" + value;
+    }
+  }
 
 }

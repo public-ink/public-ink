@@ -29,6 +29,7 @@ export class PublicationComponent implements OnInit {
 
   ngOnInit() {
     this.ui.mediaClickObservable.subscribe(image => {
+      
       this.publication.imageURL = image.url // size?
     })
   }

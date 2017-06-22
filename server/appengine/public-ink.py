@@ -15,6 +15,7 @@ import re
 from random import randint
 from google.appengine.ext import blobstore
 import urllib
+from google.appengine.api import memcache
 
 # image
 from google.appengine.ext.webapp import blobstore_handlers
@@ -1047,9 +1048,9 @@ class ServeImage(webapp2.RequestHandler):
 
 
 class CertificateHandler(webapp2.RequestHandler):
-    """Todo: write / read from database """
+    """ The challenge string to be rendered comes from memcache """
     def get(self, hash):
-        response = 'B6j215uAJciGPNxnIszvcOlTNnoDwySeht3TkucAdoM.EcoLxzYWRubjzLXalHcppF9GQW4-y0H0oabtKMij-XI'
+        response = memcache.get(key="acme-challenge")
         self.response.write(response)
     
 IMAGE_UPLOAD_URL = '/api/image/upload'
