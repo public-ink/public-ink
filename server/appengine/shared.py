@@ -14,8 +14,8 @@ Environment
 """
 if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
     ENV_NAME = 'production'
-    BACKEND_URL = 'https://www.public.ink'
-    FRONTEND_URL = 'https://www.public.ink'
+    BACKEND_URL  = 'http://www.public.ink'
+    FRONTEND_URL = 'http://www.public.ink'
     ALLOW_ORIGIN = BACKEND_URL
 else:
     ENV_NAME = 'develop'
