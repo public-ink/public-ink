@@ -3,5 +3,6 @@
     <!-- publications -->
     <div *ngFor="let publication of hoff.author.publications">
       <app-publication *ngIf="publication.articles.length > 0" [publication]="publication"></app-publication>
+      <app-article *ngFor="let article of publication.articles" [article]="article" [preview]="true" [editable]="false"></app-article>
     </div>
 </div>

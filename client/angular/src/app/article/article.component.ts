@@ -117,9 +117,12 @@ export class ArticleComponent implements OnInit {
       /* 
       keep the article bodyOps property in sync, for saving.
       */
-      this.article.bodyOps = JSON.stringify(this.quill.getContents())
-      // todo: catch all focus events (even when nothing was typed)
-      this.lastRange = this.quill.getSelection()
+      if (this.editable) {
+        // keep local article's bodyOps in sync for later saving
+        this.article.bodyOps = JSON.stringify(this.quill.getContents())
+        // todo: catch all focus events (even when nothing was typed)
+        this.lastRange = this.quill.getSelection()
+      }
     })
   }
 
@@ -131,7 +134,7 @@ export class ArticleComponent implements OnInit {
     let quillOps = quillData.ops
     console.log('original', quillOps)
 
-    /** replace the image backend url in case it is different, because we running on ^a differnt IP or localhost */
+    /** replace the image backend url in case it is different, because we running on a differnt IP or localhost */
     transformedOps = quillOps.map(o => {
       if (o.insert && o.insert.image) {
         let url = o.insert.image

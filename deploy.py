@@ -65,6 +65,9 @@ print "step 4 completed"
 
 """
 Last Step: upload to app engine
+
+todo: upload indexes, like:
+gcloud datastore create-indexes 
 """
 print "last step: deploy to app engine"
 os.chdir(server_dir) 

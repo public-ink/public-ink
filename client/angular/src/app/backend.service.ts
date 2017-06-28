@@ -166,7 +166,17 @@ export class BackendService {
             about
             imageURL
             articles {
-              publishedAt
+              id
+              title
+              bodyOps
+              publication {
+                id
+                name
+                author {
+                  name
+                  id
+                }
+              }
             }
             author {
               id
@@ -176,8 +186,9 @@ export class BackendService {
           }
         }
       }
+      
     `
-    // ${this.fragments.publication}
+    //${this.fragments.author}
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
       fetchPolicy: 'network-only'
