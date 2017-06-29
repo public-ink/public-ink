@@ -39,6 +39,7 @@ import { HeroComponent } from './hero/hero.component';
 import { RoundPipe } from './round.pipe';
 import { ResetPasswordPageComponent } from './reset-password-page/reset-password-page.component'
 
+import {DndModule} from 'ng2-dnd'
 
 const apolloClient = new ApolloClient({
   networkInterface: createNetworkInterface({
@@ -107,6 +108,7 @@ const appRoutes: Routes = [
     FormsModule,
     ReactiveFormsModule,
     HttpModule,
+    DndModule.forRoot(),
   ],
   providers: [BackendService, UIService, MIDIService],
   bootstrap: [AppComponent],

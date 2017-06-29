@@ -319,3 +319,21 @@ simple-spacer{
   }
 }
 /* end of spinner */
+
+
+/* drag n drop */
+.dnd-drag-start {
+   
+}
+
+.dnd-drag-enter {
+    
+}
+
+.dnd-drag-over {
+    
+}
+
+.dnd-sortable-drag {
+ 
+}
