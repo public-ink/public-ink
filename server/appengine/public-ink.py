@@ -201,7 +201,7 @@ class AuthorSchema(graphene.ObjectType):
     # related
     publications = graphene.List(lambda: PublicationSchema)
     def resolve_publications(self, args, *more):
-        return PublicationModel.query(ancestor=self.key).fetch()
+        return PublicationModel.query(ancestor=self.key).order(PublicationModel.position)
 
     def resolve_id(self, *args):
         return self.key.id()
@@ -217,6 +217,7 @@ class PublicationModel(InkModel):
     name = ndb.StringProperty()
     about = ndb.StringProperty()
     imageURL = ndb.StringProperty()
+    position = ndb.IntegerProperty()
 
 class PublicationSchema(graphene.ObjectType):
     """
@@ -233,9 +234,11 @@ class PublicationSchema(graphene.ObjectType):
         return self.key.id()
     def resolve_articles(self, args, *more):
         if args.get('include_drafts'):
-            return ArticleModel.query(ancestor=self.key)
+            return ArticleModel.query(ancestor=self.key).order(ArticleModel.position)
         else:
-            return ArticleModel.query(ArticleModel.published_at != None, ancestor=self.key)
+            #return ArticleModel.query(ArticleModel.published_at != None, ancestor=self.key).order(ArticleModel.position)
+            # filter non-published yourself. todo
+            return ArticleModel.query(ancestor=self.key).order(ArticleModel.position)
     def resolve_author(self, *args):
         return self.key.parent().get()
 
@@ -247,6 +250,7 @@ class ArticleModel(InkModel):
     title = ndb.StringProperty()
     bodyOps = ndb.TextProperty()
     published_at = ndb.DateTimeProperty()
+    position = ndb.IntegerProperty()
 
     def publish(self):
         self.published_at = datetime.now()
@@ -595,6 +599,35 @@ class Query(graphene.ObjectType):
             info=InfoSchema(success=True, message=message),
             author=author_key.get()
         )
+
+    """
+    SAVE ORDER
+    """
+    save_author_order = graphene.Field(InfoSchema, author_data=graphene.String())
+    def resolve_save_author_order(self, args, context, info):
+        # do your thing
+        print 'resolve save author order'
+        author_data = json.loads(self.get('authorData'))
+        author_id = author_data['authorID']
+        publications = author_data['publications']
+        publication_position = 0
+        for pub in publications:
+            print pub['publicationID']
+            publication_id = pub['publicationID']
+            # retrieve publication and update
+            publication = ndb.Key('AuthorModel', author_id, 'PublicationModel', publication_id).get()
+            publication.position = publication_position
+            publication.put()
+            publication_position += 1
+            article_position = 0
+            for article_id in pub['articles']:
+                # retrieve and update article
+                print '-' + article_id
+                article = ndb.Key('AuthorModel', author_id, 'PublicationModel', publication_id, 'ArticleModel', article_id).get()
+                article.position = article_position
+                article.put()
+                article_position += 1
+        return InfoSchema(success=True, message='order_saved')
 
 
     """ SAVE PUBLICATION (create and update)  """

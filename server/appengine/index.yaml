@@ -13,4 +13,14 @@ indexes:
 - kind: ArticleModel
   ancestor: yes
   properties:
+  - name: position
+
+- kind: ArticleModel
+  ancestor: yes
+  properties:
   - name: published_at
+
+- kind: PublicationModel
+  ancestor: yes
+  properties:
+  - name: position

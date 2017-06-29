@@ -811,6 +811,56 @@ export class BackendService {
     })
   }
 
+  /**
+   * save order or publications and articles
+   */
+  saveAuthorOrder(author) {
+    let authorDict = {
+      authorID: author.id,
+      publications: [],
+    }
+    for (let publication of author.publications) {
+      let publicationDict = {
+        publicationID: publication.id,
+        articles: []
+      }
+      for (let article of publication.articles) {
+        publicationDict.articles.push(article.id)
+      }
+      authorDict.publications.push(publicationDict)
+    }
+    const authorData = JSON.stringify(authorDict)
+    console.log(authorData)
+    const query = gql`
+      {
+        saveAuthorOrder {
+          message
+          success
+        }
+      }
+    `
+    const apolloQuery = this.apollo.watchQuery<any>({
+      query: query,
+      fetchPolicy: 'network-only',
+      variables: {
+        authorData: authorData,
+      },
+    })
+    return new Observable(stream => {
+      apolloQuery.subscribe(result => {
+        console.log('save author data returned', result)
+        stream.next(result.data)
+      })
+    })
+  }
+
+  /**
+   * Get Article
+   * 
+   * @param authorID 
+   * @param publicationID 
+   * @param articleID 
+   */
   getArticle(authorID: string, publicationID: string, articleID: string) {
     /** now, we load the path up to author. */
     const query = gql`
