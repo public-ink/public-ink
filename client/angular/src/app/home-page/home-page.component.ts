@@ -29,8 +29,12 @@ export class HomePageComponent implements OnInit {
     
     // load hoff for now
     this.backend.loadHoff('hoff').subscribe(hoff => {
-      this.hoff = hoff
+      this.hoff = JSON.parse(JSON.stringify(hoff))
     })
+  }
+
+  expandPublication(publication) {
+    publication.expanded = true
   }
   
 }
