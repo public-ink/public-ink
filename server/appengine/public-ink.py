@@ -238,7 +238,9 @@ class PublicationSchema(graphene.ObjectType):
         else:
             #return ArticleModel.query(ArticleModel.published_at != None, ancestor=self.key).order(ArticleModel.position)
             # filter non-published yourself. todo
-            return ArticleModel.query(ancestor=self.key).order(ArticleModel.position)
+            articles = ArticleModel.query(ancestor=self.key).order(ArticleModel.position).fetch()
+            published_articles = filter((lambda article: article.published_at is not None), articles)
+            return published_articles
     def resolve_author(self, *args):
         return self.key.parent().get()
 

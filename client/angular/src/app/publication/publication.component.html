@@ -36,9 +36,14 @@
 
 
     <app-content-width>
-      <flex-row-center>
+      <flex-col-center>
         <span style="color: white">{{ publication.articles?.length }} articles by <a style="color:white;" [routerLink]="['/', publication.author.id]">{{ publication.author.name }}</a></span>
-      </flex-row-center>
+        <br>
+        <a 
+          style="background: white; color: black; display: block; padding: 10px 20px;"
+          [routerLink]="['/', publication.author.id, publication.id, 'create-article']">
+        New Article</a>
+      </flex-col-center>
     </app-content-width>
 
 
