@@ -19,6 +19,7 @@ export interface iAccount {
   verified: boolean
   jwt?: string
   authors: any[]
+  totalViews?: number
 }
 
 @Component({

@@ -36,6 +36,44 @@
 
     <app-article [article]="article" [editable]="isOwner()"></app-article>
 
+   
+    <!-- article comment (new) -->
+    <app-content-width [ngStyle]="ui.styles.standardText()">
+
+        <h3>Responses</h3>
+
+        If you have any thoughts on this article, I'd love to hear them. Just keep
+        in mind that I'm only a human being, so please remember to be kind.
+        <br><br>
+        <textarea 
+            [ngStyle]="ui.styles.textarea()"
+            [(ngModel)]="commentBody"
+            placeholder="Your Response..."
+            autosize rows="3" style="border: 1px solid black;"></textarea>
+
+        <input 
+            [ngStyle]="ui.styles.input()"
+        type="text" [(ngModel)]="commentName" placeholder="Your Name | Optional"/>
+        <!--
+        <input 
+            [ngStyle]="ui.styles.input()"
+        type="email" [(ngModel)]="commentEmail" placeholder="Your Email (optional)" />-->
+        
+        
+        <div [ngStyle]="ui.styles.button('black')" (click)="postComment()">send your response</div>
+
+        <br>
+        <br>
+        <br>
+
+        <!--<div [ngStyle]="ui.styles.button()">show all responses</div>-->
+
+        <div [ngStyle]="ui.styles.standardText()" *ngFor="let comment of comments" style="margin: 30px 0px;">
+            <b >{{ comment.name ? comment.name : 'anonym' }}:</b> <span style="white-space: pre-line;">{{ comment.body }}</span>
+        </div>
+    </app-content-width>
+
+    
 
 
     <!-- fixed bottom bar -->

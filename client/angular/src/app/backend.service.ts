@@ -18,6 +18,7 @@ import { Song } from './hero/song'
 
 import {
   PublicationData,
+  iArticle,
   IBackendData, IResource, Author, AuthorData, Publication, Resource
 } from './models'
 
@@ -30,10 +31,7 @@ export interface iInfo {
   success: boolean
   message: string
 }
-export interface iArticle {
-  id: string
-  title: string
-}
+
 
 
 
@@ -63,6 +61,7 @@ export class BackendService {
         verified
         authenticated
         jwt
+        totalViews
 
         authors {
           id
@@ -220,7 +219,6 @@ export class BackendService {
     apolloQuery.subscribe(result => {
       this.userImages = JSON.parse(JSON.stringify(result.data.images))
     })
-
   }
 
   /** Load Songs */
@@ -267,11 +265,70 @@ export class BackendService {
         stream.next(data)
       })
     })
+  }
 
-
-
+  loadComments(article: iArticle) {
+    console.log('load comments')
+    let authorID = article.publication.author.id
+    let publicationID = article.publication.id
+    let articleID = article.id
+    const query = gql`
+      {
+        loadComments(authorID: "${authorID}", publicationID: "${publicationID}", articleID: "${articleID}") {
+          name
+          body
+        }
+      }
+    `
+    const apolloQuery = this.apollo.watchQuery<any>({
+      query: query,
+      // variables: {},
+      fetchPolicy: 'network-only',
+    })
+    const subject = new Subject()
+    apolloQuery.delay(this.backendDelay).subscribe(result => {
+      console.warn('sup')
+      const data = result.data.loadComments
+      subject.next(data)
+    })
+    return subject
 
   }
+
+  postComment(article: iArticle, name: string, email: string, body: string) {
+    let authorID = article.publication.author.id
+    let publicationID = article.publication.id
+    let articleID = article.id
+    const query = gql`
+      {
+        postComment {
+          success
+          message
+        }
+      }
+    `
+    const apolloQuery = this.apollo.watchQuery<any>({
+      query: query,
+      fetchPolicy: 'network-only',
+      variables: {
+        authorID: authorID,
+        publicationID: publicationID,
+        articleID: articleID,
+        name: name,
+        email: email,
+        body: body,
+      },
+    })
+
+    let subject = new Subject()
+    apolloQuery.delay(this.backendDelay).subscribe(result => {
+      subject.next(result.data.postComment)
+    }, errors => {
+      console.log('errors posting comment!', errors)
+    })
+    return subject
+  }
+  
 
   /**
    * Email / Password Login
@@ -299,7 +356,7 @@ export class BackendService {
         email: email,
         password: password,
       },
-      
+
     })
 
     return new Observable(stream => {
@@ -351,6 +408,35 @@ export class BackendService {
       resetSubject.next(result)
     })
     return resetSubject
+  }
+
+  /** record analytics event */
+  recordEvent(name: string, authorID?: string, publicationID?: string, articleID?: string) {
+    const query = gql`
+      {
+        recordEvent {
+          success
+          message
+        }
+      }
+    `
+    const apolloQuery = this.apollo.watchQuery<any>({
+      query: query,
+      variables: {
+        name: name,
+        authorID: authorID,
+        publicationID: publicationID,
+        articleID: articleID,
+        path: 'somepath' //window.location,
+      },
+    })
+    let recordEventSubject = new Subject()
+    apolloQuery.delay(this.backendDelay).subscribe(result => {
+      recordEventSubject.next(result.data)
+    }, error => {
+      recordEventSubject.error(error)
+    })
+    return recordEventSubject
   }
 
   /** whether or not an author is one of the user's authors */

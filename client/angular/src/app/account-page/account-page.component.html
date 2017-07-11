@@ -6,6 +6,8 @@
 
     <div *ngIf="backend.userAccount">
 
+        <h1>Your articles have been read {{ backend.userAccount.totalViews}} times in total.</h1>
+
         <div>
 
             You are logged in with {{ backend.userAccount.email }}

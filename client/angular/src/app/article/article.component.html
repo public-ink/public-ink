@@ -50,8 +50,7 @@
     <!-- read more link in case of preview -->
     <span *ngIf="preview">
     <a class="tabable" [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]"
-        [ngStyle]="{background: '#222', color: 'white', padding: '10px 20px'}"
-        style="display: inline-block;">read on </a> &nbsp; </span>
+        [ngStyle]="ui.styles.button()">read on </a> &nbsp; </span>
     
     <br>
     <br>

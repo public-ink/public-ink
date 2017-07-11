@@ -138,6 +138,13 @@ class AccountSchema(graphene.ObjectType):
     authenticated = graphene.Boolean()
     jwt = graphene.String()
 
+    # new: stats!
+    total_views = graphene.Int()
+    def resolve_total_views(self, *args):
+        user_key = ndb.Key('UserModel', self.email)
+        return EventModel.query(EventModel.user == user_key).count()
+
+
     # related: authors!
     authors = graphene.List(lambda: AuthorSchema)
     def resolve_authors(self, *args):
@@ -287,6 +294,22 @@ class ArticleSchema(graphene.ObjectType):
     def resolve_author(self, *args):
         return self.key.parent().parent().get()
 
+""" Comment """
+class CommentModel(InkModel):
+    """ a user comment """
+    article = ndb.KeyProperty(kind=ArticleModel)
+    # in case the comment is a reply to another comment
+    comment = ndb.KeyProperty()
+    name = ndb.StringProperty()
+    email = ndb.StringProperty()
+    body = ndb.TextProperty()
+
+
+class CommentSchema(graphene.ObjectType):
+    name = graphene.String()
+    body = graphene.String()
+
+
 
 """ Song """
 class SongModel(InkModel):
@@ -350,6 +373,18 @@ class SongSearchSchema(graphene.ObjectType):
     key_id = graphene.String()
 
 
+class EventModel(InkModel):
+    name = ndb.StringProperty()
+    session_id = ndb.StringProperty()
+    user = ndb.KeyProperty(kind=UserModel)
+    author = ndb.KeyProperty(kind=AuthorModel)
+    publication = ndb.KeyProperty(kind=PublicationModel)
+    article = ndb.KeyProperty(kind=ArticleModel)
+    path = ndb.StringProperty()
+    os = ndb.StringProperty()
+    browser = ndb.StringProperty()
+
+
 
 """
 Playground - remove at some point
@@ -406,6 +441,29 @@ class Query(graphene.ObjectType):
         return Evening(hoff=hoff, beer=beer)
 
     """ end of documentation """
+
+    """ Analytics """
+    record_event = graphene.Field(InfoSchema)
+    def resolve_record_event(self, args, *more):
+        # stuff is in self when sent as vars
+        name = self.get('name')
+        authorID = self.get('authorID')
+        publicationID = self.get('publicationID')
+        articleID = self.get('articleID')
+        # related entities' keys
+        authorKey = ndb.Key('AuthorModel', authorID).get().key
+        userKey = authorKey.get().user
+        publicationKey = ndb.Key('AuthorModel', authorID, 'PublicationModel', publicationID).get().key
+        articleKey = ndb.Key('AuthorModel', authorID, 'PublicationModel', publicationID, 'ArticleModel', articleID).get().key
+        # create and store an event
+        event = EventModel(
+            name = name,
+            user = userKey,
+            author = authorKey,
+            publication = publicationKey,
+            article = articleKey,
+        ).put()
+        return InfoSchema(success=True, message='event_recorded')
 
 
     """ Email / Password Login """
@@ -767,9 +825,9 @@ class Query(graphene.ObjectType):
     article = graphene.Field(ArticleSchema, authorID=graphene.String(), publicationID=graphene.String(), articleID=graphene.String())
     def resolve_article(self, args, context, info):
         print 'resolve article / zero'
-        authorID=args.get('authorID') or self.get('authorID')
-        publicationID=args.get('publicationID') or self.get('publicationID')
-        articleID=args.get('articleID') or self.get('articleID')
+        authorID = args.get('authorID') or self.get('authorID')
+        publicationID = args.get('publicationID') or self.get('publicationID')
+        articleID = args.get('articleID') or self.get('articleID')
 
         article = ndb.Key(
             'AuthorModel', authorID,
@@ -777,6 +835,38 @@ class Query(graphene.ObjectType):
             'ArticleModel', articleID
         ).get()
         return article
+
+    post_comment = graphene.Field(lambda: InfoSchema, authorID=graphene.String(), publicationID=graphene.String(), articleID=graphene.String(),
+    email=graphene.String(), name=graphene.String(), body=graphene.String()
+    )
+    def resolve_post_comment(self, args, *more):
+        # get article key
+        author_id = self.get('authorID')
+        publication_id =  self.get('publicationID')
+        article_id =  self.get('articleID')
+        
+        article_key = ndb.Key('AuthorModel', author_id, 'PublicationModel', publication_id, 'ArticleModel', article_id)
+        # read comment
+        body = self.get('body')
+        name = self.get('name')
+        email = self.get('email')
+        comment = CommentModel(
+            email = email,
+            name = name,
+            body = body,
+            article = article_key
+        ).put()
+        print comment
+        return InfoSchema(success=True, message='comment_posted')
+
+    load_comments = graphene.List(lambda: CommentSchema, authorID=graphene.String(), publicationID=graphene.String(), articleID=graphene.String())
+    def resolve_load_comments(self, args, context, info):
+        author_id = args.get('authorID')
+        publication_id =  args.get('publicationID')
+        article_id =  args.get('articleID')
+        article_key = ndb.Key('AuthorModel', author_id, 'PublicationModel', publication_id, 'ArticleModel', article_id)
+        comments = CommentModel.query(CommentModel.article == article_key)
+        return comments
 
     """ Images """
     images = graphene.List(lambda: ImageSchema, jwt=graphene.String())

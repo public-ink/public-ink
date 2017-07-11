@@ -56,11 +56,11 @@ export class UIService {
     debug: false,
   }
 
-  
+
 
   pad: number = 30
 
-  
+
 
   mediaBar: boolean = false
   mediaClickStream: any
@@ -256,6 +256,50 @@ export class UIService {
     let actualBonus = totalBonus * boundPercent
     let actual = min + actualBonus
     return actual
+  }
+
+  styles = {
+    button: (color = 'white') => {
+
+      if (color === 'white') {
+        return {
+          display: 'inline-block',
+          background: 'white',
+          color: '#222',
+          padding: '10px 20px',
+          border: '1px solid black',
+          'font-size.px': this.responsiveValue(18, 20),
+        }
+      } else {
+        return {
+          display: 'inline-block',
+          background: '#444',
+          color: 'white',
+          padding: '10px 20px',
+          'font-size.px': this.responsiveValue(18, 20),
+        }
+      }
+
+    },
+    input: () => {
+      return {
+        'font-size.px': this.responsiveValue(18, 20),
+        'border': '1px solid #222',
+        'padding.px': 10,
+      }
+    },
+    textarea: () => {
+      return {
+        'padding.px': 10,
+        'border': '1px solid #222',
+        'font-size.px': this.responsiveValue(18, 20),
+      }
+    },
+    standardText: () => {
+      return {
+        'font-size.px': this.responsiveValue(18, 20),
+      }
+    }
   }
 
 }

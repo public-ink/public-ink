@@ -47,7 +47,14 @@ export class ArticlePageComponent implements OnInit {
 
   keyboardSubscription: Subscription
 
-  
+  // comments
+  comments: any
+
+  // new comment
+  commentName: string = ''
+  commentEmail: string = ''
+  commentBody: string = ''
+
 
   constructor(
     private route: ActivatedRoute,
@@ -70,7 +77,7 @@ export class ArticlePageComponent implements OnInit {
         // cmd + d
         this.deleteArticle()
         event.preventDefault()
-      } 
+      }
     })
   }
 
@@ -102,6 +109,14 @@ export class ArticlePageComponent implements OnInit {
       } else {
         this.backend.getArticle(this.authorID, this.publicationID, this.articleID).subscribe(article => {
           this.article = JSON.parse(JSON.stringify(article))
+          this.recordView()
+
+          // get comments!
+          console.log('get comments')
+          this.backend.loadComments(this.article).subscribe(comments => {
+            console.log('comments are', comments)
+            this.comments = JSON.parse(JSON.stringify(comments))
+          })
         })
       }
     })
@@ -125,6 +140,23 @@ export class ArticlePageComponent implements OnInit {
       })
   }
 
+  recordView() {
+    this.backend.recordEvent(
+      'article view',
+      this.article.publication.author.id,
+      this.article.publication.id,
+      this.article.id,
+    ).subscribe(msg => {
+      console.log('record view returned', msg)
+    })
+  }
+
+  postComment() {
+    this.backend.postComment(this.article, this.commentName, this.commentEmail, this.commentBody).subscribe(msg => {
+      console.log('posted comment?', msg)
+    })
+  }
+
   /**
    * Deletes the article
    */
@@ -146,7 +178,7 @@ export class ArticlePageComponent implements OnInit {
   /** check if the current article is owned by the current user */
   isOwner() {
     return this.backend.isOwner(this.article.publication.author.id)
-   
+
   }
 
 }
