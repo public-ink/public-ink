@@ -268,7 +268,7 @@ export class UIService {
           color: '#222',
           padding: '10px 20px',
           border: '1px solid black',
-          'font-size.px': this.responsiveValue(18, 20),
+          'font-size.px': this.responsiveValue(16, 17),
         }
       } else {
         return {
@@ -276,7 +276,7 @@ export class UIService {
           background: '#444',
           color: 'white',
           padding: '10px 20px',
-          'font-size.px': this.responsiveValue(18, 20),
+          'font-size.px': this.responsiveValue(16, 17),
         }
       }
 
@@ -284,14 +284,15 @@ export class UIService {
     input: () => {
       return {
         'font-size.px': this.responsiveValue(18, 20),
-        'border': '1px solid #222',
+        'border': '1px dotted #222',
         'padding.px': 10,
+        'width.%': 100,
       }
     },
     textarea: () => {
       return {
         'padding.px': 10,
-        'border': '1px solid #222',
+        'border': '1px dotted #222',
         'font-size.px': this.responsiveValue(18, 20),
       }
     },
@@ -299,7 +300,12 @@ export class UIService {
       return {
         'font-size.px': this.responsiveValue(18, 20),
       }
-    }
+    },
+    smallerText: () => {
+      return {
+        'font-size.px': this.responsiveValue(15, 17),
+      }
+    },
   }
 
 }

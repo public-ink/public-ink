@@ -1158,8 +1158,12 @@ class ServeImage(webapp2.RequestHandler):
             image.resize(height=int(resize_h))
             transforms = True
 
+        # quality
+        quality = int(self.request.get("q", 80))
+
         if transforms:
             result = image.execute_transforms(output_encoding=images.JPEG)
+
         else:
             # this is a hack...
             # server a maximum size instead

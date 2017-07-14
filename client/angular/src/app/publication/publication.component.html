@@ -39,7 +39,7 @@
       <flex-col-center>
         <span style="color: white">{{ publication.articles?.length }} articles by <a style="color:white;" [routerLink]="['/', publication.author.id]">{{ publication.author.name }}</a></span>
         <br>
-        <a 
+        <a *ngIf="backend.isOwner(publication.author.id)"
           style="background: white; color: black; display: block; padding: 10px 20px;"
           [routerLink]="['/', publication.author.id, publication.id, 'create-article']">
         New Article</a>

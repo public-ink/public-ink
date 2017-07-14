@@ -9,13 +9,18 @@ html, body {
 
 input {
     font-family: Courier New, Courier, monospace;
+    box-sizing: border-box;
 }
 textarea {
     font-size: 14px;
     font-family: Courier New, Courier, monospace;
     width: 100%;
     border: 0;
+    box-sizing: border-box;
+    resize: none;
 }
+
+
 /* my components*/
 app-publication {
     width: 100%;
@@ -59,7 +64,7 @@ a:focus {
     border: 1px solid #333;
     font-family: Courier New, Courier, monospace;
     padding: 10px 15px;
-    width: 400px;
+    width: 100%;
 }
 .form-input:focus, .form-button:focus, input[type="checkbox"] + label{
     outline:2px solid dodgerblue;
@@ -85,18 +90,17 @@ button {
 
 .form-button {
     box-sizing: border-box;
-    width: 400px;
+    width: 100%;
     border: 1px solid #333;
     font-family: Courier New, Courier, monospace;
-    padding: 10px 15px;
-    font-size: 20px;
-    background-color: #333;
+    padding: 14px 15px;
+    font-size: 20px; /* todo */
+    background-color: #000;
     color: white;
-    height: 60px;
 }
 .form-button:disabled {
-    background-color:#555;
-    color:white;
+    background-color:#000;
+    color:#ddd;
 }
 
 .form-label{
@@ -252,7 +256,7 @@ flex-col-left-center {
 }
 
 simple-spacer{
-    border-top: 1px solid darkcyan;
+    border-top: 1px dashed gray;
     margin: 30px 0px;
     display: block;
 }

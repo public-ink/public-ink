@@ -4,6 +4,7 @@ import { DomSanitizer } from '@angular/platform-browser'
 // ink
 import { Publication } from '../models'
 import { UIService } from '../ui.service'
+import { BackendService } from '../backend.service'
 
 
 @Component({
@@ -23,8 +24,9 @@ export class PublicationComponent implements OnInit {
   @Output() saveClicked: EventEmitter<any> = new EventEmitter()
 
   constructor(
-    private ui: UIService,
-    private sanitizer: DomSanitizer,
+    public ui: UIService,
+    public sanitizer: DomSanitizer,
+    public backend: BackendService,
   ) { }
 
   ngOnInit() {

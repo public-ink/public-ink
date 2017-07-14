@@ -1,17 +1,16 @@
-
 <div *ngIf="hoff">
-    <!-- publications -->
-    <div *ngFor="let publication of hoff.author.publications">
-      <app-publication *ngIf="publication.articles.length > 0" [publication]="publication"></app-publication>
-      <app-article *ngFor="let article of publication.articles | slice:0:2" [article]="article" [preview]="true" [editable]="false"></app-article>
+  <!-- publications -->
+  <div *ngFor="let publication of hoff.author.publications">
+    <app-publication *ngIf="publication.articles.length > 0" [publication]="publication"></app-publication>
+    <app-article *ngFor="let article of publication.articles | slice:0:2" [article]="article" [preview]="true" [editable]="false"></app-article>
 
-      <app-content-width *ngIf="publication.articles.length > 2 && !publication.expanded" (click)="expandPublication(publication)">
-        <span style="text-decoration:none; border: 1px solid black; display: inline-block; padding: 10px 20px;">show {{ publication.articles.length - 2 }} more articles</span>
-        <br><br><br>
-        </app-content-width>
-      
-      <div [ngStyle]="{'display': publication.expanded ? 'block': 'none'}">
-        <app-article *ngFor="let article of publication.articles | slice:2" [article]="article" [preview]="true" [editable]="false"></app-article>
-      </div>
+    <app-content-width *ngIf="publication.articles.length > 2 && !publication.expanded" (click)="expandPublication(publication)">
+      <span [ngStyle]="ui.styles.button()">show {{ publication.articles.length - 2 }} more article<span *ngIf="(publication.articles.length - 2) > 1">s</span></span>
+      <br><br><br>
+    </app-content-width>
+
+    <div [ngStyle]="{'display': publication.expanded ? 'block': 'none'}">
+      <app-article *ngFor="let article of publication.articles | slice:2" [article]="article" [preview]="true" [editable]="false"></app-article>
     </div>
+  </div>
 </div>

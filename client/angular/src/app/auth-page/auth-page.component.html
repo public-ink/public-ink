@@ -1,6 +1,9 @@
 <div style="height: 100px;"></div>
+
+
 <app-content-width>
-  <div style="width: 100%; margin: 0px auto;">
+
+  <!-- LOGIN -->
 
   <h1>Log In</h1>
   <form [formGroup]="loginForm" (ngSubmit)="doLogin($event)">
@@ -14,14 +17,18 @@
         <label for="loginPassword">Password</label>
       </div>
       <input id="loginPassword" class="form-input" formControlName="password" type="password" placeholder="your password">
-      
+
       <div style="height: 20px;"></div>
       <button class="form-button" type="submit" [disabled]="!loginForm.valid">Log In</button>
 
     </flex-col>
   </form>
 
-  <div style="height: 50px;"></div>
+
+  <div style="height: 60px;"></div>
+
+
+  <!-- RESET PASSWORD -->
 
   <h1>Reset Password</h1>
   <form [formGroup]="resetPasswordForm" (ngSubmit)="requestPasswordResetLink()">
@@ -31,20 +38,21 @@
         <label for="loginEmail">Your Email</label>
       </div>
       <input id="loginEmail" class="form-input" formControlName="email" type="email" placeholder="your email address">
-      
+
       <div style="height: 20px;"></div>
       <button class="form-button" type="submit" [disabled]="!resetPasswordForm.valid">Request Reset Link</button>
     </flex-col>
   </form>
 
+  <!-- SIGN UP -->
+  <div *ngIf="1">
 
-  <div *ngIf="signupEnabled">
+    <div style="height: 60px;"></div>
 
-    <simple-spacer></simple-spacer>
 
-    <div id="register-login-forms" *ngIf="!backend.userAccount?.authenticated">
+    <div id="register-login-forms" *ngIf="1">
 
-      <h2>Sign Up / Disabled</h2>
+      <h1>Sign Up [disabled]</h1>
       <form [formGroup]="registrationForm" (ngSubmit)="createAccount($event)">
         <flex-col>
           <label class="form-label" for="registrationEmail">Email</label>
@@ -66,16 +74,17 @@
           <flex-row-100>
             <!-- the checkbox -->
             <flex-row>
-              <input type="checkbox" id="termsCheckbox" formControlName="terms" name="cc" />
-              <label tabindex="0" for="termsCheckbox"></label>
+              <!--<input type="checkbox" id="termsCheckbox" formControlName="terms" name="cc" />
+              <label tabindex="0" for="termsCheckbox"></label>-->
             </flex-row>
-            <flex-row class="grow">I accept the house rules.</flex-row>
+            <flex-row [ngStyle]="ui.styles.standardText()"><span>You accept <a href="#" style="text-decoration:underline;">the public.ink house rules</a> by creating an account.</span></flex-row>
           </flex-row-100>
 
           <!-- use the 2-elements strategy. todo: proper sizing!-->
           <flex-row-center *ngIf="registrationLoading" class="form-button">
             <div class="spinner"></div>
           </flex-row-center>
+          <br>
           <button *ngIf="!registrationLoading" class="form-button" type="submit" [disabled]="!registrationForm.valid">Create Account</button>
 
         </flex-col>
@@ -90,5 +99,4 @@
 
   <div style="height: 100px"></div>
 
-  </div>
 </app-content-width>

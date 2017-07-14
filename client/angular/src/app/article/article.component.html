@@ -28,7 +28,7 @@
         <a style="text-decoration:underline;" class="tabable" [routerLink]="['/', article.publication.author.id]">{{ article.publication.author.name }}</a>
         in <a  style="text-decoration:underline;" class="tabable" [routerLink]="['/', article.publication.author.id, article.publication.id]">{{ article.publication.name }}</a>
         
-            <span *ngIf="article.publishedAt"> published {{ article.publishedAt | date:'MMMM y' }}</span>
+            <span *ngIf="article.publishedAt"> {{ article.publishedAt | date:'MMMM y' }}</span>
             <span *ngIf="!article.publishedAt"> draft</span>
     </div>
 </app-content-width>

@@ -4,6 +4,7 @@ import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
 
 import { BackendService } from '../backend.service'
+import { UIService } from '../ui.service'
 
 interface results {
   data: {articles: any}
@@ -21,6 +22,7 @@ export class HomePageComponent implements OnInit {
 
   constructor(
     public backend: BackendService,
+    public ui: UIService,
   ) {
 
   }
