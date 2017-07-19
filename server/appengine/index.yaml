@@ -20,6 +20,17 @@ indexes:
   properties:
   - name: published_at
 
+- kind: CommentModel
+  properties:
+  - name: article
+  - name: created
+    direction: desc
+
+- kind: CommentModel
+  properties:
+  - name: article
+  - name: created
+
 - kind: PublicationModel
   ancestor: yes
   properties:

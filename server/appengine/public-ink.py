@@ -129,6 +129,11 @@ class InfoSchema(graphene.ObjectType):
     success = graphene.Boolean()
     message = graphene.String()
 
+
+class StatsSchema(graphene.ObjectType):
+    period = graphene.String()
+    stats = graphene.String()
+
 class AccountSchema(graphene.ObjectType):
     """
     container for account part of ANY response
@@ -143,6 +148,26 @@ class AccountSchema(graphene.ObjectType):
     def resolve_total_views(self, *args):
         user_key = ndb.Key('UserModel', self.email)
         return EventModel.query(EventModel.user == user_key).count()
+
+    daily_views = graphene.String()
+    def resolve_daily_views(self, *args):
+        # create 7 day dict
+        daily_dict = {}
+        today = datetime.today().date()
+        for days_back in range(0,7):
+            day = today - timedelta(days=days_back)
+            day_str = str(day)
+            daily_dict[day_str] = 0
+        user_key = ndb.Key('UserModel', self.email)
+        events = EventModel.query(EventModel.user == user_key).fetch()
+        # iterate and increment
+        for event in events:
+            day_str = str(event.created.date())
+            try:
+                daily_dict[day_str] += 1
+            except KeyError:
+                print 'date out of range'
+        return json.dumps(daily_dict)
 
 
     # related: authors!
@@ -865,7 +890,7 @@ class Query(graphene.ObjectType):
         publication_id =  args.get('publicationID')
         article_id =  args.get('articleID')
         article_key = ndb.Key('AuthorModel', author_id, 'PublicationModel', publication_id, 'ArticleModel', article_id)
-        comments = CommentModel.query(CommentModel.article == article_key)
+        comments = CommentModel.query(CommentModel.article == article_key).order(-CommentModel.created)
         return comments
 
     """ Images """

@@ -1,0 +1,54 @@
+<div style="height: 100px;"></div>
+<p>
+  notes works!
+</p>
+
+
+<div style="position: relative; border: 1px solid black; margin-left: 50px; height: 2000vh; background-color: transparent;
+    background-image: linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent);
+  
+  background-color: #434343;
+  background-size:50px 50px;">
+
+  <div *ngFor="let note of data.tracks[1].notes" style="position: absolute;"
+    [style.left.px]="(note.midi) * 10"
+    [style.top.px]="note.time * 40"
+    [style.background]="notes[((note.midi +7) % 12)].length > 1 ? 'black': 'white'"
+    [style.color]="notes[((note.midi +7) % 12)].length > 1 ? 'white': 'black'"
+    [style.border]="'1px solid black'"
+  >
+    <span>{{ notes[((note.midi +7) % 12)] }} </span>
+  </div>
+
+  <div *ngFor="let note of data.tracks[2].notes" style="position: absolute;"
+    [style.left.px]="(note.midi) * 10"
+    [style.top.px]="note.time * 40"
+    [style.background]="notes[((note.midi +7) % 12)].length > 1 ? 'black': 'white'"
+    [style.color]="notes[((note.midi +7) % 12)].length > 1 ? 'white': 'black'"
+    [style.border]="'1px solid black'"
+  >
+    <span>{{ notes[((note.midi +7) % 12)] }} </span>
+  </div>
+
+  <div *ngFor="let note of data.tracks[3].notes" style="position: absolute;"
+    [style.left.px]="(note.midi) * 10"
+    [style.top.px]="note.time * 40"
+    [style.background]="notes[((note.midi +7) % 12)].length > 1 ? 'black': 'white'"
+    [style.color]="notes[((note.midi +7) % 12)].length > 1 ? 'white': 'black'"
+    [style.border]="'1px solid black'"
+  >
+    <span>{{ notes[((note.midi +7) % 12)] }} </span>
+  </div>
+  <div *ngFor="let note of data.tracks[4].notes" style="position: absolute;"
+    [style.left.px]="(note.midi) * 10"
+    [style.top.px]="note.time * 40"
+    [style.background]="notes[((note.midi +7) % 12)].length > 1 ? 'black': 'white'"
+    [style.color]="notes[((note.midi +7) % 12)].length > 1 ? 'white': 'black'"
+    [style.border]="'1px solid black'"
+  >
+    <span>{{ notes[((note.midi +7) % 12)] }} </span>
+  </div>
+  
+  
+
+</div>

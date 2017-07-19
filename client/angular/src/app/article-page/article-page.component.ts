@@ -28,6 +28,13 @@ interface UpdateResponse {
   }
 }
 
+interface Comment {
+  name?: string
+  email?: string
+  body: string
+
+}
+
 @Component({
   selector: 'app-article-page',
   templateUrl: './article-page.component.html',
@@ -48,7 +55,7 @@ export class ArticlePageComponent implements OnInit {
   keyboardSubscription: Subscription
 
   // comments
-  comments: any
+  comments: Comment[] = []
 
   // new comment
   commentName: string = ''
@@ -152,8 +159,18 @@ export class ArticlePageComponent implements OnInit {
   }
 
   postComment() {
-    this.backend.postComment(this.article, this.commentName, this.commentEmail, this.commentBody).subscribe(msg => {
-      console.log('posted comment?', msg)
+    this.ui.show('loading', 'saving your thoughts...')
+    this.backend.postComment(this.article, this.commentName, this.commentEmail, this.commentBody).subscribe((msg: any) => {
+      
+      this.comments.unshift({name: this.commentName, body: this.commentBody})
+      this.commentBody = ''
+      this.commentEmail = ''
+      this.commentName = ''
+      if (msg.success === true) {
+        this.ui.show('success', 'done!', 1000)
+      } else {
+        this.ui.show('error', 'sorry, an error occured', 2000)
+      }
     })
   }
 

@@ -39,7 +39,8 @@ import { HeroComponent } from './hero/hero.component';
 import { RoundPipe } from './round.pipe';
 import { ResetPasswordPageComponent } from './reset-password-page/reset-password-page.component'
 
-import {DndModule} from 'ng2-dnd'
+import {DndModule} from 'ng2-dnd';
+import { NotesComponent } from './notes/notes.component'
 
 const apolloClient = new ApolloClient({
   networkInterface: createNetworkInterface({
@@ -65,6 +66,8 @@ const appRoutes: Routes = [
 
   // hero
   { path: 'hero', component: HeroComponent},
+  // notes
+  { path: 'notes', component: NotesComponent},
   
   // GraphQL
   { path: ':authorID', component: AuthorPageComponent },
@@ -100,6 +103,7 @@ const appRoutes: Routes = [
     HeroComponent,
     RoundPipe,
     ResetPasswordPageComponent,
+    NotesComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),

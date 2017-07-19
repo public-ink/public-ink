@@ -62,6 +62,7 @@ export class BackendService {
         authenticated
         jwt
         totalViews
+        dailyViews
 
         authors {
           id
