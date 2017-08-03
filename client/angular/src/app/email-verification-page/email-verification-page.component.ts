@@ -27,7 +27,7 @@ export class EmailVerificationPageComponent {
     this.route.params.subscribe(params => {
       this.email = params['email']
       this.token = params['token']
-      this.backend.verifyEmail(this.email, this.token).subscribe(account => {
+      this.backend.verifyEmail(this.email, this.token).subscribe((account: any) => {
         if (account.verified) {
           this.status = 'success' 
         } else {

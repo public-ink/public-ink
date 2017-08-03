@@ -10,6 +10,9 @@ export const environment = {
   backendHost: 'http://localhost:8080',
   //backendHost: 'http://192.168.0.103:8080',
 
+  // delay in milliseconds, to mimic network delay
+  backendDelay: 400,
+
   signupEnabled: false,
   
   /**

@@ -29,7 +29,13 @@ export class HomePageComponent implements OnInit {
 
   ngOnInit() {
     
-    // load hoff for now
+    // load hoff for homepage content for now
+    // try simple cache first
+    if (this.backend.hoffData) {
+      this.hoff = JSON.parse(JSON.stringify(this.backend.hoffData))
+      return
+    }
+    // reload if needed
     this.backend.loadHoff('hoff').subscribe(hoff => {
       this.hoff = JSON.parse(JSON.stringify(hoff))
     })

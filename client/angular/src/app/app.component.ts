@@ -11,11 +11,7 @@ import { Observable } from 'rxjs/Observable'
 import { Subscription } from 'rxjs/Subscription'
 import 'rxjs/Rx'
 
-// Models (old remove)
-import { 
-  Author,
-  AuthorData,
-} from './models'
+
 
 // Declarations
 declare function stopTimer(timestamp: number): void
@@ -70,5 +66,12 @@ export class AppComponent {
       this.public = true
     })
   }  
+
+  deleteImage(userImage: any) {
+    this.ui.show('loading', 'deleting image')
+    this.backend.deleteImage(userImage).subscribe(result => {
+      this.ui.show('success', 'the image has been deleted')
+    })
+  }
   
 }

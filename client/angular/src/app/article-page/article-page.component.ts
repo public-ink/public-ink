@@ -62,6 +62,9 @@ export class ArticlePageComponent implements OnInit {
   commentEmail: string = ''
   commentBody: string = ''
 
+  // router
+  routerSubscription: Subscription
+
 
   constructor(
     private route: ActivatedRoute,
@@ -97,7 +100,7 @@ export class ArticlePageComponent implements OnInit {
     })
 
     // get route params
-    this.route.params.subscribe(params => {
+    this.routerSubscription = this.route.params.subscribe(params => {
 
       this.authorID = params['authorID']
       this.publicationID = params['publicationID']
@@ -185,11 +188,12 @@ export class ArticlePageComponent implements OnInit {
   }
 
   /**
-   * on destroy: unsubscribe from keyboard
+   * on destroy: unsubscribe from keyboard and router
    */
   ngOnDestroy() {
     console.log('article page destroyed')
     this.keyboardSubscription.unsubscribe()
+    this.routerSubscription.unsubscribe()
   }
 
   /** check if the current article is owned by the current user */

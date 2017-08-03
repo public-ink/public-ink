@@ -9,6 +9,8 @@ import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
 // import { print } from 'graphql-tag/printer'
 
+
+
 // ink
 import { UIService } from './ui.service'
 import { environment } from '../environments/environment'
@@ -32,17 +34,11 @@ export interface iInfo {
   message: string
 }
 
-
-
-
-
 @Injectable()
 export class BackendService {
 
   backendHost: string = environment.backendHost
-
-
-  backendDelay: number = 400
+  backendDelay: number = environment.backendDelay
 
   /* the object containing everything by the current user */
   userAccount: iAccount
@@ -52,6 +48,9 @@ export class BackendService {
   loginSubject = new Subject()
 
   songs = []
+
+  // content for the homepage currently
+  hoffData
 
 
   fragments = {
@@ -133,10 +132,7 @@ export class BackendService {
   constructor(
     private http: Http,
     private apollo: Apollo,
-
   ) {
-
-    console.log('backend constructed', this.backendHost)
 
     const jwt = localStorage.getItem('jwt')
     if (!jwt) {
@@ -154,7 +150,11 @@ export class BackendService {
     }
   }
 
-  // load everything for the home screen.
+  /**
+   * Loads all content by author hoff, for use on home page
+   * 
+   * @param authorID 
+   */
   loadHoff(authorID: string = 'hoff') {
     console.log('hoff')
     const query = gql`
@@ -183,7 +183,6 @@ export class BackendService {
               id
               name
             }
-            
           }
         }
       }
@@ -195,14 +194,11 @@ export class BackendService {
       fetchPolicy: 'network-only'
     })
     let hoffSubject = new Subject()
-
-    return new Observable(stream => {
-      apolloQuery.delay(this.backendDelay).subscribe(result => {
-        const data = result.data
-        stream.next(data)
-      })
+    apolloQuery.delay(this.backendDelay).subscribe(result => {
+      this.hoffData = result.data
+      hoffSubject.next(this.hoffData)
     })
-
+    return hoffSubject
   }
 
   /** Load User Images */
@@ -215,9 +211,9 @@ export class BackendService {
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
-      // forceFetch: true
+      fetchPolicy: 'network-only',
     })
-    apolloQuery.subscribe(result => {
+    apolloQuery.delay(this.backendDelay).subscribe(result => {
       this.userImages = JSON.parse(JSON.stringify(result.data.images))
     })
   }
@@ -238,13 +234,14 @@ export class BackendService {
       fetchPolicy: 'network-only'
     })
     let songSubject = new Subject()
-    apolloQuery.subscribe(result => {
+    apolloQuery.delay(this.backendDelay).subscribe(result => {
       let song = JSON.parse(JSON.stringify(result.data.song))
       songSubject.next(song)
     })
     return songSubject
   }
 
+  // TODO: remove 
   searchSongs(searchTerm: string) {
     const query = gql`
       {songSearch (q:"${searchTerm}"){
@@ -268,6 +265,11 @@ export class BackendService {
     })
   }
 
+  /**
+   * Loads comments for a given article
+   * 
+   * @param article 
+   */
   loadComments(article: iArticle) {
     console.log('load comments')
     let authorID = article.publication.author.id
@@ -286,14 +288,12 @@ export class BackendService {
       // variables: {},
       fetchPolicy: 'network-only',
     })
-    const subject = new Subject()
+    const commentSubject = new Subject()
     apolloQuery.delay(this.backendDelay).subscribe(result => {
-      console.warn('sup')
       const data = result.data.loadComments
-      subject.next(data)
+      commentSubject.next(data)
     })
-    return subject
-
+    return commentSubject
   }
 
   postComment(article: iArticle, name: string, email: string, body: string) {
@@ -329,7 +329,7 @@ export class BackendService {
     })
     return subject
   }
-  
+
 
   /**
    * Email / Password Login
@@ -357,24 +357,28 @@ export class BackendService {
         email: email,
         password: password,
       },
-
     })
 
-    return new Observable(stream => {
-      apolloQuery.delay(this.backendDelay).subscribe(result => {
-        const info = result.data[endpoint].info
-        if (info.success) {
-          const account = result.data[endpoint].account
-          //this.userAccount = account
-          this.userAccount = Object.assign({}, account)
-          console.log('user account is now', this.userAccount)
-          localStorage.setItem('jwt', account.jwt)
-        }
-        // in any case return the info!
-        stream.next(info)
-      })
+    const loginSubject = new Subject()
+    apolloQuery.delay(this.backendDelay).subscribe(result => {
+      const info = result.data[endpoint].info
+      if (info.success) {
+        const account = result.data[endpoint].account
+        this.userAccount = Object.assign({}, account)
+        localStorage.setItem('jwt', account.jwt)
+      }
+      // in any case return the info!
+      loginSubject.next(info)
     })
+    return loginSubject
+
   }
+
+  /**
+   * Request a reset-password-link for a given email address
+   * 
+   * @param email 
+   */
 
   requestResetPasswordLink(email: string) {
     let resetSubject = new Subject()
@@ -392,6 +396,14 @@ export class BackendService {
     })
     return resetSubject
   }
+
+  /**
+   * Sets a new password for a given account
+   * 
+   * @param email 
+   * @param token 
+   * @param password 
+   */
 
   resetPassword(email: string, token: string, password: string) {
     let resetSubject = new Subject()
@@ -411,7 +423,14 @@ export class BackendService {
     return resetSubject
   }
 
-  /** record analytics event */
+  /**
+   * Record an analytics event
+   * 
+   * @param name 
+   * @param authorID 
+   * @param publicationID 
+   * @param articleID 
+   */
   recordEvent(name: string, authorID?: string, publicationID?: string, articleID?: string) {
     const query = gql`
       {
@@ -440,8 +459,12 @@ export class BackendService {
     return recordEventSubject
   }
 
-  /** whether or not an author is one of the user's authors */
-  isOwner(authorID: string) {
+  /**
+   * Checks if a given author id is one of the current user's authors
+   * 
+   * @param authorID 
+   */
+  isOwner(authorID: string): Boolean {
     if (!this.userAccount) { return false }
     let authorIDs = this.userAccount.authors.map(author => { return author.id })
     return authorIDs.includes(authorID)
@@ -450,6 +473,9 @@ export class BackendService {
 
   /**
    * Verify and email with token (usually by following email link)
+   * 
+   * @param email 
+   * @param token 
    */
   verifyEmail(email: string, token: string) {
     const query = gql`
@@ -460,26 +486,30 @@ export class BackendService {
       ${this.fragments.account}
       ${this.fragments.info}
     `
-    const querySub = this.apollo.watchQuery<any>({
+    const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
     })
-    return new Observable<iAccount>(stream => {
-      querySub.delay(this.backendDelay).subscribe(result => {
-        const account = result.data.verifyEmail // this contains all listed in fragment
-        this.userAccount = account
-        // duplicate with jwt and all...
-        this.userAccount = JSON.parse(JSON.stringify(account))
-        stream.next(account)
-      },
-        error => {
-          alert('apollo query error: verify email')
-          stream.error('error verifying account')
-        })
-    })
 
-
+    let verifySubject = new Subject()
+    apolloQuery.delay(this.backendDelay).subscribe(result => {
+      // this contains all listed in fragment
+      const account = result.data.verifyEmail
+      this.userAccount = JSON.parse(JSON.stringify(account))
+      verifySubject.next(account)
+    },
+      error => {
+        verifySubject.error('error verifying account')
+      })
+    return verifySubject
   }
 
+
+  /**
+   * Log out the current user
+   * 
+   * Re-sets the local user account, and removes
+   * the JWT from local storage
+   */
   logoutUser() {
     localStorage.removeItem('jwt')
     this.userAccount = {
@@ -511,25 +541,22 @@ export class BackendService {
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
-      // forceFetch: true,
-      // consider sticking jwt into variables 
+      fetchPolicy: 'network-only',
     })
 
-    return new Observable(stream => {
-      apolloQuery.delay(this.backendDelay).subscribe(result => {
-        const info = result.data[endpoint].info
-        if (info.success) {
-          /* include authors! and all the other things! */
-          const account = result.data[endpoint].account
-          // duplicate in epLogin and all...
-          this.userAccount = JSON.parse(JSON.stringify(account))
-          localStorage.setItem('jwt', account.jwt)
-        }
-        // in any case return the info!
-        stream.next(info)
-        this.loginSubject.next(this.userAccount)
-      })
+    const jwtLoginSubject = new Subject()
+    apolloQuery.delay(this.backendDelay).subscribe(result => {
+      const info = result.data.jwtLogin.info
+      if (info.success) {
+        const account = result.data.jwtLogin.account
+        this.userAccount = JSON.parse(JSON.stringify(account))
+        localStorage.setItem('jwt', account.jwt)
+      }
+      // TODO: error case
+      jwtLoginSubject.next(info)
+      this.loginSubject.next(this.userAccount)
     })
+    return jwtLoginSubject
   }
 
 
@@ -540,10 +567,8 @@ export class BackendService {
    */
   createAccount(email: string, password: string): Observable<any> {
 
-    //alert('backend create account call starting')
-    const endpoint = 'createAccount'
     const query = gql`
-    {${endpoint} {
+    {createAccount {
         info {
             ...info
           }
@@ -556,33 +581,39 @@ export class BackendService {
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
+      fetchPolicy: 'network-only',
       variables: {
         email: email,
         password: password,
       },
-      // forceFetch: true,
     })
 
-    return new Observable<iAccount>(stream => {
-      apolloQuery.delay(this.backendDelay).subscribe(result => {
-        const info = result.data[endpoint].info
-        if (info.success) {
-          const account = result.data[endpoint].account
-          this.userAccount = account
-          localStorage.setItem('jwt', account.jwt)
-        }
-        // in any case return the info!
-        stream.next(info)
-      },
-        // un-expected Backend error
-        (error) => {
-          stream.error('un-expected backend error')
-        })
-    })
+    const createAccountSubject = new Subject()
+    apolloQuery.delay(this.backendDelay).subscribe(result => {
+      const info = result.data.createAccount.info
+      if (info.success) {
+        const account = result.data.createAccount.account
+        this.userAccount = account
+        localStorage.setItem('jwt', account.jwt)
+      }
+      // TODO: error case
+      // in any case return the info!
+      createAccountSubject.next(info)
+    },
+      // un-expected Backend error
+      (error) => {
+        createAccountSubject.error('unexpected backend error')
+      })
+    return createAccountSubject
+
   }
 
 
-  /** new kid */
+  /**
+   * Saves an existing or creates a new author
+   * 
+   * @param author 
+   */
   saveAuthor(author: any) {
     const jwt = localStorage.getItem('jwt')
     const query = gql`
@@ -598,6 +629,7 @@ export class BackendService {
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
+      fetchPolicy: 'network-only',
       variables: {
         jwt: jwt,
         authorID: author.id,
@@ -605,18 +637,21 @@ export class BackendService {
         about: author.about,
         imageURL: author.imageURL
       },
-      // forceFetch: true,
     })
-    return new Observable(stream => {
-      apolloQuery.delay(this.backendDelay).subscribe(result => {
-        console.log('backend saved author, result', result)
-        stream.next(result.data.saveAuthor)
-      })
+    const saveAuthorSubject = new Subject()
+    apolloQuery.delay(this.backendDelay).subscribe(result => {
+      console.log('backend saved author, result', result)
+      saveAuthorSubject.next(result.data.saveAuthor)
     })
+    return saveAuthorSubject
   }
 
 
-  /** GET OR LOAD AUTHOR */
+  /**
+   * Loads an author and their content
+   * 
+   * @param authorID 
+   */
   getAuthor(authorID: string) {
     // check locally: ToDo!
     const query = gql`
@@ -626,23 +661,28 @@ export class BackendService {
     `
     const querySubscription = this.apollo.watchQuery<any>({
       query: query,
+      fetchPolicy: 'network-only',
       variables: {
         authorID: authorID,
       },
-      // forceFetch: true,
     })
-    return new Observable(stream => {
-      querySubscription.subscribe(result => {
-        const author = result.data.author
-        stream.next(author)
-      },
-        error => {
-          stream.error('error getting author')
-        })
-    })
+    const authorSubject = new Subject()
+    querySubscription.subscribe(result => {
+      const author = result.data.author
+      authorSubject.next(author)
+    },
+      error => {
+        authorSubject.error('error getting author')
+      })
+    return authorSubject
+
   }
 
-
+  /**
+   * Deletes an author and all their content
+   * 
+   * @param authorID 
+   */
   deleteAuthor(authorID): Observable<any> {
     /**
      * Deletes an Author, removes it from the userAccount's authors, 
@@ -658,30 +698,36 @@ export class BackendService {
 
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
-      // forceFetch: true,
+      fetchPolicy: 'network-only',
     })
-    return new Observable(stream => {
-      apolloQuery.delay(this.backendDelay).subscribe(result => {
-        const info = result.data.deleteAuthor
-        let authors = this.userAccount.authors
-        if (info.success) {
-          // remove author from userAccount's authors
-          authors = authors.filter(author => author.id !== authorID)
-          this.userAccount.authors = authors
-        }
-        stream.next(info)
-      }, (error) => {
-        stream.error(error)
-      })
+
+    const deleteSubject = new Subject()
+    apolloQuery.delay(this.backendDelay).subscribe(result => {
+      const info = result.data.deleteAuthor
+      let authors = this.userAccount.authors
+      if (info.success) {
+        // remove author from userAccount's authors
+        authors = authors.filter(author => author.id !== authorID)
+        this.userAccount.authors = authors
+      }
+      // TODO: error case
+      deleteSubject.next(info)
+    }, (error) => {
+      deleteSubject.error(error)
     })
+    return deleteSubject
   }
 
 
   /**
-   * GET a single Publication, from cache or backend
+   * Load a publication, given its author and publication ID
+   * 
+   * @param authorID 
+   * @param publicationID 
    */
   getPublication(authorID: string, publicationID: string): Observable<Publication> {
 
+    // TODO: revisit this query, use fragments
     const query = gql`
         {publication {
           id
@@ -716,21 +762,23 @@ export class BackendService {
         authorID: authorID,
         publicationID: publicationID
       },
-      // forceFetch: true,
     })
-    return new Observable(stream => {
-      querySubscription.subscribe(result => {
-        const publication = result.data.publication
-        stream.next(publication)
-      },
-        error => {
-          stream.error('error getting publication')
-        })
-    })
+    const publicationSubject = new Subject()
+    querySubscription.subscribe(result => {
+      // TODO: why does this not need to be unpacked?
+      const publication = result.data.publication
+      publicationSubject.next(publication)
+    },
+      error => {
+        publicationSubject.error('error getting publication')
+      })
+    return publicationSubject
   }
 
   /**
-   * SAVE PUBLICATION (new or existing)
+   * Save an existing or create a new publication
+   * 
+   * @param publication 
    */
   savePublication(publication): Observable<iInfo> {
     const jwt = localStorage.getItem('jwt')
@@ -754,6 +802,7 @@ export class BackendService {
     `
     const querySubscription = this.apollo.watchQuery<any>({
       query: query,
+      fetchPolicy: 'network-only',
       variables: {
         jwt: jwt,
         authorID: publication.author.id,
@@ -762,23 +811,29 @@ export class BackendService {
         about: publication.about,
         imageURL: publication.imageURL,
       },
-      // forceFetch: true,
     })
-    return new Observable(stream => {
-      querySubscription.delay(this.backendDelay).subscribe(result => {
-        const publication: Publication = result.data.savePublication.publication
-        const info = result.data.savePublication.info
-        // pass back the whole response
-        stream.next(result.data.savePublication)
-      },
-        error => {
-          stream.error('error saving publication')
-        })
-    })
+    const saveSubject = new Subject()
+    querySubscription.delay(this.backendDelay).subscribe(result => {
+      const publication: Publication = result.data.savePublication.publication
+      const info = result.data.savePublication.info
+      // pass back the whole response
+      saveSubject.next(result.data.savePublication)
+    },
+      error => {
+        saveSubject.error('error saving publication')
+      })
+    return saveSubject
+
+
   }
 
   /**
-   * SAVE ARTICLE - create new / update existing!
+   * Save a existing or create an new article
+   * 
+   * @param authorID 
+   * @param publicationID 
+   * @param articleID 
+   * @param article 
    */
   saveArticle(authorID: string, publicationID: string, articleID: string, article): Observable<any> {
     console.log('save article', article)
@@ -818,18 +873,24 @@ export class BackendService {
         bodyOps: article.bodyOps
       },
     })
-    return new Observable(stream => {
-      apolloQuery.delay(this.backendDelay).subscribe(result => {
-        const article = result.data[endpoint].article
-        const info = result.data[endpoint].info
+    const saveSubject = new Subject()
+    apolloQuery.delay(this.backendDelay).subscribe(result => {
+      const article = result.data[endpoint].article
+      const info = result.data[endpoint].info
 
-        const reply = result.data[endpoint]
-        console.log('backend saved article, result', result)
-        stream.next(reply)
-      })
+      const reply = result.data[endpoint]
+      console.log('backend saved article, result', result)
+      saveSubject.next(reply)
     })
+    return saveSubject
   }
 
+  /**
+   * Publish or un-publish an article
+   * 
+   * @param article 
+   * @param unpublish 
+   */
   publishArticle(article, unpublish = false) {
     const jwt = localStorage.getItem('jwt')
     const query = gql`
@@ -871,6 +932,11 @@ export class BackendService {
 
   }
 
+  /**
+   * Delete a given article
+   * 
+   * @param article 
+   */
   deleteArticle(article): Observable<iInfo> {
     console.log(article)
     console.log('be delete', article)
@@ -879,28 +945,31 @@ export class BackendService {
       {deleteArticle {
          ...info
       }}
-       ${this.fragments.info}
+      ${this.fragments.info}
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
+      fetchPolicy: 'network-only',
       variables: {
         jwt: jwt,
         authorID: article.publication.author.id,
         publicationID: article.publication.id,
         articleID: article.id
       },
-      // forceFetch: true,
     })
-    return new Observable(stream => {
-      apolloQuery.delay(this.backendDelay).subscribe(result => {
-        const info = result.data.deleteArticle
-        stream.next(info)
-      })
+    const deleteSubject = new Subject()
+    apolloQuery.delay(this.backendDelay).subscribe(result => {
+      const info = result.data.deleteArticle
+      deleteSubject.next(info)
     })
+    return deleteSubject
   }
 
+
   /**
-   * save order or publications and articles
+   * Saves an authors order of publications and articles
+   * 
+   * @param author 
    */
   saveAuthorOrder(author) {
     let authorDict = {
@@ -934,16 +1003,17 @@ export class BackendService {
         authorData: authorData,
       },
     })
-    return new Observable(stream => {
-      apolloQuery.subscribe(result => {
-        console.log('save author data returned', result)
-        stream.next(result.data)
-      })
+    const saveSubject = new Subject()
+    apolloQuery.delay(this.backendDelay).subscribe(result => {
+      console.log('save author data returned', result)
+      saveSubject.next(result.data)
     })
+    return saveSubject
   }
 
+
   /**
-   * Get Article
+   * Loads an article from given IDs
    * 
    * @param authorID 
    * @param publicationID 
@@ -979,22 +1049,25 @@ export class BackendService {
         publicationID: publicationID,
         articleID: articleID,
       },
-      // forceFetch: true,
     })
     return new Observable(stream => {
-      apolloQuery.subscribe(result => {
+      apolloQuery.delay(this.backendDelay).subscribe(result => {
         console.log('get article result', result)
         stream.next(result.data.article)
       })
     })
   }
 
-
+  /**
+   * Deletes a given publication server-side
+   * 
+   * TODO: remove publication from local state
+   * check the way it's done above (filter)
+   * 
+   * @param publication 
+   */
   deletePublication(publication: Publication): Observable<iInfo> {
-    /**
-     * Deletes a publication, removes it from the respetive's userAccount's author's publications TODO, 
-     * and returns information about the status
-     */
+
     const jwt = localStorage.getItem('jwt')
     const query = gql`
       {deletePublication {
@@ -1004,32 +1077,31 @@ export class BackendService {
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
+      fetchPolicy: 'network-only',
       variables: {
         jwt: jwt,
         authorID: publication.author.id,
         publicationID: publication.id,
       },
-      // forceFetch: true,
     })
-    return new Observable(stream => {
-      apolloQuery.delay(this.backendDelay).subscribe(result => {
-        const info = result.data.deletePublication
-        let authors = this.userAccount.authors
-        if (info.success) {
-          // TODO
-          // remove publication from userAccount's author's publications
-          //authors = authors.filter(author => author.id !== authorID)
-          //this.userAccount.authors = authors
-        }
-        stream.next(info)
-      })
+    const deleteSubject = new Subject()
+    apolloQuery.delay(this.backendDelay).subscribe(result => {
+      const info = result.data.deletePublication
+      let authors = this.userAccount.authors
+      if (info.success) {
+        // TODO: see docstring
+      }
+      deleteSubject.next(info)
     })
+    return deleteSubject
   }
 
 
 
   /**
-   * IMAGE UPLOAD
+   * Image Upload
+   * 
+   * @param file 
    */
   uploadFile(file: File): Observable<any> {
     let jwt = localStorage.getItem('jwt')
@@ -1063,9 +1135,8 @@ export class BackendService {
             let imageInfo = JSON.parse(xhr.response)
             progressStream.next(100)
             //progressStream.next(JSON.parse(xhr.response));
-            progressStream.complete() // next would also be an option...
-            // we should pass the server response down stream!
-            console.log('wanna add', imageInfo)
+            // TODO: are there benefits over using complete over next? looks cool...
+            progressStream.complete()
             this.userImages.unshift(imageInfo)
           } else {
             // on error - what do they look like?
@@ -1081,92 +1152,37 @@ export class BackendService {
     })
   }
 
-  deleteImage(id: string) {
-    const query = gql`
-      {
-        deleteImage(id: "${id}") {
-          message
-        }
+  /**
+   * Deletes a users image permanently on the backend
+   * and from the local state (user images)
+   * 
+   * @param userImage 
+   */
+  deleteImage(userImage) {
+    const query = gql`{
+      deleteImage(id: "${userImage.id}") {
+        message
       }
-    `
+    }`
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
-      // forceFetch: true
+      fetchPolicy: 'network-only',
     })
-    return new Observable(stream => {
-      apolloQuery.subscribe(result => {
-        stream.next(result.data.deleteImage.message)
-        alert(result.data.deleteImage.message)
-      })
-
-
-    }).subscribe()
-
+    const deleteSubject = new Subject()
+    apolloQuery.delay(this.backendDelay).subscribe(result => {
+      const index = this.userImages.indexOf(userImage)
+      this.userImages.splice(index, 1)
+      deleteSubject.next(result.data.deleteImage.message)
+    })
+    return deleteSubject
   }
 
 
-  /**
-   * Creates a resource, via PUT
-   */
-  putResource(resource: IResource): Observable<AuthorData | PublicationData> {
-    if (resource.isValid()) {
-      // go ahead and PUT
-      return this.http.put(resource.url, resource.data(), this.defaultOptions()).map(res => res.json())
-    } else {
-      // return validation error, via subscription
-      return Observable.create(input => { input.error({ status: 999 }) })
-    }
-  }
 
-  /**
-   * Updates a resource, via POST
-   */
-  postResource(resource: IResource): Observable<AuthorData | PublicationData> {
-    if (resource.isValid()) {
-      // go ahead and POST
-      return this.http.post(resource.url, resource.data(), this.defaultOptions()).map(res => res.json())
-    } else {
-      // return validation error, via subscription
-      return Observable.create(input => { input.error({ status: 999 }) })
-    }
-  }
-  /**
-   * Deletes a resource, via DELETE
-   */
-  deleteResource(resource: IResource): Observable<AuthorData | PublicationData> {
-    return this.http.delete(resource.url, this.defaultOptions()).map(res => res.json())
-  }
-
-  /**
-   * OUTDATED
-   * Gets a resource, given its IDs
-   * -authorID (required)
-   * -publicationID
-   * -articleID
-   */
-  getResourceByIDs(authorID: string, publicationID?: string, articleID?: string) {
-    let url = this.backendHost + '/author/' + authorID
-    url += publicationID ? `/publication/${publicationID}` : ''
-    url += articleID ? `/article/${articleID}` : ''
-    return this.http.get(url, this.defaultOptions()).map(res => res.json())
-  }
-
-  /**
-   * Gets a resource from a given URL
-   */
-  getResourceByUrl(url: string): Observable<AuthorData | PublicationData> {
-    return this.http.get(url, this.defaultOptions()).map(res => res.json())
-  }
-
-  /** 
-   * Gets a list of resource from a given URL
-   */
-  getResourcesByUrl(url: string): Observable<IBackendData[]> {
-    return this.http.get(url, this.defaultOptions()).map(res => res.json())
-  }
 
   /**
    * Returns RequestOptions of content-type: json, withCredentials: true
+   * NOT IN USE
    */
   defaultOptions(): RequestOptions {
     let headers = new Headers({ 'Content-Type': 'application/json' })

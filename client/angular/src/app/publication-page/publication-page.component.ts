@@ -107,7 +107,7 @@ export class PublicationPageComponent implements OnInit {
     // todo: validation
     this.ui.show('loading', 'saving publication')
     this.backend.savePublication(this.publication).subscribe((publicationResponse: any) => {
-     this.ui.show('success', 'done!', 1000)
+      this.ui.show('success', 'done!', 1000)
       // coule be that we are already here, this is for creates
       console.log(publicationResponse)
       this.router.navigate(['/', publicationResponse.publication.author.id, publicationResponse.publication.id])
@@ -118,12 +118,21 @@ export class PublicationPageComponent implements OnInit {
    */
   deletePublication() {
 
-    alert('here needs to be a confirmation!')
 
-    this.backend.deletePublication(this.publication).subscribe(info => {
-      this.ui.flashMessage(info.message)
-      this.router.navigate(['/', this.authorID])
+    // cool!
+    this.ui.confirm('Are you sure you want to delete this publication and all x of its articles?').subscribe(response => {
+      if (response === 'no') {
+        this.ui.resetState()
+        return
+      } else {
+        this.ui.show('loading', 'deleting publication')
+        this.backend.deletePublication(this.publication).subscribe(info => {
+          this.ui.flashMessage('the publication has been deleted')
+          this.router.navigate(['/', this.authorID])
+        })
+      }
     })
+
   }
 
   ngOnDestroy() {

@@ -11,18 +11,22 @@
 <!-- full screen message overlay -->
 <flex-col-center-center *ngIf="ui.overlay" (click)="ui.overlay = false" style="z-index: 9999; position:fixed; top: 0; left:0; width: 100vw; height: 100vh; background-color: rgba(255,255,255,0.9);">
 
-    <div class="spinner-black" *ngIf="ui.loading"></div>
-    <flex-center class="icon-mark" *ngIf="ui.success">✔</flex-center>
-    <div class="icon-mark" *ngIf="ui.error">✖</div>
-    
+    <app-content-width>
 
-    <h1>{{ ui.message }}</h1>
+        <div class="spinner-black" *ngIf="ui.loading"></div>
+        <flex-center class="icon-mark" *ngIf="ui.success">✔</flex-center>
+        <div class="icon-mark" *ngIf="ui.error">✖</div>
+        
 
-    <!-- confirm -->
-    <flex-row-center *ngIf="ui.toConfirm">
-        <button (click)="ui.confirmStream.next('yes')">Yes</button>
-        <button (click)="ui.confirmStream.error('no')">No</button>
-    </flex-row-center>
+        <h1>{{ ui.message }}</h1>
+
+        <!-- confirm -->
+        <flex-row-around *ngIf="ui.toConfirm">
+            <button [ngStyle]="ui.styles.button()" (click)="ui.confirmStream.next('yes')">Yes</button>
+            <button [ngStyle]="ui.styles.button('white')" (click)="ui.confirmStream.error('no')">No</button>
+        </flex-row-around>
+
+    </app-content-width>
 
 </flex-col-center-center>
 
@@ -76,7 +80,7 @@
 
              <flex-col *ngFor="let image of backend.userImages ">
                 <img (click)="ui.mediaClickStream.next(image)"  [src]="image.url + '&w=200&h=200'" style="margin:5px;" />
-                <button (click)="backend.deleteImage(image.id)">delete</button>
+                <button (click)="deleteImage(image)">delete</button>
              </flex-col>
         </flex-row>
     </div>

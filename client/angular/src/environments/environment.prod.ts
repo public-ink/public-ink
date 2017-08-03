@@ -4,6 +4,7 @@ export const environment = {
   public: false,
   //backend: 'http://www.public.ink/api',
   backendHost: 'http://www.public.ink',
+  backendDelay: 0,
 
   signupEnabled: false,
 
