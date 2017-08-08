@@ -5,9 +5,10 @@ import jinja2
 import os
 import uuid
 import hashlib
+import jwt
 from google.appengine.ext import ndb
 from google.appengine.api import users
-
+from secrets import JWT_SECRET, JWT_EXP_DELTA_SECONDS, JWT_ALGORITHM, JWT_EXP_DELTA_DAYS
 
 """
 Environment
@@ -70,8 +71,10 @@ def cross_origin(fn):
         return fn(*args)
     return decorated_request
 
-# this will be different with jwt!
-# but a decorator is actually pretty good.
+
+"""
+example for a decorated app engine request
+"""
 def owner_required(fn):
     """
     Generic decorator that guards against unauthorized access.
@@ -97,24 +100,6 @@ def owner_required(fn):
             request.error(401)
             request.response.write("You don't have permission to alter this resource.")
             return
-    return decorated_request
-
-
-def login_required(fn):
-    """
-    Generic decorator that guards resources from non-authenticated requests
-
-    @login_required
-    def put(self, whathaveyou):
-        pass
-    """
-    def decorated_request(*args):
-        user = users.get_current_user()
-        if user:
-            return fn(*args)
-        else:
-            request = args[0]
-            return_error(request, 401, "You need to be logged in to perfom this request")
     return decorated_request
 
 

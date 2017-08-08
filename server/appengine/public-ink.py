@@ -48,9 +48,15 @@ def verify_password(hashed_password, user_password):
 
 
 def generate_jwt(email):
-    print 'generating token for  ' + email 
+    """
+    Generates a jwt for a given email. The payload contains the email, 
+    a comma separated string of author IDs, and an expiration date
+    """    
+    user_key = ndb.Key('UserModel', email)
+    author_ids = AuthorModel.query(AuthorModel.user == user_key).map(lambda author: author.key.id())
     payload = {
         'email': email,
+        'authors': ','.join(author_ids),
         'exp': datetime.utcnow() + timedelta(days=JWT_EXP_DELTA_DAYS)
     }
     jwt_token = jwt.encode(payload, JWT_SECRET, JWT_ALGORITHM)
@@ -598,7 +604,7 @@ class Query(graphene.ObjectType):
         if user:
             return AccountResponse(info=InfoSchema(success=False, message='email_exists'))
 
-        """ Create an Account"""
+        """ create an Account"""
         password = args.get('password') or self.get('password')
         password_hash = hash_password(password)
         verification_token = uuid.uuid4().hex
@@ -608,7 +614,10 @@ class Query(graphene.ObjectType):
             verification_token=verification_token,
             password_hash_sha256=password_hash
             ).put()
-        send_verification_email(email, verification_token)
+
+        """ send email verification link """
+        send_to_log = True if ENV_NAME == 'develop' else False
+        send_verification_email(email, verification_token, send_to_log)
 
         """ return account response """
         return AccountResponse(
@@ -659,7 +668,13 @@ class Query(graphene.ObjectType):
         email = email_from_jwt(token)
         user_key = ndb.Key('UserModel', email)
 
+        # create new author TODO: duplicate check
         if authorID == 'create-author': # not cool
+
+            # duplication check
+            if ndb.Key('AuthorModel', slugify(name)).get():
+                return 
+
             """ create author """
             author_key = AuthorModel(
                 id=slugify(name),
@@ -757,15 +772,25 @@ class Query(graphene.ObjectType):
     saveArticle = graphene.Field(ArticleResponse)
     def resolve_saveArticle(self, *args):
 
+        # parameters
+        jwt = self.get('jwt')
         authorID = self.get('authorID')
         publicationID = self.get('publicationID')
         articleID = self.get('articleID')
         title = self.get('title')
 
+        # authentication
+        if not is_owner(jwt, authorID):
+            return  ArticleResponse(
+                info=InfoSchema(success=False, message='unauthorized'),
+                article=None
+            )
+        
+        # article creation
         if articleID == 'create-article':
             """ create article """
             publication_key = ndb.Key('AuthorModel', authorID, 'PublicationModel', publicationID)
-            # TODO: check if publication exists
+            # TODO: check if publication exists,
             article_key = ArticleModel(
                 parent=publication_key,
                 id=slugify(title),
@@ -774,6 +799,8 @@ class Query(graphene.ObjectType):
             ).put()
             article = article_key.get()
             message = 'article_created'
+
+        # article updating
         else:
             """ update Article """
             article_key = ndb.Key(
@@ -920,7 +947,6 @@ class Query(graphene.ObjectType):
     """
     Song Search
     """
-
     song_search = graphene.List(lambda: SongSearchSchema, q=graphene.String())
     def resolve_song_search(self, args, *more):
 
@@ -1082,12 +1108,6 @@ class GraphQLEndpoint(RequestHandler):
         for error in result.errors:
             error_list.append(str(error))
         response = {'data' : result.data, 'errors': error_list}
-        """ Test Cookies! (not showing up) """
-        print 'cookie ' * 5
-        self.response.set_cookie('jwt', 'myjwt', max_age=360, path='/',
-            domain='localhost:4200', secure=True, httponly=True)
-        self.response.set_cookie('jwt', 'myjwt', max_age=360, path='/',
-            domain=None, secure=False, httponly=False)
         self.response.headers['Content-Type'] = 'application/json; charset=utf-8'
         self.response.out.write(json.dumps(response))
 
@@ -1215,7 +1235,7 @@ class MIDIUploadHandler(RequestHandler):
     accepts a JSON midi object and stores it 
     """
     def get(self, data):
-        dataString = urllib.unquote(data)#.decode('utf8') 
+        dataString = urllib.unquote(data) 
         midi = json.loads(dataString)
         print midi
         header = midi['header']
@@ -1243,7 +1263,6 @@ app = webapp2.WSGIApplication(
         # midi upload
         (r'/api/midi-upload/(.+)?', MIDIUploadHandler),
 
-        #('/graphql', GraphQLEndpoint),
         ('/api/graphql', GraphQLEndpoint),
         # images
         # upload url
@@ -1251,7 +1270,7 @@ app = webapp2.WSGIApplication(
         # this is where things are posted to, because get upload url specified this url
         ('/api/image/upload', ImageUploadHandler),
         ('/api/image/serve', ServeImage),
-        # for let's encrypt:
+        # for let's encrypt
         (r'/\.well-known/acme-challenge/(.+)?', CertificateHandler)
     ], debug=True
 )
@@ -1270,12 +1289,17 @@ def tokenize_autocomplete(phrase):
             j += 1
     return a
 
-""" UTILS (move)"""
-def send_verification_email(email, token):
+
+""" UTILS """
+
+def send_verification_email(email, token, to_log):
+    """
+    send a account verification link to a given email, with a given token
+    optionally writes the email to log instead of actually sending the email (for development)
+    """
     message = mail.EmailMessage(
         sender="auth@public-ink.appspotmail.com",
-        subject="Public.Ink Acount Verification")
-
+        subject="public.ink | please confirm your email address")
     message.to = email
     host = FRONTEND_URL
     message.body = """
@@ -1286,15 +1310,20 @@ You or somebody else submitted this email address to us. To create a public.ink 
 
 Awesome!
     """.format(host, email, token)
-    #print 'sending message to ' + email
-    #print message.body
-    message.send()
+    if to_log:
+        print 'would send the following message to ' + email
+        print message.body
+    else:
+        message.send()
 
-def send_reset_password_email(email, token):
+
+def send_reset_password_email(email, token, to_log):
+    """
+    send a reset password link to a given email, with a given token  
+    """
     message = mail.EmailMessage(
         sender="auth@public-ink.appspotmail.com",
         subject="Public.Ink Reset Password Link")
-
     message.to = email
     host = FRONTEND_URL
     message.body = """
@@ -1307,20 +1336,41 @@ If you did not request a reset link, please disregard this email.
 
 Have a nice day!
     """.format(host, email, token)
-    print 'sending message to ' + email
-    print message.body
-    message.send()
+    if to_log:
+        print 'would send the following message to ' + email
+        print message.body
+    else:
+        message.send()
 
 
 def email_from_jwt(token):
     """
-    returns the email encoded in our jwt
+    returns the email encoded in a given jwt
     """
-    payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-    email = payload.get('email')
-    return email
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return payload.get('email')
+    except ExpiredSignatureError:
+        return None
+
 
 def is_email_valid(email):
+    """
+    tells you if in email is valid according to a pretty good regex
+    """
     expression = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
     matches = re.match(expression, email)
     return True if matches else False
+
+
+def is_owner(token, author_id):
+    """
+    checks if an author_id is present in a given jwt
+    """
+    if not token:
+        return False
+    # todo: token is none for logged out folks.
+    payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    author_ids = payload.get('authors').split(',')
+    print author_ids
+    return True if author_id in author_ids else False

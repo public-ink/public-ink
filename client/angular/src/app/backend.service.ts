@@ -140,13 +140,10 @@ export class BackendService {
     }
     else {
       this.jwtLogin().subscribe(info => {
-        console.log('jwt reply', info)
-        // we don't care about the response here
+        this.loadImages(jwt)
       }, error => {
         console.warn(error)
       })
-      this.loadImages(jwt)
-      //this.loadSongs()
     }
   }
 
@@ -296,6 +293,15 @@ export class BackendService {
     return commentSubject
   }
 
+  /**
+   * Post a comment for a given article
+   * TODO:author check
+   * 
+   * @param article 
+   * @param name 
+   * @param email 
+   * @param body 
+   */
   postComment(article: iArticle, name: string, email: string, body: string) {
     let authorID = article.publication.author.id
     let publicationID = article.publication.id
@@ -366,6 +372,7 @@ export class BackendService {
         const account = result.data[endpoint].account
         this.userAccount = Object.assign({}, account)
         localStorage.setItem('jwt', account.jwt)
+        this.loadImages(account.jwt)
       }
       // in any case return the info!
       loginSubject.next(info)
@@ -379,7 +386,6 @@ export class BackendService {
    * 
    * @param email 
    */
-
   requestResetPasswordLink(email: string) {
     let resetSubject = new Subject()
     const query = gql`
@@ -404,7 +410,6 @@ export class BackendService {
    * @param token 
    * @param password 
    */
-
   resetPassword(email: string, token: string, password: string) {
     let resetSubject = new Subject()
     const query = gql`
@@ -566,7 +571,6 @@ export class BackendService {
    * If successful, returns an iAccount, and also sets it as the userAccount
    */
   createAccount(email: string, password: string): Observable<any> {
-
     const query = gql`
     {createAccount {
         info {
@@ -615,7 +619,12 @@ export class BackendService {
    * @param author 
    */
   saveAuthor(author: any) {
+    const saveAuthorSubject = new Subject()
     const jwt = localStorage.getItem('jwt')
+    if (!jwt) {
+      saveAuthorSubject.error('not authenticated')
+      return saveAuthorSubject
+    }
     const query = gql`
       {saveAuthor {
         info {
@@ -638,7 +647,6 @@ export class BackendService {
         imageURL: author.imageURL
       },
     })
-    const saveAuthorSubject = new Subject()
     apolloQuery.delay(this.backendDelay).subscribe(result => {
       console.log('backend saved author, result', result)
       saveAuthorSubject.next(result.data.saveAuthor)
@@ -695,12 +703,10 @@ export class BackendService {
       }}
       ${this.fragments.info}
     `
-
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
       fetchPolicy: 'network-only',
     })
-
     const deleteSubject = new Subject()
     apolloQuery.delay(this.backendDelay).subscribe(result => {
       const info = result.data.deleteAuthor

@@ -66,26 +66,16 @@
           <label class="form-label" for="registrationPassword2">Repeat Password</label>
           <input id="registrationPassword2" class="form-input" formControlName="password2" type="password" placeholder="because typos are rael">
 
-          <!-- checkbox galore -->
-
-
+          <!-- the rules -->
           <label class="form-label" for="termsCheckbox">Them Rules</label>
+          <flex-row [ngStyle]="ui.styles.standardText()">
+            <span>By creating a public.ink account, you confirm that you agree with the <a href="#" style="text-decoration:underline;">public.ink house rules</a>.</span>
+            <br>
+          </flex-row>
 
-          <flex-row-100>
-            <!-- the checkbox -->
-            <flex-row>
-              <!--<input type="checkbox" id="termsCheckbox" formControlName="terms" name="cc" />
-              <label tabindex="0" for="termsCheckbox"></label>-->
-            </flex-row>
-            <flex-row [ngStyle]="ui.styles.standardText()"><span>You accept <a href="#" style="text-decoration:underline;">the public.ink house rules</a> by creating an account.</span></flex-row>
-          </flex-row-100>
-
-          <!-- use the 2-elements strategy. todo: proper sizing!-->
-          <flex-row-center *ngIf="registrationLoading" class="form-button">
-            <div class="spinner"></div>
-          </flex-row-center>
-          <br>
-          <button *ngIf="!registrationLoading" class="form-button" type="submit" [disabled]="!registrationForm.valid">Create Account</button>
+          <!-- submit button -->     
+          <br>     
+          <button class="form-button" type="submit" [disabled]="false">Create Account</button>
 
         </flex-col>
       </form>

@@ -13,18 +13,22 @@
 
     <app-content-width>
 
-        <div class="spinner-black" *ngIf="ui.loading"></div>
-        <flex-center class="icon-mark" *ngIf="ui.success">✔</flex-center>
-        <div class="icon-mark" *ngIf="ui.error">✖</div>
-        
+        <flex-col-center-center>
 
-        <h1>{{ ui.message }}</h1>
+            <div class="spinner-black" *ngIf="ui.loading"></div>
+            <flex-center class="icon-mark" *ngIf="ui.success">✔</flex-center>
+            <div class="icon-mark" *ngIf="ui.error">✖</div>
+            
 
-        <!-- confirm -->
-        <flex-row-around *ngIf="ui.toConfirm">
-            <button [ngStyle]="ui.styles.button()" (click)="ui.confirmStream.next('yes')">Yes</button>
-            <button [ngStyle]="ui.styles.button('white')" (click)="ui.confirmStream.error('no')">No</button>
-        </flex-row-around>
+            <h1>{{ ui.message }}</h1>
+
+            <!-- confirm -->
+            <flex-row-around *ngIf="ui.toConfirm">
+                <button [ngStyle]="ui.styles.button()" (click)="ui.confirmStream.next('yes')">Yes</button>
+                <button [ngStyle]="ui.styles.button('white')" (click)="ui.confirmStream.error('no')">No</button>
+            </flex-row-around>
+
+        </flex-col-center-center>
 
     </app-content-width>
 

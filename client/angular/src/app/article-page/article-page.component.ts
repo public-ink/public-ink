@@ -142,11 +142,21 @@ export class ArticlePageComponent implements OnInit {
       this.publicationID,
       this.articleID,
       this.article).subscribe(reply => {
-        this.ui.show('success', 'done!', 1000)
-        /* not sure why this check is required here but not on publication page */
-        if (this.articleID === 'create-article') {
-          this.router.navigate(['/', reply.article.publication.author.id, reply.article.publication.id, reply.article.id])
+
+        // check status
+        console.log(reply)
+
+        if (reply.info.success) {
+          this.ui.show('success', 'done!', 1000)
+          /* not sure why this check is required here but not on publication page */
+          if (this.articleID === 'create-article') {
+            this.router.navigate(['/', reply.article.publication.author.id, reply.article.publication.id, reply.article.id])
+          }
+        } else {
+          this.ui.show('error', reply.info.message)
         }
+
+
       })
   }
 
@@ -164,8 +174,8 @@ export class ArticlePageComponent implements OnInit {
   postComment() {
     this.ui.show('loading', 'saving your thoughts...')
     this.backend.postComment(this.article, this.commentName, this.commentEmail, this.commentBody).subscribe((msg: any) => {
-      
-      this.comments.unshift({name: this.commentName, body: this.commentBody})
+
+      this.comments.unshift({ name: this.commentName, body: this.commentBody })
       this.commentBody = ''
       this.commentEmail = ''
       this.commentName = ''
