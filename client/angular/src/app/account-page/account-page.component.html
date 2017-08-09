@@ -21,42 +21,42 @@
                 <h1 [routerLink]="['/',author.id]">{{ author.name }}</h1>
                 <img [src]="author.imageURL + '&w=100&h=100'" />
 
-                <div (click)="saveAuthorOrder(author)">save order</div>
+                
 
 
-                <!-- test publication sort! -->
-                <h4>sortable everything!</h4>
+                
                 <!-- copy -->
                 <div dnd-sortable-container [sortableData]="author.publications" [dropZones]="['container-dropZone']">
                     <div class="col-sm3" *ngFor="let publication of author.publications; let i = index" dnd-sortable [sortableIndex]="i" [dragEnabled]="sortable === 'publication'">
                         <div class="panel panel-warning" dnd-sortable-container [sortableData]="publication.articles" [dropZones]="['widget-dropZone']">
-                            <div class="panel-heading" (mouseenter)="sortable = 'publication'" (mouseleave)="sortable = 'article'">
-                                <h3 [routerLink]="['/', publication.author.id, publication.id]">{{ publication.name }}</h3>
-                                <img [src]="publication.imageURL + '&w=700&h=100'" />
+                            <div class="panel-heading" (mouseenter)="sortable = 'publication'" (mouseleave)="sortable = 'article'" [style.background-image]="publicationBG(publication)" >
+                                <h2 [routerLink]="['/', publication.author.id, publication.id]">{{ publication.name }}</h2>
+                                
                             </div>
                             <div class="panel-body">
                                 <div class="list-group">
                                     <div *ngFor="let article of publication.articles; let x = index" class="list-group-item" dnd-sortable [sortableIndex]="x"
                                         [dragEnabled]="sortable === 'article'" [dragData]="article">
-                                        <a [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]">{{ article.title }}</a>
+                                        <h3><a [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]">{{ article.title }}</a></h3>
                                     </div>
                                     <!-- new article in publication -->
-                                    <a [routerLink]="['/', publication.author.id, publication.id, 'create-article']">new article!</a>
+                                    <a [ngStyle]="ui.styles.button()" [routerLink]="['/', publication.author.id, publication.id, 'create-article']">new article in {{ publication.name }}</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div (click)="saveAuthorOrder(author)" [ngStyle]="ui.styles.button()">save order</div>
 
-                <a [routerLink]="['/', author.id, 'create-publication']">create publication by {{ author }}</a>
+                <a [routerLink]="['/', author.id, 'create-publication']" [ngStyle]="ui.styles.button()">create publication by {{ author.name }}</a>
             </div>
 
 
 
             <br>
-            <a [routerLink]="['/create-author']" [ngStyle]="{background: '#222', color: 'white', padding: '10px 20px'}" style="display: inline-block;">
-        Create New Author
-        </a>
+            <a [routerLink]="['/create-author']" [ngStyle]="ui.styles.button()">
+                Create New Author
+            </a>
         </div>
 
 

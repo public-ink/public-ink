@@ -38,7 +38,7 @@ export class PublicationComponent implements OnInit {
 
   
   safeBG() {
-    let str = `url(${this.publication.imageURL})`
+    let str = `url(${this.publication.imageURL}&w=${this.ui.deviceWidth})`
     return this.sanitizer.bypassSecurityTrustStyle(str)
   }
 
