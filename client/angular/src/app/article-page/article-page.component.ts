@@ -73,12 +73,14 @@ export class ArticlePageComponent implements OnInit {
     private apollo: Apollo,
     public ui: UIService,
   ) {
-    console.log('article page constructed')
 
     // keyboard shortcuts
     this.keyboardSubscription = Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
 
-      if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) { /*ctrl s */
+      // only available to owners
+      if (!this.isOwner()) { return }
+
+      if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) {
         // cmd + s
         this.saveArticle()
         event.preventDefault()
@@ -201,7 +203,6 @@ export class ArticlePageComponent implements OnInit {
    * on destroy: unsubscribe from keyboard and router
    */
   ngOnDestroy() {
-    console.log('article page destroyed')
     this.keyboardSubscription.unsubscribe()
     this.routerSubscription.unsubscribe()
   }

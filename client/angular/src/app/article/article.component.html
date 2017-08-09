@@ -34,10 +34,13 @@
 </app-content-width>
 
 <!-- SPACE -->
-<div [style.height.px]="ui.responsiveValue(24,28)"></div>
+<div [style.height.px]="ui.responsiveValue(0,0)"></div>
 
 <!-- BODY -->
 <app-content-width [bg]="quill.hasFocus() ? colors.highlight : 'transparent'">
+
+    <div style="height:50px;"></div>
+
     <!-- quill editor -->
     <div #editor
         [style.font-size.px]="ui.responsiveValue(18, 20)"

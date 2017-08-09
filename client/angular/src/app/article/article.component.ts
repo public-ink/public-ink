@@ -45,7 +45,7 @@ export class ArticleComponent implements OnInit {
     metaThenBody: 50,
   }
   colors = {
-    highlight: 'rgb(255, 251, 242)'
+    highlight: '#efefef'
   }
 
   constructor(

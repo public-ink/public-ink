@@ -31,7 +31,7 @@ from google.appengine.ext import ndb
 from google.appengine.api import search
 
 
-_INDEX_NAME = 'SONG_INDEX'
+
 
 """
 Hashing
@@ -341,8 +341,11 @@ class CommentSchema(graphene.ObjectType):
     body = graphene.String()
 
 
+""" NOT PUBLIC INK """
 
 """ Song """
+_INDEX_NAME = 'SONG_INDEX'
+
 class SongModel(InkModel):
     """ A midi song in json format """
     path = ndb.StringProperty()

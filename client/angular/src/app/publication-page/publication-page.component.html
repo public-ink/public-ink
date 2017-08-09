@@ -29,10 +29,9 @@
     <!-- button to start new article in this publication -->
     <div [routerLink]="['/', publication.author.id, publication.id, 'create-article']">New Article</div>
 
-    <div class="" (click)="savePublication()">Save</div>
-    <div class="" (click)="savePublication()">Media</div>
-    <div class="" (click)="savePublication()">Publish</div>    
-    <div class="" (click)="deletePublication()" *ngIf="!publication.new">Delete</div>
+    <div class="" (click)="savePublication()">Save Publication</div>
+    <div class="" (click)="ui.mediaBar = !ui.mediaBar">Your Media</div>
+    <div class="" (click)="deletePublication()" *ngIf="!publication.new">Delete Publication</div>
    </flex-row-between-center>
 
    </app-content-width>

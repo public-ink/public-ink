@@ -110,6 +110,9 @@ export class UIService {
     Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
 
       //console.log(event.keyCode)
+
+      // check if ownership is given
+
       // toggle media bar
       if ((event.metaKey || event.ctrlKey) && event.keyCode === 77) { /*ctrl m */
         if (this.backend.userAccount) {

@@ -40,18 +40,18 @@
 
     <app-content-width>
 
-        <simple-spacer></simple-spacer>
+        <!--<simple-spacer></simple-spacer>-->
 
 
         <flex-col-center [ngStyle]="ui.styles.standardText()">
-                By {{ article.publication.author.name }}
+                
                 <br><br>
-            <img [src]="article.publication.author.imageURL + '&w=70&h=70&q=100'" style="border-radius: 50px;" />
+            <img [src]="article.publication.author.imageURL + '&w=140&h=140&q=100'" style="border-radius: 100%;; box-shadow: rgba(0, 0, 0, 0.15) 0px 1.5px 3px 0px inset, rgba(0, 0, 0, 0.15) 0px 1.5px 3px 0px; border: 10px solid rgb(255, 255, 255);" />
                 <br>
-                July 2017
+                By {{ article.publication.author.name }} 
         </flex-col-center>
 
-        <simple-spacer></simple-spacer>
+       <!-- <simple-spacer></simple-spacer>-->
 
     </app-content-width>
 
@@ -80,7 +80,7 @@
         <input style="border: 1px dashed black;" [ngStyle]="ui.styles.input()" type="text" [(ngModel)]="commentName" placeholder="your name&nbsp;&nbsp;/ optional"
         />
         <br><br>
-        <input [ngStyle]="ui.styles.input()" type="email" [(ngModel)]="commentEmail" placeholder="your email / optional" />
+        <input [ngStyle]="ui.styles.input()" type="email" [(ngModel)]="commentEmail" placeholder="your email / optional and private" />
 
         <br><br>
 
@@ -107,11 +107,11 @@
 
 
     <!-- fixed bottom bar -->
-    <!-- only for owners of this article, checked in ui.service -->
-    <app-bottom-bar *ngIf="ui.bottomBarVisible">
+    <!-- only for owners of this article -->
+    <app-bottom-bar *ngIf="ui.bottomBarVisible && isOwner()">
         <app-content-width>
             <flex-row-between-center style="height:50px;">
-                <div (click)="saveArticle()">Save Chages </div>
+                <div (click)="saveArticle()">Save Article </div>
                 <div (click)="ui.mediaBar = !ui.mediaBar">Show Media</div>
                 <div *ngIf="!article.publishedAt" (click)="backend.publishArticle(article)">Publish Article</div>
                 <div *ngIf="article.publishedAt" (click)="backend.publishArticle(article, true)">Un-publish Article</div>
