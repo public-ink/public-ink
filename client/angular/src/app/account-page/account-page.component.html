@@ -6,20 +6,50 @@
 
     <div *ngIf="backend.userAccount">
 
-        <h1>Your articles have been read {{ backend.userAccount.totalViews}} times in total.</h1>
+        <!--<h2>Your articles have been read {{ backend.userAccount.totalViews}} times in total.</h2>
+-->
+        <h2>Articles read in the past 7 days</h2>
+        <flex-row style="align-items: flex-end;">
+            <div *ngFor="let stat of backend.userAccount.dailyViews | keysPipe">
+                <flex-row-center style="width: 80px; margin-right: 10px;">{{ stat.value.views }}</flex-row-center>
+                <div [style.height.px]="stat.value.views * 5" style="min-height: 1px; width: 90px; margin-right: 10px; background-color: black;"></div>
+            </div>
+        </flex-row>
 
+       <!-- <h2>bot vs human | last 7 days</h2>
+        <flex-row style="align-items: flex-end;">
+            <div *ngFor="let stat of backend.userAccount.dailyViews | keysPipe">
+                <flex-row-center style="width: 100px">{{ stat.value.bot.human }}</flex-row-center>
+                <div [style.height.px]="stat.value.bot.human * 10" style="width: 100px; background-color: blue;"></div>
+            </div>
+        </flex-row>
+
+        <h2>touch vs no-touch | last 7 days</h2>
+        <flex-row style="align-items: flex-end;">
+            <div *ngFor="let stat of backend.userAccount.dailyViews | keysPipe">
+                <flex-row-center style="width: 100px">{{ stat.value.views }}</flex-row-center>
+                <div [style.height.px]="stat.value.touch.no * 10" style="width: 100px; background-color: red;"></div>
+                <div [style.height.px]="stat.value.touch.yes * 10" style="width: 100px; background-color: green;"></div>
+            </div>
+        </flex-row>-->
+
+            
         <div>
 
-            You are logged in with {{ backend.userAccount.email }}
-            <span *ngIf="backend.userAccount.verified">(verified / maybe not)</span>
-
-            <a href="#" (click)="backend.logoutUser()" [ngStyle]="{background: 'darkred', color: 'white', padding: '10px 20px'}" style="display: inline-block;">Log Out</a>
+            
 
 
-            <h3>You have {{ backend.userAccount.authors.length }} authors</h3>
+            
+
+            
+
             <div *ngFor="let author of backend.userAccount.authors">
-                <h1 [routerLink]="['/',author.id]">{{ author.name }}</h1>
-                <img [src]="author.imageURL + '&w=100&h=100'" />
+
+                <flex-col-center-center>
+                    
+                    <img [src]="author.imageURL + '&w=150&h=150'" style="border-radius:100%;"/>
+                    <h2 [routerLink]="['/',author.id]">{{ author.name }}</h2>
+                </flex-col-center-center>
 
                 
 
@@ -29,10 +59,12 @@
                 <div dnd-sortable-container [sortableData]="author.publications" [dropZones]="['container-dropZone']">
                     <div class="col-sm3" *ngFor="let publication of author.publications; let i = index" dnd-sortable [sortableIndex]="i" [dragEnabled]="sortable === 'publication'">
                         <div class="panel panel-warning" dnd-sortable-container [sortableData]="publication.articles" [dropZones]="['widget-dropZone']">
-                            <div class="panel-heading" (mouseenter)="sortable = 'publication'" (mouseleave)="sortable = 'article'" [style.background-image]="publicationBG(publication)" >
-                                <h2 [routerLink]="['/', publication.author.id, publication.id]">{{ publication.name }}</h2>
+                            <flex-col-center-center class="panel-heading" (mouseenter)="sortable = 'publication'" (mouseleave)="sortable = 'article'" [style.background-image]="publicationBG(publication)"
+                            style="height:180px;" >
+                                <h2 [routerLink]="['/', publication.author.id, publication.id]" style="color: white">{{ publication.name }}</h2>
+                                <a [ngStyle]="ui.styles.button()" [routerLink]="['/', publication.author.id, publication.id, 'create-article']">New Article</a>
                                 
-                            </div>
+                            </flex-col-center-center>
                             <div class="panel-body">
                                 <div class="list-group">
                                     <div *ngFor="let article of publication.articles; let x = index" class="list-group-item" dnd-sortable [sortableIndex]="x"
@@ -40,27 +72,36 @@
                                         <h3><a [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]">{{ article.title }}</a></h3>
                                     </div>
                                     <!-- new article in publication -->
-                                    <a [ngStyle]="ui.styles.button()" [routerLink]="['/', publication.author.id, publication.id, 'create-article']">new article in {{ publication.name }}</a>
+                                    
                                 </div>
                             </div>
+                            
                         </div>
                     </div>
                 </div>
-                <div (click)="saveAuthorOrder(author)" [ngStyle]="ui.styles.button()">save order</div>
 
-                <a [routerLink]="['/', author.id, 'create-publication']" [ngStyle]="ui.styles.button()">create publication by {{ author.name }}</a>
+                <flex-col-center-center style="height: 180px; border: 1px solid gray;">
+                    <a [routerLink]="['/', author.id, 'create-publication']" [ngStyle]="ui.styles.button()">create publication by {{ author.name }}</a>
+                </flex-col-center-center>
+
+                <!--<div (click)="saveAuthorOrder(author)" [ngStyle]="ui.styles.button()">save order</div>
+-->
+           
             </div>
 
 
 
             <br>
-            <a [routerLink]="['/create-author']" [ngStyle]="ui.styles.button()">
-                Create New Author
-            </a>
+            
         </div>
 
 
 
+    </div>
+
+    
+    <div [routerLink]="['/create-author']" style="border: 1px solid black; border-radius: 100%; width: 150px; height: 150px;">
+        Create New Author
     </div>
 
     
@@ -73,6 +114,12 @@
             <button (click)="backend.deleteImage(image.id)">delete</button>
         </flex-col>
     </flex-row>
+
+    <h2>Your Account</h2>
+    You are logged in with {{ backend.userAccount.email }}
+    <span *ngIf="backend.userAccount.verified">(verified / maybe not TODO)</span>
+
+    <a href="#" (click)="backend.logoutUser()" [ngStyle]="{background: 'darkred', color: 'white', padding: '10px 20px'}" style="display: inline-block;">Log Out</a>
 
 
 

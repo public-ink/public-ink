@@ -20,6 +20,11 @@ import {
 import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
 
+interface InfoSchema {
+  success: boolean,
+  message: string,
+}
+
 @Component({
   selector: 'app-author-page',
   templateUrl: './author-page.component.html',
@@ -103,7 +108,7 @@ export class AuthorPageComponent implements OnInit, OnDestroy {
           // think about displaying multiple errors
           this.ui.show('error', error.graphQLErrors[0])
         })
-      // user cancels
+        // user cancels
       }, (no) => {
         this.ui.hide()
       })
@@ -115,15 +120,16 @@ export class AuthorPageComponent implements OnInit, OnDestroy {
    * and trigger an update here
    */
   saveAuthor() {
-    console.log('save author')
     this.ui.show('loading', 'saving')
     this.backend.saveAuthor(this.author).subscribe((authorResponse: any) => {
-      //this.ui.flashMessage(authorResponse.info.message)
       this.ui.show('success', 'done', 1000)
       // in case of create-author, we need to redirect
       this.router.navigate(['/', authorResponse.author.id])
-      console.log(authorResponse.author.id)
-    })
+    },
+      (error: InfoSchema) => {
+        this.ui.show('error', error.message)
+      }
+    )
   }
 
   ngOnInit() {

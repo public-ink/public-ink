@@ -14,8 +14,6 @@ export class AccountPageComponent implements OnInit {
 
   sortable = 'publication'
 
-  
-
   constructor(
     public backend: BackendService,
     public ui: UIService,

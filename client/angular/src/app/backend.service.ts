@@ -452,7 +452,8 @@ export class BackendService {
         authorID: authorID,
         publicationID: publicationID,
         articleID: articleID,
-        path: 'somepath' //window.location,
+        path: 'somepath', //window.location,
+        agent: navigator.userAgent,
       },
     })
     let recordEventSubject = new Subject()
@@ -599,10 +600,10 @@ export class BackendService {
         const account = result.data.createAccount.account
         this.userAccount = account
         localStorage.setItem('jwt', account.jwt)
+        createAccountSubject.next(info)
+      } else {
+        createAccountSubject.error(info)
       }
-      // TODO: error case
-      // in any case return the info!
-      createAccountSubject.next(info)
     },
       // un-expected Backend error
       (error) => {
@@ -648,8 +649,12 @@ export class BackendService {
       },
     })
     apolloQuery.delay(this.backendDelay).subscribe(result => {
-      console.log('backend saved author, result', result)
-      saveAuthorSubject.next(result.data.saveAuthor)
+      if (result.data.saveAuthor.info.success === true) {
+        saveAuthorSubject.next(result.data.saveAuthor)
+        if (author.id === 'create-author') this.jwtLogin()
+      } else {
+        saveAuthorSubject.error(result.data.saveAuthor.info)
+      }
     })
     return saveAuthorSubject
   }
@@ -679,7 +684,7 @@ export class BackendService {
       const author = result.data.author
       authorSubject.next(author)
     },
-      error => {
+      (error) => {
         authorSubject.error('error getting author')
       })
     return authorSubject
@@ -713,11 +718,14 @@ export class BackendService {
       let authors = this.userAccount.authors
       if (info.success) {
         // remove author from userAccount's authors
-        authors = authors.filter(author => author.id !== authorID)
-        this.userAccount.authors = authors
+        // authors = authors.filter(author => author.id !== authorID)
+        // this.userAccount.authors = authors
+        // alternatively, just relaod account and jwt
+        this.jwtLogin()
+        deleteSubject.next(info)
+      } else {
+        deleteSubject.next(info)
       }
-      // TODO: error case
-      deleteSubject.next(info)
     }, (error) => {
       deleteSubject.error(error)
     })
@@ -822,9 +830,13 @@ export class BackendService {
     querySubscription.delay(this.backendDelay).subscribe(result => {
       const publication: Publication = result.data.savePublication.publication
       const info = result.data.savePublication.info
-      // pass back the whole response
-      saveSubject.next(result.data.savePublication)
+      if (info.success) {
+        saveSubject.next(result.data.savePublication)
+      } else {
+        saveSubject.error(info.message)
+      }
     },
+    // unchaught backend exception?
       error => {
         saveSubject.error('error saving publication')
       })
@@ -885,8 +897,13 @@ export class BackendService {
       const info = result.data[endpoint].info
 
       const reply = result.data[endpoint]
-      console.log('backend saved article, result', result)
-      saveSubject.next(reply)
+      if (info.success) {
+        saveSubject.next(reply)
+      } else {
+        saveSubject.error(reply.info.message)
+      }
+    }, (error) => {
+      saveSubject.error('an unexpected error occured')
     })
     return saveSubject
   }

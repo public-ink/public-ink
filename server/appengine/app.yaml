@@ -35,6 +35,10 @@ libraries:
   version: latest
 - name: jinja2
   version: latest
+- name: numpy
+  version: latest
+- name: matplotlib
+  version: latest 
 
 skip_files:
 - ^(.*/)?#.*#$

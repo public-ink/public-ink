@@ -40,7 +40,8 @@ import { RoundPipe } from './round.pipe';
 import { ResetPasswordPageComponent } from './reset-password-page/reset-password-page.component'
 
 import {DndModule} from 'ng2-dnd';
-import { NotesComponent } from './notes/notes.component'
+import { NotesComponent } from './notes/notes.component';
+import { KeysPipePipe } from './keys-pipe.pipe'
 
 const apolloClient = new ApolloClient({
   networkInterface: createNetworkInterface({
@@ -104,6 +105,7 @@ const appRoutes: Routes = [
     RoundPipe,
     ResetPasswordPageComponent,
     NotesComponent,
+    KeysPipePipe,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),

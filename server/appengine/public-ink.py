@@ -9,6 +9,7 @@ import os
 import jwt
 import hashlib
 import uuid
+from collections import defaultdict
 from datetime import datetime, timedelta
 from slugify import slugify
 import re
@@ -16,6 +17,12 @@ from random import randint
 from google.appengine.ext import blobstore
 import urllib
 from google.appengine.api import memcache
+
+from user_agents import parse
+import matplotlib
+import numpy as np
+
+from collections import OrderedDict
 
 # image
 from google.appengine.ext.webapp import blobstore_handlers
@@ -149,31 +156,59 @@ class AccountSchema(graphene.ObjectType):
     authenticated = graphene.Boolean()
     jwt = graphene.String()
 
-    # new: stats!
+    """ Total Views """
     total_views = graphene.Int()
     def resolve_total_views(self, *args):
         user_key = ndb.Key('UserModel', self.email)
         return EventModel.query(EventModel.user == user_key).count()
 
+
+    """ Daily Stats """
     daily_views = graphene.String()
     def resolve_daily_views(self, *args):
-        # create 7 day dict
-        daily_dict = {}
-        today = datetime.today().date()
-        for days_back in range(0,7):
+        
+        # results placeholder
+        result_dict = OrderedDict()
+        today = datetime.today()
+        for days_back in range(0, 7):
             day = today - timedelta(days=days_back)
-            day_str = str(day)
-            daily_dict[day_str] = 0
+            day_str = str(day.date())
+            result_dict[day_str] = {
+                'views': 0,
+                'device': {'mobile': 0, 'pc': 0, 'tablet': 0},
+                'bot': {'bot': 0, 'human': 0},
+                'touch': {'yes': 0, 'no': 0}
+            }
+        # prepare query
+        today = datetime.today().date()
+        now = datetime.now()
+        start = now - timedelta(days=6)
         user_key = ndb.Key('UserModel', self.email)
-        events = EventModel.query(EventModel.user == user_key).fetch()
+
+        # query
+        events = EventModel.query(ndb.AND(
+            EventModel.user == user_key,
+            EventModel.created > start
+            )).order(EventModel.created).fetch()
+
         # iterate and increment
         for event in events:
             day_str = str(event.created.date())
-            try:
-                daily_dict[day_str] += 1
-            except KeyError:
-                print 'date out of range'
-        return json.dumps(daily_dict)
+            # total views
+            result_dict[day_str]['views'] += 1
+            # bot
+            kind = 'bot' if event.is_bot else 'human'
+            result_dict[day_str]['bot'][kind] += 1
+            # touch
+            kind = 'yes' if event.has_touch else 'no'
+            result_dict[day_str]['touch'][kind] += 1
+            # device class
+            if event.is_pc: result_dict[day_str]['device']['pc'] += 1
+            if event.is_mobile: result_dict[day_str]['device']['mobile'] += 1
+            if event.is_tablet: result_dict[day_str]['device']['tablet'] += 1
+                
+        return json.dumps(result_dict)
+        
 
 
     # related: authors!
@@ -417,8 +452,19 @@ class EventModel(InkModel):
     path = ndb.StringProperty()
     os = ndb.StringProperty()
     browser = ndb.StringProperty()
-
-
+    agent = ndb.StringProperty()
+    browser = ndb.StringProperty()
+    browser_version = ndb.StringProperty()
+    os = ndb.StringProperty()
+    os_version = ndb.StringProperty()
+    device = ndb.StringProperty()
+    brand = ndb.StringProperty()
+    model = ndb.StringProperty()
+    is_mobile = ndb.BooleanProperty()
+    is_tablet = ndb.BooleanProperty()
+    has_touch = ndb.BooleanProperty()
+    is_pc = ndb.BooleanProperty()
+    is_bot = ndb.BooleanProperty()
 
 """
 Playground - remove at some point
@@ -484,6 +530,11 @@ class Query(graphene.ObjectType):
         authorID = self.get('authorID')
         publicationID = self.get('publicationID')
         articleID = self.get('articleID')
+        # additional
+        agent_string = self.get('agent') #!cool
+        agent = parse(agent_string)
+
+
         # related entities' keys
         authorKey = ndb.Key('AuthorModel', authorID).get().key
         userKey = authorKey.get().user
@@ -496,6 +547,19 @@ class Query(graphene.ObjectType):
             author = authorKey,
             publication = publicationKey,
             article = articleKey,
+            agent = agent_string,
+            browser = agent.browser.family,
+            browser_version = agent.browser.version_string,
+            os = agent.os.family,
+            os_version = agent.os.version_string,
+            device = agent.device.family,
+            brand = agent.device.brand,
+            model = agent.device.model,
+            is_mobile = agent.is_mobile,
+            is_tablet = agent.is_tablet,
+            has_touch = agent.is_touch_capable,
+            is_pc = agent.is_pc,
+            is_bot = agent.is_bot
         ).put()
         return InfoSchema(success=True, message='event_recorded')
 
@@ -676,7 +740,10 @@ class Query(graphene.ObjectType):
 
             # duplication check
             if ndb.Key('AuthorModel', slugify(name)).get():
-                return 
+                return AuthorResponse(
+                    info=InfoSchema(success=False, message='duplicate'),
+                    author=None
+                )
 
             """ create author """
             author_key = AuthorModel(

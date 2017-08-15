@@ -20,6 +20,7 @@ export interface iAccount {
   jwt?: string
   authors: any[]
   totalViews?: number
+  dailyViews?: Object
 }
 
 @Component({
