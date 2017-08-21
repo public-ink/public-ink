@@ -44,28 +44,29 @@ export class AppComponent {
         // cmd + escape
         this.public = !this.public
         event.preventDefault()
-      } 
+      }
     })
 
     // detect longpress or click to get past private screen
     this.detect()
+    this.catchGlobalErrors()
   }
 
   // detect longpress
   detect() {
 
     const upObservable = Observable.merge(
-        Observable.fromEvent(document, 'mouseup'),
-        Observable.fromEvent(document, 'touchend')
+      Observable.fromEvent(document, 'mouseup'),
+      Observable.fromEvent(document, 'touchend')
     )
     const downObservable = Observable.merge(
-        Observable.fromEvent(document, 'mousedown'),
-        Observable.fromEvent(document, 'touchstart')
+      Observable.fromEvent(document, 'mousedown'),
+      Observable.fromEvent(document, 'touchstart')
     )
     downObservable.delay(3141).takeUntil(upObservable).repeat().subscribe(() => {
       this.public = true
     })
-  }  
+  }
 
   deleteImage(userImage: any) {
     this.ui.show('loading', 'deleting image')
@@ -73,5 +74,35 @@ export class AppComponent {
       this.ui.show('success', 'the image has been deleted')
     })
   }
-  
+
+  /**
+   * attempt at catching js errors, not working
+   */
+  catchGlobalErrors() {
+    console.log(window)
+
+    window.addEventListener("error", function (e) {
+      alert("Error occured: " );
+      return false;
+    })
+
+    window.onerror = function (msg, url, line, col, error) {
+      // Note that col & error are new to the HTML 5 spec and may not be 
+      // supported in every browser.  It worked for me in Chrome.
+      var extra = !col ? '' : '\ncolumn: ' + col
+      extra += !error ? '' : '\nerror: ' + error
+
+      // You can view the information in an alert to see things working like this:
+      alert("Error: " + msg + "\nurl: " + url + "\nline: " + line + extra)
+
+      // TODO: Report this error via ajax so you can keep track
+      //       of what pages have JS issues
+
+      var suppressErrorAlert = false
+      // If you return true, then error alerts (like in older versions of 
+      // Internet Explorer) will be suppressed.
+      return suppressErrorAlert
+    };
+  }
+
 }

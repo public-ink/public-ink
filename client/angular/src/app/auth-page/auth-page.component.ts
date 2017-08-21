@@ -65,26 +65,23 @@ export class AuthPageComponent {
   ) { }
 
   /**
-   * Try to authenticate with email and password
-   * If successfull, the backend's userAccount will be updated
-   * In any case, we receive the info (success and msg)
+   * 
+   * @param event 
    */
-  doLogin(event) {
+  doLogin() {
     const email = this.loginForm.value.email
     const password = this.loginForm.value.password
     this.ui.show('loading', 'logging in...')
     this.backend.epLogin(email, password).subscribe(info => {
       if (info.success) {
         this.ui.show('success', 'done!', 1000)
-        if (info.success === true) {
-          this.router.navigate(['/', 'my-account'])
-        }
+        this.router.navigate(['/', 'my-account'])
       } else {
         this.ui.show('error', 'login failed')
       }
-
+    }, error => {
+      this.ui.show('error', 'an unexpected backend error')
     })
-    // we only care about the status. the account is handled by the backend.
   }
 
   /**
@@ -92,28 +89,42 @@ export class AuthPageComponent {
    * Receives information (success, and message) about the result
    */
   createAccount() {
-
     const email = this.registrationForm.value.email
     const password = this.registrationForm.value.password
     this.ui.show('loading', 'creating account...')
     this.backend.createAccount(email, password).subscribe(
       info => {
-        if (info.success === true) {
+        if (info.success) {
           this.ui.show('success', 'account created!', 1000)
           this.router.navigate(['/', 'my-account'])
         } else {
           this.ui.show('error', 'could not create account: ' + info.message)
         }
+      }, (error) => {
+        this.ui.show('error', 'an unexpected backend error')
       }
     )
   }
 
+  /**
+   * submits the request password reset form
+   * and shows appropriate messages
+   */
   requestPasswordResetLink() {
     const email = this.resetPasswordForm.value.email
     this.ui.show('loading', 'generating link')
-    this.backend.requestResetPasswordLink(email).subscribe(result => {
-      this.ui.show('success', 'Done, check your email.')
-    })
+    this.backend.requestResetPasswordLink(email).subscribe(
+      (result: any) => {
+        if (result.data.requestResetPasswordLink.success) {
+          this.ui.show('success', 'Done, check your email.')
+        } else {
+          // sucess and error messages are the same so not to give away information
+          this.ui.show('error', 'Done, check your email.')
+          this.resetPasswordForm.reset()
+        }
+      }, (error) => {
+        this.ui.show('error', 'unexpected backend error!')
+        this.resetPasswordForm.reset()
+      })
   }
-
 }

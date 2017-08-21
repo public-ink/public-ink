@@ -206,6 +206,8 @@ class AccountSchema(graphene.ObjectType):
             if event.is_pc: result_dict[day_str]['device']['pc'] += 1
             if event.is_mobile: result_dict[day_str]['device']['mobile'] += 1
             if event.is_tablet: result_dict[day_str]['device']['tablet'] += 1
+
+        # raise Exception('just to fuck with you!')
                 
         return json.dumps(result_dict)
         
@@ -699,12 +701,16 @@ class Query(graphene.ObjectType):
     def resolve_requestResetPasswordLink(self, args, *more):
         email = args.get('email') or self.get('email')
         user = ndb.Key('UserModel', email).get()
+
         if user:
             reset_password_token = uuid.uuid4().hex
             user.reset_password_token = reset_password_token
             user.put()
-            send_reset_password_email(email, reset_password_token)
-        return InfoSchema(success=True, message='reset_link_sent')
+            send_to_log = True if ENV_NAME == 'develop' else False
+            send_reset_password_email(email, reset_password_token, send_to_log)
+            return InfoSchema(success=True, message='reset_link_sent')
+        else:
+            return InfoSchema(success=False, message='')
 
 
     """ ACTUALLY RESET THE PASSWORD """

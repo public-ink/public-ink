@@ -29,7 +29,7 @@ export class Vessel {
         // make a ball just above the key
         let noteHSL = this.pianoKey.noteHSL
         let mat = new THREE.MeshPhongMaterial()
-        mat.color.setHSL(noteHSL.h, noteHSL.s, noteHSL.l)
+        // mat.color.setHSL(noteHSL.h, noteHSL.s, noteHSL.l)
 
 
         let geo = new THREE.SphereGeometry(0.3, 5)
@@ -52,13 +52,20 @@ export class Vessel {
 
             // apply gravity
             let gravity = new THREE.Vector3(0, -0.01, 0)
+            let backwards = new THREE.Vector3(0, 0, -0.01)
             this.velocity.add(gravity)
+            // this.velocity.add(backwards)
 
             // update your position
             this.mesh.position.add(this.velocity)
+            this.mesh.position.z -= 0.01
 
             // remove if going down!
             if (this.velocity.y < 0) {
+                //this.mesh.visible = false
+            }
+            // remove if below zero height
+            if (this.mesh.position.y < -10) {
                 this.mesh.visible = false
             }
         })

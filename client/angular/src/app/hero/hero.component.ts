@@ -261,7 +261,7 @@ export class HeroComponent implements OnInit, AfterViewChecked, AfterViewInit {
     this.camera.position.set(0, 17, 26)
 
     // controls
-    //this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement)
     this.controls.enabled = true
     this.controls.autoRotate = true
     this.controls.maxDistance = 15000
@@ -304,7 +304,7 @@ export class HeroComponent implements OnInit, AfterViewChecked, AfterViewInit {
     // this.makeSong()
     let hsl = { h: 1, s: 0.5, l: 0.5 }
     let testBox: BoxParams = { y: 10, scene: this.scene, colorHSL: hsl }
-    let testMesh = makeBox(testBox)
+    // let testMesh = makeBox(testBox)
 
   }
 

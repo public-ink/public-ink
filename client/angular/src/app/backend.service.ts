@@ -367,15 +367,19 @@ export class BackendService {
 
     const loginSubject = new Subject()
     apolloQuery.delay(this.backendDelay).subscribe(result => {
-      const info = result.data[endpoint].info
+      const info = result.data.epLogin.info
+      
       if (info.success) {
-        const account = result.data[endpoint].account
+        const account = result.data.epLogin.account
         this.userAccount = Object.assign({}, account)
         localStorage.setItem('jwt', account.jwt)
         this.loadImages(account.jwt)
       }
-      // in any case return the info!
+      // both for successful and unsuccessful attempts
       loginSubject.next(info)
+    }, (error) => {
+      // an actual backend error
+      loginSubject.error(error)
     })
     return loginSubject
 
@@ -397,8 +401,10 @@ export class BackendService {
     this.apollo.watchQuery<any>({
       query: query,
       fetchPolicy: 'network-only',
-    }).subscribe(result => {
+    }).delay(this.backendDelay).subscribe(result => {
       resetSubject.next(result)
+    }, error => {
+      resetSubject.error('unexpected backend error')
     })
     return resetSubject
   }
@@ -557,10 +563,14 @@ export class BackendService {
         const account = result.data.jwtLogin.account
         this.userAccount = JSON.parse(JSON.stringify(account))
         localStorage.setItem('jwt', account.jwt)
+        jwtLoginSubject.next(info)
+        this.loginSubject.next(this.userAccount)
+      } else {
+        jwtLoginSubject.error('an error occured')
       }
-      // TODO: error case
-      jwtLoginSubject.next(info)
-      this.loginSubject.next(this.userAccount)
+      
+    }, (error) => {
+      alert('unhandled error')
     })
     return jwtLoginSubject
   }
@@ -600,10 +610,8 @@ export class BackendService {
         const account = result.data.createAccount.account
         this.userAccount = account
         localStorage.setItem('jwt', account.jwt)
-        createAccountSubject.next(info)
-      } else {
-        createAccountSubject.error(info)
-      }
+      } 
+      createAccountSubject.next(info)
     },
       // un-expected Backend error
       (error) => {

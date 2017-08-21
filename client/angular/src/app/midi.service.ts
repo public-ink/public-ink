@@ -218,11 +218,6 @@ export class MIDIService {
     })
   }
 
-  
-
-  
-
-
   // soundfont player, with current instrument
   instrument
   audioContext = new AudioContext()
@@ -234,15 +229,15 @@ export class MIDIService {
 
     this.rawStream = new Subject()
 
-
-
     this.instrument = new Instrument('acoustic_grand_piano', this, this.audioContext)
-
-    // make (and load for now) all instruments
-    for (let instrumentObj of this.instrumentIDs.slice(0, 10)) {
+    
+    /*
+    for (let instrumentObj of this.instrumentIDs.slice(0, 1)) {
       let instrument = new Instrument(instrumentObj.id, this, this.audioContext)
       this.instruments.push(instrument)
     }
+    */
+    // make (and load for now) all instruments
 
     /**
      * create MIDI Stream ( do a subject instead)
@@ -323,7 +318,7 @@ export class MIDIService {
 
     this.rawStream.next(message)
 
-    // console.log(message.data)
+    console.log(message.data)
 
     const [action, key, value] = message.data
 
@@ -439,12 +434,11 @@ export class Instrument {
   }
 
   loadInstrument() {
-    // load! move out of constructor, and make a method
     Soundfont.instrument(this.audioContext, this.id).then((player) => {
       console.log('made an insturment', player)
       this.player = player
       console.log('instrument constructed', this.player)
-      // this.player.play('C4')
+      this.player.play('C4')
       this.loaded = true
 
       // needs to be raw midi stream

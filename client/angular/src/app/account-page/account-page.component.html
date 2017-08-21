@@ -1,10 +1,10 @@
 <!--{{ backend.userAccount | stringify }}-->
 
-<app-content-width>
+<app-content-width *ngIf="backend.userAccount">
 
     <div style="height: 150px;"></div>
 
-    <div *ngIf="backend.userAccount">
+    <div >
 
         <!--<h2>Your articles have been read {{ backend.userAccount.totalViews}} times in total.</h2>
 -->
@@ -36,13 +36,6 @@
             
         <div>
 
-            
-
-
-            
-
-            
-
             <div *ngFor="let author of backend.userAccount.authors">
 
                 <flex-col-center-center>
@@ -56,7 +49,7 @@
 
                 
                 <!-- copy -->
-                <div dnd-sortable-container [sortableData]="author.publications" [dropZones]="['container-dropZone']">
+                <div (dragend)="saveAuthorOrder(author)" dnd-sortable-container [sortableData]="author.publications" [dropZones]="['container-dropZone']">
                     <div class="col-sm3" *ngFor="let publication of author.publications; let i = index" dnd-sortable [sortableIndex]="i" [dragEnabled]="sortable === 'publication'">
                         <div class="panel panel-warning" dnd-sortable-container [sortableData]="publication.articles" [dropZones]="['widget-dropZone']">
                             <flex-col-center-center class="panel-heading" (mouseenter)="sortable = 'publication'" (mouseleave)="sortable = 'article'" [style.background-image]="publicationBG(publication)"

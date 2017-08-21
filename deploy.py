@@ -27,7 +27,7 @@ server_dist = os.path.join(script_dir, 'server/appengine/angular')
 Step 1: Make a frontend-build
 """
 print "step 1: make an angular build"
-os.chdir(client_dir) 
+os.chdir(client_dir)
 os.system('ng build --prod')
 print "step 1 completed."
 
@@ -68,6 +68,10 @@ Last Step: upload to app engine
 
 todo: upload indexes, like:
 gcloud datastore create-indexes
+
+or
+
+gcloud app deploy index.yaml
 """
 print "last step: deploy to app engine"
 os.chdir(server_dir) 

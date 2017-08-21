@@ -200,7 +200,7 @@ export class PianoKey {
         } else {
 
             let blackBox = new THREE.BoxGeometry(this.blackWidth, this.blackHeight, this.blackDepth)
-            let blackKeyMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 })
+            let blackKeyMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 })
 
             let blackMesh = new THREE.Mesh(blackBox, blackKeyMaterial)
             this.keyMesh = blackMesh
@@ -232,8 +232,8 @@ export class PianoKey {
 
         // add objects to group
         this.group3D.add(this.keyMesh)
-        this.group3D.add(this.launchpadMesh)
-        this.group3D.add(this.railsMesh)
+        // this.group3D.add(this.launchpadMesh)
+        // this.group3D.add(this.railsMesh)
     }
 
     /**
