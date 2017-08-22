@@ -69,6 +69,7 @@ export class ArticlePageComponent implements OnInit {
   keyboardSubscription: Subscription
   mediaClickSubscription: any
 
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -76,6 +77,9 @@ export class ArticlePageComponent implements OnInit {
     private apollo: Apollo,
     public ui: UIService,
   ) {
+
+    // advanced auto-save:)
+    this.autoSaveTimer()
 
     // keyboard shortcuts
     this.keyboardSubscription = Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
@@ -126,17 +130,13 @@ export class ArticlePageComponent implements OnInit {
       } else {
         this.backend.getArticle(this.authorID, this.publicationID, this.articleID).subscribe(article => {
 
-          // autosave: initial state, and kickoff interval
+          // this might actually return more often!!!
+
+          // what is going on here?
           this.article = JSON.parse(JSON.stringify(article))
           this.savedArticleJSON = JSON.stringify(this.article)
-          setInterval(() => {
-            if (this.canAutoSave()) {
-              console.log('autosaving!')
-              this.saveArticle(true)
-            }
-          }, 3000)
 
-
+          // and here
           this.recordView()
 
           // get comments!
@@ -152,6 +152,15 @@ export class ArticlePageComponent implements OnInit {
 
   canAutoSave() {
     return this.article && this.isOwner() && this.savedArticleJSON != JSON.stringify(this.article) && this.article.id != 'create-article'
+  }
+
+  autoSaveTimer() {
+    Observable.fromEvent(window, 'keydown').debounceTime(1000).subscribe(event => {
+     // user stopped typing for a seconds
+      if (this.canAutoSave()) {
+        this.saveArticle(true)
+      }
+    })
   }
 
   /**
@@ -179,10 +188,12 @@ export class ArticlePageComponent implements OnInit {
           if (!silent) {
             this.ui.show('success', 'done!', 1000)
           } else {
-            this.ui.resetState()
+            this.ui.loading = false
+            this.ui.overlay = false
           }
           /* not sure why this check is required here but not on publication page */
           if (this.articleID === 'create-article') {
+            console.log('navigating to article')
             this.router.navigate(['/', reply.article.publication.author.id, reply.article.publication.id, reply.article.id])
           }
         } else {
@@ -193,13 +204,17 @@ export class ArticlePageComponent implements OnInit {
 
   publishArticle(article) {
     this.ui.show('loading', 'publishing ' + this.article.title)
-    this.backend.publishArticle(article).subscribe(result => {
+    this.backend.publishArticle(article).subscribe((result: any) => {
+      // this.article = JSON.parse(JSON.stringify(result.article))
+      // this.savedArticleJSON = JSON.stringify(this.article)
       this.ui.show('success', 'great success!', 1000)
     })
   }
   unpublishArticle(article) {
     this.ui.show('loading', 'un-publishing ' + this.article.title)
-    this.backend.publishArticle(article).subscribe(result => {
+    this.backend.publishArticle(article, true).subscribe((result: any) => {
+      //this.article = JSON.parse(JSON.stringify(result.article))
+      //this.savedArticleJSON = JSON.stringify(this.article)
       this.ui.show('success', 'now a draft!', 1000)
     })
   }
@@ -251,7 +266,7 @@ export class ArticlePageComponent implements OnInit {
 
     // save if owner and changed
     if (this.canAutoSave()) {
-      // todo: quite
+      // todo: better quite
       this.saveArticle(true)
     }
   }

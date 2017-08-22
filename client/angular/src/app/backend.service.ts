@@ -1083,7 +1083,7 @@ export class BackendService {
     })
     return new Observable(stream => {
       apolloQuery.delay(this.backendDelay).subscribe(result => {
-        console.log('get article result', result)
+        console.log('JOJO, who pushes me? get article result', result)
         stream.next(result.data.article)
       })
     })

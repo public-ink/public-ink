@@ -203,6 +203,7 @@ export class UIService {
    */
   hide(): void {
     this.overlay = false
+    this.loading = false
     this.resetState()
   }
 

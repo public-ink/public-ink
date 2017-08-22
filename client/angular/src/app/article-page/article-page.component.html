@@ -20,7 +20,7 @@
         <!-- publish / un-publish -->
         <flex-row>
             <button *ngIf="!article.publishedAt" (click)="publishArticle(article)" [ngStyle]="ui.styles.button()">publish Now</button>
-            <button *ngIf="article.publishedAt" (click)="unpublishArticle(article)" [ngStyle]="ui.styles.button()">unpublish</button>
+            <button *ngIf="article.publishedAt" (click)="unpublishArticle(article)" [ngStyle]="ui.styles.button()">un-publish</button>
         </flex-row>
 
         <!--<simple-spacer></simple-spacer>-->
