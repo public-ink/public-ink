@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core'
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core'
 
 // ink
 // import { iArticle } from '../models'
@@ -33,9 +33,14 @@ export class ArticleComponent implements OnInit {
   @Input() editable: boolean = false
   @Input() preview: boolean = false
 
+  @Output() saveClicked: EventEmitter<any> = new EventEmitter()
+
   @ViewChild('titleArea') titleArea: ElementRef;
   @ViewChild('editor') editor: ElementRef
   @ViewChild('hidden') hidden: ElementRef
+
+  // whether or not there is a below-the-fold
+  hasBreak = false
 
   quill: any
   lastRange: any
@@ -45,7 +50,7 @@ export class ArticleComponent implements OnInit {
     metaThenBody: 50,
   }
   colors = {
-    highlight: '#efefef'
+    highlight: 'hsl(0, 0%, 98%)'
   }
 
   constructor(
@@ -94,7 +99,8 @@ export class ArticleComponent implements OnInit {
       console.log('full article (not preview)')
       modules = {
         toolbar: {
-          container: document.getElementById('toolbar'),
+          container: this.hidden.nativeElement,          
+          // container: document.getElementById('toolbar'),
           //handlers: {'image': this.titleImageHandler},
         },
       }
@@ -112,6 +118,9 @@ export class ArticleComponent implements OnInit {
       theme: 'snow',
       placeholder: 'here is where you lay your words down...',
     })
+
+    let win:any = window
+    win.q = this.quill
 
     this.quill.on('text-change', (delta, oldDelta, source) => {
       /* 
@@ -132,6 +141,8 @@ export class ArticleComponent implements OnInit {
     this.ops = JSON.parse(this.article.bodyOps)
     let quillData = JSON.parse(this.article.bodyOps)
     let quillOps = quillData.ops
+    // in case of new article
+    if (!quillOps) { return }
     console.log('original', quillOps)
 
     /** replace the image backend url in case it is different, because we running on a differnt IP or localhost */
@@ -156,6 +167,7 @@ export class ArticleComponent implements OnInit {
       let previewOps = []
       for (let op of transformedOps) {
         if (typeof op.insert === 'string' && op.insert.indexOf('---') > -1) {
+          this.hasBreak = true
           break
         } else {
           previewOps.push(op)
@@ -199,6 +211,26 @@ export class ArticleComponent implements OnInit {
   getPosition(string, subString, index) {
     return string.split(subString, index).join(subString).length;
   }
+
+  /**
+   * Toolbar action
+   */
+
+  toggleInline(format: string) {
+    if (this.quill.getFormat()[format]) {
+      this.quill.format(format, false)
+    } else {
+      this.quill.format(format, true)
+    }
+  }
+  h3() {
+    this.quill.format('header', 2)
+  }
+  link() {
+    var url = prompt("gimme url")
+    this.quill.format('link', url)
+  }
+
 
   /**
    * Update a query string paramter in a given URL

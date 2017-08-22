@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core'
 import { Router, ActivatedRoute } from '@angular/router'
 
-import { Observable } from 'rxjs/Observable'
+import { Observable, Subscribable } from 'rxjs/Observable'
 import { Subscription } from 'rxjs/Subscription'
 import 'rxjs/Rx' // why?
 
@@ -52,7 +52,9 @@ export class ArticlePageComponent implements OnInit {
   data: any
   article: iArticle
 
-  keyboardSubscription: Subscription
+  savedArticleJSON: string
+
+
 
   // comments
   comments: Comment[] = []
@@ -62,9 +64,10 @@ export class ArticlePageComponent implements OnInit {
   commentEmail: string = ''
   commentBody: string = ''
 
-  // router
+  // subscriptions (so we can un-subscribe)
   routerSubscription: Subscription
-
+  keyboardSubscription: Subscription
+  mediaClickSubscription: any
 
   constructor(
     private route: ActivatedRoute,
@@ -97,12 +100,14 @@ export class ArticlePageComponent implements OnInit {
   ngOnInit() {
 
     // subscribe to media clicks
-    this.ui.mediaClickObservable.subscribe(image => {
+    this.mediaClickSubscription = this.ui.mediaClickObservable.subscribe(image => {
       this.articleCmp.insertImage(image.url + '&w=' + (this.ui.contentWidth - 0) + '&size=content')
     })
 
     // get route params
     this.routerSubscription = this.route.params.subscribe(params => {
+
+      console.log('article page on route!')
 
       this.authorID = params['authorID']
       this.publicationID = params['publicationID']
@@ -120,7 +125,18 @@ export class ArticlePageComponent implements OnInit {
 
       } else {
         this.backend.getArticle(this.authorID, this.publicationID, this.articleID).subscribe(article => {
+
+          // autosave: initial state, and kickoff interval
           this.article = JSON.parse(JSON.stringify(article))
+          this.savedArticleJSON = JSON.stringify(this.article)
+          setInterval(() => {
+            if (this.canAutoSave()) {
+              console.log('autosaving!')
+              this.saveArticle(true)
+            }
+          }, 3000)
+
+
           this.recordView()
 
           // get comments!
@@ -134,11 +150,19 @@ export class ArticlePageComponent implements OnInit {
     })
   }
 
+  canAutoSave() {
+    return this.article && this.isOwner() && this.savedArticleJSON != JSON.stringify(this.article) && this.article.id != 'create-article'
+  }
+
   /**
    * Creates a new article, or updates an exisiting one
    */
-  saveArticle(): void {
-    this.ui.show('loading', 'saving article...')
+  saveArticle(silent = false): void {
+    if (silent) {
+      this.ui.show('silent', 'saving article...')
+    } else {
+      this.ui.show('loading', 'saving article...')
+    }
     this.backend.saveArticle(
       this.authorID,
       this.publicationID,
@@ -149,7 +173,14 @@ export class ArticlePageComponent implements OnInit {
         console.log(reply)
 
         if (reply.info.success) {
-          this.ui.show('success', 'done!', 1000)
+
+          // update saved version for autosave
+          this.savedArticleJSON = JSON.stringify(this.article)
+          if (!silent) {
+            this.ui.show('success', 'done!', 1000)
+          } else {
+            this.ui.resetState()
+          }
           /* not sure why this check is required here but not on publication page */
           if (this.articleID === 'create-article') {
             this.router.navigate(['/', reply.article.publication.author.id, reply.article.publication.id, reply.article.id])
@@ -157,8 +188,6 @@ export class ArticlePageComponent implements OnInit {
         } else {
           this.ui.show('error', reply.info.message)
         }
-
-
       })
   }
 
@@ -200,11 +229,18 @@ export class ArticlePageComponent implements OnInit {
   }
 
   /**
-   * on destroy: unsubscribe from keyboard and router
+   * on destroy: unsubscribe from subscriptions
    */
   ngOnDestroy() {
     this.keyboardSubscription.unsubscribe()
     this.routerSubscription.unsubscribe()
+    this.mediaClickSubscription.unsubscribe()
+
+    // save if owner and changed
+    if (this.canAutoSave()) {
+      // todo: quite
+      this.saveArticle(true)
+    }
   }
 
   /** check if the current article is owned by the current user */

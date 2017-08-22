@@ -261,13 +261,13 @@ export class HeroComponent implements OnInit, AfterViewChecked, AfterViewInit {
     this.camera.position.set(0, 17, 26)
 
     // controls
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+    /*this.controls = new OrbitControls(this.camera, this.renderer.domElement)
     this.controls.enabled = true
     this.controls.autoRotate = true
     this.controls.maxDistance = 15000
     this.controls.minDistance = 0
     this.controls.autoRotateSpeed = 0
-    this.controls.autoRotate = true
+    this.controls.autoRotate = true*/
 
     // lights
     for (let light of this.dimensions.lights.directionals) {

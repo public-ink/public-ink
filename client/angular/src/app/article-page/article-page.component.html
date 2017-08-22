@@ -7,6 +7,7 @@
     <div [ngStyle]="{display: isOwner() ? 'block' : 'none'}" style="position:fixed; top:50px; left: 0; width: 100%; border-bottom: 1px solid #ddd; background-color: white; z-index:3;">
         <app-content-width id="toolbar">
             <!-- toolbar controls go here! -->
+            <button (click)="boldClick()">BOLD</button>
             <button class="ql-bold">Bold</button>
             <button class="ql-italic">Italic</button>
             <button class="ql-underline">under</button>
@@ -22,11 +23,15 @@
 
             <button class="ql-blockquote"></button>
             <button class="ql-image">img</button>
+            <button (click)="ui.mediaBar = !ui.mediaBar">MEDIA!</button>
             <button class="ql-link">link</button>
             <button class="ql-header" value="1" type="button"></button>
             <button class="ql-header" value="2" type="button"></button>
             <button class="ql-align" value="center"></button>
             <button class="ql-clean">clean</button>
+
+            <button (click)="saveArticle()">save</button>
+            <button (click)="deleteArticle()">trash</button>
         </app-content-width>
     </div>
 
@@ -34,7 +39,7 @@
 
     <!-- THE ARTICLE -->
 
-    <app-article [article]="article" [editable]="isOwner()"></app-article>
+    <app-article (saveClicked)="saveArticle()" [article]="article" [editable]="isOwner()"></app-article>
 
     <!-- Author Badge! -->
 
@@ -44,14 +49,16 @@
 
 
         <flex-col-center [ngStyle]="ui.styles.standardText()">
-                
-                <br><br>
-            <img [src]="article.publication.author.imageURL + '&w=140&h=140&q=100'" style="border-radius: 100%;; box-shadow: rgba(0, 0, 0, 0.15) 0px 1.5px 3px 0px inset, rgba(0, 0, 0, 0.15) 0px 1.5px 3px 0px; border: 10px solid rgb(255, 255, 255);" />
-                <br>
-                By {{ article.publication.author.name }} 
+
+            <br><br>
+            <img [src]="article.publication.author.imageURL + '&w=140&h=140&q=100'" style="border-radius: 100%;; box-shadow: rgba(0, 0, 0, 0.15) 0px 1.5px 3px 0px inset, rgba(0, 0, 0, 0.15) 0px 1.5px 3px 0px; border: 10px solid rgb(255, 255, 255);"
+            />
+            <br> By {{ article.publication.author.name }}
         </flex-col-center>
 
-       <!-- <simple-spacer></simple-spacer>-->
+     
+
+        
 
     </app-content-width>
 
@@ -80,7 +87,8 @@
         <input style="border: 1px dashed black;" [ngStyle]="ui.styles.input()" type="text" [(ngModel)]="commentName" placeholder="your name&nbsp;&nbsp;/ optional"
         />
         <br><br>
-        <input [ngStyle]="ui.styles.input()" type="email" [(ngModel)]="commentEmail" placeholder="your email / optional and private" />
+        <input [ngStyle]="ui.styles.input()" type="email" [(ngModel)]="commentEmail" placeholder="your email / optional and private"
+        />
 
         <br><br>
 
@@ -99,25 +107,9 @@
                 <b>{{ comment.name ? comment.name : 'anonym' }}:</b> <span style="white-space: pre-line;">{{ comment.body }}</span>
                 <simple-spacer></simple-spacer>
             </div>
-            
+
         </div>
     </app-content-width>
 
-
-
-
-    <!-- fixed bottom bar -->
-    <!-- only for owners of this article -->
-    <app-bottom-bar *ngIf="ui.bottomBarVisible && isOwner()">
-        <app-content-width>
-            <flex-row-between-center style="height:50px;">
-                <div (click)="saveArticle()">Save Article </div>
-                <div (click)="ui.mediaBar = !ui.mediaBar">Show Media</div>
-                <div *ngIf="!article.publishedAt" (click)="backend.publishArticle(article)">Publish Article</div>
-                <div *ngIf="article.publishedAt" (click)="backend.publishArticle(article, true)">Un-publish Article</div>
-                <div (click)="deleteArticle()">Delete Article</div>
-            </flex-row-between-center>
-        </app-content-width>
-    </app-bottom-bar>
 
 </div>

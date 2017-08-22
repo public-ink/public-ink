@@ -78,13 +78,14 @@ button.dark {
     background-color: #333;
     color: white;
 }
+
+/** this should be replaced with code **/
 button {
     border:0;
     background-color:transparent;
     font-family: Courier New, Courier, monospace;
     padding: 5px 10px;
     font-size: 16px;
-    color: blue;
 }
 
 
@@ -302,6 +303,23 @@ simple-spacer{
     
     width: 30px;
     height: 30px;
+}
+
+.spinner-white {
+    border-radius:50%;
+    position: relative;
+    border-top: 2px solid white;
+    border-right: 2px solid white;
+    border-left: 2px solid white;
+    border-bottom: 2px solid transparent;
+
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-animation: spin 0.5s infinite linear;
+    animation: spin 0.5s infinite linear;
+    
+    width: 15px;
+    height: 15px;
 }
 .icon-mark {
     height: 40px;

@@ -166,11 +166,11 @@ export class UIService {
    */
   show(stateName: string, message?: string, duration?: number) {
     this.resetState()
-    this.overlay = true
 
     this.stateName = stateName
     let state = this.states[stateName]
 
+    this.overlay = state.overlay
     // passed in message, or generic state message
     this.message = message ? message : state.message
     // the state's state
@@ -217,15 +217,22 @@ export class UIService {
   states = {
     loading: {
       message: 'loading',
-      loading: true
+      loading: true,
+      overlay: true
+    },
+    silent: {
+      loading: true,
+      overlay: false,
     },
     success: {
       message: 'saved',
       success: true,
+      overlay: true,
     },
     error: {
       message: 'something bad just happened',
       error: true,
+      overlay: true,
     }
   }
 

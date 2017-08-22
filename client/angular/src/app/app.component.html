@@ -38,9 +38,11 @@
     <app-content-width>
         <flex-row-between-center>
 
+            <!-- public.ink home -->
             <h3><a [routerLink]="['/']" class="tabable navlink">public.ink</a></h3>
 
-            <span style="font-size: 20px; color: #333; font-weight: bold;"></span>
+            <!-- autosaving spinner -->
+            <span *ngIf="ui.loading" class="spinner-white"></span>
             
             <!-- login / signup -->
             <flex-row *ngIf="!backend.userAccount?.authenticated">
