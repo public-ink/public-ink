@@ -191,6 +191,19 @@ export class ArticlePageComponent implements OnInit {
       })
   }
 
+  publishArticle(article) {
+    this.ui.show('loading', 'publishing ' + this.article.title)
+    this.backend.publishArticle(article).subscribe(result => {
+      this.ui.show('success', 'great success!', 1000)
+    })
+  }
+  unpublishArticle(article) {
+    this.ui.show('loading', 'un-publishing ' + this.article.title)
+    this.backend.publishArticle(article).subscribe(result => {
+      this.ui.show('success', 'now a draft!', 1000)
+    })
+  }
+
   recordView() {
     this.backend.recordEvent(
       'article view',

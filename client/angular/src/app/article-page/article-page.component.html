@@ -3,37 +3,7 @@
     <!-- space for toolbar and headroom -->
     <div style="height: 130px"></div>
 
-    <!-- fixed editor toolbar -->
-    <div [ngStyle]="{display: isOwner() ? 'block' : 'none'}" style="position:fixed; top:50px; left: 0; width: 100%; border-bottom: 1px solid #ddd; background-color: white; z-index:3;">
-        <app-content-width id="toolbar">
-            <!-- toolbar controls go here! -->
-            <button (click)="boldClick()">BOLD</button>
-            <button class="ql-bold">Bold</button>
-            <button class="ql-italic">Italic</button>
-            <button class="ql-underline">under</button>
-            <button class="ql-strike">strike</button>
-
-            <select class="ql-size">
-                <option value="small"></option>
-                <!-- Note a missing, thus falsy value, is used to reset to default -->
-                <option selected></option>
-                <option value="large"></option>
-                <option value="huge"></option>
-            </select>
-
-            <button class="ql-blockquote"></button>
-            <button class="ql-image">img</button>
-            <button (click)="ui.mediaBar = !ui.mediaBar">MEDIA!</button>
-            <button class="ql-link">link</button>
-            <button class="ql-header" value="1" type="button"></button>
-            <button class="ql-header" value="2" type="button"></button>
-            <button class="ql-align" value="center"></button>
-            <button class="ql-clean">clean</button>
-
-            <button (click)="saveArticle()">save</button>
-            <button (click)="deleteArticle()">trash</button>
-        </app-content-width>
-    </div>
+    
 
     <br>
 
@@ -41,9 +11,17 @@
 
     <app-article (saveClicked)="saveArticle()" [article]="article" [editable]="isOwner()"></app-article>
 
+    
+
     <!-- Author Badge! -->
 
     <app-content-width>
+
+        <!-- publish / un-publish -->
+        <flex-row>
+            <button *ngIf="!article.publishedAt" (click)="publishArticle(article)" [ngStyle]="ui.styles.button()">publish Now</button>
+            <button *ngIf="article.publishedAt" (click)="unpublishArticle(article)" [ngStyle]="ui.styles.button()">unpublish</button>
+        </flex-row>
 
         <!--<simple-spacer></simple-spacer>-->
 

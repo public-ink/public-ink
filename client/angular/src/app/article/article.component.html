@@ -1,20 +1,26 @@
 <!-- NEW TOOLBAR :) -->
-<app-content-width>
 
-    <button (click)="toggleInline('bold')"><b>B</b></button>
-    <button (click)="toggleInline('italic')"><i>I</i></button>
-    <button (click)="toggleInline('underline')" style="text-decoration: underline;">U</button>
-    <button (click)="toggleInline('strike')" style="text-decoration: line-through;">S</button>
-    <button (click)="toggleInline('blockquote')">"</button>
-    <button (click)="toggleInline('code')">&lt;&gt;</button>
-    <button (click)="link()">link</button>
-    <button (click)="h3()">h2</button>
-    <button (click)="quill.removeFormat(quill.getSelection())"><i style="text-decoration: underline;">T</i><sub>x</sub></button>
-    <button (click)="ui.mediaBar = !ui.mediaBar">img</button>
 
-    <button (click)="ui.mediaBar = !ui.mediaBar">save</button>
-    <button (click)="ui.mediaBar = !ui.mediaBar">trash</button>
-</app-content-width>
+<div *ngIf="backend.isOwner(article.publication.author.id) && !article.preview && quill.hasFocus()"
+style="z-index: 9999; position: fixed; top: 50px; left: 0px; width: 100%; border-bottom: 1px solid hsl(0, 0%, 80%); ">
+
+    <app-content-width>
+        <flex-row-between-center 
+            [style.font-size.px]="ui.responsiveValue(16, 18)"
+        style="font-size: 18px; padding: 5px 0px; background-color: hsla(0, 0%, 100%, 0.96);">
+                <button (click)="toggleInline('bold')"><b>B</b></button>
+                <button (click)="toggleInline('italic')"><i>I</i></button>
+                <button (click)="toggleInline('underline')" style="text-decoration: underline;">U</button>
+                <button (click)="toggleInline('strike')" style="text-decoration: line-through;">S</button>
+                <button (click)="toggleInline('blockquote')">"</button>
+                <button (click)="toggleInline('code')">&lt;&gt;</button>
+                <button (click)="h3()">H2</button>
+                <button (click)="link()">Link</button>
+                <button (click)="ui.mediaBar = !ui.mediaBar">Img</button>
+                <button (click)="quill.removeFormat(quill.getSelection())"><i style="text-decoration: underline;">T</i><sub>x</sub></button>
+        </flex-row-between-center>
+    </app-content-width>
+</div>
 
 
 <!-- TITLE -->
@@ -36,8 +42,9 @@
         <a style="text-decoration:underline;" class="tabable" [routerLink]="['/', article.publication.author.id]">{{ article.publication.author.name }}</a>        in <a style="text-decoration:underline;" class="tabable" [routerLink]="['/', article.publication.author.id, article.publication.id]">{{ article.publication.name }}</a>
 
         <span *ngIf="article.publishedAt"> {{ article.publishedAt | date:'MMMM y' }}</span>
-        <div [ngStyle]="ui.styles.button()" *ngIf="article.publishedAt" (click)="backend.publishArticle(article, true)">un-publish</div>
-        <div *ngIf="!article.publishedAt"> draft <span [ngStyle]="ui.styles.button()" (click)="backend.publishArticle(article)">publish</span> </div>
+        <span *ngIf="!article.publishedAt" style="background: beige;"> draft </span>
+       
+        
     </div>
 </app-content-width>
 
@@ -54,6 +61,8 @@
 
     <!-- hidden toolbar in case of preview -->
     <div class="hidden-toolbar" #hidden style="display: none;"></div>
+
+    
 
 
     <!-- read more link in case of preview -->
