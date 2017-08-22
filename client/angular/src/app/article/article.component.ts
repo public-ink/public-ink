@@ -50,7 +50,7 @@ export class ArticleComponent implements OnInit {
     metaThenBody: 50,
   }
   colors = {
-    highlight: 'hsl(0, 0%, 98%)'
+    highlight: 'hsl(0, 0%, 100%)'
   }
 
   constructor(
@@ -116,7 +116,7 @@ export class ArticleComponent implements OnInit {
     this.quill = new Quill(this.editor.nativeElement, {
       modules: modules,
       theme: 'snow',
-      placeholder: 'here is where you lay your words down...',
+      placeholder: 'Your story goes here...',
     })
 
     let win:any = window

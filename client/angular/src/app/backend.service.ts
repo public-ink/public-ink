@@ -766,6 +766,7 @@ export class BackendService {
             id
             title
             bodyOps
+            publishedAt
             publication {
               id
               name

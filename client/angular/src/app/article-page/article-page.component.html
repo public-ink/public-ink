@@ -19,8 +19,11 @@
 
         <!-- publish / un-publish -->
         <flex-row>
-            <button *ngIf="!article.publishedAt" (click)="publishArticle(article)" [ngStyle]="ui.styles.button()">publish Now</button>
-            <button *ngIf="article.publishedAt" (click)="unpublishArticle(article)" [ngStyle]="ui.styles.button()">un-publish</button>
+            <button *ngIf="article.id === 'create-article'" [ngStyle]="ui.styles.button()" (click)="saveArticle()">Create Article</button>
+            <div *ngIf="article.id !== 'create-article'">
+                <button *ngIf="!article.publishedAt" (click)="publishArticle(article)" [ngStyle]="ui.styles.button()">publish Now</button>
+                <button *ngIf="article.publishedAt" (click)="unpublishArticle(article)" [ngStyle]="ui.styles.button()">un-publish</button>
+            </div>
         </flex-row>
 
         <!--<simple-spacer></simple-spacer>-->
@@ -46,16 +49,11 @@
 
 
     <div style="height: 40px;"></div>
-    <div style="background:transparent;">
-        <app-content-width style="color:black">
-            <h1>Your Thoughts</h1>
-        </app-content-width>
-    </div>
+
 
     <app-content-width [ngStyle]="ui.styles.standardText()">
 
-
-
+        <h1>Your Thoughts</h1>
         If you have any thoughts on this article, I'd love to hear them. Just keep in mind that I'm only a human being, so please
         remember to be kind.
         <br><br>

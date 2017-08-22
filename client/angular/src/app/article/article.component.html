@@ -27,10 +27,10 @@ style="z-index: 9999; position: fixed; top: 50px; left: 0px; width: 100%; border
 <app-content-width [bg]="titleHasFocus() ? colors.highlight : 'transparent'">
 
     <!-- static title -->
-    <h1 *ngIf="!editable" [style.fontSize.px]="ui.responsiveValue(30, 50)"><a class="tabable" style="color: #333;" [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]">{{ article.title}}</a></h1>
+    <h1 *ngIf="!editable" [style.fontSize.px]="ui.responsiveValue(30, 45)"><a class="tabable" style="color: #333;" [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]">{{ article.title}}</a></h1>
 
     <!-- editable title -->
-    <textarea #titleArea *ngIf="editable" type="text" autosize rows="1" [style.fontSize.px]="ui.responsiveValue(30, 50)" style="outline: 0; resize: none; background-color: transparent; width: 100%; font-weight: bold; border:0px;"
+    <textarea #titleArea *ngIf="editable" type="text" autosize rows="1" placeholder="A title, please" [style.fontSize.px]="ui.responsiveValue(30, 45)" style="outline: 0; resize: none; background-color: transparent; width: 100%; font-weight: bold; border:0px;"
         [(ngModel)]="article.title"></textarea>
 </app-content-width>
 

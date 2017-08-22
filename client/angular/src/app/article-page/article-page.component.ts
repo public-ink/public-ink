@@ -121,7 +121,7 @@ export class ArticlePageComponent implements OnInit {
         this.backend.getPublication(this.authorID, this.publicationID).subscribe(pub => {
           this.article = {
             id: 'create-article',
-            title: 'no title yet',
+            title: '',
             bodyOps: '{}',
             publication: JSON.parse(JSON.stringify(pub))
           }

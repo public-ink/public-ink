@@ -43,6 +43,7 @@
       </flex-col-center>
 
       <!-- action buttons -->
+      <!-- create everywhere, except when editing. then it's save -->
       <flex-row-around *ngIf="backend.isOwner(publication.author.id)">
         <a 
           [ngStyle]="ui.styles.button()"
@@ -50,7 +51,7 @@
         new article
         </a>
 
-        <div [ngStyle]="ui.styles.button()">edit</div>
+        
 
         <!--<div [ngStyle]="ui.styles.button()" (click)="ui.mediaBar != ui.mediaBar">change background</div>
         <div [ngStyle]="ui.styles.button()">trash</div>-->
