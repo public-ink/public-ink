@@ -14,11 +14,13 @@ from secrets import JWT_SECRET, JWT_EXP_DELTA_SECONDS, JWT_ALGORITHM, JWT_EXP_DE
 Environment
 """
 if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
+    DO_TIME = False
     ENV_NAME = 'production'
     BACKEND_URL  = 'http://www.public.ink'
     FRONTEND_URL = 'http://www.public.ink'
     ALLOW_ORIGIN = BACKEND_URL
 else:
+    DO_TIME = True
     ENV_NAME = 'develop'
 
     BACKEND_URL = 'http://localhost:8080'

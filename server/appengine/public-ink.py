@@ -11,6 +11,7 @@ import hashlib
 import uuid
 from collections import defaultdict
 from datetime import datetime, timedelta
+import time
 from slugify import slugify
 import re
 from random import randint
@@ -29,7 +30,7 @@ from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.api import images
 
 # ink stuff
-from shared import dt_to_epoch, RequestHandler, cross_origin, ninja, allow_cors, return_json, ENV_NAME, FRONTEND_URL, BACKEND_URL
+from shared import dt_to_epoch, RequestHandler, cross_origin, ninja, allow_cors, return_json, ENV_NAME, FRONTEND_URL, BACKEND_URL, DO_TIME
 from secrets import JWT_SECRET, JWT_EXP_DELTA_SECONDS, JWT_ALGORITHM, JWT_EXP_DELTA_DAYS
 
 # app engine
@@ -38,24 +39,38 @@ from google.appengine.ext import ndb
 from google.appengine.api import search
 
 
+"""
+Timing
+"""
+def timing(f):
+    def wrap(*args):
+        time1 = time.time()
+        ret = f(*args)
+        time2 = time.time()
+        if DO_TIME:
+            logging.info('%s function took %0.1f ms' % (f.func_name, (time2-time1)*1000.0))
+        return ret
+    return wrap
+
 
 
 """
 Hashing
 """
+@timing
 def hash_password(password):
     # uuid is used to generate a random number
     salt = uuid.uuid4().hex
     return hashlib.sha256(salt.encode() + password.encode()).hexdigest() + ':' + salt
 
-
+@timing
 def verify_password(hashed_password, user_password):
     password, salt = hashed_password.split(':')
     return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
 
-
+@timing
 def generate_jwt(email):
-    """
+    """ 
     Generates a jwt for a given email. The payload contains the email, 
     a comma separated string of author IDs, and an expiration date
     """    
@@ -158,6 +173,7 @@ class AccountSchema(graphene.ObjectType):
 
     """ Total Views """
     total_views = graphene.Int()
+    @timing
     def resolve_total_views(self, *args):
         user_key = ndb.Key('UserModel', self.email)
         return EventModel.query(EventModel.user == user_key).count()
@@ -165,6 +181,7 @@ class AccountSchema(graphene.ObjectType):
 
     """ Daily Stats """
     daily_views = graphene.String()
+    @timing
     def resolve_daily_views(self, *args):
         
         # results placeholder
@@ -215,6 +232,7 @@ class AccountSchema(graphene.ObjectType):
 
     # related: authors!
     authors = graphene.List(lambda: AuthorSchema)
+    @timing
     def resolve_authors(self, *args):
         # query authors that are pointing to this user
         user_key = ndb.Key('UserModel', self.email)
@@ -275,6 +293,7 @@ class AuthorSchema(graphene.ObjectType):
 
     # related
     publications = graphene.List(lambda: PublicationSchema)
+    @timing
     def resolve_publications(self, args, *more):
         return PublicationModel.query(ancestor=self.key).order(PublicationModel.position)
 
@@ -307,6 +326,8 @@ class PublicationSchema(graphene.ObjectType):
 
     def resolve_id(self, *args):
         return self.key.id()
+
+    @timing
     def resolve_articles(self, args, *more):
         if args.get('include_drafts'):
             return ArticleModel.query(ancestor=self.key).order(ArticleModel.position)
@@ -316,6 +337,8 @@ class PublicationSchema(graphene.ObjectType):
             articles = ArticleModel.query(ancestor=self.key).order(ArticleModel.position).fetch()
             published_articles = filter((lambda article: article.published_at is not None), articles)
             return published_articles
+    
+    @timing
     def resolve_author(self, *args):
         return self.key.parent().get()
 
@@ -329,10 +352,12 @@ class ArticleModel(InkModel):
     published_at = ndb.DateTimeProperty()
     position = ndb.IntegerProperty()
 
+    @timing
     def publish(self):
         self.published_at = datetime.now()
         self.put()
 
+    @timing
     def unpublish(self):
         self.published_at = None
         self.put()
@@ -354,11 +379,13 @@ class ArticleSchema(graphene.ObjectType):
 
     # related: parent publication
     publication = graphene.Field(PublicationSchema)
+    @timing
     def resolve_publication(self, *args):
         return self.key.parent().get()
 
     # related: parent publication's author
     author = graphene.Field(AuthorSchema)
+    @timing
     def resolve_author(self, *args):
         return self.key.parent().parent().get()
 
@@ -526,6 +553,7 @@ class Query(graphene.ObjectType):
 
     """ Analytics """
     record_event = graphene.Field(InfoSchema)
+    @timing
     def resolve_record_event(self, args, *more):
         # stuff is in self when sent as vars
         name = self.get('name')
@@ -568,6 +596,7 @@ class Query(graphene.ObjectType):
 
     """ Email / Password Login """
     epLogin = graphene.Field(AccountResponse)
+    @timing
     def resolve_epLogin(self, *args):
         #logging.debug('emailPasswordLogin')
         email = self.get('email')
@@ -605,6 +634,7 @@ class Query(graphene.ObjectType):
 
     """ AUTH: JWT LOGIN"""
     jwtLogin = graphene.Field(AccountResponse, jwt=graphene.String())
+    @timing
     def resolve_jwtLogin(self, args, *more):
         """
         Checks the JWT and returns an AccountResponse
@@ -636,6 +666,7 @@ class Query(graphene.ObjectType):
     Verfiy email (by following verification link in email)
     """
     verifyEmail = graphene.Field(AccountResponse, email=graphene.String(), token=graphene.String())
+    @timing
     def resolve_verifyEmail(self, args, context, info):
         email = args.get('email')
         token = args.get('token')
@@ -657,6 +688,7 @@ class Query(graphene.ObjectType):
 
     """ CREATE ACCOUNT """
     createAccount = graphene.Field(AccountResponse, email=graphene.String(), password=graphene.String())
+    @timing
     def resolve_createAccount(self, args, *more):
         """
         creates a user with the given email address, provided it does not exist yet
@@ -698,6 +730,7 @@ class Query(graphene.ObjectType):
 
     """ REQUEST PASSWORD RESET LINK """
     requestResetPasswordLink = graphene.Field(InfoSchema, email=graphene.String())
+    @timing
     def resolve_requestResetPasswordLink(self, args, *more):
         email = args.get('email') or self.get('email')
         user = ndb.Key('UserModel', email).get()
@@ -715,6 +748,7 @@ class Query(graphene.ObjectType):
 
     """ ACTUALLY RESET THE PASSWORD """
     resetPassword = graphene.Field(InfoSchema, email=graphene.String(), token=graphene.String(), password=graphene.String())
+    @timing
     def resolve_resetPassword(self, args, *more):
         email = args.get('email') or self.get('email')
         token = args.get('token') or self.get('token')
@@ -731,6 +765,7 @@ class Query(graphene.ObjectType):
 
     """ SAVE AUTHOR (CREATE AND UPDATE) """
     saveAuthor = graphene.Field(AuthorResponse)
+    @timing
     def resolve_saveAuthor(self, args, *more):
         authorID = self.get('authorID')
         print 'resolve saveAuthor'
@@ -780,8 +815,13 @@ class Query(graphene.ObjectType):
     SAVE ORDER
     """
     save_author_order = graphene.Field(InfoSchema, author_data=graphene.String())
+    @timing
     def resolve_save_author_order(self, args, context, info):
-        # do your thing
+        """
+        currently a pretty brute force implementation: gets and updates ALL the author's things
+        a better idea might be to only send things where the order actually changed.
+        in this context, think about ordering in general, and how new articles fit in.
+        """
         print 'resolve save author order'
         author_data = json.loads(self.get('authorData'))
         author_id = author_data['authorID']
@@ -813,6 +853,7 @@ class Query(graphene.ObjectType):
         authorID=graphene.String(), 
         name=graphene.String()
     )
+    @timing
     def resolve_savePublication(self, args, context, info):
         publicationID = self.get('publicationID')
         name = self.get('name')

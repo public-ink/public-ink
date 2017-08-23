@@ -237,6 +237,16 @@ export class UIService {
     }
   }
 
+  space = {
+    publication: {
+      titleThenAbout: {min: 10, max: 20},
+    }
+  }
+  sizes = {
+    publication: {
+      about: {min: 14, max: 16}
+    }
+  }
 
 
 
@@ -317,6 +327,15 @@ export class UIService {
         'font-size.px': this.responsiveValue(15, 17),
       }
     },
+    articleHeadline: () => {
+      return {
+        'font-size.px': this.responsiveValue(30, 45),
+        'margin-top.px': 60,
+        'margin-bottom.px': 5, 
+      }
+      
+    }
   }
+
 
 }

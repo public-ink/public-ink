@@ -27,10 +27,10 @@ style="z-index: 2; position: fixed; top: 50px; left: 0px; width: 100%; border-bo
 <app-content-width [bg]="titleHasFocus() ? colors.highlight : 'transparent'">
 
     <!-- static title -->
-    <h1 *ngIf="!editable" [style.fontSize.px]="ui.responsiveValue(30, 45)"><a class="tabable" style="color: #333;" [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]">{{ article.title}}</a></h1>
+    <h1 *ngIf="!editable" [ngStyle]="ui.styles.articleHeadline()"><a class="tabable" style="color: #333;" [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]">{{ article.title}}</a></h1>
 
     <!-- editable title -->
-    <textarea #titleArea *ngIf="editable" type="text" autosize rows="1" placeholder="A title, please" [style.fontSize.px]="ui.responsiveValue(30, 45)" style="outline: 0; resize: none; background-color: transparent; width: 100%; font-weight: bold; border:0px;"
+    <textarea #titleArea *ngIf="editable" [ngStyle]="ui.styles.articleHeadline()" type="text" autosize rows="1" placeholder="A title, please"  style="outline: 0; resize: none; background-color: transparent; width: 100%; font-weight: bold; border:0px;"
         [(ngModel)]="article.title"></textarea>
 </app-content-width>
 
@@ -48,13 +48,13 @@ style="z-index: 2; position: fixed; top: 50px; left: 0px; width: 100%; border-bo
     </div>
 </app-content-width>
 
-<!-- SPACE -->
-<div [style.height.px]="ui.responsiveValue(0,0)"></div>
+<!-- space between meta and body -->
+<div [style.height.px]="ui.responsiveValue(30, 40)"></div>
 
 <!-- BODY -->
 <app-content-width [bg]="quill.hasFocus() ? colors.highlight : 'transparent'">
 
-    <div style="height:50px;"></div>
+    
 
     <!-- quill editor -->
     <div #editor [style.font-size.px]="ui.responsiveValue(18, 20)"></div>
