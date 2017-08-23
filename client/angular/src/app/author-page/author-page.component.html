@@ -5,25 +5,12 @@
 <flex-row-center *ngIf="author">
     <flex-col >
         <!-- center lane -->
-            <app-author [author]="author" [editable]="1" (create)="create()"></app-author>
+            <app-author [author]="author" [editable]="1"></app-author>
             
             <!-- if NEW: create him inline button -->
             <button [ngStyle]="ui.styles.button()" *ngIf="author.new" (click)="saveAuthor()">create author</button>
-        
-            
-           
-        <!-- end of center lane -->
+            <button [ngStyle]="ui.styles.button()" *ngIf="!author.new" (click)="saveAuthor()">save author</button>
+
+            <!-- end of center lane -->
     </flex-col>
 </flex-row-center>
-
-
- <!-- update / delete existing -->
-<app-bottom-bar *ngIf="author && !author.new && ui.bottomBarVisible">
-    <app-content-width>
-        <flex-row-between-center style="height:50px;">
-            <div  (click)="saveAuthor()">save changes</div>
-            <div  (click)="delete()" *ngIf="1">delete author</div>
-        </flex-row-between-center>
-    </app-content-width>
-</app-bottom-bar>
-

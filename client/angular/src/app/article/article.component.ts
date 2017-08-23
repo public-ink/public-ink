@@ -1,5 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core'
 
+// rx
+import { Observable } from 'rxjs/Observable'
+
 // ink
 // import { iArticle } from '../models'
 import { UIService } from '../ui.service'
@@ -56,7 +59,14 @@ export class ArticleComponent implements OnInit {
   constructor(
     public ui: UIService,
     public backend: BackendService,
-  ) { }
+  ) { 
+
+      // unfocus after 10 secs
+      Observable.fromEvent(window, 'keydown').debounceTime(10000).subscribe(event => {
+        this.quill.blur()
+       })
+
+  }
 
   titleHasFocus() {
     if (!this.titleArea) {

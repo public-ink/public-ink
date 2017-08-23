@@ -11,8 +11,12 @@
   <button (click)="savePublication()" class="" *ngIf="publication.new">Create publication</button>
 
   <!-- this publication's article previews -->
-  <div *ngFor="let article of publication.articles">
+  <div *ngFor="let article of publication.articles; let last=last">
     <app-article [article]="article" [editable]="false" [preview]="true"></app-article>
+    <!-- duplicate with home page -->
+    <app-content-width *ngIf="!last">
+      <simple-spacer></simple-spacer>
+    </app-content-width>
   </div>
 
   

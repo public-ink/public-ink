@@ -1,8 +1,8 @@
 <!-- NEW TOOLBAR :) -->
 
 
-<div *ngIf="backend.isOwner(article.publication.author.id) && !preview && quill.hasFocus()"
-style="z-index: 9999; position: fixed; top: 50px; left: 0px; width: 100%; border-bottom: 1px solid hsl(0, 0%, 80%); ">
+<div *ngIf="backend.isOwner(article.publication.author.id) && !preview"
+style="z-index: 2; position: fixed; top: 50px; left: 0px; width: 100%; border-bottom: 1px solid hsl(0, 0%, 80%); ">
 
     <app-content-width>
         <flex-row-between-center 

@@ -155,12 +155,13 @@ export class ArticlePageComponent implements OnInit {
   }
 
   autoSaveTimer() {
-    Observable.fromEvent(window, 'keydown').debounceTime(1000).subscribe(event => {
+    Observable.fromEvent(window, 'keydown').debounceTime(3000).subscribe(event => {
      // user stopped typing for a seconds
       if (this.canAutoSave()) {
         this.saveArticle(true)
       }
     })
+    
   }
 
   /**
