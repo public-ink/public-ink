@@ -9,12 +9,13 @@
 <flex-row-center *ngIf="author">
     <flex-col >
         <!-- center lane -->
-            <app-author [author]="author" [editable]="1"></app-author>
+            <app-author [author]="author" [editable]="backend.isOwner(author.id)"></app-author>
             
             <!-- if NEW: create him inline button -->
-            <button [ngStyle]="ui.styles.button()" *ngIf="author.new" (click)="saveAuthor()">create author</button>
-            <button [ngStyle]="ui.styles.button()" *ngIf="!author.new" (click)="saveAuthor()">save author</button>
-
+            <div *ngIf="backend.isOwner(author.id)">
+                <button [ngStyle]="ui.styles.button()" *ngIf="author.new" (click)="saveAuthor()">create author</button>
+                <button [ngStyle]="ui.styles.button()" *ngIf="!author.new" (click)="saveAuthor()">save author</button>
+            </div>
             <!-- end of center lane -->
     </flex-col>
 </flex-row-center>

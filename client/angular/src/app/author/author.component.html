@@ -20,22 +20,18 @@
 
     <!-- circle container -->
     <flex-center
-      [style.background-color]="ui.colors.debug ? ui.colors.lightyellow : ''"
-      [style.padding.px]="pad"
+      style="border-radius: 100%; border: 1px solid #eee;"
       >
       <img 
-        [style.box-shadow]="imageStyle.boxShadow"
-        [style.border]="size === 'sticker' ? '4px solid #000' : '10px solid #fff'"
+        [style.border]="'12px solid #fff'"
         [ngStyle]="imgStyle()"
         (click)="ui.mediaBar = !ui.mediaBar"
-      style="border-radius: 500px;" [src]="author.imageURL +'&w=250&h=250'" />
+      style="border-radius: 100%;" [src]="author.imageURL +'&w=250&h=250'" />
       
     </flex-center>
     <!-- author text -->
+    <app-content-width>
     <flex-col-center-center class="grow"
-      [style.padding.px]="0"
-      [style.background-color]="ui.colors.debug ? ui.colors.lightred : ''"
-      [style.color]="size === 'sticker' ? 'white' : '8px solid black'"
     >
         
     <!-- AUTHOR NAME -->
@@ -71,5 +67,6 @@
 
 
     </flex-col-center-center>
+    </app-content-width>
   </flex-col-center><!-- end of display pattern author -->
 </flex-col-center>

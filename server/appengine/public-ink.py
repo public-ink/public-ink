@@ -1466,7 +1466,7 @@ def email_from_jwt(token):
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         return payload.get('email')
-    except ExpiredSignatureError:
+    except jwt.ExpiredSignatureError:
         return None
 
 
