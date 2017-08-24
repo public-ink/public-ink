@@ -36,7 +36,6 @@ export class AppComponent {
 
     this.public = environment.public
     this.environment = environment
-    console.log('app environment', environment)
 
     // observe keyboard
     Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
@@ -79,7 +78,6 @@ export class AppComponent {
    * attempt at catching js errors, not working
    */
   catchGlobalErrors() {
-    console.log(window)
 
     window.addEventListener("error", function (e) {
       alert("Error occured: " );

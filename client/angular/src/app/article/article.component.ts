@@ -36,8 +36,6 @@ export class ArticleComponent implements OnInit {
   @Input() editable: boolean = false
   @Input() preview: boolean = false
 
-  @Output() saveClicked: EventEmitter<any> = new EventEmitter()
-
   @ViewChild('titleArea') titleArea: ElementRef;
   @ViewChild('editor') editor: ElementRef
   @ViewChild('hidden') hidden: ElementRef
@@ -59,12 +57,12 @@ export class ArticleComponent implements OnInit {
   constructor(
     public ui: UIService,
     public backend: BackendService,
-  ) { 
+  ) {
 
-      // unfocus after 10 secs
-      Observable.fromEvent(window, 'keydown').debounceTime(10000).subscribe(event => {
-        this.quill.blur()
-       })
+    // unfocus after 10 secs
+    Observable.fromEvent(window, 'keydown').debounceTime(10000).subscribe(event => {
+      // this.quill.blur()
+    })
 
   }
 
@@ -102,25 +100,10 @@ export class ArticleComponent implements OnInit {
   // make need to wait for authors to be loaded.
   makeQuill() {
 
-    let modules
-
-    // full on toolbar (for non preview)
-    if (!this.preview) {
-      console.log('full article (not preview)')
-      modules = {
-        toolbar: {
-          container: this.hidden.nativeElement,          
-          // container: document.getElementById('toolbar'),
-          //handlers: {'image': this.titleImageHandler},
-        },
-      }
-    } else {
-      console.log('preview article', this.hidden.nativeElement)
-      modules = {
-        toolbar: {
-          container: this.hidden.nativeElement,
-        },
-      }
+    const modules = {
+      toolbar: {
+        container: this.hidden.nativeElement,
+      },
     }
 
     this.quill = new Quill(this.editor.nativeElement, {
@@ -129,8 +112,9 @@ export class ArticleComponent implements OnInit {
       placeholder: 'Your story goes here...',
     })
 
-    let win:any = window
-    win.q = this.quill
+    // for debugging quill
+    // let win: any = window
+    // win.q = this.quill
 
     this.quill.on('text-change', (delta, oldDelta, source) => {
       /* 
@@ -153,7 +137,6 @@ export class ArticleComponent implements OnInit {
     let quillOps = quillData.ops
     // in case of new article
     if (!quillOps) { return }
-    console.log('original', quillOps)
 
     /** replace the image backend url in case it is different, because we running on a differnt IP or localhost */
     transformedOps = quillOps.map(o => {
@@ -186,13 +169,11 @@ export class ArticleComponent implements OnInit {
       transformedOps = previewOps
     }
 
-    // if not editable: remove ---
+    // if not editable: make --- white
     if (!this.editable) {
-      console.log('making --- white / invisible - because not editable')
       let cleanedOps = []
       for (let op of transformedOps) {
         if (typeof op.insert === 'string' && op.insert.indexOf('---') > -1) {
-          // do not add this ops
           let replacement = { insert: '---', attributes: { color: '#fff' } }
           cleanedOps.push(replacement)
         } else {
@@ -201,10 +182,9 @@ export class ArticleComponent implements OnInit {
       }
       transformedOps = cleanedOps
     } else {
-      console.log('keeping this as they are, editable with ---')
+      // console.log('keeping this as they are, editable with ---')
     }
 
-    console.log('setting content', transformedOps)
     this.quill.setContents({ "ops": transformedOps })
 
     if (!this.editable) {

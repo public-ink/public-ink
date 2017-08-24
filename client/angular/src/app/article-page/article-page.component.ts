@@ -54,19 +54,23 @@ export class ArticlePageComponent implements OnInit {
   publicationID: string
   articleID: string
 
-  // new model!
+  // article model
   article: ArticleFragment
+
+  // 404
   notFound = false
 
+  // what is currently saved on the server
+  // to determine if we can, allow saving
   savedArticleJSON: string
 
   // comments
   comments: Comment[] = []
 
   // new comment
-  commentName: string = ''
+  commentName:  string = ''
   commentEmail: string = ''
-  commentBody: string = ''
+  commentBody:  string = ''
 
   // subscriptions [so we can un-subscribe]
   routerSubscription: Subscription
@@ -96,7 +100,11 @@ export class ArticlePageComponent implements OnInit {
 
       if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) {
         // cmd + s
-        this.saveArticle()
+        if (!this.canSave()) {
+          this.ui.flashMessage('up-to-date!')
+        } else {
+          this.saveArticle()
+        }     
         event.preventDefault()
 
       } else if ((event.metaKey || event.ctrlKey) && event.keyCode === 68) {
@@ -117,8 +125,6 @@ export class ArticlePageComponent implements OnInit {
 
     // get route params
     this.routerSubscription = this.route.params.subscribe(params => {
-
-      console.log('article page on route!')
 
       this.authorID = params['authorID']
       this.publicationID = params['publicationID']
@@ -166,13 +172,27 @@ export class ArticlePageComponent implements OnInit {
     })
   }
 
+  /**
+   * Determines if there are changes that can be auto saved.
+   */
   canAutoSave() {
     return this.article && this.isOwner() && this.savedArticleJSON != JSON.stringify(this.article) && this.article.id != 'create-article'
   }
 
+  /**
+   * Determines if there have been changes which can be changed.
+   */
+  canSave() {
+    let can = this.article && this.isOwner && this.savedArticleJSON != JSON.stringify(this.article)
+    return can
+  }
+
+  /** 
+   * fires every 3 seconds after the user stopped typing
+   * in that cause, it auto-saves (if allowed)
+  */
   autoSaveTimer() {
     Observable.fromEvent(window, 'keydown').debounceTime(3000).subscribe(event => {
-      // user stopped typing for a seconds
       if (this.canAutoSave()) {
         this.saveArticle(true)
       }
@@ -195,9 +215,6 @@ export class ArticlePageComponent implements OnInit {
       this.articleID,
       this.article).subscribe(reply => {
 
-        // check status
-        console.log(reply)
-
         if (reply.info.success) {
 
           // update saved version for autosave
@@ -210,7 +227,6 @@ export class ArticlePageComponent implements OnInit {
           }
           /* not sure why this check is required here but not on publication page */
           if (this.articleID === 'create-article') {
-            console.log('navigating to article')
             this.router.navigate(['/', reply.article.publication.author.id, reply.article.publication.id, reply.article.id])
           }
         } else {
@@ -222,20 +238,23 @@ export class ArticlePageComponent implements OnInit {
   publishArticle(article) {
     this.ui.show('loading', 'publishing ' + this.article.title)
     this.backend.publishArticle(article).subscribe((result: any) => {
-      // this.article = JSON.parse(JSON.stringify(result.article))
-      // this.savedArticleJSON = JSON.stringify(this.article)
+      this.article = JSON.parse(JSON.stringify(result.article))
+      this.savedArticleJSON = JSON.stringify(this.article)
       this.ui.show('success', 'great success!', 1000)
     })
   }
   unpublishArticle(article) {
     this.ui.show('loading', 'un-publishing ' + this.article.title)
     this.backend.publishArticle(article, true).subscribe((result: any) => {
-      //this.article = JSON.parse(JSON.stringify(result.article))
-      //this.savedArticleJSON = JSON.stringify(this.article)
+      this.article = JSON.parse(JSON.stringify(result.article))
+      this.savedArticleJSON = JSON.stringify(this.article)
       this.ui.show('success', 'now a draft!', 1000)
     })
   }
 
+  /**
+   * Records what we consider an article page view
+   */
   recordView() {
     this.backend.recordEvent(
       'article view',
@@ -243,16 +262,18 @@ export class ArticlePageComponent implements OnInit {
       this.article.publication.id,
       this.article.id,
     ).subscribe(msg => {
-      console.log('record view returned', msg)
+      //console.log('record view returned', msg)
     }, error => {
-      console.log('error recording view, probably unexpected BE error', error)
+      console.error('error recording view, probably unexpected BE error', error)
     })
   }
 
+  /**
+   * Posts a comment to the article!
+   */
   postComment() {
     this.ui.show('loading', 'saving your thoughts...')
     this.backend.postComment(this.article, this.commentName, this.commentEmail, this.commentBody).subscribe((msg: any) => {
-
       this.comments.unshift({ name: this.commentName, body: this.commentBody })
       this.commentBody = ''
       this.commentEmail = ''
@@ -266,7 +287,7 @@ export class ArticlePageComponent implements OnInit {
   }
 
   /**
-   * Deletes the article (needs to be confirmed)
+   * Deletes the article after confirmation
    */
   deleteArticle() {
     this.ui.confirm('Are you sure you want to delete this article?').subscribe(response => {
@@ -289,7 +310,6 @@ export class ArticlePageComponent implements OnInit {
     this.keyboardSubscription.unsubscribe()
     this.routerSubscription.unsubscribe()
     this.mediaClickSubscription.unsubscribe()
-
     // save if owner and changed
     if (this.canAutoSave()) {
       // todo: better quite
@@ -300,7 +320,5 @@ export class ArticlePageComponent implements OnInit {
   /** check if the current article is owned by the current user */
   isOwner() {
     return this.backend.isOwner(this.article.publication.author.id)
-
   }
-
 }

@@ -216,10 +216,7 @@ export class BackendService {
   ) {
 
     const jwt = localStorage.getItem('jwt')
-    if (!jwt) {
-      console.log('no jwt in local storage - not signing in.')
-    }
-    else {
+    if (jwt) {
       this.jwtLogin().subscribe(info => {
         this.loadImages(jwt)
       }, error => {
@@ -234,7 +231,6 @@ export class BackendService {
    * @param authorID 
    */
   loadHoff(authorID: string = 'hoff') {
-    console.log('hoff')
     const query = gql`
       {
         author(authorID: "hoff") {
@@ -622,7 +618,7 @@ export class BackendService {
    * Authentication with jwt token from localStorage
    */
   jwtLogin(): Observable<any> {
-    console.log('attempting jwt login')
+    // console.log('attempting jwt login')
     const endpoint = 'jwtLogin'
     const jwt = localStorage.getItem('jwt')
     const query = gql`
@@ -948,7 +944,6 @@ export class BackendService {
    * @param article 
    */
   saveArticle(authorID: string, publicationID: string, articleID: string, article): Observable<any> {
-    console.log('save article', article)
     const jwt = localStorage.getItem('jwt')
     const endpoint = 'saveArticle'
     const query = gql`
@@ -993,6 +988,7 @@ export class BackendService {
       const reply = result.data[endpoint]
       if (info.success) {
         saveSubject.next(reply)
+        saveSubject.complete()
       } else {
         saveSubject.error(reply.info.message)
       }
@@ -1172,6 +1168,7 @@ export class BackendService {
       .subscribe((reply: ArticleResponse )=> {
         if (reply.data.article.info.success) {
           articleSubject.next(reply.data.article.article)
+          articleSubject.complete()
         } else { 
           articleSubject.error(reply)
         }

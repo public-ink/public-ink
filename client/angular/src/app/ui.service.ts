@@ -153,8 +153,9 @@ export class UIService {
    * @param duration: number The duration of the message (defaults to 1 second)
    */
   flashMessage(message: string, duration: number = 1000) {
+    this.overlay = true
     this.message = message
-    setTimeout(() => { this.message = '' }, 1000)
+    setTimeout(() => { this.message = ''; this.overlay = false }, 1000)
   }
 
   /**

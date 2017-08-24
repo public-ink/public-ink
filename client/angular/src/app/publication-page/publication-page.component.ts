@@ -43,10 +43,12 @@ export class PublicationPageComponent implements OnInit {
     // graphql
     private apollo: Apollo,
   ) {
-    console.log('publication page constructed')
+    // console.log('publication page constructed')
+    // log.lifecyle(..)
     this.route.params.subscribe(params => {
 
-      console.log('pub page router change, constructor')
+      //console.log('pub page router change, constructor')
+      // log.route(...)
 
       this.authorID = params['authorID']
       this.publicationID = params['publicationID']
@@ -95,7 +97,7 @@ export class PublicationPageComponent implements OnInit {
         }
       }, error => {
         this.ui.backendBusy = false
-        // todo: error message
+        console.log(error)
       })
     })
   }
@@ -104,8 +106,7 @@ export class PublicationPageComponent implements OnInit {
     // listen to media click
     // simply sets the imageURL of the publication
     this.ui.mediaClickObservable.subscribe(image => {
-      console.log('jo')
-      this.publication.imageURL = image.url // size?
+      this.publication.imageURL = image.url 
     })
   }
 
@@ -118,7 +119,7 @@ export class PublicationPageComponent implements OnInit {
     this.backend.savePublication(this.publication).subscribe((publicationResponse: any) => {
       this.ui.show('success', 'done!', 1000)
       // coule be that we are already here, this is for creates
-      console.log(publicationResponse)
+      // TODO: are we always navigating? console.log(publicationResponse)
       this.router.navigate(['/', publicationResponse.publication.author.id, publicationResponse.publication.id])
     })
   }
@@ -127,8 +128,6 @@ export class PublicationPageComponent implements OnInit {
    */
   deletePublication() {
 
-
-    // cool!
     this.ui.confirm('Are you sure you want to delete this publication and all x of its articles?').subscribe(response => {
       if (response === 'no') {
         this.ui.resetState()
@@ -144,7 +143,7 @@ export class PublicationPageComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    console.log('publication page destroyed')
+    // console.log('publication page destroyed')
     this.keyboardSubscription.unsubscribe()
   }
 
