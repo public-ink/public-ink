@@ -2,12 +2,12 @@
 
 
 <div *ngIf="backend.isOwner(article.publication.author.id) && !preview"
-style="z-index: 2; position: fixed; top: 50px; left: 0px; width: 100%; border-bottom: 1px solid hsl(0, 0%, 80%); ">
+style="background-color: white; z-index: 2; position: fixed; top: 50px; left: 0px; width: 100%; border-bottom: 1px solid hsl(0, 0%, 80%); ">
 
     <app-content-width>
         <flex-row-between-center 
             [style.font-size.px]="ui.responsiveValue(16, 18)"
-        style="font-size: 18px; padding: 5px 0px; background-color: hsla(0, 0%, 100%, 0.96);">
+        style="font-size: 18px; padding: 5px 0px;">
                 <button (click)="toggleInline('bold')"><b>B</b></button>
                 <button (click)="toggleInline('italic')"><i>I</i></button>
                 <button (click)="toggleInline('underline')" style="text-decoration: underline;">U</button>

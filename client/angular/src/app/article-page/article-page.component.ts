@@ -14,8 +14,14 @@ import { ArticleComponent } from '../article/article.component'
 
 import { iArticle } from '../models'
 
+import { ArticleFragment } from '../backend.service'
+
 interface Quill {
-  new (container: string | Element, options?: any): Quill;
+  new(container: string | Element, options?: any): Quill;
+}
+
+interface Article {
+  data: any
 }
 
 interface UpdateResponse {
@@ -48,13 +54,11 @@ export class ArticlePageComponent implements OnInit {
   publicationID: string
   articleID: string
 
-  // loaded via graphql
-  data: any
-  article: iArticle
+  // new model!
+  article: ArticleFragment
+  notFound = false
 
   savedArticleJSON: string
-
-
 
   // comments
   comments: Comment[] = []
@@ -64,17 +68,20 @@ export class ArticlePageComponent implements OnInit {
   commentEmail: string = ''
   commentBody: string = ''
 
-  // subscriptions (so we can un-subscribe)
+  // subscriptions [so we can un-subscribe]
   routerSubscription: Subscription
   keyboardSubscription: Subscription
   mediaClickSubscription: any
 
 
   constructor(
+    // ng
     private route: ActivatedRoute,
     private router: Router,
-    public backend: BackendService,
+    // apollo
     private apollo: Apollo,
+    // ink
+    public backend: BackendService,
     public ui: UIService,
   ) {
 
@@ -118,6 +125,7 @@ export class ArticlePageComponent implements OnInit {
       this.articleID = params['articleID']
 
       if (this.articleID === 'create-article') {
+        this.ui.backendBusy = true
         this.backend.getPublication(this.authorID, this.publicationID).subscribe(pub => {
           this.article = {
             id: 'create-article',
@@ -125,27 +133,35 @@ export class ArticlePageComponent implements OnInit {
             bodyOps: '{}',
             publication: JSON.parse(JSON.stringify(pub))
           }
+          this.ui.backendBusy = false
+
         })
 
       } else {
-        this.backend.getArticle(this.authorID, this.publicationID, this.articleID).subscribe(article => {
+        this.ui.backendBusy = true
+        this.backend.getArticle(this.authorID, this.publicationID, this.articleID)
+          .subscribe((article: ArticleFragment) => {
 
-          // this might actually return more often!!!
+            this.ui.backendBusy = false
 
-          // what is going on here?
-          this.article = JSON.parse(JSON.stringify(article))
-          this.savedArticleJSON = JSON.stringify(this.article)
+            // what is going on here?
+            this.article = JSON.parse(JSON.stringify(article))
+            this.savedArticleJSON = JSON.stringify(this.article)
 
-          // and here
-          this.recordView()
+            // and here
+            this.recordView()
 
-          // get comments!
-          console.log('get comments')
-          this.backend.loadComments(this.article).subscribe(comments => {
-            console.log('comments are', comments)
-            this.comments = JSON.parse(JSON.stringify(comments))
+            // get comments!
+            this.backend.loadComments(this.article).subscribe(comments => {
+              this.comments = JSON.parse(JSON.stringify(comments))
+            }, error => {
+              console.error('error getting comments')
+            })
+          }, (error) => {
+            this.notFound = true
+            this.ui.backendBusy = false
+            console.error('error getting article')
           })
-        })
       }
     })
   }
@@ -156,12 +172,12 @@ export class ArticlePageComponent implements OnInit {
 
   autoSaveTimer() {
     Observable.fromEvent(window, 'keydown').debounceTime(3000).subscribe(event => {
-     // user stopped typing for a seconds
+      // user stopped typing for a seconds
       if (this.canAutoSave()) {
         this.saveArticle(true)
       }
     })
-    
+
   }
 
   /**
@@ -228,6 +244,8 @@ export class ArticlePageComponent implements OnInit {
       this.article.id,
     ).subscribe(msg => {
       console.log('record view returned', msg)
+    }, error => {
+      console.log('error recording view, probably unexpected BE error', error)
     })
   }
 
@@ -248,12 +266,19 @@ export class ArticlePageComponent implements OnInit {
   }
 
   /**
-   * Deletes the article
+   * Deletes the article (needs to be confirmed)
    */
-  deleteArticle(): void {
-    this.backend.deleteArticle(this.article).subscribe(info => {
-      this.ui.flashMessage(info.message)
-      this.router.navigate(['/', this.authorID, this.publicationID])
+  deleteArticle() {
+    this.ui.confirm('Are you sure you want to delete this article?').subscribe(response => {
+      if (response === 'no') {
+        this.ui.resetState()
+      } else {
+        this.ui.show('loading', 'deleting article')
+        this.backend.deleteArticle(this.article).subscribe(info => {
+          this.ui.flashMessage(info.message)
+          this.router.navigate(['/', this.authorID, this.publicationID])
+        })
+      }
     })
   }
 

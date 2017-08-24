@@ -15,8 +15,7 @@ import gql from 'graphql-tag'
 import { BackendService } from '../backend.service'
 import { UIService } from '../ui.service'
 
-// Ink Interfaces
-import { Publication, iPublicationResponse } from '../models'
+// Ink Interfaces impor modelsss! and use them:)
 
 @Component({
   selector: 'app-publication-page',
@@ -30,6 +29,7 @@ export class PublicationPageComponent implements OnInit {
   publication: any //Publication
 
   bottomBarVisible = false
+  notFound = false
 
   keyboardSubscription: Subscription
 
@@ -85,8 +85,17 @@ export class PublicationPageComponent implements OnInit {
 
         return
       }
+      this.ui.backendBusy = true
       this.backend.getPublication(this.authorID, this.publicationID).subscribe(publication => {
-        this.publication = JSON.parse(JSON.stringify(publication))
+        this.ui.backendBusy = false
+        if (!publication) {
+          this.notFound = true
+        } else {
+          this.publication = JSON.parse(JSON.stringify(publication))
+        }
+      }, error => {
+        this.ui.backendBusy = false
+        // todo: error message
       })
     })
   }
@@ -123,7 +132,6 @@ export class PublicationPageComponent implements OnInit {
     this.ui.confirm('Are you sure you want to delete this publication and all x of its articles?').subscribe(response => {
       if (response === 'no') {
         this.ui.resetState()
-        return
       } else {
         this.ui.show('loading', 'deleting publication')
         this.backend.deletePublication(this.publication).subscribe(info => {

@@ -9,7 +9,7 @@
 
 
 <!-- full screen message overlay -->
-<flex-col-center-center *ngIf="ui.overlay" (click)="ui.overlay = false" style="z-index: 9999; position:fixed; top: 0; left:0; width: 100vw; height: 100vh; background-color: rgba(255,255,255,0.9);">
+<flex-col-center-center *ngIf="ui.overlay" (click)="ui.overlay = false" style="z-index: 9999; position:fixed; top: 0; left:0; width: 100vw; height: 100vh; background-color: rgba(255,255,255,0.96);">
 
     <app-content-width>
 
@@ -64,14 +64,20 @@
 
 
 <div style="min-height: 100vh;">
+    <!-- loading screen -->
+    <flex-col-center-center *ngIf="ui.backendBusy" style="height: 100vh;">
+        <h1>Loading</h1>
+        <p>hang tight!</p>
+    </flex-col-center-center>
+    <!-- router outlet -->
     <router-outlet></router-outlet>
 </div>
 
 <!-- footer -->
 <div style="background:black; color: white; margin-top: 100px;">
-<app-content-width *ngIf="1" >
+<app-content-width>
     <flex-row-center-center style="height: 50px; margin-top: 50px;">
-        public.ink | CC BY-SA 3.0
+        public.ink
     </flex-row-center-center>
 </app-content-width>
 </div>

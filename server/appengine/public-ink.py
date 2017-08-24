@@ -555,6 +555,7 @@ class Query(graphene.ObjectType):
     record_event = graphene.Field(InfoSchema)
     @timing
     def resolve_record_event(self, args, *more):
+        # raise Exception('just to fuck with you')
         # stuff is in self when sent as vars
         name = self.get('name')
         authorID = self.get('authorID')
@@ -768,7 +769,6 @@ class Query(graphene.ObjectType):
     @timing
     def resolve_saveAuthor(self, args, *more):
         authorID = self.get('authorID')
-        print 'resolve saveAuthor'
         name = self.get('name')
         about = self.get('about')
         imageURL = self.get('imageURL')
@@ -822,13 +822,11 @@ class Query(graphene.ObjectType):
         a better idea might be to only send things where the order actually changed.
         in this context, think about ordering in general, and how new articles fit in.
         """
-        print 'resolve save author order'
         author_data = json.loads(self.get('authorData'))
         author_id = author_data['authorID']
         publications = author_data['publications']
         publication_position = 0
         for pub in publications:
-            print pub['publicationID']
             publication_id = pub['publicationID']
             # retrieve publication and update
             publication = ndb.Key('AuthorModel', author_id, 'PublicationModel', publication_id).get()
@@ -838,7 +836,6 @@ class Query(graphene.ObjectType):
             article_position = 0
             for article_id in pub['articles']:
                 # retrieve and update article
-                print '-' + article_id
                 article = ndb.Key('AuthorModel', author_id, 'PublicationModel', publication_id, 'ArticleModel', article_id).get()
                 article.position = article_position
                 article.put()
@@ -965,7 +962,6 @@ class Query(graphene.ObjectType):
     """
     user = graphene.Field(UserSchema, email=graphene.String(), jwt=graphene.String())
     def resolve_user(self, args, context, info):
-        print 'resolve user'
         user = ndb.Key(
             'UserModel', args.get('email')
         ).get()
@@ -973,16 +969,17 @@ class Query(graphene.ObjectType):
 
     author = graphene.Field(AuthorSchema, authorID=graphene.String())
     def resolve_author(self, args, context, info):
-        print 'resolve author / zero'
         authorID = args.get('authorID') or self.get('authorID')
         author = ndb.Key(
             'AuthorModel', authorID
         ).get()
         return author
 
+    """
+    Publication Response!
+    """
     publication = graphene.Field(PublicationSchema, authorID=graphene.String(), publicationID=graphene.String())
     def resolve_publication(self, args, context, info):
-        print 'resolve publication'
         authorID=args.get('authorID') or self.get('authorID') 
         publicationID=args.get('publicationID') or self.get('publicationID')
         publication=ndb.Key(
@@ -991,9 +988,9 @@ class Query(graphene.ObjectType):
         ).get()
         return publication
 
-    article = graphene.Field(ArticleSchema, authorID=graphene.String(), publicationID=graphene.String(), articleID=graphene.String())
+    xarticle = graphene.Field(ArticleSchema, authorID=graphene.String(), publicationID=graphene.String(), articleID=graphene.String())
+    article = graphene.Field(ArticleResponse, authorID=graphene.String(), publicationID=graphene.String(), articleID=graphene.String())
     def resolve_article(self, args, context, info):
-        print 'resolve article / zero'
         authorID = args.get('authorID') or self.get('authorID')
         publicationID = args.get('publicationID') or self.get('publicationID')
         articleID = args.get('articleID') or self.get('articleID')
@@ -1003,7 +1000,16 @@ class Query(graphene.ObjectType):
             'PublicationModel', publicationID,
             'ArticleModel', articleID
         ).get()
-        return article
+        if not article:
+            return ArticleResponse(
+                info=InfoSchema(success=False, message='404'),
+                article=None
+            )
+        else: 
+            return ArticleResponse(
+                info=InfoSchema(success=True, message='article resolved'),
+                article=article
+            )
 
     post_comment = graphene.Field(lambda: InfoSchema, authorID=graphene.String(), publicationID=graphene.String(), articleID=graphene.String(),
     email=graphene.String(), name=graphene.String(), body=graphene.String()
@@ -1025,7 +1031,6 @@ class Query(graphene.ObjectType):
             body = body,
             article = article_key
         ).put()
-        print comment
         return InfoSchema(success=True, message='comment_posted')
 
     load_comments = graphene.List(lambda: CommentSchema, authorID=graphene.String(), publicationID=graphene.String(), articleID=graphene.String())
@@ -1040,7 +1045,6 @@ class Query(graphene.ObjectType):
     """ Images """
     images = graphene.List(lambda: ImageSchema, jwt=graphene.String())
     def resolve_images(self, args, *more):
-        print 'resolve images'
         jwt = args.get('jwt') or args.get('jwt')
         email = email_from_jwt(jwt)
         user_key = ndb.Key('UserModel', email)
@@ -1052,10 +1056,7 @@ class Query(graphene.ObjectType):
     """ Songs """
     song = graphene.Field(lambda: SongSchema, id=graphene.String())
     def resolve_song(self, args, *more):
-
         id = args.get('id') or args.get('id')
-        print 'got an id' + id
-
         song_key = ndb.Key(urlsafe=id)
         song = song_key.get()
         return song
@@ -1133,11 +1134,11 @@ class Query(graphene.ObjectType):
         # improve this, rename to key, make a @property
         author_user = author.user.get()
         if author_user.email == claim_email:
-            print "yes, you can delete this author"
+            # "yes, you can delete this author"
             ndb.Key('AuthorModel', args.get('authorID')).delete()
             return InfoSchema(success=True, message='author_deleted (not really')
         else:
-            print "you don't have permission to delete this author"
+            # "you don't have permission to delete this author"
             return InfoSchema(success=False, message='unauthorized')
 
     """ delete publication """
@@ -1257,7 +1258,6 @@ class ImageUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
         # works!
         allow_cors(self)
-        print 'Image Upload Handler here!'
         jwt = self.request.get('jwt')
         email = email_from_jwt(jwt)
         user_key = ndb.Key('UserModel', email)
@@ -1354,7 +1354,6 @@ class MIDIUploadHandler(RequestHandler):
     def get(self, data):
         dataString = urllib.unquote(data) 
         midi = json.loads(dataString)
-        print midi
         header = midi['header']
         ppq = header['PPQ']
         bpm = header['bpm']
@@ -1428,8 +1427,8 @@ You or somebody else submitted this email address to us. To create a public.ink 
 Awesome!
     """.format(host, email, token)
     if to_log:
-        print 'would send the following message to ' + email
-        print message.body
+        logging.info('would send the following message to ' + email)
+        logging.infor(message.body)
     else:
         message.send()
 
@@ -1454,8 +1453,8 @@ If you did not request a reset link, please disregard this email.
 Have a nice day!
     """.format(host, email, token)
     if to_log:
-        print 'would send the following message to ' + email
-        print message.body
+        logging.info('would send the following message to ' + email)
+        logging.info(message.body)
     else:
         message.send()
 
@@ -1489,5 +1488,4 @@ def is_owner(token, author_id):
     # todo: token is none for logged out folks.
     payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
     author_ids = payload.get('authors').split(',')
-    print author_ids
     return True if author_id in author_ids else False

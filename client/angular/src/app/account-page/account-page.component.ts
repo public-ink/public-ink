@@ -24,6 +24,7 @@ export class AccountPageComponent implements OnInit {
     
   }
   
+  /** maybe duplicate? */
   publicationBG(publication) {
     let str = `url(${publication.imageURL}&w=${this.ui.actualContentWidth})`
     return this.sanitizer.bypassSecurityTrustStyle(str)

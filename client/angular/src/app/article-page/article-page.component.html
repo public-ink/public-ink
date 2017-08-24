@@ -1,69 +1,60 @@
+<!-- 404 -->
+<flex-col-center-center *ngIf="notFound" [style.height.vh]="100">
+    <h1>404</h1>
+    <p>Bummer. We could not find an article at this url.</p>
+</flex-col-center-center>
+
+<!-- article container -->
 <div *ngIf="article">
 
     <!-- space for toolbar(s) -->
     <div style="height: 50px"></div>
 
-
-    <!-- THE ARTICLE -->
-
+    <!-- the article itself :) -->
     <app-article (saveClicked)="saveArticle()" [article]="article" [editable]="isOwner()"></app-article>
 
-    
-
-    <!-- Author Badge! -->
-
+    <!-- author badge -->
     <app-content-width>
-
-       
-
-        <!--<simple-spacer></simple-spacer>-->
-
-
         <flex-col-center [ngStyle]="ui.styles.standardText()">
-
-            <br><br>
             <img [src]="article.publication.author.imageURL + '&w=140&h=140&q=100'" style="border-radius: 100%;; box-shadow: rgba(0, 0, 0, 0.15) 0px 1.5px 3px 0px inset, rgba(0, 0, 0, 0.15) 0px 1.5px 3px 0px; border: 10px solid rgb(255, 255, 255);"
             />
-            <br> By {{ article.publication.author.name }}
+            By {{ article.publication.author.name }}
         </flex-col-center>
-
-     
-
-        
-
     </app-content-width>
 
 
-    <!-- article comment (new) -->
-
-
-
+    <!-- space (make responsive) -->
     <div style="height: 40px;"></div>
 
-
+    <!-- comments -->
     <app-content-width [ngStyle]="ui.styles.standardText()">
 
+        <!-- the form -->
         <h1>Your Thoughts</h1>
         If you have any thoughts on this article, I'd love to hear them. Just keep in mind that I'm only a human being, so please
         remember to be kind.
-        <br><br>
+
+        <div style="height: 50px;"></div>
+
         <textarea [ngStyle]="ui.styles.textarea()" [(ngModel)]="commentBody" placeholder="your thoughts..." autosize rows="3" style="border: 1px dashed black;"></textarea>
-        <br>
-        <br>
+        
+        <div style="height: 50px;"></div>
+
         <input style="border: 1px dashed black;" [ngStyle]="ui.styles.input()" type="text" [(ngModel)]="commentName" placeholder="your name&nbsp;&nbsp;/ optional"
         />
-        <br><br>
+        <div style="height: 50px;"></div>
+
         <input [ngStyle]="ui.styles.input()" type="email" [(ngModel)]="commentEmail" placeholder="your email / optional and private"
         />
 
-        <br><br>
+        <div style="height: 50px;"></div>
 
         <button style="width: 100%;" class="form-button" (click)="postComment()">share your thoughts</button>
 
-        <br>
-        <br>
-        <br>
+        <div style="height: 75px;"></div>
+        
 
+        <!-- existing comments -->
         <div *ngIf="comments && comments.length > 0">
             <h1>{{ comments.length }} Response<span *ngIf="comments.length > 1">s</span></h1>
 
@@ -83,8 +74,7 @@
                 <button *ngIf="!article.publishedAt" (click)="publishArticle(article)" [ngStyle]="ui.styles.button()">publish Now</button>
                 <button *ngIf="article.publishedAt" (click)="unpublishArticle(article)" [ngStyle]="ui.styles.button()">un-publish</button>
                 <button *ngIf="article.publishedAt" (click)="unpublishArticle(article)" [ngStyle]="ui.styles.button()">disable comments (TODO)</button>
-                <button *ngIf="article.publishedAt" (click)="unpublishArticle(article)" [ngStyle]="ui.styles.button()">delete (TODO)</button>
-                
+                <button *ngIf="article.publishedAt" (click)="deleteArticle(article)" [ngStyle]="ui.styles.button()">delete</button>
             </div>
         </flex-row>
 

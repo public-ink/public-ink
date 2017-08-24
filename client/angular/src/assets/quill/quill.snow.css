@@ -563,8 +563,15 @@
   font-size: 0.67em;
 }
 .ql-snow .ql-editor a {
-  text-decoration: underline;
+  /*text-decoration: underline;*/
 }
+
+/* code!! */
+.ql-snow .ql-editor code {
+  line-height: 1;
+  background-wh
+}
+
 .ql-snow .ql-editor blockquote {
   border-left: 10px solid #000;
   margin-bottom: 5px;

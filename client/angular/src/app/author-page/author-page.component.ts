@@ -8,14 +8,10 @@ import { Subscription } from 'rxjs/Subscription'
 import 'rxjs/Rx'
 
 // Services
-import { BackendService, iInfo } from '../backend.service'
+import { BackendService } from '../backend.service'
 import { UIService } from '../ui.service'
 
-// Models (hmm)
-import {
-  Author, AuthorData,
-  ValidationError, ServerError,
-} from '../models'
+
 
 import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
@@ -41,6 +37,8 @@ export class AuthorPageComponent implements OnInit, OnDestroy {
 
   // keyboard observation
   keyboardSubscription: Subscription
+
+  notFound = false
 
 
   constructor(
@@ -69,8 +67,17 @@ export class AuthorPageComponent implements OnInit, OnDestroy {
           publications: [],
         }
       } else {
+        this.ui.backendBusy = true
         this.backend.getAuthor(this.authorID).subscribe(author => {
-          this.author = JSON.parse(JSON.stringify(author))
+          this.ui.backendBusy = false
+          if (!author) {
+            this.notFound = true
+          } else {
+            this.author = JSON.parse(JSON.stringify(author))
+          }
+        }, error => {
+          this.ui.backendBusy = false
+          // todo: error message or not found?
         })
       }
     })
@@ -101,7 +108,7 @@ export class AuthorPageComponent implements OnInit, OnDestroy {
       (yes) => {
         this.ui.show('loading', 'deleting author')
 
-        this.backend.deleteAuthor(this.authorID).subscribe((info: iInfo) => {
+        this.backend.deleteAuthor(this.authorID).subscribe((info: any) => {
           this.ui.show('success', 'done!', 1000)
           this.router.navigate(['/my-account'])
         }, (error) => {

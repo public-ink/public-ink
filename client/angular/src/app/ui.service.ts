@@ -7,7 +7,6 @@ import { Observable, Subscribable } from 'rxjs/Observable'
 import 'rxjs/Rx'
 
 // INK
-import { ServerError, ValidationError } from './models'
 import { BackendService } from './backend.service'
 
 
@@ -43,6 +42,9 @@ export class UIService {
   // CONSTANTS
   mainWidth: number = 900
 
+  // loading / backend busy
+  backendBusy = false
+
   colors = {
     black: '#000',
     white: '#fff',
@@ -55,11 +57,6 @@ export class UIService {
 
     debug: false,
   }
-
-
-
-  pad: number = 30
-
 
 
   mediaBar: boolean = false
@@ -79,15 +76,19 @@ export class UIService {
     }
   }
 
+  /*returns the pixel value for a given vh input */
   vh(percent: number) {
     return Math.floor(this.deviceHeight * (percent / 100))
   }
+  /** returns the pixel value of a given vw */
   vw(percent: number) {
     return Math.floor(this.deviceWidth * (percent / 100))
   }
+  /** returns the initial viewport height in px */
   initialVH(percent: number) {
     return Math.floor(this.initialHeight * (percent / 100))
   }
+  /** returns the initial viewport width in px */  
   initialVW(percent: number) {
     return Math.floor(this.initialWidth * (percent / 100))
   }
@@ -109,18 +110,17 @@ export class UIService {
     // keyboard shortcuts
     Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
 
-      //console.log(event.keyCode)
-
-      // check if ownership is given
-
       // toggle media bar
       if ((event.metaKey || event.ctrlKey) && event.keyCode === 77) { /*ctrl m */
         if (this.backend.userAccount) {
           this.mediaBar = !this.mediaBar
         }
-        event.preventDefault() // prevent minimizing
-      } else if (event.keyCode === 27) { // escape
+        // prevents minimizing!
+        event.preventDefault() 
+      } else if (event.keyCode === 27) { 
+        // escape
         if (this.backend.userAccount) {
+          // re-use for editor
           this.bottomBarVisible = !this.bottomBarVisible
         }
       }
@@ -146,10 +146,6 @@ export class UIService {
     })
   }
 
-  handleError(error: ServerError | ValidationError) {
-    console.log(error)
-    alert('error: ' + error.status)
-  }
 
   /**
    * Shows a given message for 1 second.
@@ -210,6 +206,8 @@ export class UIService {
 
   /**
    * Set all state variables to false
+   * 
+   * Rethink this whole state businessness
    */
   resetState() {
     this.loading = this.success = this.error = this.toConfirm = false

@@ -7,9 +7,6 @@ import 'rxjs/add/operator/map'
 // graphql
 import gql from 'graphql-tag'
 import { Apollo } from 'apollo-angular'
-// import { print } from 'graphql-tag/printer'
-
-
 
 // ink
 import { UIService } from './ui.service'
@@ -17,21 +14,104 @@ import { environment } from '../environments/environment'
 import { Song } from './hero/song'
 
 
+/**
+ * LATEST AND MOST AWESOME TYPINGS!
+ */
 
-import {
-  PublicationData,
-  iArticle,
-  IBackendData, IResource, Author, AuthorData, Publication, Resource
-} from './models'
-
-import { iAccount } from './auth-page/auth-page.component'
-
-
-/** clean up typings */
-import { iPublicationResponse } from './models'
-export interface iInfo {
+/**
+ * shape of an info object
+ */
+export interface InfoFragment {
   success: boolean
   message: string
+}
+
+/**
+ * Shape of an account as returned by GraphQL
+ */
+export interface AccountFragment {
+  email: string
+  authenticated: boolean
+  verified: boolean
+  jwt?: string
+  authors: any[]
+  totalViews?: number
+  dailyViews?: Object
+}
+
+/**
+ * The shape of a GraphQL ArticleResponse
+ */
+export interface ArticleResponse {
+  errors?:  string[]
+  data: {
+    article: {
+      article: ArticleFragment
+      info: InfoFragment
+    }
+  }
+}
+export interface PublicationResponse {
+  data: {
+
+  }
+}
+
+export interface AccountResponse {
+  errors?: string[]
+  data: {
+    account: {
+      account: AccountFragment
+      info: InfoFragment
+    }
+  }
+}
+export interface jwtLoginResponse {
+  errors?: string[]
+  data: {
+    jwtLogin: {
+      account: AccountFragment
+      info: InfoFragment
+    }
+  }
+}
+export interface resetLinkResponse {
+  errors?: string[]
+  data: {
+    requestResetPasswordLink: InfoFragment
+  }
+}
+
+/**
+ * The shape of an article as returned by GraphQL
+ */
+export interface ArticleFragment {
+  id: string
+  title: string
+  bodyOps: string
+  publishedAt?: number
+  // parent publication
+  publication: PublicationFragment
+}
+/**
+ * The shape of a publication as returned by GraphQL
+ */
+export interface PublicationFragment {
+  id: string
+  name: string
+  about: string
+  imageURL: string
+  // parent author
+  author: AuthorFragment
+}
+/**
+ * The shape of an author as returned by GraphyQL
+ */
+export interface AuthorFragment {
+  id: string
+  name: string
+  about: string
+  imageURL: string
 }
 
 @Injectable()
@@ -41,7 +121,7 @@ export class BackendService {
   backendDelay: number = environment.backendDelay
 
   /* the object containing everything by the current user */
-  userAccount: iAccount
+  userAccount: AccountFragment
   userImages: any[]
 
   // fires when a login happened
@@ -123,6 +203,7 @@ export class BackendService {
       fragment article on ArticleSchema {
         id
         title
+        bodyOps
         publishedAt
       }
     `
@@ -136,7 +217,7 @@ export class BackendService {
 
     const jwt = localStorage.getItem('jwt')
     if (!jwt) {
-      console.log('no jwt in local storage! not signed in!')
+      console.log('no jwt in local storage - not signing in.')
     }
     else {
       this.jwtLogin().subscribe(info => {
@@ -212,6 +293,8 @@ export class BackendService {
     })
     apolloQuery.delay(this.backendDelay).subscribe(result => {
       this.userImages = JSON.parse(JSON.stringify(result.data.images))
+    }, error => {
+      console.error('loadImages: unhandled backend error')
     })
   }
 
@@ -267,8 +350,7 @@ export class BackendService {
    * 
    * @param article 
    */
-  loadComments(article: iArticle) {
-    console.log('load comments')
+  loadComments(article: ArticleFragment) {
     let authorID = article.publication.author.id
     let publicationID = article.publication.id
     let articleID = article.id
@@ -289,6 +371,9 @@ export class BackendService {
     apolloQuery.delay(this.backendDelay).subscribe(result => {
       const data = result.data.loadComments
       commentSubject.next(data)
+    }, error => {
+      console.error('loadComments: unhandled backend error')
+      commentSubject.error('unhandled backend error')
     })
     return commentSubject
   }
@@ -302,7 +387,7 @@ export class BackendService {
    * @param email 
    * @param body 
    */
-  postComment(article: iArticle, name: string, email: string, body: string) {
+  postComment(article: ArticleFragment, name: string, email: string, body: string) {
     let authorID = article.publication.author.id
     let publicationID = article.publication.id
     let articleID = article.id
@@ -368,7 +453,7 @@ export class BackendService {
     const loginSubject = new Subject()
     apolloQuery.delay(this.backendDelay).subscribe(result => {
       const info = result.data.epLogin.info
-      
+
       if (info.success) {
         const account = result.data.epLogin.account
         this.userAccount = Object.assign({}, account)
@@ -398,10 +483,11 @@ export class BackendService {
         message
       }}
     `
-    this.apollo.watchQuery<any>({
+    const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
       fetchPolicy: 'network-only',
-    }).delay(this.backendDelay).subscribe(result => {
+    })
+    apolloQuery.delay(this.backendDelay).subscribe((result: resetLinkResponse) => {
       resetSubject.next(result)
     }, error => {
       resetSubject.error('unexpected backend error')
@@ -463,7 +549,7 @@ export class BackendService {
       },
     })
     let recordEventSubject = new Subject()
-    apolloQuery.delay(this.backendDelay).subscribe(result => {
+    apolloQuery.delay(this.backendDelay).subscribe((result) => {
       recordEventSubject.next(result.data)
     }, error => {
       recordEventSubject.error(error)
@@ -557,7 +643,9 @@ export class BackendService {
     })
 
     const jwtLoginSubject = new Subject()
-    apolloQuery.delay(this.backendDelay).subscribe(result => {
+    apolloQuery.delay(this.backendDelay).subscribe((result: jwtLoginResponse) => {
+      
+      const errors = result.errors
       const info = result.data.jwtLogin.info
       if (info.success) {
         const account = result.data.jwtLogin.account
@@ -566,11 +654,10 @@ export class BackendService {
         jwtLoginSubject.next(info)
         this.loginSubject.next(this.userAccount)
       } else {
-        jwtLoginSubject.error('an error occured')
+        jwtLoginSubject.error(info.message)
       }
-      
     }, (error) => {
-      alert('unhandled error')
+      console.error('unhandled jwtLogin backend error')
     })
     return jwtLoginSubject
   }
@@ -610,7 +697,7 @@ export class BackendService {
         const account = result.data.createAccount.account
         this.userAccount = account
         localStorage.setItem('jwt', account.jwt)
-      } 
+      }
       createAccountSubject.next(info)
     },
       // un-expected Backend error
@@ -747,26 +834,21 @@ export class BackendService {
    * @param authorID 
    * @param publicationID 
    */
-  getPublication(authorID: string, publicationID: string): Observable<Publication> {
+  getPublication(authorID: string, publicationID: string): Observable<any> {
 
     // TODO: revisit this query, use fragments
+    /**
+     * here is room for optimization. we already know hte publication and author
+     * we could just stick it into each article instead of requesting it always
+     */
     const query = gql`
         {publication {
-          id
-          name
-          about
-          imageURL
+          ...publication
           author {
-            id
-            name
-            about
-            imageURL
+            ...author
           }
           articles {
-            id
-            title
-            bodyOps
-            publishedAt
+            ...article
             publication {
               id
               name
@@ -777,6 +859,9 @@ export class BackendService {
             }
           }
         }}
+        ${this.fragments.publication}
+        ${this.fragments.author}
+        ${this.fragments.article}
       `
     const querySubscription = this.apollo.watchQuery<any>({
       query: query,
@@ -803,7 +888,7 @@ export class BackendService {
    * 
    * @param publication 
    */
-  savePublication(publication): Observable<iInfo> {
+  savePublication(publication): Observable<any> {
     const jwt = localStorage.getItem('jwt')
     const query = gql`
       {
@@ -837,7 +922,7 @@ export class BackendService {
     })
     const saveSubject = new Subject()
     querySubscription.delay(this.backendDelay).subscribe(result => {
-      const publication: Publication = result.data.savePublication.publication
+      const publication = result.data.savePublication.publication
       const info = result.data.savePublication.info
       if (info.success) {
         saveSubject.next(result.data.savePublication)
@@ -845,7 +930,7 @@ export class BackendService {
         saveSubject.error(info.message)
       }
     },
-    // unchaught backend exception?
+      // unchaught backend exception?
       error => {
         saveSubject.error('error saving publication')
       })
@@ -969,7 +1054,7 @@ export class BackendService {
    * 
    * @param article 
    */
-  deleteArticle(article): Observable<iInfo> {
+  deleteArticle(article): Observable<any> {
     console.log(article)
     console.log('be delete', article)
     const jwt = localStorage.getItem('jwt')
@@ -1046,32 +1131,32 @@ export class BackendService {
 
   /**
    * Loads an article from given IDs
+   * includes the article's publication and the publication's author
    * 
    * @param authorID 
    * @param publicationID 
    * @param articleID 
    */
   getArticle(authorID: string, publicationID: string, articleID: string) {
-    /** now, we load the path up to author. */
     const query = gql`
-      {article {
-        id
-        title
-        bodyOps
-        publishedAt
+    { article {
+      info {
+        ...info
+      }
+      article {
+        ...article
         publication {
-          id
-          name
-          about
-          imageURL
+          ...publication
           author {
-            id
-            name
-            about
-            imageURL
+            ...author
           }
         }
-      }}
+      }
+    }}
+    ${this.fragments.info}
+    ${this.fragments.article}
+    ${this.fragments.publication}
+    ${this.fragments.author}
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
@@ -1082,12 +1167,18 @@ export class BackendService {
         articleID: articleID,
       },
     })
-    return new Observable(stream => {
-      apolloQuery.delay(this.backendDelay).subscribe(result => {
-        console.log('JOJO, who pushes me? get article result', result)
-        stream.next(result.data.article)
+    const articleSubject = new Subject()
+    apolloQuery.delay(this.backendDelay)
+      .subscribe((reply: ArticleResponse )=> {
+        if (reply.data.article.info.success) {
+          articleSubject.next(reply.data.article.article)
+        } else { 
+          articleSubject.error(reply)
+        }
+      }, error => {
+        articleSubject.error('unexpected backend error')
       })
-    })
+    return articleSubject
   }
 
   /**
@@ -1098,7 +1189,7 @@ export class BackendService {
    * 
    * @param publication 
    */
-  deletePublication(publication: Publication): Observable<iInfo> {
+  deletePublication(publication: PublicationFragment): Observable<any> {
 
     const jwt = localStorage.getItem('jwt')
     const query = gql`

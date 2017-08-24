@@ -2,7 +2,6 @@ import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core'
 import { DomSanitizer } from '@angular/platform-browser'
 
 // ink
-import { Publication } from '../models'
 import { UIService } from '../ui.service'
 import { BackendService } from '../backend.service'
 
@@ -16,7 +15,7 @@ export class PublicationComponent implements OnInit {
 
 
   // the publication that is passed into us
-  @Input() publication: Publication
+  @Input() publication
   @Input() editable: boolean = false
 
   // emit the fact that the save button has been clicked - do your thing
