@@ -49,6 +49,7 @@ export class HomePageComponent implements OnInit {
 
   expandPublication(publication) {
     publication.expanded = true
+    publication.showArticleNumer = 10
   }
   
 }

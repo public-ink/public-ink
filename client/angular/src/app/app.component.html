@@ -66,10 +66,12 @@
 <div style="min-height: 100vh;">
     <!-- loading screen -->
     <flex-col-center-center *ngIf="ui.backendBusy" style="height: 100vh;">
-        <h1>Loading</h1>
-        <p>hang tight!</p>
+        <div class="spinner-black"></div>
+        <p [style.font-size.px]="ui.responsiveValue(16, 18)">loading, hang tight!</p>
     </flex-col-center-center>
     <!-- router outlet -->
+    <!-- just space behind the top bar -->
+    <div style="height: 50px;"></div>
     <router-outlet></router-outlet>
 </div>
 
@@ -84,7 +86,7 @@
 
 
 <!-- media bar! -->
-<div style="position:fixed; bottom: 0px; left:0px; width: 100%;" [hidden]="!ui.mediaBar" *ngIf="ui.mediaBar">
+<div style="position:fixed; bottom: 0px; left:0px; width: 100%;" [hidden]="!ui.mediaBar" *ngIf="ui.mediaBar && backend.userAccount">
     <div>
         <flex-row style="overflow-x:scroll; background-color: black;">
             

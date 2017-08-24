@@ -57,9 +57,12 @@
         placeholder="A short introduction about this author. [optional]"
         [ngStyle]="aboutStyle()"
         class="focus-bg"
+        [style.font-size.px]="ui.responsiveValue(18, 20)"
       ></textarea>
 
-      <p *ngIf="!editable">
+      <p *ngIf="!editable"
+      [style.font-size.px]="ui.responsiveValue(18, 20)"
+        >
         {{ author.about }}
       </p>
 
