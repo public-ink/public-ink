@@ -805,17 +805,13 @@ export class BackendService {
     })
     const deleteSubject = new Subject()
     apolloQuery.delay(this.backendDelay).subscribe(result => {
-      const info = result.data.deleteAuthor
-      let authors = this.userAccount.authors
+      
+      const info: InfoFragment = result.data.deleteAuthor 
+      deleteSubject.next(info)
+      deleteSubject.complete()
       if (info.success) {
-        // remove author from userAccount's authors
-        // authors = authors.filter(author => author.id !== authorID)
-        // this.userAccount.authors = authors
-        // alternatively, just relaod account and jwt
+        // reissue jwt
         this.jwtLogin()
-        deleteSubject.next(info)
-      } else {
-        deleteSubject.next(info)
       }
     }, (error) => {
       deleteSubject.error(error)
@@ -1287,6 +1283,10 @@ export class BackendService {
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
       fetchPolicy: 'network-only',
+      variables: {
+        jwt: localStorage.getItem('jwt'),
+        id: userImage.id,
+      }
     })
     const deleteSubject = new Subject()
     apolloQuery.delay(this.backendDelay).subscribe(result => {

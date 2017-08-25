@@ -319,6 +319,7 @@ export class ArticlePageComponent implements OnInit {
 
   /** check if the current article is owned by the current user */
   isOwner() {
+    if (!this.article) {return false}
     return this.backend.isOwner(this.article.publication.author.id)
   }
 }

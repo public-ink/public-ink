@@ -94,7 +94,7 @@
 
              <flex-col *ngFor="let image of backend.userImages ">
                 <img (click)="ui.mediaClickStream.next(image)"  [src]="image.url + '&w=200&h=200'" style="margin:5px;" />
-                <button (click)="deleteImage(image)">delete</button>
+                <button [ngStyle]="ui.styles.button()" (click)="deleteImage(image)">delete</button>
              </flex-col>
         </flex-row>
     </div>

@@ -1,94 +1,25 @@
-import logging
-import graphene
-import webapp2
-import hashlib
-import jinja2
-import json
-import uuid
-import os
-import jwt
-import hashlib
-import uuid
-from collections import defaultdict
-from datetime import datetime, timedelta
-import time
-from slugify import slugify
-import re
-from random import randint
-from google.appengine.ext import blobstore
-import urllib
-from google.appengine.api import memcache
 
+import os, urllib, time, re, logging, hashlib, uuid, graphene, webapp2, hashlib, jinja2, json, uuid, jwt
 from user_agents import parse
-import matplotlib
-import numpy as np
-
-from collections import OrderedDict
-
-# image
+from collections import defaultdict, OrderedDict
+from datetime import datetime, timedelta
+from slugify import slugify
+from random import randint
+# app engine apis
+from google.appengine.ext import ndb, blobstore
+from google.appengine.api import memcache, mail, images
 from google.appengine.ext.webapp import blobstore_handlers
-from google.appengine.api import images
-
-# ink stuff
-from shared import dt_to_epoch, RequestHandler, cross_origin, ninja, allow_cors, return_json, ENV_NAME, FRONTEND_URL, BACKEND_URL, DO_TIME
+# public.ink
+from shared import timing, dt_to_epoch, RequestHandler, cross_origin, ninja, allow_cors, return_json, ENV_NAME, FRONTEND_URL, BACKEND_URL, DO_TIME
 from secrets import JWT_SECRET, JWT_EXP_DELTA_SECONDS, JWT_ALGORITHM, JWT_EXP_DELTA_DAYS
 
-# app engine
-from google.appengine.api import mail
-from google.appengine.ext import ndb
-from google.appengine.api import search
+
+##########################
+# welcome to public.ink! #
+##########################
 
 
-"""
-Timing
-"""
-def timing(f):
-    def wrap(*args):
-        time1 = time.time()
-        ret = f(*args)
-        time2 = time.time()
-        if DO_TIME:
-            logging.info('%s function took %0.1f ms' % (f.func_name, (time2-time1)*1000.0))
-        return ret
-    return wrap
-
-
-
-"""
-Hashing
-"""
-@timing
-def hash_password(password):
-    # uuid is used to generate a random number
-    salt = uuid.uuid4().hex
-    return hashlib.sha256(salt.encode() + password.encode()).hexdigest() + ':' + salt
-
-@timing
-def verify_password(hashed_password, user_password):
-    password, salt = hashed_password.split(':')
-    return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
-
-@timing
-def generate_jwt(email):
-    """ 
-    Generates a jwt for a given email. The payload contains the email, 
-    a comma separated string of author IDs, and an expiration date
-    """    
-    user_key = ndb.Key('UserModel', email)
-    author_ids = AuthorModel.query(AuthorModel.user == user_key).map(lambda author: author.key.id())
-    payload = {
-        'email': email,
-        'authors': ','.join(author_ids),
-        'exp': datetime.utcnow() + timedelta(days=JWT_EXP_DELTA_DAYS)
-    }
-    jwt_token = jwt.encode(payload, JWT_SECRET, JWT_ALGORITHM)
-    return jwt_token.decode('utf-8')
-
-
-
-"""
-Models and Schemas
-"""
+"""  MODELS AND SCHEMAS """
 
 class InkModel(ndb.Model):
     """
@@ -123,6 +54,7 @@ class UserSchema(graphene.ObjectType):
     def resolve_verified(self, args, context, info):
         return self.is_verified
 
+
 """ USER IMAGE """
 class ImageModel(InkModel):
     """
@@ -140,6 +72,7 @@ class ImageModel(InkModel):
     def id(self):
         return self.key.id()
 
+
 class ImageSchema(graphene.ObjectType):
     """
     The simple schema representing a user-uploaded image
@@ -148,8 +81,10 @@ class ImageSchema(graphene.ObjectType):
     url = graphene.String()
     created = graphene.String()
 
-    
 
+"""
+Generic Info Schema, super useful
+"""
 class InfoSchema(graphene.ObjectType):
     """
     container for part of ANY response
@@ -158,10 +93,9 @@ class InfoSchema(graphene.ObjectType):
     message = graphene.String()
 
 
-class StatsSchema(graphene.ObjectType):
-    period = graphene.String()
-    stats = graphene.String()
-
+"""
+Account Schema including stats (refactor)
+"""
 class AccountSchema(graphene.ObjectType):
     """
     container for account part of ANY response
@@ -177,7 +111,6 @@ class AccountSchema(graphene.ObjectType):
     def resolve_total_views(self, *args):
         user_key = ndb.Key('UserModel', self.email)
         return EventModel.query(EventModel.user == user_key).count()
-
 
     """ Daily Stats """
     daily_views = graphene.String()
@@ -223,18 +156,13 @@ class AccountSchema(graphene.ObjectType):
             if event.is_pc: result_dict[day_str]['device']['pc'] += 1
             if event.is_mobile: result_dict[day_str]['device']['mobile'] += 1
             if event.is_tablet: result_dict[day_str]['device']['tablet'] += 1
-
-        # raise Exception('just to fuck with you!')
                 
         return json.dumps(result_dict)
-        
 
-
-    # related: authors!
+    """ related: authors connected to this account """
     authors = graphene.List(lambda: AuthorSchema)
     @timing
     def resolve_authors(self, *args):
-        # query authors that are pointing to this user
         user_key = ndb.Key('UserModel', self.email)
         authors = AuthorModel.query(AuthorModel.user == user_key)
         return authors
@@ -269,9 +197,14 @@ class PublicationResponse(graphene.ObjectType):
 
 
 
-""" AUTHOR """
+""" 
+AUTHOR 
+"""
 
 class AuthorModel(InkModel):
+    """
+    The NDB model for an author
+    """
     user = ndb.KeyProperty(kind=UserModel, required=True)
     name = ndb.StringProperty(required=True)
     about = ndb.StringProperty()
@@ -279,7 +212,7 @@ class AuthorModel(InkModel):
 
 class AuthorSchema(graphene.ObjectType):
     """
-    The schema for representing an author
+    The schema representing an author
     """
     id = graphene.String()
     user = graphene.Field(UserSchema)
@@ -302,7 +235,9 @@ class AuthorSchema(graphene.ObjectType):
 
 
 
-""" PUBLICATION """
+""" 
+PUBLICATION 
+"""
 
 class PublicationModel(InkModel):
     """
@@ -315,7 +250,7 @@ class PublicationModel(InkModel):
 
 class PublicationSchema(graphene.ObjectType):
     """
-    The schema for representing a publication
+    The schema representing a publication
     """
     id = graphene.String()
     articles = graphene.List(lambda: ArticleSchema, include_drafts=graphene.Boolean())
@@ -332,8 +267,7 @@ class PublicationSchema(graphene.ObjectType):
         if args.get('include_drafts'):
             return ArticleModel.query(ancestor=self.key).order(ArticleModel.position)
         else:
-            #return ArticleModel.query(ArticleModel.published_at != None, ancestor=self.key).order(ArticleModel.position)
-            # filter non-published yourself. todo
+            """ filters out un-published articles """
             articles = ArticleModel.query(ancestor=self.key).order(ArticleModel.position).fetch()
             published_articles = filter((lambda article: article.published_at is not None), articles)
             return published_articles
@@ -343,8 +277,9 @@ class PublicationSchema(graphene.ObjectType):
         return self.key.parent().get()
 
 
-""" ARTICLE """
-
+"""
+ARTICLE 
+"""
 class ArticleModel(InkModel):
     """ Article NDB model """
     title = ndb.StringProperty()
@@ -389,7 +324,9 @@ class ArticleSchema(graphene.ObjectType):
     def resolve_author(self, *args):
         return self.key.parent().parent().get()
 
-""" Comment """
+""" 
+COMMENTS
+"""
 class CommentModel(InkModel):
     """ a user comment """
     article = ndb.KeyProperty(kind=ArticleModel)
@@ -401,77 +338,17 @@ class CommentModel(InkModel):
 
 
 class CommentSchema(graphene.ObjectType):
+    """
+    A user comment (reply?)
+    """
     name = graphene.String()
     body = graphene.String()
 
 
-""" NOT PUBLIC INK """
-
-""" Song """
-_INDEX_NAME = 'SONG_INDEX'
-
-class SongModel(InkModel):
-    """ A midi song in json format """
-    path = ndb.StringProperty()
-    title = ndb.StringProperty()
-    artist = ndb.StringProperty()
-    bpm = ndb.IntegerProperty()
-    ppq = ndb.IntegerProperty()
-    tags = ndb.StringProperty(repeated=True)
-    time_signature = ndb.IntegerProperty(repeated=True)
-    track_count = ndb.IntegerProperty()
-    tracks_string = ndb.TextProperty()
-    # tracks = ndb.JsonProperty(repeated=True)
-    indexed = ndb.BooleanProperty(default=False)    
-
-    """
-    index yourself so you can be found! (by title only currently)
-    """
-    def index(self):
-        title_tokens = ','.join(tokenize_autocomplete(self.title))
-        document = search.Document(
-            doc_id=self.key.urlsafe(),
-            fields=[
-                search.TextField(name='title', value=title_tokens),
-                search.TextField(name='verbose', value=self.title)
-                ])
-        search.Index(name=_INDEX_NAME).put(document)
-
-"""
-
-        doc = search.Document(
-            
-            fields=[
-                search.TextField(name='title', value=self.title) #,
-                #search.TextField(name='comment', value=content),
-                #search.DateField(name='date', value=datetime.now().date())
-            ])
-        
-"""
-
-
-class SongSchema(graphene.ObjectType):
-    """
-    the schema for a song
-    """
-    path = graphene.String()
-    title = graphene.String()
-    tracks_string = graphene.String()
-    title = graphene.String()
-    artist = graphene.String()
-    bpm = graphene.Int()
-    #ppq = graphene.Int()
-    track_count = graphene.Int()
-
-class SongSearchSchema(graphene.ObjectType):
-    """
-    the shema for a song search result
-    """
-    title = graphene.String()
-    key_id = graphene.String()
-
-
 class EventModel(InkModel):
+    """
+    A raw, singular event, like a pageview, a publication expansion, etc.
+    """
     name = ndb.StringProperty()
     session_id = ndb.StringProperty()
     user = ndb.KeyProperty(kind=UserModel)
@@ -495,111 +372,16 @@ class EventModel(InkModel):
     is_pc = ndb.BooleanProperty()
     is_bot = ndb.BooleanProperty()
 
-"""
-Playground - remove at some point
-"""
-
-class Hoff(graphene.ObjectType):
-    name = graphene.String()
-    age = graphene.Int()
-
-class Beer(graphene.ObjectType):
-    brand = graphene.String()
-    volume = graphene.Int()
-
-class Evening(graphene.ObjectType):
-    hoff = graphene.Field(Hoff)
-    beer = graphene.Field(Beer)
-
 
 """  #####################  THE BIG FAT QUERY  #########################  """
 
 class Query(graphene.ObjectType):
-    """
-    Tutorial
-    """
-    randomNumber = graphene.Int()
-    def resolve_randomNumber(self, *args):
-        return randint(0,100)
-
-    """
-    These Fields (or enpoints) can accept arguments. These inputs are also visible to GraphiQL
-    Let's make an echo field that returns what we received
-    """
-    echo = graphene.Int(input = graphene.Int())
-    def resolve_echo(self, args, context, info):
-        return args.get('input')
-
-    """
-    So far, we've only been returning Primitives. How about returning an object?
-    If, let's define a Schema for it, Hoff, with name and age.
-    Inputs still work the same way, so here we pass age through.
-    """
-    hoff = graphene.Field(Hoff, age = graphene.Int())
-    def resolve_hoff(self, args, *more):
-        return Hoff(name='hoff', age=args.get('age'))
-
-    """
-    so to return an object with say, 2 'baskets', we simply define such and object
-    Evening container Hoff and Beer
-    """
-    evening = graphene.Field(Evening)
-    def resolve_evening(self, args, *more):
-        hoff = Hoff(name='hoff', age=36)
-        beer = Beer(brand='jever', volume=5)
-        return Evening(hoff=hoff, beer=beer)
-
-    """ end of documentation """
-
-    """ Analytics """
-    record_event = graphene.Field(InfoSchema)
-    @timing
-    def resolve_record_event(self, args, *more):
-        # raise Exception('just to fuck with you')
-        # stuff is in self when sent as vars
-        name = self.get('name')
-        authorID = self.get('authorID')
-        publicationID = self.get('publicationID')
-        articleID = self.get('articleID')
-        # additional
-        agent_string = self.get('agent') #!cool
-        agent = parse(agent_string)
-
-
-        # related entities' keys
-        authorKey = ndb.Key('AuthorModel', authorID).get().key
-        userKey = authorKey.get().user
-        publicationKey = ndb.Key('AuthorModel', authorID, 'PublicationModel', publicationID).get().key
-        articleKey = ndb.Key('AuthorModel', authorID, 'PublicationModel', publicationID, 'ArticleModel', articleID).get().key
-        # create and store an event
-        event = EventModel(
-            name = name,
-            user = userKey,
-            author = authorKey,
-            publication = publicationKey,
-            article = articleKey,
-            agent = agent_string,
-            browser = agent.browser.family,
-            browser_version = agent.browser.version_string,
-            os = agent.os.family,
-            os_version = agent.os.version_string,
-            device = agent.device.family,
-            brand = agent.device.brand,
-            model = agent.device.model,
-            is_mobile = agent.is_mobile,
-            is_tablet = agent.is_tablet,
-            has_touch = agent.is_touch_capable,
-            is_pc = agent.is_pc,
-            is_bot = agent.is_bot
-        ).put()
-        return InfoSchema(success=True, message='event_recorded')
-
+    """ AUTHENTICATION """
 
     """ Email / Password Login """
     epLogin = graphene.Field(AccountResponse)
     @timing
     def resolve_epLogin(self, *args):
-        #logging.debug('emailPasswordLogin')
         email = self.get('email')
         password = self.get('password')
 
@@ -664,7 +446,7 @@ class Query(graphene.ObjectType):
 
 
     """
-    Verfiy email (by following verification link in email)
+    Verfiy email (with a token from the verification linke)
     """
     verifyEmail = graphene.Field(AccountResponse, email=graphene.String(), token=graphene.String())
     @timing
@@ -687,7 +469,9 @@ class Query(graphene.ObjectType):
 
     
 
-    """ CREATE ACCOUNT """
+    """ 
+    Create Account
+    """
     createAccount = graphene.Field(AccountResponse, email=graphene.String(), password=graphene.String())
     @timing
     def resolve_createAccount(self, args, *more):
@@ -729,7 +513,9 @@ class Query(graphene.ObjectType):
                 authenticated=True, jwt=generate_jwt(email))
         )
 
-    """ REQUEST PASSWORD RESET LINK """
+    """
+    Request Reset Password Link
+    """
     requestResetPasswordLink = graphene.Field(InfoSchema, email=graphene.String())
     @timing
     def resolve_requestResetPasswordLink(self, args, *more):
@@ -747,7 +533,9 @@ class Query(graphene.ObjectType):
             return InfoSchema(success=False, message='')
 
 
-    """ ACTUALLY RESET THE PASSWORD """
+    """ 
+    Reset Password (with token)
+    """
     resetPassword = graphene.Field(InfoSchema, email=graphene.String(), token=graphene.String(), password=graphene.String())
     @timing
     def resolve_resetPassword(self, args, *more):
@@ -764,10 +552,18 @@ class Query(graphene.ObjectType):
             return InfoSchema(success=False, message='Password reset failed!')
 
 
-    """ SAVE AUTHOR (CREATE AND UPDATE) """
+
+    """ ENTITY CREATION AND MUTATION """
+
+    """
+    Save Author (create and update)
+    """
     saveAuthor = graphene.Field(AuthorResponse)
     @timing
     def resolve_saveAuthor(self, args, *more):
+        """
+        Creates of updates an author
+        """
         authorID = self.get('authorID')
         name = self.get('name')
         about = self.get('about')
@@ -776,9 +572,7 @@ class Query(graphene.ObjectType):
         email = email_from_jwt(token)
         user_key = ndb.Key('UserModel', email)
 
-        # create new author TODO: duplicate check
-        if authorID == 'create-author': # not cool
-
+        if authorID == 'create-author':
             # duplication check
             if ndb.Key('AuthorModel', slugify(name)).get():
                 return AuthorResponse(
@@ -796,9 +590,12 @@ class Query(graphene.ObjectType):
             ).put()
             message = 'author_created'
         else:
+            # authentication
+            if not is_owner(token, author_id):
+                return AuthorResponse(
+                InfoSchema(success=False, message='unauthorized')
+            )
             author_key = ndb.Key('AuthorModel', authorID)
-            # compare emails!
-            # then
             author = author_key.get()
             author.name = name
             author.about = about
@@ -812,7 +609,7 @@ class Query(graphene.ObjectType):
         )
 
     """
-    SAVE ORDER
+    Save Author Order
     """
     save_author_order = graphene.Field(InfoSchema, author_data=graphene.String())
     @timing
@@ -843,7 +640,9 @@ class Query(graphene.ObjectType):
         return InfoSchema(success=True, message='order_saved')
 
 
-    """ SAVE PUBLICATION (create and update)  """
+    """
+    Save Publication (create and update)
+    """
     savePublication = graphene.Field(PublicationResponse,
         jwt=graphene.String(), 
         publicationID=graphene.String(),
@@ -852,13 +651,22 @@ class Query(graphene.ObjectType):
     )
     @timing
     def resolve_savePublication(self, args, context, info):
+        
+        # params
         publicationID = self.get('publicationID')
         name = self.get('name')
         authorID = self.get('authorID')
         about = self.get('about')
         imageURL = self.get('imageURL')
+        token = self.get('jwt')
 
-        if publicationID == 'create-publication': #not ideal
+        # authentication
+        if not is_owner(token, authorID):
+            return PublicationResponse(
+                info=InfoSchema(success=False, message='unauthorized')
+            )
+
+        if publicationID == 'create-publication':
             """ create publication """
             publication_key = PublicationModel(
                 parent=ndb.Key('AuthorModel', authorID),
@@ -882,7 +690,9 @@ class Query(graphene.ObjectType):
         )
 
 
-    """ SAVE ARTICLE (create and update) """
+    """
+    Save Article (create and update)
+    """
     saveArticle = graphene.Field(ArticleResponse)
     def resolve_saveArticle(self, *args):
 
@@ -895,7 +705,7 @@ class Query(graphene.ObjectType):
 
         # authentication
         if not is_owner(jwt, authorID):
-            return  ArticleResponse(
+            return ArticleResponse(
                 info=InfoSchema(success=False, message='unauthorized'),
                 article=None
             )
@@ -904,7 +714,7 @@ class Query(graphene.ObjectType):
         if articleID == 'create-article':
             """ create article """
             publication_key = ndb.Key('AuthorModel', authorID, 'PublicationModel', publicationID)
-            # TODO: check if publication exists,
+            # TODO: check if publication exists (low prio, ui-prevented)
             article_key = ArticleModel(
                 parent=publication_key,
                 id=slugify(title),
@@ -932,33 +742,45 @@ class Query(graphene.ObjectType):
             article=article
         )
 
-    """ PUBLISH ARTICLE """
+    """
+    Publish Article
+    """
     publish_article = graphene.Field(ArticleResponse)
     def resolve_publish_article(self, args, *more):
+
+        # parameters
+        jwt = args.get('jwt') or self.get('jwt')
         authorID = args.get('authorID') or self.get('authorID')
         publicationID = self.get('publicationID')
         articleID = self.get('articleID')
-
         unpublish = self.get('unpublish')
 
-        article_key = ndb.Key(
+        # authentication
+        if not is_owner(jwt, authorID):
+            return ArticleResponse(
+                info=InfoSchema(success=False, message='unauthorized'),
+                article=None
+            )
+
+        article = ndb.Key(
             'AuthorModel', authorID,
             'PublicationModel', publicationID,
             'ArticleModel', articleID
-        )
-        article = article_key.get()
-        if unpublish:
-            article.unpublish()
-        else:
-            article.publish()
+        ).get()
+
+        article.unpublish() if unpublish else publish()
+
         return ArticleResponse(
             info=InfoSchema(success=True, message='published!'),
             article=article
         )
 
 
+    
+    """ GETTING RESOURCES """
+
     """
-    DATA RETRIEVAL / RESOURCES
+    Get User (leaking information)
     """
     user = graphene.Field(UserSchema, email=graphene.String(), jwt=graphene.String())
     def resolve_user(self, args, context, info):
@@ -967,6 +789,9 @@ class Query(graphene.ObjectType):
         ).get()
         return user
 
+    """
+    Get Author
+    """
     author = graphene.Field(AuthorSchema, authorID=graphene.String())
     def resolve_author(self, args, context, info):
         authorID = args.get('authorID') or self.get('authorID')
@@ -976,7 +801,7 @@ class Query(graphene.ObjectType):
         return author
 
     """
-    Publication Response!
+    Get Publication
     """
     publication = graphene.Field(PublicationSchema, authorID=graphene.String(), publicationID=graphene.String())
     def resolve_publication(self, args, context, info):
@@ -988,17 +813,23 @@ class Query(graphene.ObjectType):
         ).get()
         return publication
 
-    xarticle = graphene.Field(ArticleSchema, authorID=graphene.String(), publicationID=graphene.String(), articleID=graphene.String())
+
+    """
+    Get Article
+    """
     article = graphene.Field(ArticleResponse, authorID=graphene.String(), publicationID=graphene.String(), articleID=graphene.String())
     def resolve_article(self, args, context, info):
+        """
+        Get an article by her IDs
+        """
         authorID = args.get('authorID') or self.get('authorID')
         publicationID = args.get('publicationID') or self.get('publicationID')
         articleID = args.get('articleID') or self.get('articleID')
 
         article = ndb.Key(
-            'AuthorModel', authorID,
+            'AuthorModel',      authorID,
             'PublicationModel', publicationID,
-            'ArticleModel', articleID
+            'ArticleModel',     articleID
         ).get()
         if not article:
             return ArticleResponse(
@@ -1011,17 +842,26 @@ class Query(graphene.ObjectType):
                 article=article
             )
 
+    """
+    Post Comment
+    """
     post_comment = graphene.Field(lambda: InfoSchema, authorID=graphene.String(), publicationID=graphene.String(), articleID=graphene.String(),
     email=graphene.String(), name=graphene.String(), body=graphene.String()
     )
     def resolve_post_comment(self, args, *more):
-        # get article key
+        """
+        Post a comment to an article
+        """
+        
+        # params
         author_id = self.get('authorID')
         publication_id =  self.get('publicationID')
         article_id =  self.get('articleID')
         
+        # get article
         article_key = ndb.Key('AuthorModel', author_id, 'PublicationModel', publication_id, 'ArticleModel', article_id)
-        # read comment
+        
+        # save comment (todo: input validation)
         body = self.get('body')
         name = self.get('name')
         email = self.get('email')
@@ -1033,8 +873,14 @@ class Query(graphene.ObjectType):
         ).put()
         return InfoSchema(success=True, message='comment_posted')
 
+    """
+    Get Comments
+    """
     load_comments = graphene.List(lambda: CommentSchema, authorID=graphene.String(), publicationID=graphene.String(), articleID=graphene.String())
     def resolve_load_comments(self, args, context, info):
+        """
+        Get all comments for a given article
+        """
         author_id = args.get('authorID')
         publication_id =  args.get('publicationID')
         article_id =  args.get('articleID')
@@ -1042,9 +888,14 @@ class Query(graphene.ObjectType):
         comments = CommentModel.query(CommentModel.article == article_key).order(-CommentModel.created)
         return comments
 
-    """ Images """
+    """
+    Get User Images
+    """
     images = graphene.List(lambda: ImageSchema, jwt=graphene.String())
     def resolve_images(self, args, *more):
+        """
+        Get a user's images from a given JWT
+        """
         jwt = args.get('jwt') or args.get('jwt')
         email = email_from_jwt(jwt)
         user_key = ndb.Key('UserModel', email)
@@ -1053,118 +904,149 @@ class Query(graphene.ObjectType):
 
 
 
-    """ Songs """
-    song = graphene.Field(lambda: SongSchema, id=graphene.String())
-    def resolve_song(self, args, *more):
-        id = args.get('id') or args.get('id')
-        song_key = ndb.Key(urlsafe=id)
-        song = song_key.get()
-        return song
 
+    ### ------ DELETIONS --------- ###
 
+    """ 
+    Delete Account
     """
-    Song Search
-    """
-    song_search = graphene.List(lambda: SongSearchSchema, q=graphene.String())
-    def resolve_song_search(self, args, *more):
-
-        songs = SongModel.query().fetch(20)
-        for song in songs:
-            song.index()
-            pass
-
-        q = args.get('q') or args.get('q')
-        print 'got a search query!!' + q
-        # perform search
-        expr_list = [search.SortExpression(
-            expression='title', default_value='',
-            direction=search.SortExpression.DESCENDING)]
-        # construct the sort options
-        sort_opts = search.SortOptions(
-            expressions=expr_list)
-        query_options = search.QueryOptions(
-            limit=3,
-            sort_options=sort_opts)
-        query_obj = search.Query(query_string=q, options=query_options)
-        results = search.Index(name=_INDEX_NAME).search(query=query_obj)
-
-        # pull out info from results
-        to_return = []
-        for result in results:
-            verbose = 'not yet'
-            for field in result.fields:
-                if field.name == 'verbose':
-                    verbose = field.value
-            to_return.append(
-                SongSearchSchema(
-                    title=verbose,
-                    key_id=result.doc_id
-                )
-            )
-        return to_return
-
-
-    """
-    DELETIONS
-    """
-
-    """ delete account"""
     deleteAccount = graphene.Field(InfoSchema)
     def resolve_deleteAccount(self, *args):
+        
+        # params
         jwt = self.get('jwt')
-        email = self.get('email')
-        # verifiy token, compare emails
-        UserModel.query(UserModel.email == email).delete()
-        return InfoSchema(success=True, message='account_deleted')
+        delete_email = self.get('email')
+        claimed_email = email_from_jwt(jwt)
 
-    """ delete author"""
-    deleteAuthor = graphene.Field(InfoSchema, jwt=graphene.String(), authorID=graphene.String())
-    def resolve_deleteAuthor(self, args, *more):
-
-        """ validate request! """
-        token = args.get('jwt') or self.get('jwt')
-        author_id = args.get('authorID') or self.get('authorID')
-
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        claim_email = payload.get('email')
-        user_key = ndb.Key('UserModel', claim_email)
-        user = user_key.get()
-
-        author = ndb.Key('AuthorModel', author_id).get()
-        # improve this, rename to key, make a @property
-        author_user = author.user.get()
-        if author_user.email == claim_email:
-            # "yes, you can delete this author"
-            ndb.Key('AuthorModel', args.get('authorID')).delete()
-            return InfoSchema(success=True, message='author_deleted (not really')
-        else:
-            # "you don't have permission to delete this author"
+        # authentication
+        if delete_email != claimed_email:
             return InfoSchema(success=False, message='unauthorized')
 
-    """ delete publication """
+        # action: delete account
+        ndb.Key('UserModel', claimed_email).delete()
+        return InfoSchema(success=True, message='account_deleted')
+
+    """
+    Delete Author
+    """
+    deleteAuthor = graphene.Field(InfoSchema, jwt=graphene.String(), authorID=graphene.String())
+    def resolve_deleteAuthor(self, args, *more):
+        
+        # params
+        token = args.get('jwt') or self.get('jwt')
+        author_id = args.get('authorID') or self.get('authorID')
+        
+        # authentication
+        if is_owner(token, author_id):
+            ndb.Key('AuthorModel', author_id).delete()
+            return InfoSchema(success=True, message='author_deleted (not really')
+        return InfoSchema(success=False, message='unauthorized')
+
+
+    """ 
+    Delete Publication
+    """
     deletePublication = graphene.Field(InfoSchema)
     def resolve_deletePublication(self, *args):
-        ndb.Key('AuthorModel', self.get('authorID'), 'PublicationModel', self.get('publicationID')).delete()
-        return InfoSchema(success=True, message='publication_deleted')
+        
+        # params
+        token = args.get('jwt')
+        author_id = args.get('authorID')
+        
+        # authentication
+        if is_owner(token, author_id):
+            ndb.Key('AuthorModel', self.get('authorID'), 'PublicationModel', self.get('publicationID')).delete()
+            return InfoSchema(success=True, message='publication deleted')
+        return InfoSchema(success=False, message='unauthorized')
 
-    """ delete article, delete TODOs """
+
+    """ 
+    Delete Article
+    """
     deleteArticle = graphene.Field(InfoSchema)
     def resolve_deleteArticle(self, *args):
-        """ TODO: check ownership, get jwt """
-        ndb.Key(
-            'AuthorModel', self.get('authorID'), 
-            'PublicationModel', self.get('publicationID'),
-            'ArticleModel', self.get('articleID')
-            ).delete()
-        return InfoSchema(success=True, message='article_deleted')
+        
+        # params
+        author_id = self.get('authorID')
+        token = args.get('jwt')
 
-    deleteImage = graphene.Field(InfoSchema, id=graphene.String())
+        # authentication
+        if is_owner(token, author_id):
+            ndb.Key(
+                'AuthorModel', self.get('authorID'), 
+                'PublicationModel', self.get('publicationID'),
+                'ArticleModel', self.get('articleID')
+                ).delete()
+            return InfoSchema(success=True, message='article_deleted')
+        return InfoSchema(success=False, message='unauthorized')
+
+
+    """
+    Delete Image
+    """
+    deleteImage = graphene.Field(InfoSchema)
     def resolve_deleteImage(self, args, *more):
-        """ todo: check ownership """
+        
+        # parameters
         id = args.get('id') or self.get('id')
+        jwt = args.get('jwt') or self.get('jwt')
+        email = email_from_jwt(jwt)
+        user_key = ndb.Key('UserModel', email)
+
+        # authentication
+        image = ndb.Key('ImageModel', id).get()
+        if image.user_key.id() != email:
+            return InfoSchema(success=False, message='not_authed')
+
+        # action: delete image
         ndb.Key('ImageModel', id).delete()
         return InfoSchema(success=True, message='image_deleted')
 
+
+    """ ANALYTICS """
+    """ 
+    Record Event
+    """
+    record_event = graphene.Field(InfoSchema)
+    @timing
+    def resolve_record_event(self, args, *more):
+        # raise Exception('just to fuck with you')
+        # stuff is in self when sent as vars
+        name = self.get('name')
+        authorID = self.get('authorID')
+        publicationID = self.get('publicationID')
+        articleID = self.get('articleID')
+        # additional
+        agent_string = self.get('agent') #!cool
+        agent = parse(agent_string)
+
+        # related entities' keys
+        authorKey = ndb.Key('AuthorModel', authorID).get().key
+        userKey = authorKey.get().user
+        publicationKey = ndb.Key('AuthorModel', authorID, 'PublicationModel', publicationID).get().key
+        articleKey = ndb.Key('AuthorModel', authorID, 'PublicationModel', publicationID, 'ArticleModel', articleID).get().key
+        # create and store an event
+        event = EventModel(
+            name = name,
+            user = userKey,
+            author = authorKey,
+            publication = publicationKey,
+            article = articleKey,
+            agent = agent_string,
+            browser = agent.browser.family,
+            browser_version = agent.browser.version_string,
+            os = agent.os.family,
+            os_version = agent.os.version_string,
+            device = agent.device.family,
+            brand = agent.device.brand,
+            model = agent.device.model,
+            is_mobile = agent.is_mobile,
+            is_tablet = agent.is_tablet,
+            has_touch = agent.is_touch_capable,
+            is_pc = agent.is_pc,
+            is_bot = agent.is_bot
+        ).put()
+        return InfoSchema(success=True, message='event_recorded')
 
     
 
@@ -1219,8 +1101,6 @@ class GraphQLEndpoint(RequestHandler):
         data = json.loads(self.request.body)
         query = data.get('query', '')
         variables = data.get('variables')
-        #logging.debug(variables)
-        #loggin.debug(query)
         result = schema.execute(query, variables)
         error_list = []
         for error in result.errors:
@@ -1230,21 +1110,13 @@ class GraphQLEndpoint(RequestHandler):
         self.response.out.write(json.dumps(response))
 
 
-class HomeEndpoint(webapp2.RequestHandler):
-    def get(self):
-        upload_url = blobstore.create_upload_url(IMAGE_UPLOAD_URL)
-        template_values = {
-            'upload_url': upload_url,
-            'env': ENV_NAME
-        }
-        template = ninja.get_template('home.html')
-        output = template.render(template_values)
-        return self.response.write(output)
 
+""" IMAGE UPLOAD """
 
-
-""" classic multi-part form upload for images """
 class UploadUrl(RequestHandler):
+    """
+    Handler for requesting an upload url (which then redirects to IMAGE_UPLOAD_URL)
+    """
     def get(self):
         allow_cors(self)
         upload_url = blobstore.create_upload_url(IMAGE_UPLOAD_URL)
@@ -1287,126 +1159,109 @@ Image Serving
 """
 
 class ServeImage(webapp2.RequestHandler):
+    """
+    Serves an image of a given key. Can be resized with w and h query parameters,
+    and the imag quality can also be set with the q parameter
+
+    Defaults to width 500 with 80% quality
+    """
     def get(self):
+        
+        # params
         blob_key = self.request.get("key")
-        image = images.Image(blob_key=blob_key)
-
-        transforms = False
-
-        # allows user defined crops!
-        crop = self.request.get("crop")
-        if crop:
-            box = map(float, crop.split(','))
-            image.crop(box[0],box[1],box[2],box[3])
-            transforms = True
-
-        crop_h = self.request.get("crop_h")
-        if crop_h:
-            percent = float(crop_h) / 100.0
-            left = (1 - percent )/ 2
-            right = 1 - left
-            image.crop(left, 0.0, right, 1.0)
-        # resize (width=0, height=0, crop_to_fit=False, crop_offset_x=0.5, crop_offset_y=0.5, allow_stretch=False)
         resize_w = self.request.get("w")
         resize_h = self.request.get("h")
-        #fit = bool(self.request.get("fit", False))
-        if resize_w and resize_h:
-            image.resize(width=int(resize_w), height=int(resize_h), crop_to_fit=True) 
-            transforms = True
-        elif resize_w:
-            image.resize(width=int(resize_w))
-            transforms = True
-        elif resize_h:
-            image.resize(height=int(resize_h))
-            transforms = True
-
-        # quality
         quality = int(self.request.get("q", 80))
 
-        if transforms:
-            result = image.execute_transforms(output_encoding=images.JPEG)
+        # get image
+        image = images.Image(blob_key=blob_key)
 
+        # resize
+        if resize_w and resize_h:
+            image.resize(width=int(resize_w), height=int(resize_h), crop_to_fit=True) 
+        elif resize_w:
+            image.resize(width=int(resize_w))
+        elif resize_h:
+            image.resize(height=int(resize_h))
         else:
-            # this is a hack...
-            # server a maximum size instead
-            image.im_feeling_lucky()
-            result = image.execute_transforms(output_encoding=images.JPEG)
+            image.resize(width=500)
+        
+        # generate and serve
+        result = image.execute_transforms(output_encoding=images.JPEG, quality=quality)
         self.response.headers['Content-Type'] = 'image/jpeg'
         self.response.headers['Cache-Control'] = 'public, max-age=31536000'
-        self.response.out.write(result)
-        return
+        return self.response.out.write(result)
 
 
-
+"""
+Let's Encrypt Challenge Handler
+"""
 class CertificateHandler(webapp2.RequestHandler):
     """ The challenge string to be rendered comes from memcache """
     def get(self, hash):
         response = memcache.get(key="acme-challenge")
         self.response.write(response)
     
+
+"""
+App Routing
+"""
 IMAGE_UPLOAD_URL = '/api/image/upload'
-
-
-class MIDIUploadHandler(RequestHandler):
-    """
-    accepts a JSON midi object and stores it 
-    """
-    def get(self, data):
-        dataString = urllib.unquote(data) 
-        midi = json.loads(dataString)
-        header = midi['header']
-        ppq = header['PPQ']
-        bpm = header['bpm']
-        time_signature = header['timeSignature']
-        # create a song
-        song = SongModel(
-            path = midi['path'],
-            title = midi['path'].split('/')[-1].replace('.mid','').replace('_',' ').title(),
-            bpm = int(bpm),
-            ppq = int(ppq),
-            track_count = len(midi['tracks']),
-            time_signature = time_signature,
-            tags = midi['path'].replace('/Users/martin.micklinghoff/Downloads/50000_MIDI_FILES/', '').split('/')[0: -1],
-            tracks_string = json.dumps(midi['tracks'])
-        )
-        song.put()
-        self.response.write('cool')
-
 app = webapp2.WSGIApplication(
     [
-        ('/', HomeEndpoint),
-        
-        # midi upload
-        (r'/api/midi-upload/(.+)?', MIDIUploadHandler),
-
+        # GraphQL (GET for interface, POST for queries)
         ('/api/graphql', GraphQLEndpoint),
-        # images
-        # upload url
+
+        # generates an upload url
         ('/api/image/upload-url', UploadUrl),
-        # this is where things are posted to, because get upload url specified this url
+
+        # upload image (the generated url redirects here)
         ('/api/image/upload', ImageUploadHandler),
+
+        # image serving
         ('/api/image/serve', ServeImage),
-        # for let's encrypt
+
+        # let's Encrypt
         (r'/\.well-known/acme-challenge/(.+)?', CertificateHandler)
-    ], debug=True
+
+    ],
+    debug=True
 )
 
-""" Search Index """
-
-def tokenize_autocomplete(phrase):
-    a = []
-    for word in phrase.split():
-        j = 1
-        while True:
-            for i in range(len(word) - j + 1):
-                a.append(word[i:i + j])
-            if j == len(word):
-                break
-            j += 1
-    return a
 
 
 """ UTILS """
+
+"""
+Hashing
+"""
+@timing
+def hash_password(password):
+    # uuid is used to generate a random number
+    salt = uuid.uuid4().hex
+    return hashlib.sha256(salt.encode() + password.encode()).hexdigest() + ':' + salt
+
+@timing
+def verify_password(hashed_password, user_password):
+    password, salt = hashed_password.split(':')
+    return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
+
+@timing
+def generate_jwt(email):
+    """ 
+    Generates a jwt for a given email. The payload contains the email, 
+    a comma separated string of author IDs, and an expiration date
+    """    
+    user_key = ndb.Key('UserModel', email)
+    author_ids = AuthorModel.query(AuthorModel.user == user_key).map(lambda author: author.key.id())
+    payload = {
+        'email': email,
+        'authors': ','.join(author_ids),
+        'exp': datetime.utcnow() + timedelta(days=JWT_EXP_DELTA_DAYS)
+    }
+    jwt_token = jwt.encode(payload, JWT_SECRET, JWT_ALGORITHM)
+    return jwt_token.decode('utf-8')
+
 
 def send_verification_email(email, token, to_log):
     """
@@ -1439,7 +1294,7 @@ def send_reset_password_email(email, token, to_log):
     """
     message = mail.EmailMessage(
         sender="auth@public-ink.appspotmail.com",
-        subject="Public.Ink Reset Password Link")
+        subject="public.ink | reset password link")
     message.to = email
     host = FRONTEND_URL
     message.body = """
@@ -1466,7 +1321,7 @@ def email_from_jwt(token):
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         return payload.get('email')
-    except jwt.ExpiredSignatureError:
+    except jwt.ExpiredSignatureError, jwt.DecodeError:
         return None
 
 
@@ -1483,9 +1338,27 @@ def is_owner(token, author_id):
     """
     checks if an author_id is present in a given jwt
     """
-    if not token:
+    if not token and author_id:
         return False
-    # todo: token is none for logged out folks.
-    payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-    author_ids = payload.get('authors').split(',')
-    return True if author_id in author_ids else False
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        author_ids = payload.get('authors').split(',')
+        return True if author_id in author_ids else False
+    except jwt.DecodeError:
+        return False
+
+
+
+"""
+An Example for a Server Side Rendered Page
+"""
+class HomeEndpoint(webapp2.RequestHandler):
+    def get(self):
+        upload_url = blobstore.create_upload_url(IMAGE_UPLOAD_URL)
+        template_values = {
+            'upload_url': upload_url,
+            'env': ENV_NAME
+        }
+        template = ninja.get_template('home.html')
+        output = template.render(template_values)
+        return self.response.write(output)

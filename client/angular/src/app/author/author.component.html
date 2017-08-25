@@ -36,7 +36,7 @@
         
     <!-- AUTHOR NAME -->
     <!-- name input -->
-      <input *ngIf="editable"
+      <input *ngIf="editable || author.new"
       type="text"
       placeholder="Author Name"
       [(ngModel)]="author.name" 
@@ -52,7 +52,7 @@
       
       <!-- AUTHOR ABOUT -->
       <!-- about input -->
-      <textarea *ngIf="editable"
+      <textarea *ngIf="editable || author.new"
         [(ngModel)]="author.about"
         placeholder="A short introduction about this author. [optional]"
         [ngStyle]="aboutStyle()"

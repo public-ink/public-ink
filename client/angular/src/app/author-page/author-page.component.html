@@ -10,11 +10,14 @@
     <flex-col >
         <!-- center lane -->
             <app-author [author]="author" [editable]="backend.isOwner(author.id)"></app-author>
+            <button [ngStyle]="ui.styles.button()" (click)="deleteAuthor()">delete author (temp)</button>
             
+
             <!-- if NEW: create him inline button -->
             <div *ngIf="backend.isOwner(author.id)">
                 <button [ngStyle]="ui.styles.button()" *ngIf="author.new" (click)="saveAuthor()">create author</button>
                 <button [ngStyle]="ui.styles.button()" *ngIf="!author.new" (click)="saveAuthor()">save author</button>
+                <button [ngStyle]="ui.styles.button()" *ngIf="!author.new" (click)="deleteAuthor()">delete author</button>
             </div>
             <!-- end of center lane -->
     </flex-col>

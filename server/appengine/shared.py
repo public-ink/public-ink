@@ -6,10 +6,11 @@ import os
 import uuid
 import hashlib
 import jwt
+import time
 from google.appengine.ext import ndb
 from google.appengine.api import users
 from secrets import JWT_SECRET, JWT_EXP_DELTA_SECONDS, JWT_ALGORITHM, JWT_EXP_DELTA_DAYS
-
+import logging
 """
 Environment
 """
@@ -45,6 +46,19 @@ else:
     
     ALLOW_ORIGIN = '*'
 
+
+"""
+Timing
+"""
+def timing(f):
+    def wrap(*args):
+        time1 = time.time()
+        ret = f(*args)
+        time2 = time.time()
+        if DO_TIME:
+            logging.info('%s function took %0.1f ms' % (f.func_name, (time2-time1)*1000.0))
+        return ret
+    return wrap
 
 """
 Unix Epoch Helper

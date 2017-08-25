@@ -11,6 +11,8 @@ import 'rxjs/Rx'
 import { BackendService } from '../backend.service'
 import { UIService } from '../ui.service'
 
+// Interfaces
+import { InfoFragment } from '../backend.service'
 
 
 import gql from 'graphql-tag'
@@ -108,12 +110,18 @@ export class AuthorPageComponent implements OnInit, OnDestroy {
       (yes) => {
         this.ui.show('loading', 'deleting author')
 
-        this.backend.deleteAuthor(this.authorID).subscribe((info: any) => {
-          this.ui.show('success', 'done!', 1000)
-          this.router.navigate(['/my-account'])
+        this.backend.deleteAuthor(this.authorID).subscribe((info: InfoFragment) => {
+          console.log('are we here?')
+          if (info.success) {
+            this.ui.show('success', 'done!', 1000)
+            this.router.navigate(['/my-account'])
+          } else {
+            console.log('error', info.message)
+            this.ui.show('error', info.message)
+          }
         }, (error) => {
           // think about displaying multiple errors
-          this.ui.show('error', error.graphQLErrors[0])
+          this.ui.show('error', 'unexpected backend error')
         })
         // user cancels
       }, (no) => {
