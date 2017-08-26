@@ -1,4 +1,3 @@
-
 import os, urllib, time, re, logging, hashlib, uuid, graphene, webapp2, hashlib, jinja2, json, uuid, jwt
 from user_agents import parse
 from collections import defaultdict, OrderedDict
@@ -197,7 +196,7 @@ class PublicationResponse(graphene.ObjectType):
 
 
 
-""" 
+"""
 AUTHOR 
 """
 
@@ -209,6 +208,7 @@ class AuthorModel(InkModel):
     name = ndb.StringProperty(required=True)
     about = ndb.StringProperty()
     imageURL = ndb.StringProperty()
+
 
 class AuthorSchema(graphene.ObjectType):
     """
@@ -344,7 +344,9 @@ class CommentSchema(graphene.ObjectType):
     name = graphene.String()
     body = graphene.String()
 
-
+"""
+Analytics Event
+"""
 class EventModel(InkModel):
     """
     A raw, singular event, like a pageview, a publication expansion, etc.
@@ -373,11 +375,17 @@ class EventModel(InkModel):
     is_bot = ndb.BooleanProperty()
 
 
-"""  #####################  THE BIG FAT QUERY  #########################  """
+
+"""    THE  GRAPHQL QUERY      """
+
 
 class Query(graphene.ObjectType):
-    """ AUTHENTICATION """
+    """
+    This query hold all the 'endpoints' and how to resolve related data
+    """
 
+    """ AUTHENTICATION """
+    
     """ Email / Password Login """
     epLogin = graphene.Field(AccountResponse)
     @timing
@@ -993,7 +1001,7 @@ class Query(graphene.ObjectType):
         email = email_from_jwt(jwt)
         user_key = ndb.Key('UserModel', email)
 
-        # authentication
+        # authentication (account level)
         image = ndb.Key('ImageModel', id).get()
         if image.user_key.id() != email:
             return InfoSchema(success=False, message='not_authed')

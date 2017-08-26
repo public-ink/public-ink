@@ -51,9 +51,31 @@ export interface ArticleResponse {
     }
   }
 }
-export interface PublicationResponse {
+export interface SaveArticleResponse {
+  errors?:  string[]
   data: {
+    saveArticle: {
+      saveArticle: ArticleFragment
+      info: InfoFragment
+    }
+  }
+}
 
+/** Publication Data Interface */
+export interface PublicationResponse {
+  errors: string []
+  data: {
+    publication: PublicationFragment
+  }
+}
+
+export interface SavePublicationResponse {
+  errors: string []
+  data: {
+    savePublication: {
+      savePublication: PublicationFragment
+      info: InfoFragment
+    }
   }
 }
 
@@ -458,6 +480,7 @@ export class BackendService {
       }
       // both for successful and unsuccessful attempts
       loginSubject.next(info)
+      loginSubject.complete()
     }, (error) => {
       // an actual backend error
       loginSubject.error(error)
@@ -915,16 +938,18 @@ export class BackendService {
     const saveSubject = new Subject()
     querySubscription.delay(this.backendDelay).subscribe(result => {
       const publication = result.data.savePublication.publication
-      const info = result.data.savePublication.info
-      if (info.success) {
+      /**
+       * backend don't care about the kind of reply (if sucess of not)
+       * it just passes down the reply to success handler
+       * 
+       * and an error message to error in case of un-expected server error
+       */
         saveSubject.next(result.data.savePublication)
-      } else {
-        saveSubject.error(info.message)
-      }
+        saveSubject.complete()
     },
       // unchaught backend exception?
       error => {
-        saveSubject.error('error saving publication')
+        saveSubject.error(error)
       })
     return saveSubject
 
@@ -977,17 +1002,11 @@ export class BackendService {
       },
     })
     const saveSubject = new Subject()
-    apolloQuery.delay(this.backendDelay).subscribe(result => {
-      const article = result.data[endpoint].article
-      const info = result.data[endpoint].info
+    apolloQuery.delay(this.backendDelay).subscribe((reply: ArticleResponse) => {
+      // should we save downstream some trouble?
+      saveSubject.next(reply)
+      saveSubject.complete()
 
-      const reply = result.data[endpoint]
-      if (info.success) {
-        saveSubject.next(reply)
-        saveSubject.complete()
-      } else {
-        saveSubject.error(reply.info.message)
-      }
     }, (error) => {
       saveSubject.error('an unexpected error occured')
     })

@@ -14,7 +14,7 @@ import { ArticleComponent } from '../article/article.component'
 
 import { iArticle } from '../models'
 
-import { ArticleFragment } from '../backend.service'
+import { ArticleFragment, ArticleResponse, SaveArticleResponse } from '../backend.service'
 
 interface Quill {
   new(container: string | Element, options?: any): Quill;
@@ -77,6 +77,9 @@ export class ArticlePageComponent implements OnInit {
   keyboardSubscription: Subscription
   mediaClickSubscription: any
 
+  // allows keyboard shortcut debugging :) refactor
+  debug = true
+
 
   constructor(
     // ng
@@ -96,11 +99,16 @@ export class ArticlePageComponent implements OnInit {
     this.keyboardSubscription = Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
 
       // only available to owners
-      if (!this.isOwner()) { return }
+      if (!this.isOwner()) { 
+        // return so not to catch non-owners keystroke
+        // but let through to debug :) make a hyperparameter
+        // return
+        if (!this.debug) { return }
+      }
 
       if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) {
-        // cmd + s
-        if (!this.canSave()) {
+        // cmd + s (allow through with debug on)
+        if (!this.canSave() && !this.debug) {
           this.ui.flashMessage('up-to-date!')
         } else {
           this.saveArticle()
@@ -213,10 +221,9 @@ export class ArticlePageComponent implements OnInit {
       this.authorID,
       this.publicationID,
       this.articleID,
-      this.article).subscribe(reply => {
+      this.article).subscribe((reply: SaveArticleResponse) => {
 
-        if (reply.info.success) {
-
+        if (reply.data.saveArticle.info.success) {
           // update saved version for autosave
           this.savedArticleJSON = JSON.stringify(this.article)
           if (!silent) {
@@ -227,10 +234,16 @@ export class ArticlePageComponent implements OnInit {
           }
           /* not sure why this check is required here but not on publication page */
           if (this.articleID === 'create-article') {
-            this.router.navigate(['/', reply.article.publication.author.id, reply.article.publication.id, reply.article.id])
+            // this is rediculous.
+            // try a mapping function?
+            this.router.navigate(['/',
+               reply.data.saveArticle.saveArticle.publication.author.id, 
+               reply.data.saveArticle.saveArticle.publication.id, 
+               reply.data.saveArticle.saveArticle.id]
+              )
           }
         } else {
-          this.ui.show('error', reply.info.message)
+          this.ui.show('error', reply.data.saveArticle.info.message)
         }
       })
   }

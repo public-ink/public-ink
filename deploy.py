@@ -51,17 +51,34 @@ print "from {} to {}".format(client_dist, server_dist)
 """
 Step 4: re-write index.html
 """
+
+print "get version number"
+with open('version.json') as data_file:    
+    data = json.load(data_file)
+	last_version = data['version']
+	next_version = last_version ++
+	data['version'] = next_version
+
+os.remove('version.json')
+with open('version.json', 'w') as f:
+    json.dump(data, f, indent=4)
+
 print "step 4: re-writing index.html"
 f = open(server_dist + '/index.html','r')
 filedata = f.read()
 f.close()
 
-newdata = filedata.replace('src="','src="angular/').replace('<link href="', '<link href="angular/')
+newdata = filedata.replace('src="','src="angular/') \
+	.replace('<link href="', '<link href="angular/') \
+	.replace('#BUILDVERSION#', str(next_version))
 
 f = open(server_dist + '/index.html','w')
 f.write(newdata)
 f.close()
 print "step 4 completed"
+
+# only build for now
+return "Done building, stopping here!"
 
 """
 Last Step: upload to app engine

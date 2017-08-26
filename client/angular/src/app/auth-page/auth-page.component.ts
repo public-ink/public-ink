@@ -59,7 +59,7 @@ export class AuthPageComponent {
 
   /**
    * 
-   * @param event 
+   * TODO what is this?
    */
   doLogin() {
     const email = this.loginForm.value.email

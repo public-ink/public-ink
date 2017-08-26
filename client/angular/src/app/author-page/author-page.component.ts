@@ -87,6 +87,11 @@ export class AuthorPageComponent implements OnInit, OnDestroy {
     // observe keyboard
     this.keyboardSubscription = Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
 
+      // check ownership
+      if (! this.backend.isOwner(this.authorID)) {
+        return
+      }
+
       if ((event.metaKey || event.ctrlKey) && event.keyCode === 83) {
         // cmd + s
         this.saveAuthor()
@@ -111,7 +116,6 @@ export class AuthorPageComponent implements OnInit, OnDestroy {
         this.ui.show('loading', 'deleting author')
 
         this.backend.deleteAuthor(this.authorID).subscribe((info: InfoFragment) => {
-          console.log('are we here?')
           if (info.success) {
             this.ui.show('success', 'done!', 1000)
             this.router.navigate(['/my-account'])

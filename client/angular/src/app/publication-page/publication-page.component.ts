@@ -16,6 +16,11 @@ import { BackendService } from '../backend.service'
 import { UIService } from '../ui.service'
 
 // Ink Interfaces impor modelsss! and use them:)
+import { InfoFragment, PublicationFragment } from '../backend.service'
+interface PublicationResponse {
+  info: InfoFragment
+  publication: PublicationFragment
+}
 
 @Component({
   selector: 'app-publication-page',
@@ -103,8 +108,9 @@ export class PublicationPageComponent implements OnInit {
   }
 
   ngOnInit() {
-    // listen to media click
-    // simply sets the imageURL of the publication
+    /**
+     * Listen for media clicks to set publication background image
+     */
     this.ui.mediaClickObservable.subscribe(image => {
       this.publication.imageURL = image.url 
     })
@@ -116,11 +122,22 @@ export class PublicationPageComponent implements OnInit {
   savePublication() {
     // todo: validation
     this.ui.show('loading', 'saving publication')
-    this.backend.savePublication(this.publication).subscribe((publicationResponse: any) => {
-      this.ui.show('success', 'done!', 1000)
-      // coule be that we are already here, this is for creates
-      // TODO: are we always navigating? console.log(publicationResponse)
-      this.router.navigate(['/', publicationResponse.publication.author.id, publicationResponse.publication.id])
+    this.backend.savePublication(
+      this.publication).subscribe((reply: PublicationResponse) => {
+      if (reply.info.success) {
+        this.ui.show('success', 'done!', 1000)
+        if (this.publication.id === 'create-publication') {
+          this.router.navigate(['/', reply.publication.author.id, reply.publication.id])
+        }
+      } else {
+        /**
+         * take inspiration from here! let the ui handle funny messages
+         */
+        let msg = reply.info.message === 'unauthorized' ? "sorry, but you can't do that" : reply.info.message
+        this.ui.show('error', msg)
+      }
+    }, error => {
+      alert(error)
     })
   }
   /**
