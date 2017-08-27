@@ -14,7 +14,7 @@ import { UIService } from '../ui.service'
 import 'rxjs/Rx'
 
 // no interfaces needed? come oooon :)
-import { resetLinkResponse } from '../backend.service'
+import { ResetLinkResponse } from '../backend.service'
 
 @Component({
   selector: 'app-auth-page',
@@ -107,7 +107,7 @@ export class AuthPageComponent {
     const email = this.resetPasswordForm.value.email
     this.ui.show('loading', 'generating link')
     this.backend.requestResetPasswordLink(email).subscribe(
-      (result: resetLinkResponse) => {
+      (result: ResetLinkResponse) => {
         if (result.data.requestResetPasswordLink.success) {
           this.ui.show('success', 'Done, check your email.')
         } else {

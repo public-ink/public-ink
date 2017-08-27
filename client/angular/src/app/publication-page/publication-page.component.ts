@@ -117,7 +117,7 @@ export class PublicationPageComponent implements OnInit {
   }
 
   /** 
-   * Save (creates of updates) the local publication!
+   * Save (creates of updates) a publication
    */
   savePublication() {
     // todo: validation

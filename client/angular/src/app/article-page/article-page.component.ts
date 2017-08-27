@@ -14,7 +14,7 @@ import { ArticleComponent } from '../article/article.component'
 
 import { iArticle } from '../models'
 
-import { ArticleFragment, ArticleResponse, SaveArticleResponse } from '../backend.service'
+import { ArticleFragment, ArticleResponse, SaveArticleResponse, PublishArticleResponse } from '../backend.service'
 
 interface Quill {
   new(container: string | Element, options?: any): Quill;
@@ -237,23 +237,31 @@ export class ArticlePageComponent implements OnInit {
             // this is rediculous.
             // try a mapping function?
             this.router.navigate(['/',
-               reply.data.saveArticle.saveArticle.publication.author.id, 
-               reply.data.saveArticle.saveArticle.publication.id, 
-               reply.data.saveArticle.saveArticle.id]
+               reply.data.saveArticle.article.publication.author.id, 
+               reply.data.saveArticle.article.publication.id, 
+               reply.data.saveArticle.article.id]
               )
           }
         } else {
           this.ui.show('error', reply.data.saveArticle.info.message)
         }
+      }, error => {
+        this.ui.show('error', 'backend error!')
       })
   }
 
   publishArticle(article) {
     this.ui.show('loading', 'publishing ' + this.article.title)
-    this.backend.publishArticle(article).subscribe((result: any) => {
-      this.article = JSON.parse(JSON.stringify(result.article))
-      this.savedArticleJSON = JSON.stringify(this.article)
-      this.ui.show('success', 'great success!', 1000)
+    this.backend.publishArticle(article).subscribe((result: PublishArticleResponse) => {
+      if (result.data.info.success) {
+        this.article = JSON.parse(JSON.stringify(result.data.publishArticle))
+        this.savedArticleJSON = JSON.stringify(this.article)
+        this.ui.show('success', 'great success!', 1000)
+      } else {
+        this.ui.show('error', 'not success')
+      }
+    }, error => {
+      this.ui.show('error', 'backend error')
     })
   }
   unpublishArticle(article) {

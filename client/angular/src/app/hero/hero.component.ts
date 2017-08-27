@@ -184,20 +184,11 @@ export class HeroComponent implements OnInit, AfterViewChecked, AfterViewInit {
 
   search(query: string) {
     console.log('search for ', query)
-    this.backend.searchSongs(query).subscribe((data: any) => {
-      console.log('hero got', data)
-      this.searchResults = data.songSearch
-    })
+    
   }
 
   loadSong(id: string) {
-    this.backend.loadSong(id).subscribe((song: any) => {
-      console.log('hero loaded song!', song)
-      let tracks = JSON.parse(song.tracksString)
-      song.tracks = tracks
-      this.song = song
-      this.songSetup(song)
-    })
+    
   }
 
   ngOnInit() {

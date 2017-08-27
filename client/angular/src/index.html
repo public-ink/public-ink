@@ -6,76 +6,91 @@
   <title>public.ink</title>
   <base href="/">
 
+  <style>
+      html, body {
+        background-color: black;
+        border:0;
+        padding: 0;
+        margin: 0;
+      }
+  
+      body {
+        background-color: white;
+        font-family: Courier New, Courier, monospace;
+      }
+  
+      flex-col-center-center {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      .spinner-black {
+      border-radius:50%;
+      position: relative;
+      border-top: 5px solid black;
+      border-right: 5px solid black;
+      border-left: 5px solid black;
+      border-bottom: 5px solid transparent;
+  
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      -webkit-animation: spin 0.5s infinite linear;
+      animation: spin 0.5s infinite linear;
+      
+      width: 30px;
+      height: 30px;
+  }
+  .spinner-white {
+      border-radius:50%;
+      position: relative;
+      border-top: 5px solid black;
+      border-right: 5px solid black;
+      border-left: 5px solid black;
+      border-bottom: 5px solid transparent;
+  
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      -webkit-animation: spin 0.5s infinite linear;
+      animation: spin 0.5s infinite linear;
+      
+      width: 30px;
+      height: 30px;
+  }
+    </style>
+
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <script src="assets/quill/quill.min.js"></script>
   <link href="assets/quill/quill.snow.css" rel="stylesheet" />
 
-  <style>
-  html{
-    background-color: black;
-  }
-  body {
-    background-color: white;
-    font-family: Courier New, Courier, monospace;
-  }
-  flex-col-center-center {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  #loadingScreen {
-    width: 100%;
-    height: 30px;
-    border-bottom: 1px solid black;
-}
-  </style>
+
 
 </head>
 
 <body>
-  <flex-col-center-center>
-    <div style="color: white;"><a href="/">public.ink</a> <span id="wording" > is loading </span> <span id="timer"></span>ms</div>
-  </flex-col-center-center>
+  
   <app-root>
   </app-root>
-  <div style="text-align:center; padding: 10px; ">#BUILDVERSION#</div>
+  <flex-col-center-center id="outerLoadingScreen" style="width: 100vw; height: 100vh; background-color: black; color: white;">
+    <div class="spinner-white"></div>
+    <br>
+    loading, hang tight!
+  </flex-col-center-center>
+  <div style="background-color: black; color: gray; font-size: 12px; text-align:center; padding: 10px; "><a style="color: inherit;" href="https://github.com">Build #BUILDVERSION#</a> loaded in <span id="inkloadtime"></span> MS</div>
 
-  <!--<iframe id="iframe" ></iframe>-->
-<script>
-  // update timer 
-    var update = true
-    var pageLoadedMS = new Date().getTime()
+  <script>
+    // time angular load and bootstrap time
+    var started = new Date().getTime()
 
-    // make preview, time till loading
-    /*var iFrame = document.getElementById('iframe')
-    iFrame.setAttribute('src', 'http://localhost:8080/author/bukovski?format=html')
-    iFrame.onload = function () {
-      let iFrameLoadedTs = new Date().getTime()
-      let iFramedLoadTimeMS = iFrameLoadedTs - pageLoadedMS
-      console.log('iframe onload in', iFramedLoadTimeMS)
-    }*/
-    function updateTimer() {
-
-      window.requestAnimationFrame(() => {
-        let now = new Date().getTime()
-        let passed = now - pageLoadedMS
-        let el = document.getElementById('timer')
-        el.innerText = passed
-        if (update) {
-          updateTimer()
-        } else {
-          let word = document.getElementById('wording').innerText = 'has loaded in'
-        }
-      })
-
-    }
-    // kick of update loop
-    updateTimer()
+    // called from angular root component once loaded
     function stopTimer(timestamp) {
-      update = false
+      let now = new Date().getTime()
+      let passed = now - started
+      var el = document.getElementById('inkloadtime')
+      el.innerText = passed
     }
   </script>
 </body>
+
 </html>

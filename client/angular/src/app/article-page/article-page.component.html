@@ -34,20 +34,20 @@
         If you have any thoughts on this article, I'd love to hear them. Just keep in mind that I'm only a human being, so please
         remember to be kind.
 
-        <div style="height: 50px;"></div>
+        <div [style.height.px]="ui.responsiveValue(20, 25)"></div>
 
         <textarea [ngStyle]="ui.styles.textarea()" [(ngModel)]="commentBody" placeholder="your thoughts..." autosize rows="3" style="border: 1px dashed black;"></textarea>
         
-        <div style="height: 50px;"></div>
+        <div [style.height.px]="ui.responsiveValue(20, 25)"></div>
 
         <input style="border: 1px dashed black;" [ngStyle]="ui.styles.input()" type="text" [(ngModel)]="commentName" placeholder="your name&nbsp;&nbsp;/ optional"
         />
-        <div style="height: 50px;"></div>
+        <div [style.height.px]="ui.responsiveValue(20, 25)"></div>
 
         <input [ngStyle]="ui.styles.input()" type="email" [(ngModel)]="commentEmail" placeholder="your email / optional and private"
         />
 
-        <div style="height: 50px;"></div>
+        <div [style.height.px]="ui.responsiveValue(20, 25)"></div>
 
         <button style="width: 100%;" class="form-button" (click)="postComment()">share your thoughts</button>
 

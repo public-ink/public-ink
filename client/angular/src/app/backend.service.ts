@@ -42,45 +42,53 @@ export interface AccountFragment {
 /**
  * The shape of a GraphQL ArticleResponse
  */
-export interface ArticleResponse {
-  errors?:  string[]
+export interface Response {
+  errors?: string[]
+}
+
+export interface ArticleResponse extends Response{
   data: {
     article: {
       article: ArticleFragment
       info: InfoFragment
     }
   }
+  article: any
 }
-export interface SaveArticleResponse {
-  errors?:  string[]
+export interface SaveArticleResponse extends Response{
   data: {
     saveArticle: {
-      saveArticle: ArticleFragment
+      article: ArticleFragment
       info: InfoFragment
     }
   }
 }
 
 /** Publication Data Interface */
-export interface PublicationResponse {
-  errors: string []
+export interface PublicationResponse extends Response{
   data: {
     publication: PublicationFragment
+    info: InfoFragment
   }
 }
 
-export interface SavePublicationResponse {
-  errors: string []
+export interface PublishArticleResponse extends Response{
+  data: {
+    publishArticle: PublicationFragment
+    info: InfoFragment
+  }
+}
+
+export interface SavePublicationResponse extends Response{
   data: {
     savePublication: {
-      savePublication: PublicationFragment
+      publication: PublicationFragment
       info: InfoFragment
     }
   }
 }
 
-export interface AccountResponse {
-  errors?: string[]
+export interface AccountResponse extends Response{
   data: {
     account: {
       account: AccountFragment
@@ -88,8 +96,7 @@ export interface AccountResponse {
     }
   }
 }
-export interface jwtLoginResponse {
-  errors?: string[]
+export interface jwtLoginResponse extends Response{
   data: {
     jwtLogin: {
       account: AccountFragment
@@ -97,8 +104,7 @@ export interface jwtLoginResponse {
     }
   }
 }
-export interface resetLinkResponse {
-  errors?: string[]
+export interface ResetLinkResponse extends Response{
   data: {
     requestResetPasswordLink: InfoFragment
   }
@@ -316,52 +322,7 @@ export class BackendService {
     })
   }
 
-  /** Load Songs */
-  loadSong(id) {
-    const query = gql`
-      {song (id:"${id}"){
-        title
-        tracksString
-        bpm
-        artist
-        trackCount
-      }}
-    `
-    const apolloQuery = this.apollo.watchQuery<any>({
-      query: query,
-      fetchPolicy: 'network-only'
-    })
-    let songSubject = new Subject()
-    apolloQuery.delay(this.backendDelay).subscribe(result => {
-      let song = JSON.parse(JSON.stringify(result.data.song))
-      songSubject.next(song)
-    })
-    return songSubject
-  }
-
-  // TODO: remove 
-  searchSongs(searchTerm: string) {
-    const query = gql`
-      {songSearch (q:"${searchTerm}"){
-        title
-        keyId
-      }}
-    `
-    const apolloQuery = this.apollo.watchQuery<any>({
-      query: query,
-      variables: {
-        q: searchTerm,
-      },
-      fetchPolicy: 'network-only',
-    })
-
-    return new Observable(stream => {
-      apolloQuery.delay(this.backendDelay).subscribe(result => {
-        const data = result.data
-        stream.next(data)
-      })
-    })
-  }
+  
 
   /**
    * Loads comments for a given article
@@ -382,7 +343,6 @@ export class BackendService {
     `
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
-      // variables: {},
       fetchPolicy: 'network-only',
     })
     const commentSubject = new Subject()
@@ -506,10 +466,11 @@ export class BackendService {
       query: query,
       fetchPolicy: 'network-only',
     })
-    apolloQuery.delay(this.backendDelay).subscribe((result: resetLinkResponse) => {
+    apolloQuery.delay(this.backendDelay).subscribe((result: any) => {
+      // ResetLinkResponse
       resetSubject.next(result)
     }, error => {
-      resetSubject.error('unexpected backend error')
+      resetSubject.error('request password link: backend error')
     })
     return resetSubject
   }
@@ -662,8 +623,9 @@ export class BackendService {
     })
 
     const jwtLoginSubject = new Subject()
-    apolloQuery.delay(this.backendDelay).subscribe((result: jwtLoginResponse) => {
-      
+    apolloQuery.delay(this.backendDelay).subscribe((result: any) => {
+
+      // jwtLoginResponse
       const errors = result.errors
       const info = result.data.jwtLogin.info
       if (info.success) {
@@ -828,8 +790,8 @@ export class BackendService {
     })
     const deleteSubject = new Subject()
     apolloQuery.delay(this.backendDelay).subscribe(result => {
-      
-      const info: InfoFragment = result.data.deleteAuthor 
+
+      const info: InfoFragment = result.data.deleteAuthor
       deleteSubject.next(info)
       deleteSubject.complete()
       if (info.success) {
@@ -944,8 +906,8 @@ export class BackendService {
        * 
        * and an error message to error in case of un-expected server error
        */
-        saveSubject.next(result.data.savePublication)
-        saveSubject.complete()
+      saveSubject.next(result.data.savePublication)
+      saveSubject.complete()
     },
       // unchaught backend exception?
       error => {
@@ -1002,13 +964,15 @@ export class BackendService {
       },
     })
     const saveSubject = new Subject()
-    apolloQuery.delay(this.backendDelay).subscribe((reply: ArticleResponse) => {
+    apolloQuery.delay(this.backendDelay).subscribe((reply: any) => {
+      
+      // ArticleResponse
       // should we save downstream some trouble?
       saveSubject.next(reply)
       saveSubject.complete()
 
     }, (error) => {
-      saveSubject.error('an unexpected error occured')
+      saveSubject.error('save article backend error')
     })
     return saveSubject
   }
@@ -1051,11 +1015,15 @@ export class BackendService {
         unpublish: unpublish,
       },
     })
-    let publishSubject = new Subject()
-    apolloQuery.delay(this.backendDelay).subscribe(result => {
-      const info = result.data.publishArticle
-      publishSubject.next(info)
-    })
+    const publishSubject = new Subject()
+    apolloQuery.delay(this.backendDelay)
+      .subscribe((result: any) => {
+        // SaveArticleResponse
+        publishSubject.next(result)
+        publishSubject.complete()
+      }, errors => {
+        publishSubject.error(errors)
+      })
     return publishSubject
 
   }
@@ -1169,7 +1137,7 @@ export class BackendService {
     ${this.fragments.publication}
     ${this.fragments.author}
     `
-    const apolloQuery = this.apollo.watchQuery<any>({
+    const apolloQuery = this.apollo.watchQuery<ArticleResponse>({
       query: query,
       fetchPolicy: 'network-only',
       variables: {
@@ -1180,11 +1148,12 @@ export class BackendService {
     })
     const articleSubject = new Subject()
     apolloQuery.delay(this.backendDelay)
-      .subscribe((reply: ArticleResponse )=> {
-        if (reply.data.article.info.success) {
+      .subscribe((reply: any) => {
+        let typed: ArticleResponse = reply
+        if (typed.data.article.info.success) {
           articleSubject.next(reply.data.article.article)
           articleSubject.complete()
-        } else { 
+        } else {
           articleSubject.error(reply)
         }
       }, error => {

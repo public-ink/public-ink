@@ -12,69 +12,43 @@
   <link href="angular/assets/quill/quill.snow.css" rel="stylesheet" />
 
   <style>
-  html{
-    background-color: black;
-  }
-  body {
-    background-color: white;
-    font-family: Courier New, Courier, monospace;
-  }
-  flex-col-center-center {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  #loadingScreen {
-    width: 100%;
-    height: 30px;
-    border-bottom: 1px solid black;
-}
+    html {
+      background-color: black;
+    }
+
+    body {
+      background-color: white;
+      font-family: Courier New, Courier, monospace;
+    }
+
+    flex-col-center-center {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
   </style>
 
 <link href="angular/styles.97308e887bf672584d9b.bundle.css" rel="stylesheet"/></head>
 
 <body>
-  <flex-col-center-center style="display: none;">
-    <div><a href="/">public.ink</a> <span id="wording" > is loading </span> <span id="timer"></span>ms</div>
-  </flex-col-center-center>
+  
   <app-root>
   </app-root>
+  <div style="text-align:center; padding: 10px; "><a href="https://github.com">Build 4</a> loaded in <span id="inkloadtime"></span> MS</div>
 
-  <!--<iframe id="iframe" ></iframe>-->
-<script>
-  // update timer 
-    var update = true
-    var pageLoadedMS = new Date().getTime()
+  <script>
+    // time angular load and bootstrap time
+    var started = new Date().getTime()
 
-    // make preview, time till loading
-    /*var iFrame = document.getElementById('iframe')
-    iFrame.setAttribute('src', 'http://localhost:8080/author/bukovski?format=html')
-    iFrame.onload = function () {
-      let iFrameLoadedTs = new Date().getTime()
-      let iFramedLoadTimeMS = iFrameLoadedTs - pageLoadedMS
-      console.log('iframe onload in', iFramedLoadTimeMS)
-    }*/
-    function updateTimer() {
-
-      window.requestAnimationFrame(() => {
-        let now = new Date().getTime()
-        let passed = now - pageLoadedMS
-        let el = document.getElementById('timer')
-        el.innerText = passed
-        if (update) {
-          updateTimer()
-        } else {
-          let word = document.getElementById('wording').innerText = 'has loaded in'
-        }
-      })
-
-    }
-    // kick of update loop
-    updateTimer()
+    // called from angular root component once loaded
     function stopTimer(timestamp) {
-      update = false
+      let now = new Date().getTime()
+      let passed = now - started
+      var el = document.getElementById('inkloadtime')
+      el.innerText = passed
     }
   </script>
-<script type="text/javascript" src="angular/inline.f35f8a0a7411927a27f9.bundle.js"></script><script type="text/javascript" src="angular/polyfills.186e12e6c84fb02cde1f.bundle.js"></script><script type="text/javascript" src="angular/vendor.b368b38239272ec325b4.bundle.js"></script><script type="text/javascript" src="angular/main.38eacc9317d9d18dbfe3.bundle.js"></script></body>
+<script type="text/javascript" src="angular/inline.2b38dfd12fcbe08cb9db.bundle.js"></script><script type="text/javascript" src="angular/polyfills.186e12e6c84fb02cde1f.bundle.js"></script><script type="text/javascript" src="angular/vendor.b368b38239272ec325b4.bundle.js"></script><script type="text/javascript" src="angular/main.999bff80b911f8849060.bundle.js"></script></body>
+
 </html>

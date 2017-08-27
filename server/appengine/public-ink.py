@@ -385,7 +385,7 @@ class Query(graphene.ObjectType):
     """
 
     """ AUTHENTICATION """
-    
+
     """ Email / Password Login """
     epLogin = graphene.Field(AccountResponse)
     @timing
@@ -703,7 +703,7 @@ class Query(graphene.ObjectType):
     """
     saveArticle = graphene.Field(ArticleResponse)
     def resolve_saveArticle(self, *args):
-
+              
         # parameters
         jwt = self.get('jwt')
         authorID = self.get('authorID')
@@ -776,7 +776,9 @@ class Query(graphene.ObjectType):
             'ArticleModel', articleID
         ).get()
 
-        article.unpublish() if unpublish else publish()
+        #raise Exception('just to fuck with you')
+
+        article.unpublish() if unpublish else article.publish()
 
         return ArticleResponse(
             info=InfoSchema(success=True, message='published!'),
@@ -976,7 +978,7 @@ class Query(graphene.ObjectType):
         
         # params
         author_id = self.get('authorID')
-        token = args.get('jwt')
+        token = self.get('jwt')
 
         # authentication
         if is_owner(token, author_id):

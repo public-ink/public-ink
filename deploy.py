@@ -1,5 +1,6 @@
-import os
+import os, sys
 from subprocess import call
+import json
 
 """
 color!
@@ -11,6 +12,7 @@ print(Back.GREEN + 'and with a green background')
 """
 
 print "Let's deploy public.ink"
+
 
 """
 Note some paths
@@ -46,18 +48,18 @@ print "step 3: copying files to target directory"
 cmd  = "cp -r {}/* {}".format(client_dist, server_dist)
 os.system(cmd)
 print "step 3 completed"
-print "from {} to {}".format(client_dist, server_dist)
 
 """
 Step 4: re-write index.html
 """
 
 print "get version number"
+os.chdir(script_dir)
 with open('version.json') as data_file:    
     data = json.load(data_file)
-	last_version = data['version']
-	next_version = last_version ++
-	data['version'] = next_version
+    last_version = data['version']
+    next_version = last_version + 1
+    data['version'] = next_version
 
 os.remove('version.json')
 with open('version.json', 'w') as f:
@@ -78,7 +80,7 @@ f.close()
 print "step 4 completed"
 
 # only build for now
-return "Done building, stopping here!"
+#sys.exit("built complete, stopping here!")
 
 """
 Last Step: upload to app engine

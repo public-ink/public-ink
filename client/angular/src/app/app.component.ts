@@ -34,6 +34,9 @@ export class AppComponent {
     let now = new Date().getTime()
     stopTimer(now)
 
+    // remove outer loading screen
+    document.getElementById('outerLoadingScreen').remove()
+
     this.public = environment.public
     this.environment = environment
 

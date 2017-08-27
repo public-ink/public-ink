@@ -1,11 +1,6 @@
 
 
 
-html, body {
-    border:0;
-    padding: 0;
-    margin: 0;
-}
 
 input {
     font-family: Courier New, Courier, monospace;
@@ -286,23 +281,8 @@ simple-spacer{
     width: 30px;
     height: 30px;
 }
+/** spinner black moved to index.html */
 
-.spinner-black {
-    border-radius:50%;
-    position: relative;
-    border-top: 5px solid black;
-    border-right: 5px solid black;
-    border-left: 5px solid black;
-    border-bottom: 5px solid transparent;
-
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-    -webkit-animation: spin 0.5s infinite linear;
-    animation: spin 0.5s infinite linear;
-    
-    width: 30px;
-    height: 30px;
-}
 
 .spinner-white {
     border-radius:50%;
