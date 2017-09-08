@@ -8,6 +8,8 @@ import { Observable } from 'rxjs/Observable'
 import { UIService } from '../ui.service'
 import { BackendService } from '../backend.service'
 
+import * as Quill from 'quill'
+
 interface iArticle {
   id: string
   title: string

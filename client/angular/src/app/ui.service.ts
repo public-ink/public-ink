@@ -4,6 +4,8 @@ import { Router, NavigationEnd } from '@angular/router'
 
 // RX
 import { Observable, Subscribable } from 'rxjs/Observable'
+import { Subject } from 'rxjs/Subject'
+import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import 'rxjs/Rx'
 
 // INK
@@ -44,6 +46,7 @@ export class UIService {
 
   // loading / backend busy
   backendBusy = false
+  backendBusyStream = new BehaviorSubject(false)
 
   colors = {
     black: '#000',

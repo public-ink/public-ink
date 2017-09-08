@@ -11,7 +11,6 @@ import { Apollo } from 'apollo-angular'
 // ink
 import { UIService } from './ui.service'
 import { environment } from '../environments/environment'
-import { Song } from './hero/song'
 
 
 /**

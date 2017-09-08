@@ -36,14 +36,14 @@ export class HomePageComponent implements OnInit {
       return
     }
     // reload if needed
-    this.ui.backendBusy = true
+    this.ui.backendBusyStream.next(true)
     this.backend.loadHoff('hoff').subscribe(hoff => {
       this.hoff = JSON.parse(JSON.stringify(hoff))
-      this.ui.backendBusy = false
+      this.ui.backendBusyStream.next(false)
     }, error => {
       // todo: message
       alert('an error occured')
-      this.ui.backendBusy = false
+      this.ui.backendBusyStream.next(false)
     })
   }
 

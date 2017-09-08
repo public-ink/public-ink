@@ -6,36 +6,78 @@
   <title>public.ink</title>
   <base href="/">
 
+  <style>
+      html, body {
+        background-color: black;
+        border:0;
+        padding: 0;
+        margin: 0;
+      }
+  
+      body {
+        background-color: white;
+        font-family: Courier New, Courier, monospace;
+      }
+  
+      flex-col-center-center {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      .spinner-black {
+      border-radius:50%;
+      position: relative;
+      border-top: 5px solid black;
+      border-right: 5px solid black;
+      border-left: 5px solid black;
+      border-bottom: 5px solid transparent;
+  
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      -webkit-animation: spin 0.5s infinite linear;
+      animation: spin 0.5s infinite linear;
+      
+      width: 30px;
+      height: 30px;
+  }
+  .spinner-white {
+      border-radius:50%;
+      position: relative;
+      border-top: 5px solid black;
+      border-right: 5px solid black;
+      border-left: 5px solid black;
+      border-bottom: 5px solid transparent;
+  
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      -webkit-animation: spin 0.5s infinite linear;
+      animation: spin 0.5s infinite linear;
+      
+      width: 30px;
+      height: 30px;
+  }
+    </style>
+
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <script src="angular/assets/quill/quill.min.js"></script>
   <link href="angular/assets/quill/quill.snow.css" rel="stylesheet" />
 
-  <style>
-    html {
-      background-color: black;
-    }
 
-    body {
-      background-color: white;
-      font-family: Courier New, Courier, monospace;
-    }
 
-    flex-col-center-center {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-  </style>
-
-<link href="angular/styles.97308e887bf672584d9b.bundle.css" rel="stylesheet"/></head>
+<link href="angular/styles.ca0da74af740afc91fa4.bundle.css" rel="stylesheet"/></head>
 
 <body>
   
   <app-root>
   </app-root>
-  <div style="text-align:center; padding: 10px; "><a href="https://github.com">Build 4</a> loaded in <span id="inkloadtime"></span> MS</div>
+  <flex-col-center-center id="outerLoadingScreen" style="width: 100vw; height: 100vh; background-color: black; color: white;">
+    <div class="spinner-white"></div>
+    <br>
+    loading, hang tight!
+  </flex-col-center-center>
+  <div style="background-color: black; color: gray; font-size: 12px; text-align:center; padding: 10px; "><a style="color: inherit;" href="https://github.com">Build 6</a> loaded in <span id="inkloadtime"></span> MS</div>
 
   <script>
     // time angular load and bootstrap time
@@ -49,6 +91,6 @@
       el.innerText = passed
     }
   </script>
-<script type="text/javascript" src="angular/inline.2b38dfd12fcbe08cb9db.bundle.js"></script><script type="text/javascript" src="angular/polyfills.186e12e6c84fb02cde1f.bundle.js"></script><script type="text/javascript" src="angular/vendor.b368b38239272ec325b4.bundle.js"></script><script type="text/javascript" src="angular/main.999bff80b911f8849060.bundle.js"></script></body>
+<script type="text/javascript" src="angular/inline.96bfc92ef1ee87ea4f25.bundle.js"></script><script type="text/javascript" src="angular/polyfills.186e12e6c84fb02cde1f.bundle.js"></script><script type="text/javascript" src="angular/vendor.b368b38239272ec325b4.bundle.js"></script><script type="text/javascript" src="angular/main.949a5a655f20f1824f1e.bundle.js"></script></body>
 
 </html>

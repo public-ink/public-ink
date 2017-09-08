@@ -11,7 +11,6 @@ import { AuthorComponent } from './author/author.component'
 import { SlugifyPipe } from './slugify.pipe'
 import { StringifyPipe } from './stringify.pipe'
 import { UIService } from './ui.service'
-import { MIDIService } from './midi.service'
 import { AuthorPageComponent } from './author-page/author-page.component'
 import { HomePageComponent } from './home-page/home-page.component'
 import { PublicationPageComponent } from './publication-page/publication-page.component'
@@ -24,23 +23,17 @@ import { ApolloModule } from 'apollo-angular'
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { AuthPageComponent } from './auth-page/auth-page.component';
 import { EmailVerificationPageComponent } from './email-verification-page/email-verification-page.component';
-import { MePageComponent } from './me-page/me-page.component';
-import { LayoutComponent } from './layout/layout.component';
 import { AccountPageComponent } from './account-page/account-page.component';
-import { BottomBarComponent } from './bottom-bar/bottom-bar.component';
 import { FileDropComponent } from './file-drop/file-drop.component';
 import { AutosizeDirective } from './autosize.directive';
-import { MediaPageComponent } from './media-page/media-page.component'
 
 import { environment } from '../environments/environment';
 import { ContentWidthComponent } from './content-width/content-width.component';
 import { UseHostPipe } from './use-host.pipe';
-import { HeroComponent } from './hero/hero.component';
 import { RoundPipe } from './round.pipe';
 import { ResetPasswordPageComponent } from './reset-password-page/reset-password-page.component'
 
-import {DndModule} from 'ng2-dnd';
-import { NotesComponent } from './notes/notes.component';
+import { DndModule } from 'ng2-dnd';
 import { KeysPipePipe } from './keys-pipe.pipe'
 
 const apolloClient = new ApolloClient({
@@ -60,17 +53,11 @@ const appRoutes: Routes = [
   // pages
   //{ path: 'me', component: MePageComponent},
   { path: 'my-account', component: AccountPageComponent},
-  { path: 'my-media', component: MediaPageComponent },
   { path: 'auth', component: AuthPageComponent },
   { path: 'verify/:email/:token', component: EmailVerificationPageComponent},
   { path: 'reset/:email/:token', component: ResetPasswordPageComponent},
 
-  // hero
-  { path: 'hero', component: HeroComponent},
-  // notes
-  { path: 'notes', component: NotesComponent},
-  
-  // GraphQL
+  // pages, loaded viea GraphQL
   { path: ':authorID', component: AuthorPageComponent },
   { path: ':authorID/:publicationID', component: PublicationPageComponent },
   { path: ':authorID/:publicationID/:articleID', component: ArticlePageComponent },
@@ -92,19 +79,13 @@ const appRoutes: Routes = [
     ArticleComponent,
     AuthPageComponent,
     EmailVerificationPageComponent,
-    MePageComponent,
-    LayoutComponent,
     AccountPageComponent,
-    BottomBarComponent,
     FileDropComponent,
     AutosizeDirective,
-    MediaPageComponent,
     ContentWidthComponent,
     UseHostPipe,
-    HeroComponent,
     RoundPipe,
     ResetPasswordPageComponent,
-    NotesComponent,
     KeysPipePipe,
   ],
   imports: [
@@ -116,7 +97,7 @@ const appRoutes: Routes = [
     HttpModule,
     DndModule.forRoot(),
   ],
-  providers: [BackendService, UIService, MIDIService],
+  providers: [BackendService, UIService],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

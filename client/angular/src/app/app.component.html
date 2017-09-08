@@ -65,7 +65,7 @@
 
 <div style="min-height: 100vh;">
     <!-- loading screen -->
-    <flex-col-center-center *ngIf="ui.backendBusy" style="height: 100vh;">
+    <flex-col-center-center *ngIf="ui.backendBusyStream | async" style="height: 100vh;">
         <div class="spinner-black"></div>
         <p [style.font-size.px]="ui.responsiveValue(16, 18)">loading, hang tight!</p>
     </flex-col-center-center>

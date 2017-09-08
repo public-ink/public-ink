@@ -235,7 +235,7 @@ class AuthorSchema(graphene.ObjectType):
 
 
 
-""" 
+"""
 PUBLICATION 
 """
 
@@ -271,7 +271,7 @@ class PublicationSchema(graphene.ObjectType):
             articles = ArticleModel.query(ancestor=self.key).order(ArticleModel.position).fetch()
             published_articles = filter((lambda article: article.published_at is not None), articles)
             return published_articles
-    
+
     @timing
     def resolve_author(self, *args):
         return self.key.parent().get()
@@ -652,14 +652,14 @@ class Query(graphene.ObjectType):
     Save Publication (create and update)
     """
     savePublication = graphene.Field(PublicationResponse,
-        jwt=graphene.String(), 
-        publicationID=graphene.String(),
-        authorID=graphene.String(), 
-        name=graphene.String()
-    )
+                                     jwt=graphene.String(),
+                                     publicationID=graphene.String(),
+                                     authorID=graphene.String(),
+                                     name=graphene.String()
+                                    )
     @timing
     def resolve_savePublication(self, args, context, info):
-        
+       
         # params
         publicationID = self.get('publicationID')
         name = self.get('name')
