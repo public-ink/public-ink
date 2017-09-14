@@ -1,0 +1,59 @@
+<!doctype html><html><head><meta charset="utf-8"><title>public.ink</title><base href="/"><style>html, body {
+        background-color: black;
+        border:0;
+        padding: 0;
+        margin: 0;
+      }
+  
+      body {
+        background-color: white;
+        font-family: Courier New, Courier, monospace;
+      }
+  
+      flex-col-center-center {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      .spinner-black {
+      border-radius:50%;
+      position: relative;
+      border-top: 5px solid black;
+      border-right: 5px solid black;
+      border-left: 5px solid black;
+      border-bottom: 5px solid transparent;
+  
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      -webkit-animation: spin 0.5s infinite linear;
+      animation: spin 0.5s infinite linear;
+      
+      width: 30px;
+      height: 30px;
+  }
+  .spinner-white {
+      border-radius:50%;
+      position: relative;
+      border-top: 5px solid black;
+      border-right: 5px solid black;
+      border-left: 5px solid black;
+      border-bottom: 5px solid transparent;
+  
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      -webkit-animation: spin 0.5s infinite linear;
+      animation: spin 0.5s infinite linear;
+      
+      width: 30px;
+      height: 30px;
+  }</style><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/x-icon" href="favicon.ico"><link href="assets/quill/quill.snow.css" rel="stylesheet"/><link href="styles.42f8ad963f412b0af38a.bundle.css" rel="stylesheet"/></head><body><app-root></app-root><flex-col-center-center id="outerLoadingScreen" style="width: 100vw; height: 100vh; background-color: black; color: white"><div class="spinner-white"></div><br>loading, hang tight!</flex-col-center-center><div style="background-color: black; color: gray; font-size: 12px; text-align:center; padding: 10px"><a style="color: inherit" href="https://github.com">Build #BUILDVERSION#</a> loaded in <span id="inkloadtime"></span> MS</div><script>// time angular load and bootstrap time
+    var started = new Date().getTime()
+
+    // called from angular root component once loaded
+    function stopTimer(timestamp) {
+      let now = new Date().getTime()
+      let passed = now - started
+      var el = document.getElementById('inkloadtime')
+      el.innerText = passed
+    }</script><script type="text/javascript" src="inline.fa795d52e50eeeb63b57.bundle.js"></script><script type="text/javascript" src="polyfills.d7916f41f9bbd7671ae1.bundle.js"></script><script type="text/javascript" src="vendor.e6cf3bfb2c6e2b561dc4.bundle.js"></script><script type="text/javascript" src="main.17dcf742c7e1574dd8b9.bundle.js"></script></body></html>

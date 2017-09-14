@@ -1,5 +1,5 @@
 <!-- publication component container-->
-<div style="background-color:#000; position:relative; height: 70vh;">
+<div style="background-color:#000; position:relative; height: 70vh; max-height: 700px;">
 
   <!-- background image -->
   <div style="opacity: 0.6; position:absolute; top: 0; left:0; width: 100%; height: 100%; background-size: cover; background-position: center;"
@@ -7,7 +7,10 @@
   </div>
 
 
-  <flex-col-center-center style="position:absolute; top: 0; left:0; width: 100%; height: 100%;">
+  <flex-col-center-center 
+    [style.font-family]="ui.fonts.publication.title"
+    [style.font-weight]="800"
+  style="position:absolute; top: 0; left:0; width: 100%; height: 100%;">
 
 
     <app-content-width>

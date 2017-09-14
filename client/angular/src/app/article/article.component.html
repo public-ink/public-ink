@@ -24,7 +24,7 @@ style="background-color: white; z-index: 2; position: fixed; top: 50px; left: 0p
 
 
 <!-- TITLE -->
-<app-content-width [bg]="titleHasFocus() ? colors.highlight : 'transparent'">
+<app-content-width [style.font-family]="ui.fonts.headline" [bg]="titleHasFocus() ? colors.highlight : 'transparent'">
 
     <!-- static title -->
     <h1 *ngIf="!editable" [ngStyle]="ui.styles.articleHeadline()"><a class="tabable" style="color: #333;" [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]">{{ article.title}}</a></h1>
@@ -35,9 +35,9 @@ style="background-color: white; z-index: 2; position: fixed; top: 50px; left: 0p
 </app-content-width>
 
 <!-- META -->
-<app-content-width>
+<app-content-width [style.font-family]="ui.fonts.meta">
 
-    <div style="color: #666;" [ngStyle]="{'font-size.px': ui.responsiveValue(16, 18)}">By
+    <div style="color: #666;" [ngStyle]="{'font-size.px': ui.responsiveValue(16, 18), 'line-height.px': ui.responsiveValue(24, 26)}">By
 
         <a style="text-decoration:none; border-bottom: 1px solid black;" class="tabable" [routerLink]="['/', article.publication.author.id]">{{ article.publication.author.name }}</a> 
         in 
@@ -59,13 +59,17 @@ style="background-color: white; z-index: 2; position: fixed; top: 50px; left: 0p
     
 
     <!-- quill editor -->
-    <div #editor [style.font-size.px]="ui.responsiveValue(18, 20)"></div>
+    <div #editor [style.font-size.px]="ui.responsiveValue(18, 20)"
+        [style.font-family]="ui.fonts.zs"
+    ></div>
 
     <!-- hidden toolbar in case of preview -->
     <div class="hidden-toolbar" #hidden style="display: none;"></div>
 
     
 
+    <!-- delete option (needs to be managed) -->
+    <button *ngIf="backend.isOwner(article.publication.author.id)" [ngStyle]="ui.styles.button()" (click)="backend.deleteArticle(article)">delete</button>
 
     <!-- read more link in case of preview -->
     <span *ngIf="preview && hasBreak">

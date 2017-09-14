@@ -364,5 +364,17 @@ export class UIService {
     }
   }
 
+  fonts = {
+    zsh: 'Zilla Slab Highlight',
+    zs: 'Zilla Slab',    
+    headline: 'Open Sans',
+    paragraph: 'Helvetica',
+    meta: 'Zilla Slab',
+    publication: {
+      title: 'Open Sans',
+      about: 'Zilla Slab,'
+    }
+  }
+
 
 }
