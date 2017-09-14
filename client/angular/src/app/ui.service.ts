@@ -326,6 +326,7 @@ export class UIService {
     },
     input: () => {
       return {
+        'font-family': this.fonts.paragraph,
         'font-size.px': this.responsiveValue(18, 20),
         'border': '1px dotted #222',
         'padding.px': 10,
@@ -337,10 +338,12 @@ export class UIService {
         'padding.px': 10,
         'border': '1px dotted #222',
         'font-size.px': this.responsiveValue(18, 20),
+        'font-family': this.fonts.paragraph,
       }
     },
     standardText: () => {
       return {
+        'font-family': this.fonts.paragraph,
         'font-size.px': this.responsiveValue(18, 20),
       }
     },
@@ -363,7 +366,7 @@ export class UIService {
     zsh: 'Zilla Slab Highlight',
     zs: 'Zilla Slab',    
     headline: 'Open Sans',
-    paragraph: 'Helvetica',
+    paragraph: 'Zilla Slab',
     meta: 'Zilla Slab',
     publication: {
       title: 'Open Sans',

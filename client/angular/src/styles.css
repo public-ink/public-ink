@@ -220,12 +220,12 @@
 
 
 input {
-    font-family: Courier New, Courier, monospace;
+    font-family: inherit;
     box-sizing: border-box;
 }
 textarea {
     font-size: 14px;
-    font-family: inherit; /** Courier New, Courier, monospace; */
+    font-family: inherit; /** inherit; */
     width: 100%;
     border: 0;
     box-sizing: border-box;
@@ -274,7 +274,7 @@ a:focus {
     box-sizing: border-box;
     font-size: 20px;
     border: 1px solid #333;
-    font-family: Courier New, Courier, monospace;
+    font-family: inherit;
     padding: 10px 15px;
     width: 100%;
 }
@@ -284,7 +284,7 @@ a:focus {
 button.dark {
     box-sizing: border-box;
     border: 1px solid #333;
-    font-family: Courier New, Courier, monospace;
+    font-family: inherit;
     padding: 5px 10px;
     font-size: 16px;
     background-color: #333;
@@ -295,7 +295,7 @@ button.dark {
 button {
     border:0;
     background-color: transparent;
-    font-family: inherit; /**Courier New, Courier, monospace;*/
+    font-family: inherit; /**inherit;*/
     font-size: inherit;
 }
 
@@ -304,7 +304,7 @@ button {
     box-sizing: border-box;
     width: 100%;
     border: 1px solid #333;
-    font-family: Courier New, Courier, monospace;
+    font-family: inherit;
     padding: 14px 15px;
     font-size: 20px; /* todo */
     background-color: #000;

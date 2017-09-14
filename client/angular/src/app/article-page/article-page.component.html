@@ -18,7 +18,8 @@
         <flex-col-center [ngStyle]="ui.styles.standardText()">
             <img [src]="article.publication.author.imageURL + '&w=140&h=140&q=100'" style="border-radius: 100%;; box-shadow: rgba(0, 0, 0, 0.15) 0px 1.5px 3px 0px inset, rgba(0, 0, 0, 0.15) 0px 1.5px 3px 0px; border: 10px solid rgb(255, 255, 255);"
             />
-            By {{ article.publication.author.name }}
+            <br>
+            <span [style.font-family]="ui.fonts.paragraph"> {{ article.publication.author.name }}</span>
         </flex-col-center>
     </app-content-width>
 
@@ -30,9 +31,10 @@
     <app-content-width [ngStyle]="ui.styles.standardText()">
 
         <!-- the form -->
-        <h1>Your Thoughts</h1>
+        <div [style.font-size.px]="ui.responsiveValue(30, 35)" style="font-weight: bold; margin-bottom: 20px; ">Your Thoughts</div>
+        <span [style.font-family]="ui.fonts.paragraph">
         If you have any thoughts on this article, I'd love to hear them. Just keep in mind that I'm only a human being, so please
-        remember to be kind.
+        remember to be kind.</span>
 
         <div [style.height.px]="ui.responsiveValue(20, 25)"></div>
 
