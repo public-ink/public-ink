@@ -44,7 +44,7 @@ export class PublicationComponent implements OnInit {
   style = {
     name: () => {
       return {
-        'font-size.px': this.ui.responsiveValue(40,60),
+        'font-size.px': this.ui.responsiveValue(40,50),
         'font-weight': 'bold',
         'color': 'white',
         'text-align': 'center',

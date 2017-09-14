@@ -309,27 +309,19 @@ export class UIService {
   styles = {
     button: (color = 'white') => {
 
-      if (color === 'white') {
         return {
           display: 'inline-block',
           background: 'white',
           color: '#222',
+          cursor: 'pointer',
           'padding-top.px': this.responsiveValue(5, 8),
           'padding-bottom.px': this.responsiveValue(5, 8),
-          'padding-left.px': this.responsiveValue(15, 18),
-          'padding-right.px': this.responsiveValue(15, 18),
+          'padding-left.px': this.responsiveValue(14, 16),
+          'padding-right.px': this.responsiveValue(14, 16),
           border: '1px solid black',
-          'font-size.px': this.responsiveValue(15, 17),
+          'font-size.px': this.responsiveValue(14, 16),
         }
-      } else {
-        return {
-          display: 'inline-block',
-          background: '#444',
-          color: 'white',
-          padding: '10px 20px',
-          'font-size.px': this.responsiveValue(16, 17),
-        }
-      }
+      
 
     },
     input: () => {
