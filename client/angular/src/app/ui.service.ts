@@ -314,9 +314,12 @@ export class UIService {
           display: 'inline-block',
           background: 'white',
           color: '#222',
-          padding: '10px 20px',
+          'padding-top.px': this.responsiveValue(5, 8),
+          'padding-bottom.px': this.responsiveValue(5, 8),
+          'padding-left.px': this.responsiveValue(15, 18),
+          'padding-right.px': this.responsiveValue(15, 18),
           border: '1px solid black',
-          'font-size.px': this.responsiveValue(16, 17),
+          'font-size.px': this.responsiveValue(15, 17),
         }
       } else {
         return {
@@ -356,7 +359,7 @@ export class UIService {
     },
     articleHeadline: () => {
       return {
-        'font-size.px': this.responsiveValue(30, 40),
+        'font-size.px': this.responsiveValue(35, 40),
         'margin-top.px': this.responsiveValue(40, 50),
         'margin-bottom.px': 5, 
       }

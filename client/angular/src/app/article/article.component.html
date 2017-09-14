@@ -37,11 +37,11 @@ style="background-color: white; z-index: 2; position: fixed; top: 50px; left: 0p
 <!-- META -->
 <app-content-width [style.font-family]="ui.fonts.meta">
 
-    <div style="color: #666;" [ngStyle]="{'font-size.px': ui.responsiveValue(16, 18), 'line-height.px': ui.responsiveValue(24, 26)}">By
+    <div style="color: #888;" [ngStyle]="{'font-size.px': ui.responsiveValue(16, 18), 'line-height.px': ui.responsiveValue(24, 26)}">By
 
-        <a style="text-decoration:none; border-bottom: 1px solid black;" class="tabable" [routerLink]="['/', article.publication.author.id]">{{ article.publication.author.name }}</a> 
+        <a style="text-decoration:none; border-bottom: 1px solid #aaa;" class="tabable" [routerLink]="['/', article.publication.author.id]">{{ article.publication.author.name }}</a> 
         in 
-        <a style="text-decoration:none; border-bottom: 1px solid black;" class="tabable" [routerLink]="['/', article.publication.author.id, article.publication.id]">{{ article.publication.name }}</a>
+        <a style="text-decoration:none; border-bottom: 1px solid #aaa;" class="tabable" [routerLink]="['/', article.publication.author.id, article.publication.id]">{{ article.publication.name }}</a>
 
         <span *ngIf="article.publishedAt"> {{ article.publishedAt | date:'MMMM y' }}</span>
         <span *ngIf="!article.publishedAt" style="background: beige;"> draft </span>
