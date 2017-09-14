@@ -253,8 +253,10 @@ export class ArticlePageComponent implements OnInit {
   publishArticle(article) {
     this.ui.show('loading', 'publishing ' + this.article.title)
     this.backend.publishArticle(article).subscribe((result: PublishArticleResponse) => {
-      if (result.data.info.success) {
-        this.article = JSON.parse(JSON.stringify(result.data.publishArticle))
+      console.log(result)
+      if (result.data.publishArticle.info.success) {
+        console.log(result.data.publishArticle.article)
+        this.article = JSON.parse(JSON.stringify(result.data.publishArticle.article))
         this.savedArticleJSON = JSON.stringify(this.article)
         this.ui.show('success', 'great success!', 1000)
       } else {
@@ -266,8 +268,8 @@ export class ArticlePageComponent implements OnInit {
   }
   unpublishArticle(article) {
     this.ui.show('loading', 'un-publishing ' + this.article.title)
-    this.backend.publishArticle(article, true).subscribe((result: any) => {
-      this.article = JSON.parse(JSON.stringify(result.article))
+    this.backend.publishArticle(article, true).subscribe((result: PublishArticleResponse) => {
+      this.article = JSON.parse(JSON.stringify(result.data.publishArticle.article))
       this.savedArticleJSON = JSON.stringify(this.article)
       this.ui.show('success', 'now a draft!', 1000)
     })

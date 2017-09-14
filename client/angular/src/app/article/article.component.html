@@ -51,7 +51,7 @@ style="background-color: white; z-index: 2; position: fixed; top: 50px; left: 0p
 </app-content-width>
 
 <!-- space between meta and body -->
-<div [style.height.px]="ui.responsiveValue(40, 50)"></div>
+<div [style.height.px]="ui.responsiveValue(20, 30)"></div>
 
 <!-- BODY -->
 <app-content-width [bg]="quill.hasFocus() ? colors.highlight : 'transparent'">
@@ -66,10 +66,6 @@ style="background-color: white; z-index: 2; position: fixed; top: 50px; left: 0p
     <!-- hidden toolbar in case of preview -->
     <div class="hidden-toolbar" #hidden style="display: none;"></div>
 
-    
-
-    <!-- delete option (needs to be managed) -->
-    <button *ngIf="backend.isOwner(article.publication.author.id)" [ngStyle]="ui.styles.button()" (click)="backend.deleteArticle(article)">delete</button>
 
     <!-- read more link in case of preview -->
     <span *ngIf="preview && hasBreak">

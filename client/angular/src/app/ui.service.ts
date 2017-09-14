@@ -356,8 +356,8 @@ export class UIService {
     },
     articleHeadline: () => {
       return {
-        'font-size.px': this.responsiveValue(30, 45),
-        'margin-top.px': this.responsiveValue(60, 70),
+        'font-size.px': this.responsiveValue(30, 40),
+        'margin-top.px': this.responsiveValue(40, 50),
         'margin-bottom.px': 5, 
       }
       

@@ -569,7 +569,7 @@
 /* code!! */
 .ql-snow .ql-editor code {
   line-height: 1;
-  background-wh
+  font-family: monospace;
 }
 
 .ql-snow .ql-editor blockquote {

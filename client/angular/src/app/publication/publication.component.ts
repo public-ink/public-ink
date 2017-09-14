@@ -56,8 +56,8 @@ export class PublicationComponent implements OnInit {
     },
     about: () => {
       return {
-        'font-size.px': this.ui.responsiveValue(20,30),
-        'font-weight': 'normal',
+        'font-size.px': this.ui.responsiveValue(18,24),
+        'font-weight': 300,
         'color': 'white',
         'text-align': 'center',
         'margin': '10px 0px',

@@ -70,6 +70,7 @@ f = open(server_dist + '/index.html','r')
 filedata = f.read()
 f.close()
 
+# what is this for?
 newdata = filedata.replace('src="','src="angular/') \
 	.replace('<link href="', '<link href="angular/') \
 	.replace('#BUILDVERSION#', str(next_version))

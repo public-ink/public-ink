@@ -41,10 +41,10 @@
     <!-- space between about and article count -->
     <div [style.height.px]="ui.responsiveValue(ui.space.publication.titleThenAbout.min, ui.space.publication.titleThenAbout.max)"></div>
 
-    <!-- "3 articles by Hoff" -->
+    <!-- "3 articles by Hoff" / hidden -->
     <app-content-width>
       <flex-col-center>
-        <div style="color: white">
+        <div style="color: white; display: none;">
           {{ publication.articles?.length }} article<span *ngIf="publication.articles?.length > 1">s</span>
            by <a style="color:white;" [routerLink]="['/', publication.author.id]">{{ publication.author.name }}</a>
           </div>

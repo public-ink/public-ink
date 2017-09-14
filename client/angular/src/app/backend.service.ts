@@ -73,8 +73,10 @@ export interface PublicationResponse extends Response{
 
 export interface PublishArticleResponse extends Response{
   data: {
-    publishArticle: PublicationFragment
-    info: InfoFragment
+    publishArticle: {
+      article: ArticleFragment
+      info: InfoFragment
+    }
   }
 }
 
@@ -1017,7 +1019,7 @@ export class BackendService {
     const publishSubject = new Subject()
     apolloQuery.delay(this.backendDelay)
       .subscribe((result: any) => {
-        // SaveArticleResponse
+        // PublishArticle Response
         publishSubject.next(result)
         publishSubject.complete()
       }, errors => {

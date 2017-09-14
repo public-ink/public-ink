@@ -6,7 +6,7 @@
  */
 .ql-container {
   box-sizing: border-box;
-  font-family: Courier New, Courier, monospace;
+  font-family: inherit; /*Courier New, Courier, monospace;*/
   font-size: inherit;
   height: 100%;
   margin: 0px;
@@ -569,7 +569,7 @@
 /* code!! */
 .ql-snow .ql-editor code {
   line-height: 1;
-  background-wh
+  font-family: monospace;
 }
 
 .ql-snow .ql-editor blockquote {
