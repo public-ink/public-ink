@@ -69,6 +69,7 @@ style="background-color: white; z-index: 2; position: fixed; top: 50px; left: 0p
 
     <!-- read more link in case of preview -->
     <span *ngIf="preview && hasBreak">
+    <span (click)="preview = false; setQuillContent()">read inline</span>
     <a class="tabable" [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]"
         [ngStyle]="ui.styles.button()">read on </a> &nbsp; </span>
 
