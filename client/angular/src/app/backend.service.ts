@@ -89,7 +89,7 @@ export interface SavePublicationResponse extends Response{
   }
 }
 
-export interface AccountResponse extends Response{
+export interface AccountResponse extends Response {
   data: {
     account: {
       account: AccountFragment
@@ -97,7 +97,7 @@ export interface AccountResponse extends Response{
     }
   }
 }
-export interface jwtLoginResponse extends Response{
+export interface jwtLoginResponse extends Response {
   data: {
     jwtLogin: {
       account: AccountFragment
@@ -105,7 +105,7 @@ export interface jwtLoginResponse extends Response{
     }
   }
 }
-export interface ResetLinkResponse extends Response{
+export interface ResetLinkResponse extends Response {
   data: {
     requestResetPasswordLink: InfoFragment
   }
@@ -289,14 +289,12 @@ export class BackendService {
           }
         }
       }
-      
     `
-    //${this.fragments.author}
     const apolloQuery = this.apollo.watchQuery<any>({
       query: query,
       fetchPolicy: 'network-only'
     })
-    let hoffSubject = new Subject()
+    const hoffSubject = new Subject()
     apolloQuery.delay(this.backendDelay).subscribe(result => {
       this.hoffData = result.data
       hoffSubject.next(this.hoffData)
@@ -453,7 +451,7 @@ export class BackendService {
   /**
    * Request a reset-password-link for a given email address
    * 
-   * @param email 
+   * @param email
    */
   requestResetPasswordLink(email: string) {
     let resetSubject = new Subject()

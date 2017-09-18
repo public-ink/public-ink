@@ -12,6 +12,8 @@ from google.appengine.ext.webapp import blobstore_handlers
 from shared import timing, dt_to_epoch, RequestHandler, cross_origin, ninja, allow_cors, return_json, ENV_NAME, FRONTEND_URL, BACKEND_URL, DO_TIME
 from secrets import JWT_SECRET, JWT_EXP_DELTA_SECONDS, JWT_ALGORITHM, JWT_EXP_DELTA_DAYS
 
+from google.appengine.api import datastore_errors
+
 
 ##########################
 # welcome to public.ink! #
@@ -1185,7 +1187,9 @@ class ServeImage(webapp2.RequestHandler):
 
         # get image
         image = images.Image(blob_key=blob_key)
-
+        if not image._width:
+            return self.error(404)
+        
         # resize
         if resize_w and resize_h:
             image.resize(width=int(resize_w), height=int(resize_h), crop_to_fit=True) 
@@ -1293,7 +1297,7 @@ Awesome!
     """.format(host, email, token)
     if to_log:
         logging.info('would send the following message to ' + email)
-        logging.infor(message.body)
+        logging.info(message.body)
     else:
         message.send()
 

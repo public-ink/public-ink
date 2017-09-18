@@ -18,7 +18,7 @@ export class UIService {
 
   // style
   // this is actually max content width
-  contentWidth: number = 700
+  contentWidth: 700
   actualContentWidth: number
 
   stateName: string
@@ -42,7 +42,7 @@ export class UIService {
   bottomBarVisible = false
 
   // CONSTANTS
-  mainWidth: number = 900
+  mainWidth: 900
 
   // loading / backend busy
   backendBusy = false
@@ -113,30 +113,9 @@ export class UIService {
       this.recordSize()
     })
 
-    // clack test
-    let audioCount = 10
-    let i = 0
-    while (i < audioCount) {
-      let audio = new Audio('http://www.sounddogs.com/previews/104/mp3/561076_SOUNDDOGS__co.mp3')
-      audio = new Audio('https://www.soundjay.com/communication/typewriter-key-1.mp3')
-      this.clacks.push(audio)
-      i += 1
-    }
 
     // keyboard shortcuts
     Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
-
-      // console.log(event.keyCode)
-      // clack test!
-      if (!event.altKey && event.keyCode != 8 && event.keyCode != 91 && event.keyCode != 16) {
-        let audioIndex = this.clacked % 10
-        let audio = this.clacks[audioIndex]
-        // audio.play()
-        this.clacked += 1
-      }
-      
-
-      
 
       // toggle media bar
       if ((event.metaKey || event.ctrlKey) && event.keyCode === 77) { /*ctrl m */
@@ -144,8 +123,8 @@ export class UIService {
           this.mediaBar = !this.mediaBar
         }
         // prevents minimizing!
-        event.preventDefault() 
-      } else if (event.keyCode === 27) { 
+        event.preventDefault()
+      } else if (event.keyCode === 27) {
         // escape
         if (this.backend.userAccount) {
           // re-use for editor
@@ -246,7 +225,7 @@ export class UIService {
     loading: {
       message: 'loading',
       loading: true,
-      overlay: true
+      overlay: true,
     },
     silent: {
       loading: true,

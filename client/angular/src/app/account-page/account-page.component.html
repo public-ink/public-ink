@@ -1,116 +1,21 @@
-<!--{{ backend.userAccount | stringify }}-->
-
 <app-content-width *ngIf="backend.userAccount">
 
-    <div style="height: 150px;"></div>
-
-    <div >
-
-        <!--<h2>Your articles have been read {{ backend.userAccount.totalViews}} times in total.</h2>
--->
-        <h2>Articles read in the past 7 days</h2>
-        <flex-row style="align-items: flex-end;">
-            <div *ngFor="let stat of backend.userAccount.dailyViews | keysPipe">
-                <flex-row-center style="width: 80px; margin-right: 10px;">{{ stat.value.views }}</flex-row-center>
-                <div [style.height.px]="stat.value.views * 5" style="min-height: 1px; width: 90px; margin-right: 10px; background-color: black;"></div>
-            </div>
-        </flex-row>
-
-       <!-- <h2>bot vs human | last 7 days</h2>
-        <flex-row style="align-items: flex-end;">
-            <div *ngFor="let stat of backend.userAccount.dailyViews | keysPipe">
-                <flex-row-center style="width: 100px">{{ stat.value.bot.human }}</flex-row-center>
-                <div [style.height.px]="stat.value.bot.human * 10" style="width: 100px; background-color: blue;"></div>
-            </div>
-        </flex-row>
-
-        <h2>touch vs no-touch | last 7 days</h2>
-        <flex-row style="align-items: flex-end;">
-            <div *ngFor="let stat of backend.userAccount.dailyViews | keysPipe">
-                <flex-row-center style="width: 100px">{{ stat.value.views }}</flex-row-center>
-                <div [style.height.px]="stat.value.touch.no * 10" style="width: 100px; background-color: red;"></div>
-                <div [style.height.px]="stat.value.touch.yes * 10" style="width: 100px; background-color: green;"></div>
-            </div>
-        </flex-row>-->
-
-            
-        <div>
-
-            <div *ngFor="let author of backend.userAccount.authors">
-
-                <flex-col-center-center>
-                    
-                    <img [src]="author.imageURL + '&w=150&h=150'" style="border-radius:100%;"/>
-                    <h2 [routerLink]="['/',author.id]">{{ author.name }}</h2>
-                </flex-col-center-center>
-
-                
-
-
-                
-                <!-- copy -->
-                <div (dragend)="saveAuthorOrder(author)" dnd-sortable-container [sortableData]="author.publications" [dropZones]="['container-dropZone']">
-                    <div class="col-sm3" *ngFor="let publication of author.publications; let i = index" dnd-sortable [sortableIndex]="i" [dragEnabled]="sortable === 'publication'">
-                        <div class="panel panel-warning" dnd-sortable-container [sortableData]="publication.articles" [dropZones]="['widget-dropZone']">
-                            <flex-col-center-center class="panel-heading" (mouseenter)="sortable = 'publication'" (mouseleave)="sortable = 'article'" [style.background-image]="publicationBG(publication)"
-                            style="height:180px;" >
-                                <h2 [routerLink]="['/', publication.author.id, publication.id]" style="color: white">{{ publication.name }}</h2>
-                                <a [ngStyle]="ui.styles.button()" [routerLink]="['/', publication.author.id, publication.id, 'create-article']">New Article</a>
-                                
-                            </flex-col-center-center>
-                            <div class="panel-body">
-                                <div class="list-group">
-                                    <div *ngFor="let article of publication.articles; let x = index" class="list-group-item" dnd-sortable [sortableIndex]="x"
-                                        [dragEnabled]="sortable === 'article'" [dragData]="article">
-                                        <h3><a [routerLink]="['/', article.publication.author.id, article.publication.id, article.id]">{{ article.title }}</a></h3>
-                                    </div>
-                                    <!-- new article in publication -->
-                                    
-                                </div>
-                            </div>
-                            
-                        </div>
-                    </div>
-                </div>
-
-                <flex-col-center-center style="height: 180px; border: 1px solid gray;">
-                    <a [routerLink]="['/', author.id, 'create-publication']" [ngStyle]="ui.styles.button()">create publication by {{ author.name }}</a>
-                </flex-col-center-center>
-
-                <!--<div (click)="saveAuthorOrder(author)" [ngStyle]="ui.styles.button()">save order</div>
--->
-           
-            </div>
-
-
-
-            <br>
-            
-        </div>
-
-
-
-    </div>
-
-    
-    <div [routerLink]="['/create-author']" style="border: 1px solid black; border-radius: 100%; width: 150px; height: 150px;">
-        Create New Author
-    </div>
-
-    
-
-    <h2><a [routerLink]="['/my-media']">Your Media</a></h2>
-
-    <flex-row style="overflow-y: scroll;">
-        <flex-col *ngFor="let image of backend.userImages | slice:0:20">
-            <img [src]="image.url + '&w=200&h=200'" style="margin:5px;" />
-            <button (click)="backend.deleteImage(image.id)">delete</button>
-        </flex-col>
-    </flex-row>
 
     <h2>Your Account</h2>
-    You are logged in with {{ backend.userAccount.email }}
-    <span *ngIf="backend.userAccount.verified">(verified / maybe not TODO)</span>
+    <div [style.font-family]="ui.fonts.paragraph">
+
+
+        <span *ngIf="!backend.userAccount.verified">
+        (created but unverified)
+        Your account has been created! We have sent an emailed to {{ backend.userAccount.email }} with a link to activate.
+        (nothing else to do in this state)
+    </span>
+
+        <span *ngIf="backend.userAccount.verified">
+        You are logged in with {{ backend.userAccount.email }}
+        (verified )
+    </span>
+    </div>
 
     <a href="#" (click)="backend.logoutUser()" [ngStyle]="{background: 'darkred', color: 'white', padding: '10px 20px'}" style="display: inline-block;">Log Out</a>
 
@@ -118,4 +23,16 @@
 
 </app-content-width>
 
-<div style="height: 100px"></div>
+
+
+<!-- analytics / stats -->
+<!-- analytics / really ? maybe not here, but inline! figure out where this goes -->
+<!--
+    <h2>Articles read in the past 7 days</h2>
+    <flex-row style="align-items: flex-end;">
+        <div *ngFor="let stat of backend.userAccount.dailyViews | keysPipe">
+            <flex-row-center style="width: 80px; margin-right: 10px;">{{ stat.value.views }}</flex-row-center>
+            <div [style.height.px]="stat.value.views * 5" style="min-height: 1px; width: 90px; margin-right: 10px; background-color: black;"></div>
+        </div>
+    </flex-row>
+    -->
