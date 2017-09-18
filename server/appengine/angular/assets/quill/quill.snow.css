@@ -546,12 +546,15 @@
 }
 .ql-snow .ql-editor h1 {
   font-size: 2em;
+  font-family: Open Sans;
 }
 .ql-snow .ql-editor h2 {
   font-size: 1.5em;
+  font-family: Open Sans;
 }
 .ql-snow .ql-editor h3 {
   font-size: 1.17em;
+  font-family: Open Sans;
 }
 .ql-snow .ql-editor h4 {
   font-size: 1em;

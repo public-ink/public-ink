@@ -1,9 +1,21 @@
+
+
+
+
+
+    
+     
+
+
+  <!-- -->
+
+
 <div *ngIf="hoff">
   <!-- publications -->
   <div *ngFor="let publication of hoff.author.publications">
     <app-publication *ngIf="publication.articles.length > 0" [publication]="publication"></app-publication>
     <div *ngFor="let article of publication.articles | slice:0:publication.expanded ? publication.articles.length : 2; let last = last">
-      <app-article [article]="article" [preview]="true" [editable]="false"></app-article>
+      <app-article [article]="article" [preview]="true" [editable]="true"></app-article>
       <!-- duplicate with and publication page -->
       <app-content-width *ngIf="!last">
           <simple-spacer></simple-spacer>

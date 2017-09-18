@@ -561,3 +561,26 @@ simple-spacer{
 .dnd-sortable-drag {
  
 }
+
+/** knockout */
+
+
+
+
+h1.knockout-text-one{
+    color: white;
+    margin: 0;
+    padding: 0;
+    background-size: cover;
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    font-size: 60px;
+    text-align: center;
+    font-family: Arial;
+    font-style: italic;
+}
+
+.knockout-text-one {
+    
+    background: url('http://localhost:8080/api/image/serve?key=m_wsWr1Yw3SVUCkuAispJA==&w=300&h=100')no-repeat
+}

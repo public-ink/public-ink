@@ -6,19 +6,10 @@ import { Observable } from 'rxjs/Observable'
 // ink
 // import { iArticle } from '../models'
 import { UIService } from '../ui.service'
-import { BackendService } from '../backend.service'
+import { BackendService, SaveArticleResponse } from '../backend.service'
 
 import * as Quill from 'quill'
 
-interface iArticle {
-  id: string
-  title: string
-  bodyOps: string
-  publishedAt: number
-  // parent
-  publication: any //iPublication
-  new?: boolean
-}
 
 // environment
 import { environment } from '../../environments/environment'
@@ -34,7 +25,7 @@ export class ArticleComponent implements OnInit {
 
   backendHost: string = environment.backendHost
 
-  @Input() article: iArticle
+  @Input() article: any
   @Input() editable: boolean = false
   @Input() preview: boolean = false
 
@@ -49,6 +40,8 @@ export class ArticleComponent implements OnInit {
   lastRange: any
   ops: any
 
+  savedArticleJSON: string
+
   space = {
     metaThenBody: 50,
   }
@@ -61,6 +54,7 @@ export class ArticleComponent implements OnInit {
     public backend: BackendService,
   ) {
 
+    
     // unfocus after 10 secs
     Observable.fromEvent(window, 'keydown').debounceTime(10000).subscribe(event => {
       // this.quill.blur()
@@ -77,6 +71,9 @@ export class ArticleComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    this.autoSaveTimer()
+
     /* check your input */
     if (!this.article.publication || !this.article.publication.author) {
       alert('inputs fucked')
@@ -97,6 +94,65 @@ export class ArticleComponent implements OnInit {
       this.makeQuill()
     }
     this.setQuillContent()
+  }
+
+  /** auto-save articles! */
+  autoSaveTimer() {
+    Observable.fromEvent(this.editor.nativeElement, 'keydown').debounceTime(3000).subscribe(event => {
+      console.log('autosave')
+      if (this.canAutoSave()) {
+        this.saveArticle(true)
+      }
+    })
+
+  }
+
+  /**
+   * Determines if there are changes that can be auto saved.
+   */
+  canAutoSave() {
+    return this.article && this.isOwner() && this.savedArticleJSON != JSON.stringify(this.article) && this.article.id != 'create-article'
+  }
+  isOwner() {
+    if (!this.article) {return false}
+    return this.backend.isOwner(this.article.publication.author.id)
+  }
+
+  /**
+   * Creates a new article, or updates an exisiting one
+   */
+  saveArticle(silent = false): void {
+    console.log('wanna save', this.article)
+    if (silent) {
+      this.ui.show('silent', 'saving article...')
+    } else {
+      this.ui.show('loading', 'saving article...')
+    }
+    this.backend.saveArticle(
+      this.article.publication.author.id,
+      this.article.publication.id,
+      this.article.id, this.article).subscribe((reply: SaveArticleResponse) => {
+
+        if (reply.data.saveArticle.info.success) {
+          // update saved version for autosave
+          this.savedArticleJSON = JSON.stringify(this.article)
+          if (!silent) {
+            this.ui.show('success', 'done!', 1000)
+          } else {
+            this.ui.loading = false
+            this.ui.overlay = false
+          }
+          /* not sure why this check is required here but not on publication page */
+          if (this.article.id === 'create-article') {
+            // this is rediculous.
+            // no more need to navigate - what to do instead?
+          }
+        } else {
+          this.ui.show('error', reply.data.saveArticle.info.message)
+        }
+      }, error => {
+        this.ui.show('error', 'backend error!')
+      })
   }
 
   // make need to wait for authors to be loaded.
