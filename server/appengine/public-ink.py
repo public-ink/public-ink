@@ -1183,8 +1183,11 @@ class ServeImage(webapp2.RequestHandler):
         resize_h = self.request.get("h")
         quality = int(self.request.get("q", 80))
 
+        print "quality is" + str(quality)
+
         # get image
         image = images.Image(blob_key=blob_key)
+
 
         # resize
         if resize_w and resize_h:
