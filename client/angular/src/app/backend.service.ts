@@ -45,7 +45,7 @@ export interface Response {
   errors?: string[]
 }
 
-export interface ArticleResponse extends Response{
+export interface ArticleResponse extends Response {
   data: {
     article: {
       article: ArticleFragment
@@ -54,7 +54,7 @@ export interface ArticleResponse extends Response{
   }
   article: any
 }
-export interface SaveArticleResponse extends Response{
+export interface SaveArticleResponse extends Response {
   data: {
     saveArticle: {
       article: ArticleFragment
@@ -64,14 +64,14 @@ export interface SaveArticleResponse extends Response{
 }
 
 /** Publication Data Interface */
-export interface PublicationResponse extends Response{
+export interface PublicationResponse extends Response {
   data: {
     publication: PublicationFragment
     info: InfoFragment
   }
 }
 
-export interface PublishArticleResponse extends Response{
+export interface PublishArticleResponse extends Response {
   data: {
     publishArticle: {
       article: ArticleFragment
@@ -80,7 +80,7 @@ export interface PublishArticleResponse extends Response{
   }
 }
 
-export interface SavePublicationResponse extends Response{
+export interface SavePublicationResponse extends Response {
   data: {
     savePublication: {
       publication: PublicationFragment
@@ -89,7 +89,7 @@ export interface SavePublicationResponse extends Response{
   }
 }
 
-export interface AccountResponse extends Response{
+export interface AccountResponse extends Response {
   data: {
     account: {
       account: AccountFragment
@@ -97,7 +97,7 @@ export interface AccountResponse extends Response{
     }
   }
 }
-export interface jwtLoginResponse extends Response{
+export interface jwtLoginResponse extends Response {
   data: {
     jwtLogin: {
       account: AccountFragment
@@ -105,7 +105,7 @@ export interface jwtLoginResponse extends Response{
     }
   }
 }
-export interface ResetLinkResponse extends Response{
+export interface ResetLinkResponse extends Response {
   data: {
     requestResetPasswordLink: InfoFragment
   }
