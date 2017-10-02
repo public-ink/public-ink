@@ -18,7 +18,7 @@ export class UIService {
 
   // style
   // this is actually max content width
-  contentWidth: number = 700
+  contentWidth: 700
   actualContentWidth: number
 
   stateName: string
@@ -42,7 +42,7 @@ export class UIService {
   bottomBarVisible = false
 
   // CONSTANTS
-  mainWidth: number = 900
+  mainWidth: 900
 
   // loading / backend busy
   backendBusy = false
@@ -226,7 +226,7 @@ export class UIService {
     loading: {
       message: 'loading',
       loading: true,
-      overlay: true
+      overlay: true,
     },
     silent: {
       loading: true,
