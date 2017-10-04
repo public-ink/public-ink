@@ -42,7 +42,7 @@ export class UIService {
   bottomBarVisible = false
 
   // CONSTANTS
-  mainWidth: 900
+  mainWidth = 900
 
   // loading / backend busy
   backendBusy = false

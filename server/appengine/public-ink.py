@@ -1189,14 +1189,12 @@ class ServeImage(webapp2.RequestHandler):
 
         # get image
         image = images.Image(blob_key=blob_key)
-<<<<<<< HEAD
 
-
-=======
         if not image._width:
-            return self.error(404)
+            # todo
+            # return self.error(404)
+            pass
         
->>>>>>> b1e52f6e5f33d27da67a16b030364be50ed277a9
         # resize
         if resize_w and resize_h:
             image.resize(width=int(resize_w), height=int(resize_h), crop_to_fit=True) 
