@@ -1,0 +1,101 @@
+<app-paper-tree></app-paper-tree>
+
+<div style="display:none;">
+
+<app-content-width>
+
+
+    <flex-col-center-center>
+      <br><br>
+
+        <app-logo [size]="30"></app-logo>
+        <br>
+        <div [ngStyle]="styles.logo()">public.ink</div>
+        <br>
+    </flex-col-center-center>
+
+
+</app-content-width>
+
+
+
+
+
+
+
+<!-- Account -->
+<app-content-width style="display: none;">
+  <br>
+  you are logged in as micklinghoff@gmail.com, and you can 
+  <a href="#">log out here.</a>
+  <div style="height: 300px"></div>
+</app-content-width>
+
+<!-- big border -->
+<div style="border-bottom: 1px solid #999;"></div>
+<div style="border-bottom: 1px solid #bbb;"></div>
+<div style="border-bottom: 1px solid #ddd;"></div>
+
+<!-- Authors -->
+<app-content-width>
+  <h1>Hoff</h1>
+</app-content-width>
+
+<!-- small border -->
+<div style="border-bottom: 1px solid lightgray;"></div>
+
+
+<app-content-width>
+  <h1>Epiktet</h1>
+</app-content-width>
+<div style="border-bottom: 1px solid lightgray;"></div>
+<app-content-width>
+  <h1>New Author</h1>
+</app-content-width>
+
+
+<app-content-width>
+
+<flex-col style="display:none;">
+    
+    
+      
+    
+      <h2>Log In</h2>
+      <input [ngStyle]="styles.input()" type="text" placeholder="email" />
+      <br>
+      <input [ngStyle]="styles.input()" type="password" placeholder="password" />
+      <br>
+      <br>
+      <button [ngStyle]="styles.button()">log in</button>
+    
+    
+    
+    
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+    
+      <h2>Sign up</h2>
+      <input [ngStyle]="styles.input()" type="text" placeholder="email" />
+      <br>
+      <input [ngStyle]="styles.input()" type="password" placeholder="password" />
+      <br>
+      <input [ngStyle]="styles.input()" type="password" placeholder="password again" />
+      <br>
+      <br>
+      <button [ngStyle]="styles.button()">create account</button>
+    
+    
+    </flex-col>
+  
+
+
+</app-content-width>
+
+</div>
+
+

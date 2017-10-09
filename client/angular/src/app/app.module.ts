@@ -18,6 +18,8 @@ import { ArticlePageComponent } from './article-page/article-page.component';
 import { PublicationComponent } from './publication/publication.component';
 import { ArticleComponent } from './article/article.component'
 
+import { ZeroComponent } from './zero/zero.component'
+
 import { ApolloClient, createNetworkInterface } from 'apollo-client'
 import { ApolloModule } from 'apollo-angular'
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
@@ -48,10 +50,10 @@ export function provideClient(): ApolloClient {
 
 
 const appRoutes: Routes = [
-  //{ path: '', component: LayoutComponent },
+  // { path: '', component: LayoutComponent },
   { path: '', component: HomePageComponent },
   // pages
-  //{ path: 'me', component: MePageComponent},
+  // { path: 'me', component: MePageComponent},
   { path: 'my-account', component: AccountPageComponent},
   { path: 'auth', component: AuthPageComponent },
   { path: 'verify/:email/:token', component: EmailVerificationPageComponent},
@@ -61,12 +63,12 @@ const appRoutes: Routes = [
   { path: ':authorID', component: AuthorPageComponent },
   { path: ':authorID/:publicationID', component: PublicationPageComponent },
   { path: ':authorID/:publicationID/:articleID', component: ArticlePageComponent },
-  //{ path: '**', component: PageNotFoundComponent }
-  
+  // { path: '**', component: PageNotFoundComponent }
 ]
 
 @NgModule({
   declarations: [
+    ZeroComponent,
     AppComponent,
     AuthorComponent,
     SlugifyPipe,

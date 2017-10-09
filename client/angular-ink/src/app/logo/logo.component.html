@@ -1,0 +1,46 @@
+
+
+<flex-col (click)="randomColor()">
+  <!-- top bar -->
+  <div 
+    [style.height.px]="thick"
+    [style.width.px]="width"
+    [style.background-color]="bg"></div>
+
+  <flex-row>
+    <!-- left space -->
+    <div 
+      [style.background-color]="negative"
+      [style.width.px]="thick"
+      [style.height.px]="height - thick"></div>
+  
+    <!-- left leg-->
+    <div 
+      [style.width.px]="thick"
+      [style.height.px]="height - thick"
+      [style.background-color]="bg"
+    ></div>
+
+    <!-- center space -->
+    <div 
+    [style.background-color]="negative"
+    [style.width.px]="width - (thick * 4)"
+    [style.height.px]="height - thick"></div>
+
+    <!-- right leg-->
+    <div 
+      [style.width.px]="thick"
+      [style.height.px]="height - thick"
+      [style.background-color]="bg"
+    ></div>
+
+    <!-- right space -->
+    <div 
+    [style.background-color]="negative"
+    [style.width.px]="thick"
+    [style.height.px]="height - thick"></div>
+  
+  
+  </flex-row>
+  
+</flex-col>

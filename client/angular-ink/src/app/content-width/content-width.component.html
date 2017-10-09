@@ -1,0 +1,13 @@
+<flex-row-center class="content-width-component">
+    <div class="content-width-component-total-width"
+        [style.width.%]="100"
+        [style.max-width.px]="ui.mainWidth"
+        >
+        <div class="content-width-component-inner"
+            [style.margin-left.px]="ui.responsiveValue(ui.minContentPadding, ui.maxContentPadding)"
+            [style.margin-right.px]="ui.responsiveValue(ui.minContentPadding, ui.maxContentPadding)"
+            >
+            <ng-content></ng-content>
+        </div>
+    </div>
+</flex-row-center>

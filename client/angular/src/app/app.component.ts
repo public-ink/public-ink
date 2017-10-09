@@ -31,7 +31,7 @@ export class AppComponent {
     public backend: BackendService,
     public ui: UIService,
   ) {
-    let now = new Date().getTime()
+    const now = new Date().getTime()
     stopTimer(now)
 
     // remove outer loading screen

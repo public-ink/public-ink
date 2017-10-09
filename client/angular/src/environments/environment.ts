@@ -7,9 +7,9 @@ export const environment = {
   name: 'development',
   production: false,
   public: true,
-  backendHost: 'http://localhost:8080',
+  // backendHost: 'http://localhost:8080',
   // backendHost: 'http://192.168.0.103:8080',
-  // backendHost: 'http://www.public.ink',
+  backendHost: 'http://www.public.ink',
 
   // delay in milliseconds, to mimic network delay
   backendDelay: 400,

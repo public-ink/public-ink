@@ -1,0 +1,166 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* everything inherits font-family */
+* {
+	font-family: inherit;
+}
+
+html, body {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-family: 'Roboto', sans-serif;
+}
+
+app-content-width {
+	display:block;
+}
+
+
+flex-row {
+	display: flex;
+}
+flex-row-center {
+	display: flex;
+
+}
+
+flex-col {
+	display: flex;
+	flex-direction: column;
+}
+
+flex-row-center {
+	display: flex;
+	justify-content: center;
+}
+
+flex-col-center {
+	display: flex;
+	flex-direction: column;	
+	align-items: center;
+}
+
+flex-col-center-center {
+	display: flex;
+	flex-direction: column;	
+	align-items: center;
+	justify-content: center;
+}
+
+
+/* FLEX ALL THE THINGS */
+.grow {
+    flex-grow: 1;
+}
+flex-row-between {
+    display: flex;
+    justify-content: space-between;
+}
+flex-row-start-center {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+flex-row-start-around {
+    display: flex;
+    justify-content: flex-start;
+    align-items: space-around;
+}
+flex-row-between-center {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+flex-row-around {
+    display: flex;
+    justify-content: space-around;
+}
+flex-row-around-center {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+flex-row {
+    display: flex;
+}
+flex-row-100 {
+    display: flex;
+    width:100%;
+}
+flex-row-center {
+    display: flex;
+    justify-content: center;
+}
+flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+flex-row-center-center {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
+
+
+/*
+COLUMNS:
+first part is horizontal, so align-items,
+sececond part is vertical, so justify-content,
+*/
+flex-col {
+    display: flex;
+    flex-direction: column;
+}
+flex-col-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+flex-col-start {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+flex-col-start-end {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+}
+flex-col-end {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+
+flex-col-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+flex-col-center-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+flex-col-center-around {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+}
+
+flex-col-left-center {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}

@@ -1,6 +1,5 @@
-import { Component, OnInit, Input } from '@angular/core'
+import { Component, OnInit } from '@angular/core'
 
-// INK
 import { UIService } from '../ui.service'
 
 @Component({
@@ -9,8 +8,6 @@ import { UIService } from '../ui.service'
   styleUrls: ['./content-width.component.css']
 })
 export class ContentWidthComponent implements OnInit {
-
-  @Input('bg') bg = 'transparent'
 
   constructor(
     public ui: UIService,
