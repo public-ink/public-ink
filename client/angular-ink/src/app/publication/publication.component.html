@@ -1,0 +1,12 @@
+<app-content-width style="height: 40vh;"
+style="background-size: cover;"
+[style.background-image]="safeBG(publication.imageURL)"
+(dragover)="onDragOver($event)"
+(drop)="onDrop($event)"
+>
+<div style="padding: 30px;">
+  <input type="text" [(ngModel)]="publication.name" #name />
+  <input type="text" [(ngModel)]="publication.about" #about />
+  <span (click)="publication.expanded = !publication.expanded; publication.state = publication.state === 'collapsed' ? 'expanded': 'collapsed'">expand / collapse publication</span>
+</div>
+</app-content-width>

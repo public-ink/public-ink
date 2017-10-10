@@ -1,8 +1,18 @@
+// angular
 import { Injectable } from '@angular/core'
 
-// RX
+// rx
 import { Observable } from 'rxjs/Observable'
 import 'rxjs/Rx'
+
+// ink (reconsider indicator)
+export enum Indicator {
+  loading,
+  success,
+  error,
+}
+
+import { BackendService } from './backend.service'
 
 @Injectable()
 export class UIService {
@@ -19,6 +29,25 @@ export class UIService {
   // dimensions (dynamic)
   deviceWidth: number
   deviceHeight: number
+
+  overlay = false
+  overlayInidcator
+  overlayMessage: string
+
+  mediaBar = false
+
+  beingDragged
+
+
+  // styles
+  styles = {
+    standardText: () => {
+      return {
+        'font-size.px': this.responsiveValue(14, 20)
+      }
+    }
+  }
+
 
   /*returns the pixel value for a given vh input */
   vh(percent: number) {
@@ -68,11 +97,37 @@ export class UIService {
     return actual
   }
 
-  constructor() {
+  constructor(
+    private backend: BackendService,
+  ) {
     this.recordSize()
     Observable.fromEvent(window, 'resize').subscribe(() => {
       this.recordSize()
     })
+
+    // keyboard shortcuts
+    Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
+      // CMS + M  => toggle media bar
+      if ((event.metaKey || event.ctrlKey) && event.keyCode === 77) {
+        if (this.backend.account) {
+          this.mediaBar = !this.mediaBar
+        }
+        // prevents minimizing!
+        event.preventDefault()
+      // ESCAPE => not in use
+      } else if (event.keyCode === 27) {
+        // escape (not in use?)
+      }
+    })
   }
 
+
+  /**
+   * show fullscreen (todo)
+   */
+  show(indicator: any, message: string, seconds?: number) {
+    this.overlayInidcator = indicator
+    this.overlay = true
+    this.overlayMessage = message
+  }
 }

@@ -1,68 +1,33 @@
+<app-content-width>
+  <app-logo></app-logo>
+</app-content-width>
+
+<!-- login forms or info -->
+<app-account></app-account>
 
 
-<div *ngFor="let author of authors; let last = last;">
-  <!-- here is the author paper -->
-  <!-- this needs to become author component -->
-  <app-author [author]="author"></app-author>
-  <app-author [author]=""></app-author>
-  
-  
+<!-- CONTENT! -->
+<div *ngIf="backend.account">
 
-  <!-- small shadow if collapsed -->
-  <div *ngIf="!author.expanded && !last" style="border-bottom: 1px solid green;"></div>
-  <!-- big shadow if expanded -->
+  <div *ngFor="let author of backend.account.authors; let last = last;">
+    <!-- here is the author paper -->
+    <!-- this needs to become author component -->
+    <app-author [author]="author"></app-author>
+    <!-- <app-author [author]=""></app-author> -->
+    
+    <div [@authorState]="author.state" style="overflow:hidden;" >
+      <div *ngFor="let publication of author.publications; let last = last;">
+        
+        <!-- here is publication paper -->
+        <app-publication [author]="author" [publication]="publication"></app-publication>
 
-
-  <div [@authorState]="author.state" style="overflow:hidden;" >
-    <div *ngFor="let publication of author.publications; let last = last;">
-      
-      <!-- here is publication paper -->
-
-      <app-content-width style="height: 40vh;"
-        style="background-size: cover;"
-      [style.background-image]="safeBG(publication.imageURL)"
-      >
-        <div style="padding: 30px;">
-          <h1>{{ publication.name }}</h1>
-          <span (click)="publication.expanded = !publication.expanded; publication.state = publication.state === 'collapsed' ? 'expanded': 'collapsed'">expand / collapse publication</span>
-        </div>
-      </app-content-width>
-
-      <!-- small shadow if collapsed -->
-      <div *ngIf="!publication.expanded && !last" style="border-bottom: 1px solid lightgray;"></div>
-      <!-- big shadow if expanded -->
-
-      <div [@publicationState]="publication.state" style="overflow:hidden;">
-        <div *ngFor="let article of publication.articles; let last = last">
-          <app-content-width>
-            <div style="padding: 40px;">
-              <h2>{{ article.title}} article title</h2>
-              <br>
-              {{ article.prefold }}
-            </div>
-          </app-content-width>
-          <!-- always just small shadow for now -->
-          <div *ngIf="!last" style="border-bottom: 1px solid gray;"></div>
-
+        <div [@publicationState]="publication.state" style="overflow:hidden;">
+          <div *ngFor="let article of publication.articles; let last = last">
+            <app-article [article]="article" [publication]="publication" [author]="author"></app-article>
+            
+          </div>
         </div>
       </div>
-
-
-        <!-- if this is the last publication (that is, a author paper comes next.
-        in that case, we need to check if articles are expanded
-        -->
-        <div *ngIf="last">
-        </div>
-
     </div>
-
-    
-
   </div>
 </div>
-
-
-
-<div style="height: 50px;"></div>
-
-

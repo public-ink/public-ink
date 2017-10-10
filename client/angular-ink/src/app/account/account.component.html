@@ -1,0 +1,101 @@
+<!-- ACCOUNT INFO AND LOGOUT LINK -->
+<app-content-width *ngIf="backend.account">
+
+    <div>you are logged in as {{ backend.account.email }}. 
+      
+      <button>create new author</button>
+
+      <a href="#">logout</a></div>
+
+</app-content-width>
+
+
+<!-- FORMS -->
+<app-content-width *ngIf="!backend.account">
+    
+      <!-- LOGIN -->
+    
+      <h1>Log In</h1>
+      <form [formGroup]="loginForm" (ngSubmit)="doLogin()">
+        <flex-col>
+          <div class="form-label">
+            <label for="loginEmail">Email</label>
+          </div>
+          <input id="loginEmail" class="form-input" formControlName="email" type="email" placeholder="your email address">
+    
+          <div class="form-label">
+            <label for="loginPassword">Password</label>
+          </div>
+          <input id="loginPassword" class="form-input" formControlName="password" type="password" placeholder="your password">
+    
+          <div style="height: 20px;"></div>
+          <button class="form-button" type="submit" [disabled]="!loginForm.valid">Log In</button>
+    
+        </flex-col>
+      </form>
+    
+    
+      <div style="height: 60px;"></div>
+    
+    
+      <!-- RESET PASSWORD -->
+    
+      <h1>Reset Password</h1>
+      <form [formGroup]="resetPasswordForm" (ngSubmit)="requestPasswordResetLink()">
+    
+        <flex-col>
+          <div class="form-label">
+            <label for="loginEmail">Your Email</label>
+          </div>
+          <input id="loginEmail" class="form-input" formControlName="email" type="email" placeholder="your email address">
+    
+          <div style="height: 20px;"></div>
+          <button class="form-button" type="submit" [disabled]="!resetPasswordForm.valid">Request Reset Link</button>
+        </flex-col>
+      </form>
+    
+      <!-- SIGN UP (todo: disable) -->
+      <div *ngIf="1">
+    
+        <div style="height: 60px;"></div>
+    
+    
+        <div id="register-login-forms" *ngIf="1">
+    
+          <h1>Sign Up [disabled]</h1>
+          <form [formGroup]="registrationForm" (ngSubmit)="createAccount($event)">
+            <flex-col>
+              <label class="form-label" for="registrationEmail">Email</label>
+              <input id="registrationEmail" class="form-input" formControlName="email" type="email" placeholder="your email address">
+    
+              <!-- password -->
+              <label class="form-label" for="registrationPassword">Password</label>
+              <input id="registrationPassword" class="form-input" formControlName="password" type="password" placeholder="your password">
+    
+              <!-- password again -->
+              <label class="form-label" for="registrationPassword2">Repeat Password</label>
+              <input id="registrationPassword2" class="form-input" formControlName="password2" type="password" placeholder="because typos are rael">
+    
+              <!-- the rules -->
+              <label class="form-label" for="termsCheckbox">Them Rules</label>
+              <flex-row [ngStyle]="ui.styles.standardText()">
+                <span>By creating a public.ink account, you confirm that you agree with the <a href="#" style="text-decoration:underline;">public.ink house rules</a>.</span>
+                <br>
+              </flex-row>
+    
+              <!-- submit button -->     
+              <br>     
+              <button class="form-button" type="submit" [disabled]="false">Create Account</button>
+    
+            </flex-col>
+          </form>
+          <!-- end of registration -->
+    
+    
+        </div>
+    
+      </div>
+    
+    
+    
+    </app-content-width>

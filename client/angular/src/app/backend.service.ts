@@ -453,10 +453,10 @@ export class BackendService {
   /**
    * Request a reset-password-link for a given email address
    * 
-   * @param email 
+   * @param email
    */
   requestResetPasswordLink(email: string) {
-    let resetSubject = new Subject()
+    const resetSubject = new Subject()
     const query = gql`
       {requestResetPasswordLink(email: "${email}"){
         success

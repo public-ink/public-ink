@@ -1,4 +1,9 @@
-import { Component } from '@angular/core';
+// ng
+import { Component } from '@angular/core'
+
+// ink
+import { UIService } from './ui.service'
+import { BackendService } from './backend.service'
 
 @Component({
   selector: 'app-root',
@@ -7,86 +12,10 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
 
-  data = {
-    authors: [
-      {
-        name: 'Hoff',
-        about: 'thinker & tinkerer',
-        publications: [
-          {
-            name: 'living on universal basic income',
-            img: 'none yet',
-            articles: [
-              {
-                title: 'the idea',
-                prefold: 'you know what this is all about when u see it',
-                postfold: 'more is here after the break'
-              },
-              {
-                title: 'the experiemnt',
-                prefold: 'you know what this is all about when u see it',
-                postfold: 'more is here after the break'
-              }
-            ]
-          },
-          {
-            name: 'on design',
-            img: 'none yet',
-            articles: [
-              {
-                title: 'dropbox',
-                prefold: 'you know what this is all about when u see it',
-                postfold: 'more is here after the break'
-              },
-              {
-                title: 'design at public ink',
-                prefold: 'you know what this is all about when u see it',
-                postfold: 'more is here after the break'
-              }
-            ]
-          }
-        ]
-      },
-      {
-        name: 'Epikted',
-        about: 'slave then philosopher',
-        publications: [
-          {
-            name: 'Handbüchlein der Moral',
-            img: 'none yet',
-            articles: [
-              {
-                title: 'gegenkräfte',
-                prefold: 'you know what this is all about when u see it',
-                postfold: 'more is here after the break'
-              },
-              {
-                title: 'why not to have sex',
-                prefold: 'you know what this is all about when u see it',
-                postfold: 'more is here after the break'
-              }
-            ]
-          },
-          {
-            name: 'discourses',
-            img: 'none yet',
-            articles: [
-              {
-                title: 'dropbox',
-                prefold: 'you know what this is all about when u see it',
-                postfold: 'more is here after the break'
-              },
-              {
-                title: 'design at public ink',
-                prefold: 'you know what this is all about when u see it',
-                postfold: 'more is here after the break'
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
+  constructor(
+    public backend: BackendService,
+    public ui: UIService,
+  ) { }
 
   styles = {
     logo: () => {
@@ -100,7 +29,7 @@ export class AppComponent {
         'background-color': bg,
         'border-width': '0 0 2px 0',
         'outline': 'none',
-        'width.px': 400
+        'width.px': 400,
       }
     },
     button: (bg = 'white') => {

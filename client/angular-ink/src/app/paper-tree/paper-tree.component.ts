@@ -1,3 +1,4 @@
+// angular
 import { Component, OnInit } from '@angular/core'
 import { DomSanitizer } from '@angular/platform-browser'
 
@@ -12,6 +13,7 @@ import {
 
 // ink
 import { UIService } from '../ui.service'
+import { BackendService } from '../backend.service'
 
 @Component({
   selector: 'app-paper-tree',
@@ -60,16 +62,15 @@ export class PaperTreeComponent implements OnInit {
 
 
   constructor(
+    // ng
     public http: Http,
     public sanitizer: DomSanitizer,
     // ink
     public ui: UIService,
+    public backend: BackendService,
   ) { }
 
-  safeBG(url: string) {
-    const str = `url(${url}&w=${this.ui.deviceWidth})`
-    return this.sanitizer.bypassSecurityTrustStyle(str)
-  }
+  
 
   ngOnInit() {
     const query = `
