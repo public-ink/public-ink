@@ -11,21 +11,7 @@ import { UIService } from '../ui.service'
 
 @Component({
   selector: 'app-author',
-  template: `
-  <app-content-width>
-  <flex-col-center style="padding: 100px;">
-      <img
-      style="width: 150px; height: 150px; border-radiums: 100%;"
-      [src]="author.imageURL" (dragover)="onDragOver($event)" (drop)="onDrop($event)"/>
-
-      <input #name type="text" [(ngModel)]="author.name">
-      <textarea #about>{{ author.about }}</textarea>
-      <div>a lot of articles in {{ author.publications.length }} publications </div>
-      <br><br>
-      <span (click)="author.state = author.state === 'collapsed' ? 'expanded' : 'collapsed'">expand / collapse author</span>
-    </flex-col-center>
-  </app-content-width>
-  `,
+  templateUrl: './author.component.html',
   styleUrls: ['./author.component.css']
 })
 export class AuthorComponent implements OnInit {
@@ -34,6 +20,20 @@ export class AuthorComponent implements OnInit {
 
   @ViewChild('name') name: ElementRef
   @ViewChild('about') about: ElementRef
+
+  badgeSize = 180
+
+  style = {
+    name: () => {
+      return {
+        'font-size.px': this.ui.responsiveValue(30, 40),
+        'font-weight': 'bold',
+        'outline': 'none',
+        'border': 0,
+        'text-align': 'center',
+      }
+    }
+  }
 
   constructor(
     public backend: BackendService,
@@ -83,6 +83,9 @@ export class AuthorComponent implements OnInit {
 
   save() {
     console.log('save!')
+    this.backend.saveAuthor(this.author).subscribe(result => {
+      console.log('author saved author!')
+    })
   }
 
 
@@ -93,7 +96,7 @@ export class AuthorComponent implements OnInit {
   }
 
   onDrop($event) {
-    this.author.imageURL = this.ui.beingDragged.url
+    this.author.imageURL = this.ui.beingDragged.url + `&w=${this.badgeSize}&h=${this.badgeSize}`
     $event.preventDefault()
     $event.stopPropagation()
   }

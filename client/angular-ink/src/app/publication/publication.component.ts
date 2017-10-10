@@ -25,6 +25,33 @@ export class PublicationComponent implements OnInit {
   @ViewChild('name') name: ElementRef
   @ViewChild('about') about: ElementRef
 
+  styles = {
+    name: () => {
+      return {
+        'font-size.px': this.ui.responsiveValue(30, 40),
+        'font-weight': 'bold',
+        'color': '#fff',
+        // 'background-color': 'transparent',
+        'text-align': 'center',
+        'width.%': 100,
+        'outline': 'none',
+        'border': 0,
+        'padding.px': this.ui.responsiveValue(20, 30),
+      }
+    },
+    about: () => {
+      return {
+        'font-size.px': this.ui.responsiveValue(15, 20),
+        'font-weight': 'normal',
+        'color': '#fff',
+        'text-align': 'center',
+        'outline': 'none',
+        'border': 0,
+        'padding.px': this.ui.responsiveValue(20, 30),
+      }
+    }
+  }
+
   constructor(
     // ng
     public sanitizer: DomSanitizer,

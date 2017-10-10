@@ -1,10 +1,31 @@
 <app-content-width>
-    <div style="padding: 40px;">
-      <input type="text" [(ngModel)]="article.title" #title/>
-      <br>
-      {{ article.prefold }}
-      <button>read on</button>
-      postfold
-      {{ article.bodyOps | stringify }}
+    <div style="padding: 0px;">
+
+      <!-- article title -->
+      <textarea type="text" [ngStyle]="style.title()" [(ngModel)]="article.title" #title></textarea>
+      
+      <!-- toolbar todo: hide -->
+      <div #toolbar>
+          <button class="ql-bold">Bold</button>
+          <button class="ql-italic">Italic</button>
+      </div>
+      <div #editor></div>
+
+      <!-- article prefold -->
+      <div #prefoldToolbar></div>
+      <div #prefoldEditor></div>
+
+      <!-- read on -->
+      <button (click)="article.state = article.state === 'expanded' ? 'collapsed' : 'expanded'">read on</button>
+
+      <!-- article postfold -->
+      <div #postfoldToolbar></div>
+      <div [@articleState]="article.state">
+        <div #postfoldEditor></div>
+      </div>
+      
     </div>
+
+    <!-- comments (todo) -->
+
   </app-content-width>

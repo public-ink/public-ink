@@ -1,12 +1,18 @@
-<app-content-width style="height: 40vh;"
-style="background-size: cover;"
-[style.background-image]="safeBG(publication.imageURL)"
-(dragover)="onDragOver($event)"
-(drop)="onDrop($event)"
->
-<div style="padding: 30px;">
-  <input type="text" [(ngModel)]="publication.name" #name />
-  <input type="text" [(ngModel)]="publication.about" #about />
-  <span (click)="publication.expanded = !publication.expanded; publication.state = publication.state === 'collapsed' ? 'expanded': 'collapsed'">expand / collapse publication</span>
+
+<div style="background-color: #333">
+
+  <app-content-width style="height: 40vh; background-size: cover;"
+  [style.background-image]="safeBG(publication.imageURL)"
+  
+  (dragover)="onDragOver($event)"
+  (drop)="onDrop($event)"
+  >
+  <flex-col-center-center style="height: 40vh; ">
+    <textarea [ngStyle]="styles.name()" type="text" [(ngModel)]="publication.name" #name></textarea>
+    <textarea [ngStyle]="styles.about()" type="text" [(ngModel)]="publication.about" #about></textarea>
+    <span (click)="publication.expanded = !publication.expanded; publication.state = publication.state === 'collapsed' ? 'expanded': 'collapsed'">expand / collapse publication</span>
+  </flex-col-center-center>
+  </app-content-width>
+
+
 </div>
-</app-content-width>

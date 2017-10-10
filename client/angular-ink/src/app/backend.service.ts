@@ -84,6 +84,8 @@ export interface Article {
   postfoldJSON: string
   postfoldHTML: string
   bodyOps: string
+  // collpased or expanded
+  state: string
 }
 
 interface CreateAccountResponse {
@@ -184,6 +186,13 @@ export class BackendService {
       const account: Account = reply.account
       if (info.success ) {
         this.account = account
+        for (const author of this.account.authors) {
+          for (const pub of author.publications) {
+            for (const art of pub.articles) {
+              art.state = 'collapsed'
+            }
+          }
+        }
         localStorage.setItem('jwt', this.account.jwt)
         loginSubject.next(info)
         // new: load images
@@ -322,6 +331,30 @@ export class BackendService {
       res.json()
     }).subscribe(result => {
       console.log('be saved publication', result)
+      saveSubject.next()
+    })
+    return saveSubject
+  }
+
+  saveAuthor(author: Author) {
+    const saveSubject = new Subject()
+    const jwt = localStorage.getItem('jwt')
+    const query = `
+      {saveAuthor {
+        ${fragments.info}
+      }}
+    `
+    const variables = {
+      jwt: jwt,
+      authorID: author.id,
+      name: author.name,
+      about: author.about,
+      imageURL: author.imageURL,
+    }
+    this.http.post(api_url, {query: query, variables: variables}).map(res => {
+      res.json()
+    }).subscribe(result => {
+      console.log('be saved author', result)
       saveSubject.next()
     })
     return saveSubject

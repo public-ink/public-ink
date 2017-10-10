@@ -579,6 +579,7 @@ class Query(graphene.ObjectType):
         about = self.get('about')
         imageURL = self.get('imageURL')
         token = self.get('jwt')
+
         email = email_from_jwt(token)
         user_key = ndb.Key('UserModel', email)
 
@@ -601,7 +602,7 @@ class Query(graphene.ObjectType):
             message = 'author_created'
         else:
             # authentication
-            if not is_owner(token, author_id):
+            if not is_owner(token, authorID):
                 return AuthorResponse(
                 InfoSchema(success=False, message='unauthorized')
             )

@@ -20,34 +20,22 @@ import { BackendService } from '../backend.service'
   templateUrl: './paper-tree.component.html',
   styleUrls: ['./paper-tree.component.css'],
   animations: [
-    trigger('heroState', [
-      state('inactive', style({
-        backgroundColor: '#eee',
-        transform: 'scale(1)'
-      })),
-      state('active',   style({
-        backgroundColor: '#cfd8dc',
-        transform: 'scale(1.1)'
-      })),
-      transition('inactive => active', animate('100ms ease-in')),
-      transition('active => inactive', animate('100ms ease-out'))
-    ]),
     trigger('authorState', [
       state('collapsed', style({
-        height: '*',
+        height: 0,
       })),
       state('expanded',   style({
-        height: 0,
+        height: '*',
       })),
       transition('collapsed => expanded', animate('400ms ease-in')),
       transition('expanded => collapsed', animate('400ms ease-out'))
     ]),
     trigger('publicationState', [
       state('collapsed', style({
-        height: '*',
+        height: 0,
       })),
       state('expanded',   style({
-        height: 0,
+        height: '*',
       })),
       transition('collapsed => expanded', animate('400ms ease-in')),
       transition('expanded => collapsed', animate('400ms ease-out'))

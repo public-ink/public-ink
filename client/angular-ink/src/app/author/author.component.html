@@ -1,3 +1,14 @@
-<p>
-  author works!
-</p>
+<app-content-width>
+    <flex-col-center style="padding: 100px;">
+        <img
+        [style.width.px]="badgeSize" [style.height.px]="badgeSize"
+        style="border-radius: 100%;"
+        [src]="author.imageURL" (dragover)="onDragOver($event)" (drop)="onDrop($event)"/>
+  
+        <textarea #name [(ngModel)]="author.name" [ngStyle]="style.name()"></textarea>
+        <textarea #about>{{ author.about }}</textarea>
+        <div>a lot of articles in {{ author.publications.length }} publications </div>
+        <br><br>
+        <span (click)="author.state = author.state === 'collapsed' ? 'expanded' : 'collapsed'">expand / collapse author</span>
+      </flex-col-center>
+    </app-content-width>
