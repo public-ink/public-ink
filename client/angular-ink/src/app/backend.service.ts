@@ -34,7 +34,8 @@ const fragments = {
             articles {
               id
               title
-              bodyOps
+              prefoldJSON
+              postfoldJSON
             }
           }
       }
@@ -80,10 +81,7 @@ export interface Article {
   id: string
   title: string
   prefoldJSON: string
-  prefoldHTML: string
   postfoldJSON: string
-  postfoldHTML: string
-  bodyOps: string
   // collpased or expanded
   state: string
 }
@@ -297,7 +295,8 @@ export class BackendService {
       publicationID: publicationID,
       articleID: article.id,
       title: article.title,
-      bodyOps: article.bodyOps,
+      prefoldJSON: article.prefoldJSON,
+      postfoldJSON: article.postfoldJSON,
     }
     this.http.post(api_url, {query: query, variables: variables}).map(res => {
       res.json()

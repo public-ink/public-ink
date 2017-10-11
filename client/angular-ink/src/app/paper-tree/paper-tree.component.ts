@@ -58,8 +58,8 @@ export class PaperTreeComponent implements OnInit {
     public backend: BackendService,
   ) { }
 
-  
 
+  /** todo: reconsider this */
   ngOnInit() {
     const query = `
     {
@@ -72,7 +72,6 @@ export class PaperTreeComponent implements OnInit {
           name
           articles {
             title
-            bodyOps
           }
         }
       }

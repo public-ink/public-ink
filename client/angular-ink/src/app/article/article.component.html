@@ -4,23 +4,21 @@
       <!-- article title -->
       <textarea type="text" [ngStyle]="style.title()" [(ngModel)]="article.title" #title></textarea>
       
-      <!-- toolbar todo: hide -->
-      <div #toolbar>
-          <button class="ql-bold">Bold</button>
-          <button class="ql-italic">Italic</button>
+      <!-- prefold editor-->
+      <div #prefoldToolbar>
+          <button class="ql-bold">Bold</button><button class="ql-italic">Italic</button>
       </div>
-      <div #editor></div>
-
-      <!-- article prefold -->
-      <div #prefoldToolbar></div>
       <div #prefoldEditor></div>
 
       <!-- read on -->
       <button (click)="article.state = article.state === 'expanded' ? 'collapsed' : 'expanded'">read on</button>
 
-      <!-- article postfold -->
-      <div #postfoldToolbar></div>
+      
       <div [@articleState]="article.state">
+        <!--  postfold editor -->
+        <div #postfoldToolbar>
+            <button class="ql-bold">Bold</button><button class="ql-italic">Italic</button>
+        </div>
         <div #postfoldEditor></div>
       </div>
       

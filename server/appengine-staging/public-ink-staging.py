@@ -285,7 +285,8 @@ ARTICLE
 class ArticleModel(InkModel):
     """ Article NDB model """
     title = ndb.StringProperty()
-    bodyOps = ndb.TextProperty()
+    prefoldJSON = ndb.TextProperty()
+    postfoldJSON = ndb.TextProperty()
     published_at = ndb.DateTimeProperty()
     position = ndb.IntegerProperty()
 
@@ -304,7 +305,8 @@ class ArticleSchema(graphene.ObjectType):
     The schema for representing an article.
     """
     title = graphene.String()
-    bodyOps = graphene.String()
+    prefoldJSON = graphene.String()
+    postfoldJSON = graphene.String()
     published_at = graphene.Float()
 
     id = graphene.String()
@@ -713,6 +715,8 @@ class Query(graphene.ObjectType):
         publicationID = self.get('publicationID')
         articleID = self.get('articleID')
         title = self.get('title')
+        prefoldJSON = self.get('prefoldJSON')
+        postfoldJSON = self.get('postfoldJSON')
 
         # authentication
         if not is_owner(jwt, authorID):
@@ -730,7 +734,8 @@ class Query(graphene.ObjectType):
                 parent=publication_key,
                 id=slugify(title),
                 title=title,
-                bodyOps=self.get('bodyOps')
+                prefoldJSON=prefoldJSON,
+                postfoldJSON=postfoldJSON
             ).put()
             article = article_key.get()
             message = 'article_created'
@@ -745,7 +750,8 @@ class Query(graphene.ObjectType):
             )
             article = article_key.get()
             article.title = title
-            article.bodyOps = self.get('bodyOps')
+            article.prefoldJSON = prefoldJSON
+            article.postfoldJSON = postfoldJSON
             article.put()
             message = 'article_updated'
         return ArticleResponse(

@@ -41,10 +41,7 @@ export class ArticleComponent implements OnInit {
   // HTML Elements
   @ViewChild('title') title: ElementRef
 
-  // this will become obsolete
-  @ViewChild('toolbar') toolbar: ElementRef
-  @ViewChild('editor') editor: ElementRef
-
+  // Editors
   @ViewChild('prefoldToolbar') prefoldToolbar: ElementRef
   @ViewChild('prefoldEditor') prefoldEditor: ElementRef
 
@@ -54,8 +51,7 @@ export class ArticleComponent implements OnInit {
   prefoldQuill: Quill
   postfoldQuill: Quill
 
-  quill: Quill
-
+  // styles
   style = {
     title: () => {
       return {
@@ -73,14 +69,15 @@ export class ArticleComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+
+    // editor setup
     this.makeQuill()
 
+    // auto-save
     Observable.fromEvent(this.title.nativeElement, 'keyup').debounceTime(1000).subscribe(event => {
       console.log('title up after 1 sec')
       this.save()
     })
-
-
   }
 
   save() {
@@ -90,39 +87,42 @@ export class ArticleComponent implements OnInit {
   }
 
   makeQuill() {
-    const modules = {
-      toolbar: {
-        container: this.toolbar.nativeElement,
-      },
-    }
 
-    this.quill = new Quill(this.editor.nativeElement, {
-      modules: modules,
-      theme: 'snow',
-      placeholder: 'Your story goes here...',
-    })
-    const ops = JSON.parse(this.article.bodyOps)
-    this.quill.setContents(ops)
-
-
-    // prefold
+    // PREFOLD EDITOR
     this.prefoldQuill = new Quill(this.prefoldEditor.nativeElement,  {
-      modules: modules,
+      modules: { toolbar: { container: this.prefoldToolbar.nativeElement }},
       theme: 'snow',
       placeholder: 'above the fold...',
     })
-    // todo: parse prefold ops
-    this.prefoldQuill.setContents(ops)
 
-    // postfold
+    // set content
+    const prefoldContent = JSON.parse(this.article.prefoldJSON)
+    this.prefoldQuill.setContents(prefoldContent)
+
+    // record changes to model
+    this.prefoldQuill.on('text-change', (delta, oldDelta, source) => {
+      this.article.prefoldJSON = JSON.stringify(this.prefoldQuill.getContents())
+      // todo: catch all focus events (even when nothing was typed)
+      // this.lastRange = this.quill.getSelection()
+    })
+
+    // POSTFOLD EDITOR
     this.postfoldQuill = new Quill(this.postfoldEditor.nativeElement,  {
-      modules: modules,
+      modules: { toolbar: { container: this.postfoldToolbar.nativeElement }},
       theme: 'snow',
       placeholder: 'below the fold...',
     })
-    // todo: parse postfold ops
-    this.postfoldQuill.setContents(ops)
 
+    // set content
+    const postfoldContent = JSON.parse(this.article.postfoldJSON)
+    this.postfoldQuill.setContents(postfoldContent)
+
+    // record changes to model
+    this.postfoldQuill.on('text-change', (delta, oldDelta, source) => {
+      this.article.postfoldJSON = JSON.stringify(this.postfoldQuill.getContents())
+      // todo: catch all focus events (even when nothing was typed)
+      // this.lastRange = this.quill.getSelection()
+    })
   }
 
 }
