@@ -4,6 +4,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router'
 
 // ink
 import { BackendService, Author, Publication, SavePublicationResponse } from '../backend.service'
+import { UIService } from '../ui.service'
 
 @Component({
   selector: 'app-publication-page',
@@ -20,7 +21,8 @@ export class PublicationPageComponent implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     // ink
-    private backend: BackendService,
+    public backend: BackendService,
+    public ui: UIService,
   ) { }
 
   ngOnInit() {
@@ -35,6 +37,7 @@ export class PublicationPageComponent implements OnInit {
           name: '',
           about: '',
           imageURL: '',
+          new: true,
         }
       } else if (this.publication && this.publication.id === publicationID) {
         // not reloading because we have this publication (after create)

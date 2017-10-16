@@ -587,6 +587,11 @@ class Query(graphene.ObjectType):
         imageURL = self.get('imageURL')
         token = self.get('jwt')
 
+        if not token:
+            return AuthorResponse(
+                InfoSchema(success=False, message='unauthorized (no jwt sent)')
+            )
+
         email = email_from_jwt(token)
         user_key = ndb.Key('UserModel', email)
 

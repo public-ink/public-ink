@@ -93,6 +93,7 @@ export interface Author {
   about: string
   imageURL: string
   publications?: Publication[]
+  new?: boolean
 }
 
 export interface Publication {
@@ -102,6 +103,7 @@ export interface Publication {
   imageURL: string
   articles?: Article[]
   author?: Author
+  new?: boolean
 }
 
 export interface Article {
@@ -147,6 +149,24 @@ export interface SavePublicationResponse {
     }
   }
   errors: string[]
+}
+
+export interface LoadPublicationResponse {
+  data: {
+    publication: {
+      id: string
+      name: string
+      about: string
+      imageURL: string
+      author: {
+        id: string
+        name: string
+        about: string
+        imageURL: string
+      }
+    }
+  }
+  errors: string []
 }
 
 interface DeletePublicationResponse {
@@ -629,7 +649,7 @@ export class BackendService {
   }
 
   loadPublication(authorID: string, publicationID: string) {
-    const loadSubject = new Subject()
+    const loadSubject = new Subject<LoadPublicationResponse>()
     const query = `
     {
       publication(authorID: "${authorID}", publicationID: "${publicationID}") {
@@ -648,7 +668,7 @@ export class BackendService {
     `
     this.http.post(api_url, {query: query}).delay(500).map(res => {
       return res.json()
-    }).subscribe((result: any) => {
+    }).subscribe((result: LoadPublicationResponse) => {
       loadSubject.next(result)
     })
     return loadSubject
@@ -683,5 +703,16 @@ export class BackendService {
     return loadSubject
   }
 
+
+  /**
+   * Checks if a given author id is one of the current user's authors
+   *
+   * @param authorID
+   */
+  isOwner(authorID: string): Boolean {
+    if (!this.account) { return false }
+    const authorIDs = this.account.authors.map(author => author.id )
+    return authorIDs.includes(authorID)
+  }
 
 }

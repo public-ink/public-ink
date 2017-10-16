@@ -90,15 +90,17 @@ export class PublicationComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
 
-    /* // stop listening to name, it will be disabled. instead, to drop! :)
-    Observable.merge(
-      Observable.fromEvent(this.name.nativeElement, 'keyup'),
-      Observable.fromEvent(this.about.nativeElement, 'keyup'),
-    ).debounceTime(1000).subscribe(() => {
-      if (this.publication.id !== 'create-publication') {
-        this.updatePublication.next()
-      }
-    }) */
+    if (this.editable) {
+       // stop listening to name, it will be disabled. instead, to drop! :)
+        Observable.merge(
+          Observable.fromEvent(this.name.nativeElement, 'keyup'),
+          Observable.fromEvent(this.about.nativeElement, 'keyup'),
+        ).debounceTime(1000).subscribe(() => {
+          if (this.publication.id !== 'create-publication') {
+            this.updatePublication.next()
+          }
+        })
+    }
   }
 
   onDragOver($event) {

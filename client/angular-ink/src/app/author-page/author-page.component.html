@@ -4,13 +4,26 @@
 
 <div *ngIf="author">
 
-    <app-author 
-      (createAuthor)="createAuthor()"
-      (updateAuthor)="updateAuthor()"
-      (deleteAuthor)="deleteAuthor()"
-      [author]="author"></app-author>
+    
 
-      <a [routerLink]="['create-publication']">start new publication</a>
+    <app-author 
+      [author]="author"
+      [editable]="backend.isOwner(author.id) || author.new"
+      (updateAuthor)="updateAuthor()"
+      ></app-author>
+
+
+      <!-- create / cancel if new -->
+    <flex-row-center >
+      <button *ngIf="author.new" [ngStyle]="ui.styles.button()" (click)="createAuthor()">Create Author</button> &nbsp;
+      <button [ngStyle]="ui.styles.button()" (click)="deleteAuthor()">delete author</button>
+      <button [ngStyle]="ui.styles.button()" [routerLink]="['create-publication']">new publication</button>
+    
+    </flex-row-center>
+
+      
+
+      
 
 
 
@@ -21,7 +34,13 @@
       ></app-publication>
 
       <div *ngFor="let article of publication.articles">
-        <app-article [article]="article" [author]="author" [publication]="publication"></app-article>
+        <app-article 
+          [article]="article" 
+          [author]="author" 
+          [publication]="publication"
+          [editable]="false"
+          >
+        </app-article>
         <div style="height: 100px;"></div>
         <div style="border-top: 1px dashed gray;"></div>
       </div>

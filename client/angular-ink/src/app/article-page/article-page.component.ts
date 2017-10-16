@@ -39,14 +39,20 @@ export class ArticlePageComponent implements OnInit {
 
 
       if (this.articleID === 'create-article') {
-        // create a new publicaiton object
-        this.article = {
-          id: 'create-article',
-          title: '',
-          prefoldJSON: '{}',
-          postfoldJSON: '{}',
-          state: '',
-        }
+        this.backend.loadPublication(this.authorID, this.publicationID).subscribe(res => {
+          this.publication = res.data.publication
+          this.author = this.publication.author
+          // create a new publicaiton object
+          this.article = {
+            id: 'create-article',
+            title: '',
+            prefoldJSON: '{}',
+            postfoldJSON: '{}',
+            state: '',
+          }
+        })
+
+
       } else if (this.article && this.article.id === this.articleID) {
         // not reloading because we have this publication (after create)
       } else {

@@ -4,6 +4,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router'
 
 // ink
 import { BackendService, Author } from '../backend.service'
+import { UIService } from '../ui.service'
 
 @Component({
   selector: 'app-author-page',
@@ -18,19 +19,26 @@ export class AuthorPageComponent implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     // ink
-    private backend: BackendService,
+    public backend: BackendService,
+    public ui: UIService,
   ) { }
 
   ngOnInit() {
     this.activatedRoute.params.subscribe((params: Params) => {
       const authorID = params['authorID']
       if (authorID === 'create-author') {
+        // guard against unauthenticated
+        if (!this.backend.account) {
+          console.warn('cannot navigate to create-author: not authenticated')
+          this.router.navigate(['/'])
+        }
         // create a new author object
         this.author = {
           id: 'create-author',
           name: '',
           about: '',
           imageURL: '',
+          new: true,
         }
       } else if (this.author && this.author.id === authorID) {
         // not reloading because we have this author (after create)
@@ -43,6 +51,10 @@ export class AuthorPageComponent implements OnInit {
     });
   }
 
+  /**
+   * creates a new author, and navigates, again to this component
+   * in that case, our router subscription won't do anything (not create a new object, nor load from backend again)
+   */
   createAuthor() {
     this.backend.saveAuthor(this.author).subscribe(result => {
       this.author = result.data.saveAuthor.author

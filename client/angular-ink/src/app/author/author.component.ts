@@ -18,11 +18,11 @@ import { UIService } from '../ui.service'
 export class AuthorComponent implements OnInit {
 
   @Input('author') author: Author
+  @Input('editable') editable: Boolean
 
   @ViewChild('name') name: ElementRef
   @ViewChild('about') about: ElementRef
 
-  @Output() createAuthor = new EventEmitter()
   @Output() updateAuthor = new EventEmitter()
   @Output() deleteAuthor = new EventEmitter()
 
@@ -69,36 +69,15 @@ export class AuthorComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if (!this.author) {
-      this.author = {
-        id: 'create-author',
-        name: '',
-        about: '',
-        imageURL: '',
-        publications: [],
-      }
-    }
-
     // autosave on about edit
-    Observable.fromEvent(this.about.nativeElement, 'keyup').debounceTime(1000).subscribe(() => {
-      if (this.author.id !== 'create-author') {
-        this.updateAuthor.next()
-      }
-    })
-  }
-
-  /**
-   * Delete the author
-   */
-  delete() {
-    this.deleteAuthor.next()
-  }
-
-  /**
-   * Create an author
-   */
-  create() {
-    this.createAuthor.next()
+    if (!this.author.new) {
+      // also observe drop
+      Observable.fromEvent(this.about.nativeElement, 'keyup').debounceTime(1000).subscribe(() => {
+        if (this.author.id !== 'create-author') {
+          this.updateAuthor.next()
+        }
+      })
+    }
   }
 
 
@@ -110,9 +89,7 @@ export class AuthorComponent implements OnInit {
 
   onDrop($event) {
     this.author.imageURL = this.ui.beingDragged.url
-    if (this.author.id !== 'create-author') {
-      this.updateAuthor.next()
-    }
+    if (!this.author.new) { this.updateAuthor.next() }
     $event.preventDefault()
     $event.stopPropagation()
   }

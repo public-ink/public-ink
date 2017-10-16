@@ -39,6 +39,8 @@ export class ArticleComponent implements OnInit {
   @Input('publication') publication
   @Input('article') article
 
+  @Input('editable') editable = false
+
   // HTML Elements
   @ViewChild('title') title: ElementRef
 
@@ -79,9 +81,11 @@ export class ArticleComponent implements OnInit {
     this.makeQuill()
 
     // auto-save
-    Observable.fromEvent(this.title.nativeElement, 'keyup').debounceTime(1000).subscribe(event => {
-      this.autosave()
-    })
+    if (this.editable) {
+      Observable.fromEvent(this.title.nativeElement, 'keyup').debounceTime(1000).subscribe(event => {
+        this.autosave()
+      })
+    }
   }
 
   autosave() {

@@ -3,12 +3,20 @@
 
       <!-- article title -->
       <textarea 
+        *ngIf="editable"
         placeholder="Article Title"
       appAutosize rows="1" type="text" [ngStyle]="style.title()" [(ngModel)]="article.title" #title></textarea>
       
+
+      <h1 *ngIf="!editbale"
+        [routerLink]="['/', author.id, publication.id, article.id]"
+      >{{ article.title }}</h1>
+
       <!-- META -->
       <div style="font-family: 'Zilla Slab'; color: #888;" [ngStyle]="{'font-size.px': ui.responsiveValue(16, 18), 'line-height.px': ui.responsiveValue(24, 26)}">By
-          <a style="color: #888; text-decoration:none; border-bottom: 1px solid #aaa;" class="tabable" [routerLink]="['/', author.id]">{{ author.name }}</a> 
+          <a style="color: #888; text-decoration:none; border-bottom: 1px solid #aaa;" class="tabable" 
+          [routerLink]="['/', author.id]">{{ author.name }}
+        </a> 
           in 
           <a style="color: #888; text-decoration:none; border-bottom: 1px solid #aaa;" class="tabable" [routerLink]="['/', author.id, publication.id]">{{ publication.name }}</a>
           <span *ngIf="article.publishedAt"> {{ article.publishedAt | date:'MMMM y' }}</span>
