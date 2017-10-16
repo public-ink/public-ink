@@ -44,44 +44,14 @@ import { BackendService } from '../backend.service'
 })
 export class PaperTreeComponent implements OnInit {
 
-  thedata: any
-  authors = []
-
-
-
   constructor(
-    // ng
-    public http: Http,
-    public sanitizer: DomSanitizer,
     // ink
     public ui: UIService,
     public backend: BackendService,
   ) { }
 
 
-  /** todo: reconsider this */
   ngOnInit() {
-    const query = `
-    {
-      author(authorID: "hoff") {
-        id
-        name
-        about
-        publications {
-          id
-          name
-          articles {
-            title
-          }
-        }
-      }
-    }
-    `
-    this.http.post('http://localhost:8080/api/graphql', {query: query}).subscribe(result => {
-      console.log('loaded', result.json())
-      this.thedata = result.json()
-      this.authors.push(this.thedata.data.author)
-    })
   }
 
 }

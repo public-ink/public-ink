@@ -1,6 +1,4 @@
-<app-content-width>
-  <app-logo></app-logo>
-</app-content-width>
+
 
 <!-- login forms or info -->
 <app-account></app-account>
@@ -16,6 +14,7 @@
     <!-- <app-author [author]=""></app-author> -->
     
     <div [@authorState]="author.state" style="overflow:hidden;" >
+
       <div *ngFor="let publication of author.publications; let last = last;">
         
         <!-- here is publication paper -->
@@ -24,7 +23,11 @@
         <div [@publicationState]="publication.state" style="overflow:hidden;">
           <div *ngFor="let article of publication.articles; let last = last">
             <app-article [article]="article" [publication]="publication" [author]="author"></app-article>
-            
+            <!-- space after artice -->
+            <div style="height: 100px;"></div>
+            <div style="border-top: 1px dotted lightgray"></div>
+
+
           </div>
         </div>
       </div>

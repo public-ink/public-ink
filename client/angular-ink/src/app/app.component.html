@@ -1,14 +1,31 @@
+<div style="height: 100px;"></div>
+<router-outlet></router-outlet>
+
 <!-- overlay -->
 <flex-col-center-center *ngIf="ui.overlay" (click)="ui.overlay=false" style="background-color: rgba(255, 255, 255, 0.9); width: 100vw; height: 100vh; position: fixed; top: 0; left: 0;">
   {{ ui.overlayInidcator }}
   {{ ui.overlayMessage }}
 </flex-col-center-center>
 
-<app-paper-tree></app-paper-tree>
 
+
+
+<!-- top bar -->
+<app-content-width 
+  [ngStyle]="styles.topBar()">
+  <flex-row >
+      <app-logo *ngIf="!backend.loading" 
+      [routerLink]="['/']"
+      [size]="10"
+      [bg]="'lime'"
+      [negative]="'transparent'"
+      ></app-logo>
+      <div style="padding:10px; font-size: 16px; font-weight: bold;"></div>
+  </flex-row>
+</app-content-width>
 
 <!-- media bar -->
-<flex-row *ngIf="ui.mediaBar" style="position: fixed; bottom: 0; left: 0; background-color: #222; padding: 5px;">
+<flex-row *ngIf="ui.mediaBar" style="width: 100%; overflow-x: scroll; position: fixed; bottom: 0; left: 0; background-color: #222; padding: 5px;">
 
 
 

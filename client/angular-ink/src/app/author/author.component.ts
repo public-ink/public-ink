@@ -1,11 +1,12 @@
 // ng
-import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core'
+import { Component, OnInit, Input, Output, ViewChild, ElementRef, EventEmitter } from '@angular/core'
+import { Router } from '@angular/router'
 
 // rx
 import { Observable } from 'rxjs/Observable'
 
 // ink
-import { BackendService } from '../backend.service'
+import { BackendService, Author } from '../backend.service'
 import { UIService } from '../ui.service'
 
 
@@ -16,26 +17,53 @@ import { UIService } from '../ui.service'
 })
 export class AuthorComponent implements OnInit {
 
-  @Input('author') author
+  @Input('author') author: Author
 
   @ViewChild('name') name: ElementRef
   @ViewChild('about') about: ElementRef
 
+  @Output() createAuthor = new EventEmitter()
+  @Output() updateAuthor = new EventEmitter()
+  @Output() deleteAuthor = new EventEmitter()
+
   badgeSize = 180
 
   style = {
+    badge: () => {
+      return {
+        display: 'none',
+        padding: '15px',
+        border: '2px dotted #eee',
+        'border-radius.%': 100,
+      }
+    },
     name: () => {
       return {
         'font-size.px': this.ui.responsiveValue(30, 40),
         'font-weight': 'bold',
         'outline': 'none',
         'border': 0,
-        'text-align': 'center',
+        'text-align': 'left',
+        'margin-bottom.px': 50,
       }
-    }
+    },
+    about: () => {
+      return {
+        'font-size.px': this.ui.responsiveValue(18, 20),
+        'font-weight': 'normal',
+        'outline': 'none',
+        'border': 0,
+        'text-align': 'left',
+        'width.%': 100,
+        'font-family': 'Zillo Slab, serif'
+      }
+    },
   }
 
   constructor(
+    // ng
+    public router: Router,
+    // ink
     public backend: BackendService,
     public ui: UIService,
   ) { }
@@ -43,49 +71,34 @@ export class AuthorComponent implements OnInit {
   ngOnInit() {
     if (!this.author) {
       this.author = {
+        id: 'create-author',
         name: '',
         about: '',
-        publications: []
+        imageURL: '',
+        publications: [],
       }
     }
 
-    Observable.merge(
-      Observable.fromEvent(this.name.nativeElement, 'keyup'),
-      Observable.fromEvent(this.about.nativeElement, 'keyup'),
-    ).debounceTime(1000).subscribe(() => {
-      this.save()
+    // autosave on about edit
+    Observable.fromEvent(this.about.nativeElement, 'keyup').debounceTime(1000).subscribe(() => {
+      if (this.author.id !== 'create-author') {
+        this.updateAuthor.next()
+      }
     })
-
   }
 
   /**
-   * creates the author
-   *
-   *
-   */
-  create() {
-    
-  }
-
-  /**
-   * Updates the author
-   */
-  update() {
-
-  }
-
-  /**
-   * Deletes the author
+   * Delete the author
    */
   delete() {
-
+    this.deleteAuthor.next()
   }
 
-  save() {
-    console.log('save!')
-    this.backend.saveAuthor(this.author).subscribe(result => {
-      console.log('author saved author!')
-    })
+  /**
+   * Create an author
+   */
+  create() {
+    this.createAuthor.next()
   }
 
 
@@ -96,10 +109,12 @@ export class AuthorComponent implements OnInit {
   }
 
   onDrop($event) {
-    this.author.imageURL = this.ui.beingDragged.url + `&w=${this.badgeSize}&h=${this.badgeSize}`
+    this.author.imageURL = this.ui.beingDragged.url
+    if (this.author.id !== 'create-author') {
+      this.updateAuthor.next()
+    }
     $event.preventDefault()
     $event.stopPropagation()
   }
-
 
 }

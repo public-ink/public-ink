@@ -1,18 +1,75 @@
+<!-- publication component container-->
+<div (dragover)="onDragOver($event)" (drop)="onDrop($event)" style="background-color:#000; position:relative; height: 60vh; max-height: 700px;">
 
-<div style="background-color: #333">
 
-  <app-content-width style="height: 40vh; background-size: cover;"
-  [style.background-image]="safeBG(publication.imageURL)"
-  
-  (dragover)="onDragOver($event)"
-  (drop)="onDrop($event)"
-  >
-  <flex-col-center-center style="height: 40vh; ">
-    <textarea [ngStyle]="styles.name()" type="text" [(ngModel)]="publication.name" #name></textarea>
-    <textarea [ngStyle]="styles.about()" type="text" [(ngModel)]="publication.about" #about></textarea>
-    <span (click)="publication.expanded = !publication.expanded; publication.state = publication.state === 'collapsed' ? 'expanded': 'collapsed'">expand / collapse publication</span>
-  </flex-col-center-center>
-  </app-content-width>
 
+  <!-- background image -->
+  <div style="opacity: 0.6; position:absolute; top: 0; left:0; width: 100%; height: 100%; background-size: cover; background-position: center;"
+    [style.background-image]="safeBG()">
+  </div>
+
+  <!-- above background image / as in: content? yes. absolute to remove from opacity flow.-->
+  <div [style.font-weight]="800" style=" position:absolute; top: 0; left:0; width: 100%; height: 100%;">
+    <app-content-width>
+
+      <div style="height: 20vh;"></div>
+
+      <flex-row>
+        <flex-col style="flex-grow: 1;">
+          <!-- Name  STATIC -->
+          <a class="tabable" [routerLink]="['/', author.id, publication.id]" *ngIf="!editable" [ngStyle]="styles.name()" [style.cursor]="'pointer'">
+            {{ publication.name }}
+          </a>
+          <!-- Name EDITABLE -->
+          <div>
+            <textarea #name *ngIf="editable" class="focus-bg" [(ngModel)]="publication.name" [ngStyle]="styles.name()" [style.cursor]="'default'"
+              appAutosize rows="1" placeholder="publication name"></textarea>
+          </div>
+        </flex-col>
+        <!-- down caret -->
+        <flex-col-center-center style="display:none;">
+            <svg style="width: 50px; height: 50px;" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 129 129" xmlns:xlink="http://www.w3.org/1999/xlink"
+            enable-background="new 0 0 129 129">
+            <g>
+              <path stroke="white" fill="white" d="m121.3,34.6c-1.6-1.6-4.2-1.6-5.8,0l-51,51.1-51.1-51.1c-1.6-1.6-4.2-1.6-5.8,0-1.6,1.6-1.6,4.2 0,5.8l53.9,53.9c0.8,0.8 1.8,1.2 2.9,1.2 1,0 2.1-0.4 2.9-1.2l53.9-53.9c1.7-1.6 1.7-4.2 0.1-5.8z"
+              />
+            </g>
+          </svg>
+        </flex-col-center-center>
+      </flex-row>
+
+      <flex-col>
+
+        <!-- ABOUT -->
+        <!-- static -->
+        <p *ngIf="!editable" [ngStyle]="styles.about()"> {{ publication.about }}</p>
+        <!-- editable -->
+        <textarea #about *ngIf="editable" class="focus-bg" placeholder="tell me why" [(ngModel)]="publication.about" [ngStyle]="styles.about()"
+          appAutosize rows="1">
+               
+          </textarea>
+
+       
+        <!-- buttons -->
+        <flex-row style="margin-top: 5vh;" *ngIf="publication.id !== 'create-publication'">
+          <span [ngStyle]="styles.button()" [routerLink]="['/', author.id, publication.id, 'create-article']">start new article</span>
+
+          <!--
+            &nbsp;&nbsp;
+            <span (click)="delete()" [ngStyle]="styles.button()">delete</span>
+            &nbsp;&nbsp;
+            <span [ngStyle]="styles.button()" >...</span>
+            -->
+        </flex-row>
+
+        
+        <div style="height: 5vh;"></div>
+
+      </flex-col>
+
+
+
+    </app-content-width>
+    </div>
 
 </div>

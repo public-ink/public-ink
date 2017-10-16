@@ -1,5 +1,5 @@
 // ng
-import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core'
+import { Component, OnInit, AfterViewInit, Input, Output, ViewChild, ElementRef, EventEmitter } from '@angular/core'
 import { DomSanitizer } from '@angular/platform-browser'
 
 // rx
@@ -10,33 +10,37 @@ import { UIService } from '../ui.service'
 import { BackendService } from '../backend.service'
 
 // interfaces
-import {Author, Publication} from '../backend.service'
+import {Author, Publication, SavePublicationResponse} from '../backend.service'
+
+
 
 @Component({
   selector: 'app-publication',
   templateUrl: './publication.component.html',
   styleUrls: ['./publication.component.css']
 })
-export class PublicationComponent implements OnInit {
+export class PublicationComponent implements OnInit, AfterViewInit {
 
   @Input('author') author: Author
   @Input('publication') publication: Publication
+  @Input('editable') editable: Boolean
 
   @ViewChild('name') name: ElementRef
   @ViewChild('about') about: ElementRef
 
+  @Output() updatePublication = new EventEmitter()
+
   styles = {
     name: () => {
       return {
-        'font-size.px': this.ui.responsiveValue(30, 40),
+        'font-size.px': this.ui.responsiveValue(40, 45),
         'font-weight': 'bold',
         'color': '#fff',
         // 'background-color': 'transparent',
-        'text-align': 'center',
+        'text-align': 'left',
         'width.%': 100,
         'outline': 'none',
         'border': 0,
-        'padding.px': this.ui.responsiveValue(20, 30),
       }
     },
     about: () => {
@@ -44,13 +48,25 @@ export class PublicationComponent implements OnInit {
         'font-size.px': this.ui.responsiveValue(15, 20),
         'font-weight': 'normal',
         'color': '#fff',
-        'text-align': 'center',
+        'text-align': 'left',
         'outline': 'none',
         'border': 0,
-        'padding.px': this.ui.responsiveValue(20, 30),
+        'width.%': 100,
+      }
+    },
+    button: () => {
+      return {
+        'color': 'white',
+        'border-radius': '2px',
+        'padding': '5px 20px',
+        'font-size': '18px',
+        'border': '1px solid #ddd',
+        'background-color': 'rgba(255, 255, 255, 0.05)',
       }
     }
   }
+
+  deleted = false
 
   constructor(
     // ng
@@ -61,13 +77,28 @@ export class PublicationComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    if (!this.publication) {
+      this.publication = {
+        id: 'create-publication',
+        name: '',
+        about: '',
+        imageURL: '',
+        articles: [],
+      }
+    }
+  }
 
+  ngAfterViewInit() {
+
+    /* // stop listening to name, it will be disabled. instead, to drop! :)
     Observable.merge(
       Observable.fromEvent(this.name.nativeElement, 'keyup'),
       Observable.fromEvent(this.about.nativeElement, 'keyup'),
     ).debounceTime(1000).subscribe(() => {
-      this.save()
-    })
+      if (this.publication.id !== 'create-publication') {
+        this.updatePublication.next()
+      }
+    }) */
   }
 
   onDragOver($event) {
@@ -78,18 +109,15 @@ export class PublicationComponent implements OnInit {
   onDrop() {
     console.log('publication drop')
     this.publication.imageURL = this.ui.beingDragged.url
-    this.save()
+    if (this.publication.id !== 'create-publication') {
+      this.updatePublication.next()
+    }
   }
 
   safeBG(url: string) {
-    const str = `url(${url}&w=${this.ui.deviceWidth})`
+    const str = `url(${this.publication.imageURL}&w=${this.ui.deviceWidth})`
     return this.sanitizer.bypassSecurityTrustStyle(str)
   }
 
-  save() {
-    this.backend.savePublication(this.author.id, this.publication).subscribe(res => {
-      console.log('publication saved publication!')
-    })
-  }
 
 }

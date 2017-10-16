@@ -17,9 +17,9 @@ import { BackendService } from './backend.service'
 @Injectable()
 export class UIService {
 
-  contentWidth = 700
+  contentWidth = 600
   actualContentWidth: number
-  mainWidth = 900 // max width (content plus padding)
+  mainWidth = 800 // max width (content plus padding)
   minContentPadding = 20
   maxContentPadding = 100
 
@@ -45,7 +45,26 @@ export class UIService {
       return {
         'font-size.px': this.responsiveValue(14, 20)
       }
-    }
+    },
+    button: (multiplier = 1) => {
+      const minFontSize = 20 * multiplier
+      const maxFontSize = 20 * multiplier
+      const minPaddingV = 15 * multiplier
+      const maxPaddingV = 20 * multiplier
+      const minPaddingH = 40 * multiplier
+      const maxPaddingH = 40 * multiplier
+
+      return {
+        'font-size.px': this.responsiveValue(minFontSize, maxFontSize),
+        'padding-top.px': this.responsiveValue(minPaddingV, maxPaddingV),
+        'padding-bottom.px': this.responsiveValue(minPaddingV, maxPaddingV),
+        'padding-left.px': this.responsiveValue(minPaddingH, maxPaddingH),
+        'padding-right.px': this.responsiveValue(minPaddingH, maxPaddingH),
+        'background': '#333',
+        'color': 'white',
+        'border': '1px solid black',
+      }
+    },
   }
 
 

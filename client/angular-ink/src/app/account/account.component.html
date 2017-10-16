@@ -1,12 +1,22 @@
+
+<div style="height: 100px;">
+
+</div>
+
 <!-- ACCOUNT INFO AND LOGOUT LINK -->
 <app-content-width *ngIf="backend.account">
+    <flex-col>
+      <h1>Welcome back.</h1>
+      <div style="color: gray;"><span >{{ backend.account.email }} /</span>
+        <span style="text-decoration:none;" (click)="logout()">log out</span></div>
 
-    <div>you are logged in as {{ backend.account.email }}. 
-      
-      <button>create new author</button>
+        <h2>you have these authors</h2>
+        <div *ngFor="let author of backend.account?.authors">
+          <a [routerLink]="['/', author.id]">{{ author.name }}</a>
+        </div>
 
-      <a href="#">logout</a></div>
-
+      <a [routerLink]="['/create-author']">create author</a>
+    </flex-col>
 </app-content-width>
 
 
@@ -18,19 +28,10 @@
       <h1>Log In</h1>
       <form [formGroup]="loginForm" (ngSubmit)="doLogin()">
         <flex-col>
-          <div class="form-label">
-            <label for="loginEmail">Email</label>
-          </div>
-          <input id="loginEmail" class="form-input" formControlName="email" type="email" placeholder="your email address">
-    
-          <div class="form-label">
-            <label for="loginPassword">Password</label>
-          </div>
-          <input id="loginPassword" class="form-input" formControlName="password" type="password" placeholder="your password">
-    
+          <input [ngStyle]="styles.input()" id="loginEmail" class="form-input" formControlName="email" type="email" placeholder="Email">
+          <input [ngStyle]="styles.input()" id="loginPassword" class="form-input" formControlName="password" type="password" placeholder="Password">
           <div style="height: 20px;"></div>
-          <button class="form-button" type="submit" [disabled]="!loginForm.valid">Log In</button>
-    
+          <button [ngStyle]="ui.styles.button()" type="submit" [disabled]="!loginForm.valid">Log In</button>
         </flex-col>
       </form>
     
@@ -44,13 +45,13 @@
       <form [formGroup]="resetPasswordForm" (ngSubmit)="requestPasswordResetLink()">
     
         <flex-col>
-          <div class="form-label">
+          <!-- <div class="form-label">
             <label for="loginEmail">Your Email</label>
-          </div>
-          <input id="loginEmail" class="form-input" formControlName="email" type="email" placeholder="your email address">
+          </div> -->
+          <input [ngStyle]="styles.input()" id="loginEmail" class="form-input" formControlName="email" type="email" placeholder="your email address">
     
           <div style="height: 20px;"></div>
-          <button class="form-button" type="submit" [disabled]="!resetPasswordForm.valid">Request Reset Link</button>
+          <button [ngStyle]="ui.styles.button()" type="submit" [disabled]="!resetPasswordForm.valid">Request Reset Link</button>
         </flex-col>
       </form>
     
@@ -62,30 +63,30 @@
     
         <div id="register-login-forms" *ngIf="1">
     
-          <h1>Sign Up [disabled]</h1>
+          <h1>Sign Up</h1>
           <form [formGroup]="registrationForm" (ngSubmit)="createAccount($event)">
             <flex-col>
-              <label class="form-label" for="registrationEmail">Email</label>
-              <input id="registrationEmail" class="form-input" formControlName="email" type="email" placeholder="your email address">
+              <!-- <label class="form-label" for="registrationEmail">Email</label> -->
+              <input [ngStyle]="styles.input()" id="registrationEmail" class="form-input" formControlName="email" type="email" placeholder="your email address">
     
               <!-- password -->
-              <label class="form-label" for="registrationPassword">Password</label>
-              <input id="registrationPassword" class="form-input" formControlName="password" type="password" placeholder="your password">
+              <!-- <label class="form-label" for="registrationPassword">Password</label> -->
+              <input [ngStyle]="styles.input()" id="registrationPassword" class="form-input" formControlName="password" type="password" placeholder="chose a strong password">
     
               <!-- password again -->
-              <label class="form-label" for="registrationPassword2">Repeat Password</label>
-              <input id="registrationPassword2" class="form-input" formControlName="password2" type="password" placeholder="because typos are rael">
+              <!-- <label class="form-label" for="registrationPassword2">Repeat Password</label> -->
+              <input [ngStyle]="styles.input()" id="registrationPassword2" class="form-input" formControlName="password2" type="password" placeholder="repeat password please">
     
               <!-- the rules -->
-              <label class="form-label" for="termsCheckbox">Them Rules</label>
+              <!-- <label class="form-label" for="termsCheckbox">Them Rules</label> -->
               <flex-row [ngStyle]="ui.styles.standardText()">
-                <span>By creating a public.ink account, you confirm that you agree with the <a href="#" style="text-decoration:underline;">public.ink house rules</a>.</span>
-                <br>
+                <span [ngStyle]="styles.terms()">By creating a public.ink account, you confirm that you agree with the <a href="#" style="text-decoration:underline;">public.ink house rules</a>.</span>
+                
               </flex-row>
     
               <!-- submit button -->     
               <br>     
-              <button class="form-button" type="submit" [disabled]="false">Create Account</button>
+              <button [ngStyle]="ui.styles.button()" type="submit" [disabled]="false">Create Account</button>
     
             </flex-col>
           </form>

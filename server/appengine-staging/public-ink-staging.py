@@ -106,6 +106,10 @@ class AccountSchema(graphene.ObjectType):
     authenticated = graphene.Boolean()
     jwt = graphene.String()
 
+    """ Number of publications TODO """
+    publication_count = graphene.Int()
+    article_count = graphene.Int()
+
     """ Total Views """
     total_views = graphene.Int()
     @timing
@@ -266,7 +270,8 @@ class PublicationSchema(graphene.ObjectType):
 
     @timing
     def resolve_articles(self, args, *more):
-        if args.get('include_drafts'):
+        #if args.get('include_drafts'):
+        if 1 == 1:
             return ArticleModel.query(ancestor=self.key).order(ArticleModel.position)
         else:
             """ filters out un-published articles """
@@ -959,7 +964,7 @@ class Query(graphene.ObjectType):
         # authentication
         if is_owner(token, author_id):
             ndb.Key('AuthorModel', author_id).delete()
-            return InfoSchema(success=True, message='author_deleted (not really')
+            return InfoSchema(success=True, message='author_deleted')
         return InfoSchema(success=False, message='unauthorized')
 
 
@@ -970,12 +975,13 @@ class Query(graphene.ObjectType):
     def resolve_deletePublication(self, *args):
         
         # params
-        token = args.get('jwt')
-        author_id = args.get('authorID')
+        token = self.get('jwt')
+        author_id = self.get('authorID')
+        publication_id = self.get('publicationID')
         
         # authentication
         if is_owner(token, author_id):
-            ndb.Key('AuthorModel', self.get('authorID'), 'PublicationModel', self.get('publicationID')).delete()
+            ndb.Key('AuthorModel', author_id, 'PublicationModel', publication_id).delete()
             return InfoSchema(success=True, message='publication deleted')
         return InfoSchema(success=False, message='unauthorized')
 

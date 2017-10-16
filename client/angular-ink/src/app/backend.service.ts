@@ -11,6 +11,31 @@ const backendHost = 'http://localhost:8080'
 
 
 const fragments = {
+  article: `
+    article {
+      id
+      title
+      prefoldJSON
+      postfoldJSON
+      publishedAt
+    }
+  `,
+  publication: `
+    publication {
+      id
+      name
+      about
+      imageURL
+    }
+  `,
+  author: `
+    author {
+      id
+      name
+      about
+      imageURL
+    }
+  `,
   info: `
     info {
       success
@@ -36,6 +61,7 @@ const fragments = {
               title
               prefoldJSON
               postfoldJSON
+              publishedAt
             }
           }
       }
@@ -66,7 +92,7 @@ export interface Author {
   name: string
   about: string
   imageURL: string
-  publications: Publication[]
+  publications?: Publication[]
 }
 
 export interface Publication {
@@ -74,7 +100,8 @@ export interface Publication {
   name: string
   about: string
   imageURL: string
-  articles: Article[]
+  articles?: Article[]
+  author?: Author
 }
 
 export interface Article {
@@ -84,11 +111,119 @@ export interface Article {
   postfoldJSON: string
   // collpased or expanded
   state: string
+  author?: Author
+  publication?: Publication
 }
 
 interface CreateAccountResponse {
   info: Info
   account?: Account
+}
+
+interface DeleteAuthorResponse {
+  data: {
+    deleteAuthor: {
+      success: boolean
+      message: string
+    }
+  }
+  errors: string[]
+}
+
+export interface SavePublicationResponse {
+  data: {
+    savePublication: {
+      info: {
+        success: boolean
+        message: string
+      }
+      publication: {
+        id: string
+        name: string
+        about: string
+        imageURL: string
+        articles: any[]
+      }
+    }
+  }
+  errors: string[]
+}
+
+interface DeletePublicationResponse {
+  data: {
+    deletePublication: {
+      success: boolean
+      message: string
+    }
+  }
+  errors: string[]
+}
+
+interface DeleteArticleResponse {
+  data: {
+    deleteArticle: {
+      success: boolean
+      message: string
+    }
+  }
+  errors: string[]
+}
+
+interface SaveArticleResponse {
+  data: {
+    saveArticle: {
+      info: {
+        success: boolean
+        message: string
+      }
+      article: {
+        id
+        title
+        prefoldJSON
+        postfoldJSON
+        publishedAt
+      }
+    }
+  }
+  errors: string[]
+}
+
+interface PublishArticleResponse {
+  data: {
+    publishArticle: {
+      info: {
+        success: boolean
+        message: string
+      }
+      article: {
+        id
+        title
+        prefoldJSON
+        postfoldJSON
+        publishedAt
+      }
+    }
+  }
+  errors: string[]
+}
+
+
+interface SaveAuthorResponse {
+  data: {
+    saveAuthor: {
+      info: {
+        success: boolean
+        message: string
+      }
+      author: {
+        id
+        name
+        about
+        imageURL
+      }
+    }
+  }
+  errors: string[]
 }
 
 @Injectable()
@@ -99,6 +234,8 @@ export class BackendService {
    * false if not authenticated
    */
   account: Account
+
+  loading = false
 
   constructor(
     private http: Http
@@ -118,8 +255,10 @@ export class BackendService {
       ${fragments.account}
     }}`
     const variables = {email: email, password: password}
+    this.loading = true
     this.http.post(api_url, { query: query, variables: variables }).subscribe(result => {
       console.log('create account', result)
+      this.loading = false
       const reply = result.json().data.createAccount
       const info: Info = reply.info
       const account: Account = reply.account
@@ -145,8 +284,10 @@ export class BackendService {
       ${fragments.info}
     }}`
     const variables = {email: email, password: password}
+    this.loading = true
     this.http.post(api_url, {query: query, variables: variables}).subscribe(result => {
       console.log('ep login', result)
+      this.loading = false
       const reply = result.json().data.epLogin
       const info: Info = reply.info
       const account: Account = reply.account
@@ -154,6 +295,7 @@ export class BackendService {
       if (info.success ) {
         this.account = account
         localStorage.setItem('jwt', this.account.jwt)
+        this.loadImages(this.account.jwt)
       }
       // even if it didn't work
       loginSubject.next(info)
@@ -170,14 +312,15 @@ export class BackendService {
   jwtLogin() {
     const loginSubject = new Subject<Info>()
     const jwt = localStorage.getItem('jwt')
-    console.log(jwt)
     const query = `
     {jwtLogin {
       ${fragments.account}
       ${fragments.info}
     }}`
     const variables = {jwt: jwt}
+    this.loading = true
     this.http.post(api_url, {query: query, variables: variables}).subscribe(result => {
+      this.loading = false
       console.log('jwt login', result)
       const reply = result.json().data.jwtLogin
       const info: Info = reply.info
@@ -271,7 +414,7 @@ export class BackendService {
       }
       // request an upload URL, then kick off upload!
       this.http.get(backendHost + '/api/image/upload-url').map(
-        res => { return res.json() }).subscribe(data => {
+        res => res.json() ).subscribe(data => {
         xhr.open('POST', data.url, true)
         xhr.send(formData)
       })
@@ -281,12 +424,14 @@ export class BackendService {
   /**
    * Article saving
    */
-  saveArticle(authorID: string, publicationID: string, article: Article) {
-    const saveSubject = new Subject()
+  saveArticle(authorID: string, publicationID: string, article: Article): Subject<SaveArticleResponse> {
+    console.log('saving in pu', publicationID)
+    const saveSubject = new Subject<SaveArticleResponse>()
     const jwt = localStorage.getItem('jwt')
     const query = `
       {saveArticle {
         ${fragments.info}
+        ${fragments.article}
       }}
     `
     const variables = {
@@ -298,11 +443,40 @@ export class BackendService {
       prefoldJSON: article.prefoldJSON,
       postfoldJSON: article.postfoldJSON,
     }
+    this.loading = true
     this.http.post(api_url, {query: query, variables: variables}).map(res => {
-      res.json()
-    }).subscribe(result => {
+      return res.json()
+    }).subscribe((result: SaveArticleResponse) => {
+      this.loading = false
       console.log('save article?', result)
-      saveSubject.next()
+      saveSubject.next(result)
+    })
+    return saveSubject
+  }
+
+  publishArticle(authorID: string, publicationID: string, articleID: Article, unpublish = false): Subject<PublishArticleResponse> {
+    const saveSubject = new Subject<PublishArticleResponse>()
+    const jwt = localStorage.getItem('jwt')
+    const query = `
+      {publishArticle {
+        ${fragments.info}
+        ${fragments.article}
+      }}
+    `
+    const variables = {
+      jwt: jwt,
+      authorID: authorID,
+      publicationID: publicationID,
+      articleID: articleID,
+      unpublish: unpublish,
+    }
+    this.loading = true
+    this.http.post(api_url, {query: query, variables: variables}).map(res => {
+      return res.json()
+    }).subscribe((result: PublishArticleResponse) => {
+      this.loading = false
+      console.log('published article?', result)
+      saveSubject.next(result)
     })
     return saveSubject
   }
@@ -316,6 +490,7 @@ export class BackendService {
     const query = `
       {savePublication {
         ${fragments.info}
+        ${fragments.publication}
       }}
     `
     const variables = {
@@ -326,21 +501,61 @@ export class BackendService {
       name: publication.name,
       imageURL: publication.imageURL,
     }
+
+    this.loading = true
     this.http.post(api_url, {query: query, variables: variables}).map(res => {
-      res.json()
+      return res.json()
     }).subscribe(result => {
+      this.loading = false
       console.log('be saved publication', result)
-      saveSubject.next()
+      saveSubject.next(result)
     })
     return saveSubject
   }
 
-  saveAuthor(author: Author) {
-    const saveSubject = new Subject()
+  deletePublication(authorID: string, publicationID: string): Subject<DeletePublicationResponse> {
+    const deleteSubject = new Subject<DeletePublicationResponse>()
+    const jwt = localStorage.getItem('jwt')
+    const query = `
+      {deletePublication {
+        success
+        message
+      }}
+    `
+    const variables = {jwt: jwt, authorID: authorID, publicationID: publicationID}
+    this.http.post(api_url, {query: query, variables}).map(res => {
+      return res.json()
+    }).subscribe((result: DeletePublicationResponse) => {
+      deleteSubject.next(result)
+    })
+    return deleteSubject
+  }
+
+  deleteArticle(authorID: string, publicationID: string, articleID: string): Subject<DeleteArticleResponse> {
+    const deleteSubject = new Subject<DeleteArticleResponse>()
+    const jwt = localStorage.getItem('jwt')
+    const query = `
+      {deleteArticle {
+        success
+        message
+      }}
+    `
+    const variables = {jwt: jwt, authorID: authorID, publicationID: publicationID, articleID: articleID}
+    this.http.post(api_url, {query: query, variables}).map(res => {
+      return res.json()
+    }).subscribe((result: DeleteArticleResponse) => {
+      deleteSubject.next(result)
+    })
+    return deleteSubject
+  }
+
+  saveAuthor(author: Author): Subject<SaveAuthorResponse> {
+    const saveSubject = new Subject<SaveAuthorResponse>()
     const jwt = localStorage.getItem('jwt')
     const query = `
       {saveAuthor {
         ${fragments.info}
+        ${fragments.author}
       }}
     `
     const variables = {
@@ -350,13 +565,122 @@ export class BackendService {
       about: author.about,
       imageURL: author.imageURL,
     }
+
+    this.loading = true
     this.http.post(api_url, {query: query, variables: variables}).map(res => {
-      res.json()
+      return res.json()
     }).subscribe(result => {
+      this.loading = false
       console.log('be saved author', result)
-      saveSubject.next()
+      saveSubject.next(result)
     })
     return saveSubject
+  }
+
+  deleteAuthor(authorID: string) {
+    const deleteSubject = new Subject<DeleteAuthorResponse>()
+    const jwt = localStorage.getItem('jwt')
+    const query = `
+      {deleteAuthor {
+        success
+        message
+      }}
+    `
+    const variables = {jwt: jwt, authorID: authorID}
+    this.http.post(api_url, {query: query, variables}).map(res => {
+      return res.json()
+    }).subscribe((result: DeleteAuthorResponse) => {
+      deleteSubject.next(result)
+    })
+    return deleteSubject
+  }
+
+  loadAuthor(authorID: string) {
+    const loadSubject = new Subject()
+    const query = `
+    {
+      author(authorID: "${authorID}") {
+        id
+        name
+        about
+        imageURL
+        publications {
+          id
+          about
+          name
+          imageURL
+          articles {
+            id
+            title
+            prefoldJSON
+            postfoldJSON
+            publishedAt
+          }
+        }
+      }
+    }
+    `
+    this.http.post(api_url, {query: query}).delay(500).map(res => {
+      return res.json()
+    }).subscribe((result: any) => {
+      loadSubject.next(result)
+    })
+    return loadSubject
+  }
+
+  loadPublication(authorID: string, publicationID: string) {
+    const loadSubject = new Subject()
+    const query = `
+    {
+      publication(authorID: "${authorID}", publicationID: "${publicationID}") {
+        id
+        name
+        about
+        imageURL
+        author {
+          id
+          name
+          about
+          imageURL
+        }
+      }
+    }
+    `
+    this.http.post(api_url, {query: query}).delay(500).map(res => {
+      return res.json()
+    }).subscribe((result: any) => {
+      loadSubject.next(result)
+    })
+    return loadSubject
+  }
+
+  loadArticle(authorID: string, publicationID: string, articleID: string) {
+    const loadSubject = new Subject()
+    const query = `
+    {
+      article(authorID: "${authorID}", publicationID: "${publicationID}", articleID: "${articleID}") {
+        article {
+          title
+          prefoldJSON
+          postfoldJSON
+          publishedAt
+          publication {
+            id
+            name
+          }
+          author {
+            id
+          }
+        }
+      }
+    }
+    `
+    this.http.post(api_url, {query: query}).delay(500).map(res => {
+      return res.json()
+    }).subscribe((result: any) => {
+      loadSubject.next(result)
+    })
+    return loadSubject
   }
 
 

@@ -2,28 +2,83 @@
     <div style="padding: 0px;">
 
       <!-- article title -->
-      <textarea type="text" [ngStyle]="style.title()" [(ngModel)]="article.title" #title></textarea>
+      <textarea 
+        placeholder="Article Title"
+      appAutosize rows="1" type="text" [ngStyle]="style.title()" [(ngModel)]="article.title" #title></textarea>
       
-      <!-- prefold editor-->
-      <div #prefoldToolbar>
-          <button class="ql-bold">Bold</button><button class="ql-italic">Italic</button>
+      <!-- META -->
+      <div style="font-family: 'Zilla Slab'; color: #888;" [ngStyle]="{'font-size.px': ui.responsiveValue(16, 18), 'line-height.px': ui.responsiveValue(24, 26)}">By
+          <a style="color: #888; text-decoration:none; border-bottom: 1px solid #aaa;" class="tabable" [routerLink]="['/', author.id]">{{ author.name }}</a> 
+          in 
+          <a style="color: #888; text-decoration:none; border-bottom: 1px solid #aaa;" class="tabable" [routerLink]="['/', author.id, publication.id]">{{ publication.name }}</a>
+          <span *ngIf="article.publishedAt"> {{ article.publishedAt | date:'MMMM y' }}</span>
+          <span *ngIf="!article.publishedAt" style="background: beige;"> draft </span>
       </div>
-      <div #prefoldEditor></div>
+      
+
+      <!-- space between meta and body -->
+      <div [style.height.px]="ui.responsiveValue(20, 30)"></div>
+
+
+      <!-- prefold editor -->
+      <div #prefoldEditor style="font-family: Zilla Slab;" [style.font-size.px]="ui.responsiveValue(18, 20)"></div>
 
       <!-- read on -->
-      <button (click)="article.state = article.state === 'expanded' ? 'collapsed' : 'expanded'">read on</button>
-
+      <button *ngIf="0" (click)="article.state = article.state === 'expanded' ? 'collapsed' : 'expanded'">read on</button>
+      <flex-row>
+        <span style="font-family: Zilla Slab; font-size: 20px; text-decoration: underline;"
+        [style.color]="article.state === 'expanded' ? 'white' : 'black'"
+        (click)="article.state = article.state === 'expanded' ? 'collapsed' : 'expanded'">
+        read on
+        </span>
+      </flex-row>
       
       <div [@articleState]="article.state">
         <!--  postfold editor -->
-        <div #postfoldToolbar>
-            <button class="ql-bold">Bold</button><button class="ql-italic">Italic</button>
-        </div>
-        <div #postfoldEditor></div>
+        <div #postfoldEditor style="font-family: Zilla Slab;" [style.font-size.px]="ui.responsiveValue(18, 20)"></div>
       </div>
+
+      <!-- if new -->
+      <div *ngIf="article.id === 'create-article'">
+        <button [ngStyle]="ui.styles.button(0.8)" (click)="save()">Save as Draft</button>
+        <button [ngStyle]="ui.styles.button(0.8)" (click)="save(true)">Save and Publish</button>
+      </div>
+      <!-- existing -->
+      <div *ngIf="article.id !== 'create-article'">
+        <button (click)="publish()" [ngStyle]="ui.styles.button(0.8)" *ngIf="!article.publishedAt">publish</button>
+        <button (click)="unpublish()" [ngStyle]="ui.styles.button(0.8)" *ngIf="article.publishedAt">unpublish</button>
+        <button (click)="delete()" [ngStyle]="ui.styles.button(0.8)">delete</button>
+      </div>
+
+      
       
     </div>
 
     <!-- comments (todo) -->
 
   </app-content-width>
+
+
+
+
+<!-- fixed top toolbars -->
+
+  <!-- prefold toolbar-->
+  <div #prefoldToolbar 
+  style="z-index: 2; background-color: rgba(255, 255, 255, 0.98); position:fixed; top: 47px; left: 0; width: 100%;" 
+  [style.display]="prefoldQuill?.hasFocus() ? 'block' : 'none'"
+>
+  <app-content-width style="">
+      <button class="ql-bold">Bold</button><button class="ql-italic">Italic</button>
+  </app-content-width>
+</div>
+
+<!-- postfold toolbar -->
+<div #postfoldToolbar 
+  style="z-index: 2; background-color: rgba(255, 255, 255, 0.98); position:fixed; top: 47px; left: 0; width: 100%;" 
+  [style.display]="postfoldQuill?.hasFocus() ? 'block' : 'none'"
+>
+    <app-content-width>
+      <button class="ql-bold">Bold</button><button class="ql-italic">Italic</button>
+    </app-content-width>
+</div>

@@ -1,0 +1,21 @@
+
+<app-content-width>
+  <h1 *ngIf="!publication">loading</h1>
+</app-content-width>
+
+<app-publication 
+  *ngIf="publication"
+  [author]="author" 
+  [publication]="publication"
+  (updatePublication)="save()"
+  >
+</app-publication>
+
+<div *ngIf="publication">
+
+    <button (click)="create()" *ngIf="publication.id === 'create-publication' && publication.name">create publication</button>
+    
+    <button *ngIf="publication.id !== 'create-publication'">delete publication xXx</button>
+    
+
+</div>

@@ -1,0 +1,30 @@
+<div *ngIf="!author">
+  <h1>loading</h1>
+</div>
+
+<div *ngIf="author">
+
+    <app-author 
+      (createAuthor)="createAuthor()"
+      (updateAuthor)="updateAuthor()"
+      (deleteAuthor)="deleteAuthor()"
+      [author]="author"></app-author>
+
+      <a [routerLink]="['create-publication']">start new publication</a>
+
+
+
+    <div *ngFor="let publication of author.publications">
+
+      <app-publication  [author]="author" [publication]="publication"
+        [editable]="false"
+      ></app-publication>
+
+      <div *ngFor="let article of publication.articles">
+        <app-article [article]="article" [author]="author" [publication]="publication"></app-article>
+        <div style="height: 100px;"></div>
+        <div style="border-top: 1px dashed gray;"></div>
+      </div>
+    </div>
+
+  </div>
