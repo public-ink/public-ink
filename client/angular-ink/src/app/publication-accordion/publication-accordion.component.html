@@ -1,0 +1,12 @@
+
+state {{ accordionState }}
+<button (click)="accordionState = 'compact'">compact</button>
+<button (click)="accordionState = 'expanded'">expand</button>
+
+
+<flex-col-left-center [@accordionAnimation]="accordionState" style="background-color: lime">
+
+  <h1 class="name">Such Pub</h1>
+  <div class="about" >such child</div>
+
+</flex-col-left-center>

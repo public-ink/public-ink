@@ -43,7 +43,7 @@ export class AuthorPageComponent implements OnInit {
       } else if (this.author && this.author.id === authorID) {
         // not reloading because we have this author (after create)
       } else {
-        // load that author!
+        // load that author! (can skip the JSON stuff?) yep.
         this.backend.loadAuthor(authorID).subscribe((reply: any) => {
           this.author = reply.data.author
         })

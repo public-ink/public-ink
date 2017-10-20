@@ -1,0 +1,30 @@
+<button (click)="setAccordionState('expanded')">expand</button>
+<button (click)="setAccordionState('compact')">compact</button>
+<button (click)="setAccordionState('hidden')">hide</button>
+state: {{ author.accordionState }} (container: {{ containerHeight}}, about: {{ aboutHeight }})
+<br>
+
+
+<div #container [style.height.px]="containerHeight" style="overflow: hidden;">
+
+  <h1 [style.height.px]="titleHeight" #title style="overflow: hidden;">{{ author.name }}</h1>
+
+  <div [style.height.px]="aboutHeight" #about style="overflow: hidden;">
+    <textarea 
+      [style.opacity]="aboutOpacity"
+      [ngStyle]="style.about()"
+      appAutosize
+    >{{ author.about }}</textarea>
+  </div>
+
+  <button style="background-color:lime;">The author accoridng controls publications!</button>
+
+</div>
+
+
+
+
+
+
+
+

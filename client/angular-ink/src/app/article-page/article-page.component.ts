@@ -4,7 +4,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router'
 
 // ink
 import { BackendService, Author, Publication, Article } from '../backend.service'
-
+import { UIService } from '../ui.service'
 
 @Component({
   selector: 'app-article-page',
@@ -28,7 +28,8 @@ export class ArticlePageComponent implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     // ink
-    private backend: BackendService,
+    public backend: BackendService,
+    public ui: UIService,
   ) { }
 
   ngOnInit() {
@@ -47,8 +48,10 @@ export class ArticlePageComponent implements OnInit {
             id: 'create-article',
             title: '',
             prefoldJSON: '{}',
+            prefoldHTML: '',
             postfoldJSON: '{}',
-            state: '',
+            postfoldHTML: '',
+            new: true,
           }
         })
 
@@ -63,6 +66,37 @@ export class ArticlePageComponent implements OnInit {
           this.publication = this.article.publication
         })
       }
+    })
+  }
+
+  // new methods
+  /** excplicitly create (with or without publishing) */
+  save(publish = false) {
+    this.backend.saveArticle(this.author.id, this.publication.id, this.article).subscribe(res => {
+      console.log('article component saved explicityl', res)
+      this.article = res.data.saveArticle.article
+      this.router.navigate(['/', this.authorID, this.publication.id, this.article.id])
+    })
+  }
+
+  update() {}
+
+  publish() {
+    this.backend.publishArticle(this.author.id, this.publication.id, this.article.id).subscribe(res => {
+      console.log(res)
+      this.article = res.data.publishArticle.article
+    })
+  }
+  unpublish() {
+    this.backend.publishArticle(this.author.id, this.publication.id, this.article.id, true).subscribe(res => {
+      console.log(res)
+      this.article = res.data.publishArticle.article
+    })
+  }
+
+  delete() {
+    this.backend.deleteArticle(this.author.id, this.publication.id, this.article.id).subscribe(res => {
+      console.log('article cmp delte article', res)
     })
   }
 

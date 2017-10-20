@@ -1,6 +1,8 @@
 // ng
-import { Component, OnInit, Input, Output, ViewChild, ElementRef, EventEmitter } from '@angular/core'
+import { Component, OnInit, AfterViewInit, Input, Output, ViewChild, ElementRef, EventEmitter } from '@angular/core'
 import { Router } from '@angular/router'
+import { trigger, state, style, transition, animate } from '@angular/animations'
+
 
 // rx
 import { Observable } from 'rxjs/Observable'
@@ -8,14 +10,28 @@ import { Observable } from 'rxjs/Observable'
 // ink
 import { BackendService, Author } from '../backend.service'
 import { UIService } from '../ui.service'
+import { AnimationService } from '../animation.service'
 
 
 @Component({
   selector: 'app-author',
   templateUrl: './author.component.html',
-  styleUrls: ['./author.component.css']
+  animations: [
+    trigger('cozyState', [
+      state('cozy', style({
+        height: '*',
+        opacity: 1,
+      })),
+      state('compact', style({
+        height: 0,
+        opacity: 0,
+      })),
+      transition('cozy => compact', animate('200ms ease-in')),
+      transition('compact => cozy', animate('200ms ease-in')),
+    ])
+  ],
 })
-export class AuthorComponent implements OnInit {
+export class AuthorComponent implements OnInit, AfterViewInit {
 
   @Input('author') author: Author
   @Input('editable') editable: Boolean
@@ -55,9 +71,13 @@ export class AuthorComponent implements OnInit {
         'border': 0,
         'text-align': 'left',
         'width.%': 100,
-        'font-family': 'Zillo Slab, serif'
+        'font-family': 'Zilla Slab, serif'
       }
     },
+  }
+
+  test = {
+    jo: 100
   }
 
   constructor(
@@ -66,6 +86,7 @@ export class AuthorComponent implements OnInit {
     // ink
     public backend: BackendService,
     public ui: UIService,
+    public animation: AnimationService,
   ) { }
 
   ngOnInit() {
@@ -78,6 +99,16 @@ export class AuthorComponent implements OnInit {
         }
       })
     }
+    this.animation.animateValue('linear', 1000, 100, 5, this.test, 'jo', () => {})
+
+  }
+
+  ngAfterViewInit() {
+    this.hide()
+  }
+  hide() {
+    const aboutHeight = this.about.nativeElement.scrollHeight
+    console.log(aboutHeight, this.about.nativeElement)
   }
 
 

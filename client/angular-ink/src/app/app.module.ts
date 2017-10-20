@@ -21,9 +21,16 @@ import { ArticlePageComponent } from './article-page/article-page.component';
 import { PublicationComponent } from './publication/publication.component';
 import { ArticleComponent } from './article/article.component'
 
+// animation examples
+import { DashboardComponent } from './dashboard'
+import { ProfileDetailsComponent } from './profile-details'
+import { ProfileStatsComponent } from './profile-stats'
+
 // ink services
 import { UIService } from './ui.service'
 import { BackendService } from './backend.service'
+import { AnimationService } from './animation.service'
+
 
 // ink pipes
 import { StringifyPipe } from './stringify.pipe'
@@ -33,6 +40,9 @@ import { FileDropComponent } from './file-drop/file-drop.component'
 // ink directives
 import { AutosizeDirective } from './autosize.directive';
 import { PublicationPageComponent } from './publication-page/publication-page.component';
+import { AuthorAccordionComponent } from './author-accordion/author-accordion.component';
+import { AnitestComponent } from './anitest/anitest.component';
+import { PublicationAccordionComponent } from './publication-accordion/publication-accordion.component';
 
 // routes (ZERO)
 const appRoutes: Routes = [
@@ -59,7 +69,14 @@ const appRoutes: Routes = [
     AuthorPageComponent,
     HomePageComponent,
     PublicationPageComponent,
-    ArticlePageComponent
+    ArticlePageComponent,
+    AuthorAccordionComponent,
+    AnitestComponent,
+    PublicationAccordionComponent,
+
+    DashboardComponent,
+    ProfileDetailsComponent,
+    ProfileStatsComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),
@@ -71,8 +88,9 @@ const appRoutes: Routes = [
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [
-    BackendService,
     UIService,
+    BackendService,
+    AnimationService,
   ],
   bootstrap: [AppComponent],
 

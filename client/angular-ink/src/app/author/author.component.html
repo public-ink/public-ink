@@ -1,16 +1,15 @@
 <app-content-width>
 
   <div style="height: 50px;"></div>
-
-  editable? {{ editable }}, new? {{ author.new }}
+  <h1 (click)="hide()">  {{ test.jo }}</h1>
 
   <flex-row>
     <!-- name -->
-    <textarea 
+    <textarea (click)="hide()"
       #name 
       rows="1" 
       appAutosize 
-      [(ngModel)]="author.name" 
+      [(ngModel)]="author.name"
       [disabled]="!author.new || !editable"
       [ngStyle]="style.name()"
       placeholder="Author Name" 
@@ -18,7 +17,7 @@
   </flex-row>
 
   <!-- about -->
-  <flex-col>
+  <flex-col [ngStyle]="{'height.px': '*', 'background': 'lime'}">
     <textarea 
       #about 
       rows="1"

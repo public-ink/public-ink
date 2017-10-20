@@ -70,12 +70,15 @@ export class PublicationPageComponent implements OnInit {
 
   delete() {
     // todo: confirm
+    alert('deleting!!')
     this.backend.deletePublication(this.author.id, this.publication.id).subscribe(res => {
       console.log('delete publication?', res)
       // hide, mark deleted or whatever.
       if (res.data.deletePublication.success) {
         // remove from account - with animation would be nice
         // this.deleted = true
+        console.warn('todo: remove publication from account.')
+        this.router.navigate(['/', this.authorID])
       }
     })
   }

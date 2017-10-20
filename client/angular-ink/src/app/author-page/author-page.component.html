@@ -14,12 +14,22 @@
 
 
       <!-- create / cancel if new -->
-    <flex-row-center >
+    <app-content-width >
       <button *ngIf="author.new" [ngStyle]="ui.styles.button()" (click)="createAuthor()">Create Author</button> &nbsp;
-      <button [ngStyle]="ui.styles.button()" (click)="deleteAuthor()">delete author</button>
-      <button [ngStyle]="ui.styles.button()" [routerLink]="['create-publication']">new publication</button>
+      
+      <!-- new publication -->
+      <br>
+      <span 
+        style="display: inline-block; border-radius: 3px; color: #333; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid #333;"
+      [routerLink]="['create-publication']">new publication</span>
+      <span (click)="deleteAuthor()"
+      style="display: inline-block; border-radius: 3px; color: #333; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid #333;"
+    [routerLink]="['create-publication']">x</span>
+
+
+      <br><br>
     
-    </flex-row-center>
+    </app-content-width>
 
       
 
@@ -34,13 +44,17 @@
       ></app-publication>
 
       <div *ngFor="let article of publication.articles">
+        <!-- <app-content-width draggable>
+          <h1>{{ article.title }} </h1>
+        </app-content-width> -->
         <app-article 
           [article]="article" 
           [author]="author" 
           [publication]="publication"
           [editable]="false"
+          [expanded]="'collapsed'"
           >
-        </app-article>
+      </app-article>
         <div style="height: 100px;"></div>
         <div style="border-top: 1px dashed gray;"></div>
       </div>

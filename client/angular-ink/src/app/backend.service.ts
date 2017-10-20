@@ -16,7 +16,9 @@ const fragments = {
       id
       title
       prefoldJSON
+      prefoldHTML
       postfoldJSON
+      postfoldHTML
       publishedAt
     }
   `,
@@ -94,6 +96,8 @@ export interface Author {
   imageURL: string
   publications?: Publication[]
   new?: boolean
+  // frontend only
+  accordionState?: 'hidden' | 'compact' | 'expanded'
 }
 
 export interface Publication {
@@ -110,11 +114,14 @@ export interface Article {
   id: string
   title: string
   prefoldJSON: string
+  prefoldHTML: string
   postfoldJSON: string
-  // collpased or expanded
-  state: string
+  postfoldHTML: string
+  publishedAt?: number
   author?: Author
   publication?: Publication
+  // should not be on article itself, but passed to component
+  new?: boolean
 }
 
 interface CreateAccountResponse {
@@ -200,7 +207,9 @@ interface SaveArticleResponse {
         id
         title
         prefoldJSON
+        prefoldHTML
         postfoldJSON
+        postfoldHTML
         publishedAt
       }
     }
@@ -219,7 +228,9 @@ interface PublishArticleResponse {
         id
         title
         prefoldJSON
+        prefoldHTML
         postfoldJSON
+        postfoldHTML
         publishedAt
       }
     }
@@ -347,13 +358,12 @@ export class BackendService {
       const account: Account = reply.account
       if (info.success ) {
         this.account = account
+        // set initial visibility state
         for (const author of this.account.authors) {
-          for (const pub of author.publications) {
-            for (const art of pub.articles) {
-              art.state = 'collapsed'
-            }
-          }
+          author.accordionState = 'expanded'
         }
+
+
         localStorage.setItem('jwt', this.account.jwt)
         loginSubject.next(info)
         // new: load images
@@ -461,7 +471,9 @@ export class BackendService {
       articleID: article.id,
       title: article.title,
       prefoldJSON: article.prefoldJSON,
+      prefoldHTML: article.prefoldHTML,
       postfoldJSON: article.postfoldJSON,
+      postfoldHTML: article.postfoldHTML,
     }
     this.loading = true
     this.http.post(api_url, {query: query, variables: variables}).map(res => {
@@ -474,7 +486,7 @@ export class BackendService {
     return saveSubject
   }
 
-  publishArticle(authorID: string, publicationID: string, articleID: Article, unpublish = false): Subject<PublishArticleResponse> {
+  publishArticle(authorID: string, publicationID: string, articleID: string, unpublish = false): Subject<PublishArticleResponse> {
     const saveSubject = new Subject<PublishArticleResponse>()
     const jwt = localStorage.getItem('jwt')
     const query = `
@@ -632,8 +644,8 @@ export class BackendService {
           articles {
             id
             title
-            prefoldJSON
-            postfoldJSON
+            prefoldHTML
+            postfoldHTML
             publishedAt
           }
         }
@@ -674,15 +686,19 @@ export class BackendService {
     return loadSubject
   }
 
+  /** todo: check what we're loading here and why */
   loadArticle(authorID: string, publicationID: string, articleID: string) {
     const loadSubject = new Subject()
     const query = `
     {
       article(authorID: "${authorID}", publicationID: "${publicationID}", articleID: "${articleID}") {
         article {
+          id
           title
           prefoldJSON
+          prefoldHTML
           postfoldJSON
+          postfoldHTML
           publishedAt
           publication {
             id
@@ -690,6 +706,7 @@ export class BackendService {
           }
           author {
             id
+            name
           }
         }
       }

@@ -1,7 +1,23 @@
 
-<div style="height: 100px;">
+<div style="height: 100px;"></div>
 
-</div>
+
+<app-content-width *ngIf="backend.account">
+  <div *ngFor="let author of backend.account.authors">
+    <h1>{{ author.name }}</h1>
+    <p>{{ author.about }}</p>
+
+    <div *ngFor="let publication of author.publications" style="margin-top: 5px; padding: 15px; color: white; background: #333;">
+      - {{ publication.name}}
+      <div *ngFor="let article of publication.articles" style="background: white; color: black;">
+        --  {{ article.title }}
+      </div>
+    </div>
+  </div>
+
+</app-content-width>
+
+
 
 <!-- ACCOUNT INFO AND LOGOUT LINK -->
 <app-content-width *ngIf="backend.account">
@@ -11,13 +27,22 @@
         <span style="text-decoration:none;" (click)="logout()">log out</span></div>
 
         <h2>you have these authors</h2>
-        <div *ngFor="let author of backend.account?.authors">
-          <a [routerLink]="['/', author.id]">{{ author.name }}</a>
-        </div>
+
+
+          <flex-row  *ngFor="let author of backend.account?.authors"
+          style="margin-bottom: 10px; width: 200px; background-color: #333; color: white; padding: 10px 20px; transform: skew(-20deg);"
+          [routerLink]="['/', author.id]">
+          <span style="transform: skew(20deg);">{{ author.name }}</span>
+        </flex-row>
 
       <a [routerLink]="['/create-author']">create author</a>
     </flex-col>
 </app-content-width>
+
+
+<!-- here we make an according! super simple! -->
+
+
 
 
 <!-- FORMS -->

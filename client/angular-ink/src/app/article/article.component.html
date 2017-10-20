@@ -1,16 +1,23 @@
 <app-content-width>
-    <div style="padding: 0px;">
 
+    <h1>{{ cozyState }} {{ publication.cozyState }}</h1>
       <!-- article title -->
       <textarea 
+        #title
         *ngIf="editable"
         placeholder="Article Title"
-      appAutosize rows="1" type="text" [ngStyle]="style.title()" [(ngModel)]="article.title" #title></textarea>
+        appAutosize rows="1" 
+        type="text" 
+        [ngStyle]="style.title()" 
+        [(ngModel)]="article.title" 
+      ></textarea>
       
 
-      <h1 *ngIf="!editbale"
+      <h1 *ngIf="!editable"
         [routerLink]="['/', author.id, publication.id, article.id]"
       >{{ article.title }}</h1>
+
+
 
       <!-- META -->
       <div style="font-family: 'Zilla Slab'; color: #888;" [ngStyle]="{'font-size.px': ui.responsiveValue(16, 18), 'line-height.px': ui.responsiveValue(24, 26)}">By
@@ -29,38 +36,25 @@
 
 
       <!-- prefold editor -->
-      <div #prefoldEditor style="font-family: Zilla Slab;" [style.font-size.px]="ui.responsiveValue(18, 20)"></div>
+      <div #prefoldEditor *ngIf="editable" [ngStyle]="style.body()"></div>
+      <div #prefoldHTML  *ngIf="!editable" [ngStyle]="style.body()" [innerHTML]="safeHTML(article.prefoldHTML)" ></div>
 
       <!-- read on -->
-      <button *ngIf="0" (click)="article.state = article.state === 'expanded' ? 'collapsed' : 'expanded'">read on</button>
-      <flex-row>
+      <flex-row style="margin:20px 0px;" *ngIf="expanded === 'collapsed' && article.postfoldHTML">
         <span style="font-family: Zilla Slab; font-size: 20px; text-decoration: underline;"
         [style.color]="article.state === 'expanded' ? 'white' : 'black'"
-        (click)="article.state = article.state === 'expanded' ? 'collapsed' : 'expanded'">
+        (click)="expanded = expanded === 'expanded' ? 'collapsed' : 'expanded'">
         read on
         </span>
       </flex-row>
       
-      <div [@articleState]="article.state">
+      <div [@articleState]="expanded" style="overflow:hidden;">
         <!--  postfold editor -->
-        <div #postfoldEditor style="font-family: Zilla Slab;" [style.font-size.px]="ui.responsiveValue(18, 20)"></div>
-      </div>
-
-      <!-- if new -->
-      <div *ngIf="article.id === 'create-article'">
-        <button [ngStyle]="ui.styles.button(0.8)" (click)="save()">Save as Draft</button>
-        <button [ngStyle]="ui.styles.button(0.8)" (click)="save(true)">Save and Publish</button>
-      </div>
-      <!-- existing -->
-      <div *ngIf="article.id !== 'create-article'">
-        <button (click)="publish()" [ngStyle]="ui.styles.button(0.8)" *ngIf="!article.publishedAt">publish</button>
-        <button (click)="unpublish()" [ngStyle]="ui.styles.button(0.8)" *ngIf="article.publishedAt">unpublish</button>
-        <button (click)="delete()" [ngStyle]="ui.styles.button(0.8)">delete</button>
-      </div>
-
+        <div #postfoldEditor *ngIf="editable" [ngStyle]="style.body()"></div>
+        <div #postfoldHTML  *ngIf="!editable" [ngStyle]="style.body()" [innerHTML]="safeHTML(article.postfoldHTML)">
+        </div>
       
-      
-    </div>
+      </div>
 
     <!-- comments (todo) -->
 
@@ -77,7 +71,7 @@
   [style.display]="prefoldQuill?.hasFocus() ? 'block' : 'none'"
 >
   <app-content-width style="">
-      <button class="ql-bold">Bold</button><button class="ql-italic">Italic</button>
+      <button class="ql-bold">Bold</button><button class="ql-italic">Italic</button> pre
   </app-content-width>
 </div>
 
@@ -87,6 +81,6 @@
   [style.display]="postfoldQuill?.hasFocus() ? 'block' : 'none'"
 >
     <app-content-width>
-      <button class="ql-bold">Bold</button><button class="ql-italic">Italic</button>
+      <button class="ql-bold">Bold</button><button class="ql-italic">Italic</button> post
     </app-content-width>
 </div>

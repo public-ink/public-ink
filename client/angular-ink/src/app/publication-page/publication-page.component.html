@@ -7,7 +7,7 @@
   *ngIf="publication"
   [author]="author" 
   [publication]="publication"
-  [editable]="publication.new || backend.isOwner(author.id)"
+  [editable]="publication.new || backend.isOwner(authorID)"
   (updatePublication)="save()"
   >
 </app-publication>
@@ -21,7 +21,9 @@
       [disabled]="!publication.name"
       >create publication</button>
     
-    <button *ngIf="publication.id !== 'create-publication'">delete publication xXx</button>
+    <button 
+      (click)="delete()"
+    *ngIf="publication.id !== 'create-publication'">delete publication xXx</button>
     
 
 </div>

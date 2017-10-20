@@ -14,13 +14,13 @@
 <app-content-width 
   [ngStyle]="styles.topBar()">
   <flex-row >
-      <app-logo *ngIf="!backend.loading" 
+      <app-logo
       [routerLink]="['/']"
       [size]="10"
       [bg]="'lime'"
       [negative]="'transparent'"
       ></app-logo>
-      <div style="padding:10px; font-size: 16px; font-weight: bold;"></div>
+      <div *ngIf="backend.loading" style="padding:10px; font-size: 16px; font-weight: bold;">loading!</div>
   </flex-row>
 </app-content-width>
 

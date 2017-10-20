@@ -16,6 +16,15 @@
 
       <flex-row>
         <flex-col style="flex-grow: 1;">
+
+          <!-- name inline -->
+          <div 
+          [ngStyle]="styles.name()"
+          style="overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          ">{{ publication.name }} {{ publication.name }}</div>
+
           <!-- Name  STATIC -->
           <a class="tabable" [routerLink]="['/', author.id, publication.id]" *ngIf="!editable" [ngStyle]="styles.name()" [style.cursor]="'pointer'">
             {{ publication.name }}
@@ -52,14 +61,9 @@
        
         <!-- buttons -->
         <flex-row style="margin-top: 5vh;" *ngIf="publication.id !== 'create-publication'">
-          <span [ngStyle]="styles.button()" [routerLink]="['/', author.id, publication.id, 'create-article']">start new article</span>
+          <span [ngStyle]="styles.button()" [routerLink]="['/', author.id, publication.id, 'create-article']">new article</span>
+          <span [ngStyle]="styles.button()" (click)="cozyState = cozyState === 'cozy' ? 'compact' : 'cozy'">cozy | compact {{ cozyState }}</span>
 
-          <!--
-            &nbsp;&nbsp;
-            <span (click)="delete()" [ngStyle]="styles.button()">delete</span>
-            &nbsp;&nbsp;
-            <span [ngStyle]="styles.button()" >...</span>
-            -->
         </flex-row>
 
         
@@ -71,5 +75,8 @@
 
     </app-content-width>
     </div>
+
+
+    
 
 </div>

@@ -1,0 +1,17 @@
+
+
+<!-- <flex-col-center-center style="height: 30vh; background-color: blue" [@authorState]="author.accordionState">
+  
+  <div>TESTINGG</div>
+  <div >please <br>hide me!</div>
+
+    
+</flex-col-center-center> -->
+
+<button (click)="author.accordionState = 'test'">test inner animation</button>
+
+<div #container [@authorState]="author.accordionState">
+
+  <div id="inner" class="inner" #inner >My font-size depends on some state {{ author.accordionState }}</div>
+
+</div>

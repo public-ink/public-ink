@@ -5,4 +5,25 @@
 *ngIf="article"
 [article]="article"
 [author]="author"
-[publication]="publication"></app-article>
+[publication]="publication"
+[editable]="backend.isOwner(author.id)"
+></app-article>
+
+
+<app-content-width *ngIf="article">
+  
+  <!-- if new -->
+  <div *ngIf="article.new">
+    <button [ngStyle]="ui.styles.button(0.8)" (click)="save()">Create as Draft</button>
+    <button [ngStyle]="ui.styles.button(0.8)" (click)="save(true)">Create and Publish</button>
+  </div>
+
+  <!-- existing -->
+  <div *ngIf="backend.isOwner(author.id) && !article.new">
+    <button (click)="save()" [ngStyle]="ui.styles.button(0.8)">save (update)</button>        
+    <button (click)="publish()" [ngStyle]="ui.styles.button(0.8)" *ngIf="!article.publishedAt">publish</button>
+    <button (click)="unpublish()" [ngStyle]="ui.styles.button(0.8)" *ngIf="article.publishedAt">unpublish</button>
+    <button (click)="delete()" [ngStyle]="ui.styles.button(0.8)">delete</button>
+  </div>
+
+</app-content-width>

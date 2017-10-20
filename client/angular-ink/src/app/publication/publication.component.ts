@@ -1,6 +1,8 @@
 // ng
 import { Component, OnInit, AfterViewInit, Input, Output, ViewChild, ElementRef, EventEmitter } from '@angular/core'
 import { DomSanitizer } from '@angular/platform-browser'
+import { trigger, state, style, transition, animate } from '@angular/animations'
+
 
 // rx
 import { Observable } from 'rxjs/Observable'
@@ -17,7 +19,9 @@ import {Author, Publication, SavePublicationResponse} from '../backend.service'
 @Component({
   selector: 'app-publication',
   templateUrl: './publication.component.html',
-  styleUrls: ['./publication.component.css']
+  animations: [
+    
+  ]
 })
 export class PublicationComponent implements OnInit, AfterViewInit {
 
@@ -29,6 +33,9 @@ export class PublicationComponent implements OnInit, AfterViewInit {
   @ViewChild('about') about: ElementRef
 
   @Output() updatePublication = new EventEmitter()
+
+  // cozy or compact! as string
+  cozyState = 'cozy'
 
   styles = {
     name: () => {

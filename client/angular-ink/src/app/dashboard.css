@@ -1,0 +1,39 @@
+.title {
+  color: white;
+  font-weight: bold;
+  margin-right: auto;
+}
+
+header {
+  height: 40px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  background-color: #272727;
+  padding: 0.5em 1em;
+}
+
+.profile-button {
+  width: 40px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.image-container {
+  display: flex;
+  align-items: center;
+}
+
+.image-container:hover:before {
+  opacity: 1;
+  transform: translateX(-10px);
+}
+
+.image-container:before {
+  display: inline-block;
+  content: attr(data-tooltip);
+  color: white;
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity .2s ease, transform .2s ease;
+}
