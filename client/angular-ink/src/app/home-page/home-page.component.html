@@ -1,42 +1,4 @@
-<div style="height: 80vh; border: 1px solid black;">
-
-
-    <!-- <dashboard></dashboard> -->
-  <app-publication-accordion></app-publication-accordion>
-
-</div>
-
-
-
-
-
-
-<h1>animation test</h1>
-<button *ngIf="backend.account" (click)="backend.account.authors[0].accordionState ='compact'">compact animation test</button>
-<button *ngIf="backend.account" (click)="backend.account.authors[0].accordionState ='expanded'">expand animation test</button>
-
-<app-anitest *ngIf="backend.account"
-  [author]="backend.account.authors[0]"
-></app-anitest>
-
-<div *ngIf="backend.account">
-
-  <button (click)="authorState = 'expanded'">expand them authors</button>
-  <button (click)="compactAuthors()">compact them authors!</button>
-  <button (click)="authorState = 'hidden'">hidem them authors</button>
-
-  <app-author-accordion *ngFor="let author of backend.account.authors"
-    [author]="author"
-    [state]="authorState"
-  ></app-author-accordion>
-
-</div>
-
-
-
 <app-content-width>
-
-
 
   <h1>welcome to public.ink</h1>
   <p>public.ink is an experimental ethical online enterprise.

@@ -87,6 +87,8 @@ interface Account {
   jwt: string
   authors: Author[]
   images: Image[]
+  // fontend only
+  accordionState?: 'hidden' | 'compact' | 'expanded'
 }
 
 export interface Author {
@@ -108,6 +110,8 @@ export interface Publication {
   articles?: Article[]
   author?: Author
   new?: boolean
+  // frontend only
+  accordionState?: 'hidden' | 'compact' | 'expanded'
 }
 
 export interface Article {
@@ -122,6 +126,7 @@ export interface Article {
   publication?: Publication
   // should not be on article itself, but passed to component
   new?: boolean
+  accordionState?: 'hidden' | 'compact' | 'expanded'
 }
 
 interface CreateAccountResponse {
@@ -357,11 +362,15 @@ export class BackendService {
       const info: Info = reply.info
       const account: Account = reply.account
       if (info.success ) {
+        account.accordionState = 'compact'
         this.account = account
         // set initial visibility state
-        for (const author of this.account.authors) {
+       /*  for (const author of this.account.authors) {
           author.accordionState = 'expanded'
-        }
+          for (let publication of author.publications) {
+            publication.accordionState = 'compact'
+          }
+        } */
 
 
         localStorage.setItem('jwt', this.account.jwt)
@@ -373,6 +382,14 @@ export class BackendService {
       }
     })
     return loginSubject
+  }
+
+  /**
+   *  Logout
+   */
+  logout() {
+    this.account = undefined
+    localStorage.removeItem('jwt')
   }
 
   requestResetPasswordLink(...args) {
@@ -655,6 +672,14 @@ export class BackendService {
     this.http.post(api_url, {query: query}).delay(500).map(res => {
       return res.json()
     }).subscribe((result: any) => {
+      const author = result.data.author
+      author.accordionState = 'expanded'
+      for (const publication of author.publications) {
+        publication.accordionState = 'expanded'
+        for (const article of publication.articles) {
+          article.accordionState = 'expanded'
+        }
+      }
       loadSubject.next(result)
     })
     return loadSubject

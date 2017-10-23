@@ -1,4 +1,7 @@
 <div style="height: 100px;"></div>
+<!-- more space :) -->
+<div [@hideAnimation]="backend.account?.accordionState" style="color: white;">{{ backend.account?.accordionState }}<br>jo<br><br></div>
+
 <router-outlet></router-outlet>
 
 <!-- overlay -->
@@ -14,19 +17,40 @@
 <app-content-width 
   [ngStyle]="styles.topBar()">
   <flex-row >
-      <app-logo
-      [routerLink]="['/']"
-      [size]="10"
-      [bg]="'lime'"
-      [negative]="'transparent'"
-      ></app-logo>
-      <div *ngIf="backend.loading" style="padding:10px; font-size: 16px; font-weight: bold;">loading!</div>
-  </flex-row>
+      <flex-row style="flex-grow: 1;">
+          <app-logo
+          [routerLink]="['/']"
+          [size]="10"
+          [bg]="'lime'"
+          [negative]="'transparent'"
+          ></app-logo>
+          <div *ngIf="backend.loading" style="padding:10px; font-size: 16px; font-weight: bold;">loading!</div>
+      
+      </flex-row>
+      <app-arrow *ngIf="backend.account" (click)="toggleAccount()" [accordionState]="backend.account.accordionState"></app-arrow>
+    </flex-row>
+    <flex-col *ngIf="backend.account" [@hideAnimation]="backend.account.accordionState">
+       
+        <br><br>
+            <div style="color: gray;"><span >You are logged in with {{ backend.account.email }} /</span>
+              <span style="text-decoration:none;" (click)="backend.logout()">log out</span></div>
+      
+      
+      
+                <flex-col *ngFor="let author of backend.account?.authors" [routerLink]="['/', author.id]">
+                  <div style="width: 100px; height: 100px;">
+                    <img [src]="author.imageURL" style="width: 100px; height: 100px; border-radius: 100%;"/>
+                  </div>
+                  <span>{{ author.name }}</span>
+              </flex-col>
+      
+            <a [routerLink]="['/create-author']">create author</a>
+    </flex-col>
 </app-content-width>
 
 <!-- media bar -->
-<flex-row *ngIf="ui.mediaBar" style="width: 100%; overflow-x: scroll; position: fixed; bottom: 0; left: 0; background-color: #222; padding: 5px;">
-
+<flex-row *ngIf="ui.mediaBar" style="color: white; width: 100%; overflow-x: scroll; position: fixed; bottom: 0; left: 0; background-color: #222; padding: 5px;">
+{{ ui.beingDragged }}
 
 
 <app-file-drop></app-file-drop>

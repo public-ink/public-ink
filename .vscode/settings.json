@@ -1,0 +1,3 @@
+{
+	"typescript.tsdk": "./client/angular/node_modules/typescript/lib",
+}

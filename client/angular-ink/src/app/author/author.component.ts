@@ -17,8 +17,17 @@ import { AnimationService } from '../animation.service'
   selector: 'app-author',
   templateUrl: './author.component.html',
   animations: [
-    trigger('cozyState', [
-      state('cozy', style({
+    trigger('arrowAnimation', [
+      state('expanded', style({
+        transform: 'rotate(225deg)'
+      })),
+      state('compact', style({
+        transform: 'rotate(135deg)'
+      })),
+      transition('expanded <=> compact', animate('200ms ease-in')),
+    ]),
+    trigger('hideAnimation', [
+      state('expanded', style({
         height: '*',
         opacity: 1,
       })),
@@ -26,12 +35,13 @@ import { AnimationService } from '../animation.service'
         height: 0,
         opacity: 0,
       })),
-      transition('cozy => compact', animate('200ms ease-in')),
-      transition('compact => cozy', animate('200ms ease-in')),
+      transition('expanded <=> compact', animate('200ms ease-in')),
     ])
   ],
 })
 export class AuthorComponent implements OnInit, AfterViewInit {
+
+  accordionState = 'compact'
 
   @Input('author') author: Author
   @Input('editable') editable: Boolean
@@ -43,6 +53,8 @@ export class AuthorComponent implements OnInit, AfterViewInit {
   @Output() deleteAuthor = new EventEmitter()
 
   badgeSize = 180
+
+  publicationAccordionState = 'expanded'
 
   style = {
     badge: () => {
@@ -61,6 +73,8 @@ export class AuthorComponent implements OnInit, AfterViewInit {
         'border': 0,
         'text-align': 'left',
         'margin-bottom.px': 50,
+        'color': 'white',
+        'background': 'black',
       }
     },
     about: () => {
@@ -76,9 +90,7 @@ export class AuthorComponent implements OnInit, AfterViewInit {
     },
   }
 
-  test = {
-    jo: 100
-  }
+  
 
   constructor(
     // ng
@@ -99,16 +111,22 @@ export class AuthorComponent implements OnInit, AfterViewInit {
         }
       })
     }
-    this.animation.animateValue('linear', 1000, 100, 5, this.test, 'jo', () => {})
-
   }
 
   ngAfterViewInit() {
-    this.hide()
   }
-  hide() {
+  getAboutHeight() {
     const aboutHeight = this.about.nativeElement.scrollHeight
-    console.log(aboutHeight, this.about.nativeElement)
+  }
+
+  toggleAuthor() {
+    this.author.accordionState = this.author.accordionState === 'compact' ? 'expanded' : 'compact'
+    for (const publication of this.author.publications) {
+      publication.accordionState = this.author.accordionState
+      for (const article of publication.articles) {
+        article.accordionState = this.author.accordionState
+      }
+    }
   }
 
 

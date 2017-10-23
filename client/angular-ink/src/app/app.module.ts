@@ -43,6 +43,7 @@ import { PublicationPageComponent } from './publication-page/publication-page.co
 import { AuthorAccordionComponent } from './author-accordion/author-accordion.component';
 import { AnitestComponent } from './anitest/anitest.component';
 import { PublicationAccordionComponent } from './publication-accordion/publication-accordion.component';
+import { ArrowComponent } from './arrow/arrow.component';
 
 // routes (ZERO)
 const appRoutes: Routes = [
@@ -77,6 +78,7 @@ const appRoutes: Routes = [
     DashboardComponent,
     ProfileDetailsComponent,
     ProfileStatsComponent,
+    ArrowComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),

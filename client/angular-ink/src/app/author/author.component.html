@@ -1,31 +1,88 @@
-<app-content-width>
+<app-content-width
+  (dragover)="onDragOver($event)"
+  (drop)="onDrop()"
+>
 
-  <div style="height: 50px;"></div>
-  <h1 (click)="hide()">  {{ test.jo }}</h1>
+  <flex-col-center-center>
+    
+      <span style="border-radius: 100%; padding: 15px; border: 1px dotted #ccc;">
+        <img style="border-radius: 100%;" [src]="author.imageURL"/>
+      </span>
+      <h1>{{ author.name }}</h1>
+
+  </flex-col-center-center>
+
+  <!-- <div style="height: 50px; text-align:right; position:relative;">
+    <img style="position: absolute; top: 0; right: 50px; z-index: 2; border-radius: 100%;" src="http://localhost:8080/api/image/serve?key=22sExvnnmUr63sHzej777g==&w=150&h=150" />
+  </div>
+
+
+  <flex-row>
+    <flex-row style="z-index: 1; font-size: 35px; margin-bottom: 10px; width: 100%; background-color: #333; color: white; padding: 10px 20px; transform: skew(-0deg);">
+      <div style="flex-grow: 1">{{ author.name }}</div> 
+      <app-arrow [color]="'rgba(255, 255, 255, 0.8)'" [accordionState]="author.accordionState" (click)="toggleAuthor()"></app-arrow>
+    </flex-row>
+  </flex-row> -->
+
 
   <flex-row>
     <!-- name -->
-    <textarea (click)="hide()"
+    <!-- <textarea
       #name 
       rows="1" 
       appAutosize 
+      style="flex-grow: 1;"
       [(ngModel)]="author.name"
       [disabled]="!author.new || !editable"
       [ngStyle]="style.name()"
       placeholder="Author Name" 
-    ></textarea>
+    ></textarea> -->
+    
   </flex-row>
 
-  <!-- about -->
-  <flex-col [ngStyle]="{'height.px': '*', 'background': 'lime'}">
-    <textarea 
-      #about 
-      rows="1"
-      appAutosize
-      [(ngModel)]="author.about" 
-      [disabled]="!editable"
-      [ngStyle]="style.about()"
-      placeholder="short about"
-    ></textarea>
-  </flex-col>
+  <div style="height: 20px;"></div>
+  <div [@hideAnimation]="author.accordionState">
+    <!-- about -->
+    <flex-col>
+      <textarea 
+        #about 
+        rows="1"
+        appAutosize
+        [(ngModel)]="author.about" 
+        [disabled]="!editable"
+        [ngStyle]="style.about()"
+        placeholder="short about"
+        style="background-color: rgba(255, 255, 255,0.6);"
+      ></textarea>
+    </flex-col>
+
+    <flex-row-center>
+
+      <span 
+      style="display: inline-block; border-radius: 0px; color: #333; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid #333;"
+      [routerLink]="['create-publication']">message</span>
+      &nbsp; &nbsp;
+      <span 
+      style="display: inline-block; border-radius: 0px; color: #333; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid #333;"
+      [routerLink]="['create-publication']">subscribe</span>
+    </flex-row-center>
+    
+    <!-- <span 
+    style="display: inline-block; border-radius: 0px; color: #333; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid #333;"
+    [routerLink]="['create-publication']">new publication</span>
+
+  <span (click)="deleteAuthor()"
+  style="display: inline-block; border-radius: 3px; color: #333; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid #333;"
+[routerLink]="['create-publication']">x</span> -->
+
+
+  </div>
 </app-content-width>
+
+<div style="height: 100px;"></div>
+
+<div *ngFor="let publication of author.publications">
+  <app-publication  [author]="author" [publication]="publication"
+  [editable]="false"
+  ></app-publication>
+</div>

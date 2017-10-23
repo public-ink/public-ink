@@ -14,13 +14,45 @@ import { BackendService } from '../backend.service'
 // interfaces
 import {Author, Publication, SavePublicationResponse} from '../backend.service'
 
+// animations
+const styles = {
+  backgroundExtended: {
+    'height': '60vh',
+  },
+  backgroundCompact: {
+    'height': '*',
+    'background-position-y': '50%',
+  },
+  hideExtended: {
+    // 'transform': 'scale(1)',
+    height: '*',
+    opacity: 1
+  },
+  hideCompact: {
+    // 'transform': 'scaleY(0)',
+    'height': '0px',
+    'opacity': 0,
+  }
+}
 
+const timings = {
+  background: '300ms ease-in'
+}
 
 @Component({
   selector: 'app-publication',
   templateUrl: './publication.component.html',
   animations: [
-    
+    trigger('backgroundAnimation', [
+      state('expanded', style(styles.backgroundExtended)),
+      state('compact', style(styles.backgroundCompact)),
+      transition('expanded <=> compact', animate(timings.background))
+    ]),
+    trigger('hideAnimation', [
+      state('expanded', style(styles.hideExtended)),
+      state('compact', style(styles.hideCompact)),
+      transition('expanded <=> compact', animate(timings.background))
+    ])
   ]
 })
 export class PublicationComponent implements OnInit, AfterViewInit {
@@ -36,13 +68,17 @@ export class PublicationComponent implements OnInit, AfterViewInit {
 
   // cozy or compact! as string
   cozyState = 'cozy'
+  // accordionState = 'expanded'
+  @Input('accordionState') accordionState = 'expanded'
 
   styles = {
-    name: () => {
+    name: (transparent?) => {
       return {
         'font-size.px': this.ui.responsiveValue(40, 45),
-        'font-weight': 'bold',
-        'color': '#fff',
+        'font-weight': 'normal',
+        // 'font-weight': this.publication.accordionState === 'compact' ? 'normal' : 'bold',
+        'color': transparent ? 'rgba(0,0,0,0)' : '#fff',
+        'margin': '80px 0px 80px 0px',
         // 'background-color': 'transparent',
         'text-align': 'left',
         'width.%': 100,
@@ -82,6 +118,13 @@ export class PublicationComponent implements OnInit, AfterViewInit {
     public ui: UIService,
     public backend: BackendService,
   ) { }
+
+  toggle() {
+    this.publication.accordionState = this.publication.accordionState === 'expanded' ? 'compact' : 'expanded'
+    for (let article of this.publication.articles) {
+      article.accordionState = this.publication.accordionState
+    }
+  }
 
   ngOnInit() {
     if (!this.publication) {

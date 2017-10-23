@@ -1,63 +1,21 @@
-<div *ngIf="!author">
+<flex-col-center-center 
+  style="position: fixed; top: 0; left: 0; height: 100%; width: 100%;" 
+  *ngIf="!author">
   <h1>loading</h1>
-</div>
+</flex-col-center-center>
+
+<!-- just the author component, how easy! -->
 
 <div *ngIf="author">
-
-    
 
     <app-author 
       [author]="author"
       [editable]="backend.isOwner(author.id) || author.new"
       (updateAuthor)="updateAuthor()"
       ></app-author>
-
-
       <!-- create / cancel if new -->
-    <app-content-width >
-      <button *ngIf="author.new" [ngStyle]="ui.styles.button()" (click)="createAuthor()">Create Author</button> &nbsp;
-      
-      <!-- new publication -->
-      <br>
-      <span 
-        style="display: inline-block; border-radius: 3px; color: #333; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid #333;"
-      [routerLink]="['create-publication']">new publication</span>
-      <span (click)="deleteAuthor()"
-      style="display: inline-block; border-radius: 3px; color: #333; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid #333;"
-    [routerLink]="['create-publication']">x</span>
-
-
-      <br><br>
-    
-    </app-content-width>
-
-      
-
-      
-
-
-
-    <div *ngFor="let publication of author.publications">
-
-      <app-publication  [author]="author" [publication]="publication"
-        [editable]="false"
-      ></app-publication>
-
-      <div *ngFor="let article of publication.articles">
-        <!-- <app-content-width draggable>
-          <h1>{{ article.title }} </h1>
-        </app-content-width> -->
-        <app-article 
-          [article]="article" 
-          [author]="author" 
-          [publication]="publication"
-          [editable]="false"
-          [expanded]="'collapsed'"
-          >
-      </app-article>
-        <div style="height: 100px;"></div>
-        <div style="border-top: 1px dashed gray;"></div>
-      </div>
-    </div>
+      <app-content-width >
+        <button *ngIf="author.new" [ngStyle]="ui.styles.button()" (click)="createAuthor()">Create Author</button> &nbsp;
+      </app-content-width>
 
   </div>

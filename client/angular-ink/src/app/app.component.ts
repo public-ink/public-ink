@@ -1,5 +1,7 @@
 // ng
 import { Component, ChangeDetectionStrategy } from '@angular/core'
+import { trigger, state, style, transition, animate } from '@angular/animations'
+
 
 // ink
 import { UIService } from './ui.service'
@@ -10,6 +12,13 @@ import { BackendService } from './backend.service'
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   // changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('hideAnimation', [
+      state('expanded', style({'height': '*'})),
+      state('compact', style({'height': '0px'})),
+      transition('compact <=> expanded', animate('300ms ease-in-out'))
+    ])
+  ]
 })
 export class AppComponent {
 
@@ -55,5 +64,9 @@ export class AppComponent {
       }
     },
     buttonPadding: 10
+  }
+
+  toggleAccount() {
+    this.backend.account.accordionState = this.backend.account.accordionState === 'compact' ? 'expanded' : 'compact'
   }
 }

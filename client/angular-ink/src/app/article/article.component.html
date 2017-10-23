@@ -1,8 +1,8 @@
-<app-content-width>
+<app-content-width >
 
-    <h1>{{ cozyState }} {{ publication.cozyState }}</h1>
-      <!-- article title -->
-      <textarea 
+    <flex-row>
+        <textarea 
+        style="flex-grow: 1;"
         #title
         *ngIf="editable"
         placeholder="Article Title"
@@ -14,13 +14,25 @@
       
 
       <h1 *ngIf="!editable"
+        style="flex-grow: 1;"
+        [ngStyle]="style.title()"
         [routerLink]="['/', author.id, publication.id, article.id]"
       >{{ article.title }}</h1>
 
+      <!-- 
+      <app-arrow [accordionState]="article.accordionState" (click)="article.accordionState = article.accordionState === 'expanded' ? 'compact' : 'expanded'"></app-arrow>
+ -->
+    </flex-row>
+      <!-- article title -->
+      
+
+      
 
 
       <!-- META -->
-      <div style="font-family: 'Zilla Slab'; color: #888;" [ngStyle]="{'font-size.px': ui.responsiveValue(16, 18), 'line-height.px': ui.responsiveValue(24, 26)}">By
+      <div *ngIf="!preview"
+        [@hideAnimation]="article.accordionState"
+      style="font-family: 'Zilla Slab'; color: #888;" [ngStyle]="{'font-size.px': ui.responsiveValue(16, 18), 'line-height.px': ui.responsiveValue(24, 26)}">By
           <a style="color: #888; text-decoration:none; border-bottom: 1px solid #aaa;" class="tabable" 
           [routerLink]="['/', author.id]">{{ author.name }}
         </a> 
@@ -29,6 +41,10 @@
           <span *ngIf="article.publishedAt"> {{ article.publishedAt | date:'MMMM y' }}</span>
           <span *ngIf="!article.publishedAt" style="background: beige;"> draft </span>
       </div>
+      <div *ngIf="preview" style="color: #888;">{{ article.publishedAt | date:'MMMM y' }}</div>
+
+      <!-- to be hidden -->
+      <div [@hideAnimation]="article.accordionState">
       
 
       <!-- space between meta and body -->
@@ -56,8 +72,12 @@
       
       </div>
 
+    </div><!-- to be hidden -->
+
     <!-- comments (todo) -->
 
+    <!-- border -->
+    <div style="border-bottom: 2px dashed lightgray; margin:30px 0px;">&nbsp;</div>
   </app-content-width>
 
 

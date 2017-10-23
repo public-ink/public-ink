@@ -13,11 +13,40 @@ import * as Quill from 'quill'
 import { BackendService } from '../backend.service'
 import { UIService } from '../ui.service'
 
+// animations
+const styles = {
+  backgroundExtended: {
+    'height': '60vh',
+  },
+  backgroundCompact: {
+    'height': '*',
+  },
+  hideExtended: {
+    // 'transform': 'scale(1)',
+    height: '*',
+    opacity: 1
+  },
+  hideCompact: {
+    // 'transform': 'scaleY(0)',
+    'height': '0px',
+    'opacity': 0,
+  }
+}
+
+const timings = {
+  background: '300ms ease-in'
+}
+
 @Component({
   selector: 'app-article',
   templateUrl: './article.component.html',
   styleUrls: ['./article.component.css'],
   animations: [
+    trigger('hideAnimation', [
+      state('expanded', style(styles.hideExtended)),
+      state('compact', style(styles.hideCompact)),
+      transition('expanded <=> compact', animate(timings.background))
+    ]),
     trigger('articleState', [
       state('expanded', style({
         height: '*',
@@ -30,18 +59,6 @@ import { UIService } from '../ui.service'
       transition('collapsed => expanded', animate('400ms ease-in')),
       transition('expanded => collapsed', animate('400ms ease-out'))
     ]),
-    trigger('cozyState', [
-      state('cozy', style({
-        height: '*',
-        opacity: 1,
-      })),
-      state('compact', style({
-        height: 0,
-        opacity: 0,
-      })),
-      transition('cozy => compact', animate('200ms ease-in')),
-      transition('compact => cozy', animate('200ms ease-in')),
-    ])
   ],
   // changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -54,9 +71,9 @@ export class ArticleComponent implements OnInit, AfterViewInit {
 
   @Input('editable') editable = false
 
-  // hmmm
+  // pre / postfold
   @Input('expanded') expanded = 'expanded'
-  @Input('cozyState') cozyState = 'not set'
+  @Input('preview') preview = false
 
   // HTML Elements
   @ViewChild('title') title: ElementRef
@@ -68,6 +85,8 @@ export class ArticleComponent implements OnInit, AfterViewInit {
   @ViewChild('postfoldToolbar') postfoldToolbar: ElementRef
   @ViewChild('postfoldEditor') postfoldEditor: ElementRef
 
+  accordionState = 'expanded'
+
   // Quill Editors
   prefoldQuill: Quill
   postfoldQuill: Quill
@@ -76,10 +95,10 @@ export class ArticleComponent implements OnInit, AfterViewInit {
   style = {
     title: () => {
       return {
-        'font-weight': 'bold',
+        'font-weight': 'normal',
         'outline': 'none',
         'border': 0,
-        'font-size.px': this.ui.responsiveValue(35, 40),
+        'font-size.px': this.ui.responsiveValue(30, 35),
         'margin-top.px': this.ui.responsiveValue(40, 50),
         'margin-bottom.px': 5,
         'width.%': 100,
