@@ -36,10 +36,10 @@ export class ArrowComponent implements OnInit {
 
   arrowStyle = () => {
     return {
-      'border-top': '2px solid ' + this.color,
-      'border-left': '2px solid ' + this.color,
-      'width.px': 18,
-      'height.px': 18,
+      'border-top': '5px solid ' + this.color,
+      'border-left': '5px solid ' + this.color,
+      'width.px': 15,
+      'height.px': 15,
       'transform': 'rotate(135deg)',
     }
   }

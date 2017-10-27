@@ -49,8 +49,8 @@ export class AuthorComponent implements OnInit, AfterViewInit {
   @ViewChild('name') name: ElementRef
   @ViewChild('about') about: ElementRef
 
-  @Output() updateAuthor = new EventEmitter()
-  @Output() deleteAuthor = new EventEmitter()
+  // @Output() updateAuthor = new EventEmitter()
+  // @Output() deleteAuthor = new EventEmitter()
 
   badgeSize = 180
 
@@ -71,10 +71,11 @@ export class AuthorComponent implements OnInit, AfterViewInit {
         'font-weight': 'bold',
         'outline': 'none',
         'border': 0,
-        'text-align': 'left',
-        'margin-bottom.px': 50,
-        'color': 'white',
-        'background': 'black',
+        'margin-bottom.px': 0,
+        'text-align': 'center',
+        'color': 'black',
+        'background': 'white',
+        'font-style': 'italic',
       }
     },
     about: () => {
@@ -83,14 +84,13 @@ export class AuthorComponent implements OnInit, AfterViewInit {
         'font-weight': 'normal',
         'outline': 'none',
         'border': 0,
+        'padding': '20px 10px',
         'text-align': 'left',
         'width.%': 100,
         'font-family': 'Zilla Slab, serif'
       }
     },
   }
-
-  
 
   constructor(
     // ng
@@ -107,7 +107,8 @@ export class AuthorComponent implements OnInit, AfterViewInit {
       // also observe drop
       Observable.fromEvent(this.about.nativeElement, 'keyup').debounceTime(1000).subscribe(() => {
         if (this.author.id !== 'create-author') {
-          this.updateAuthor.next()
+          this.updateAuthor()
+          //this.updateAuthor.next()
         }
       })
     }
@@ -119,12 +120,16 @@ export class AuthorComponent implements OnInit, AfterViewInit {
     const aboutHeight = this.about.nativeElement.scrollHeight
   }
 
-  toggleAuthor() {
-    this.author.accordionState = this.author.accordionState === 'compact' ? 'expanded' : 'compact'
-    for (const publication of this.author.publications) {
-      publication.accordionState = this.author.accordionState
-      for (const article of publication.articles) {
-        article.accordionState = this.author.accordionState
+  /**
+   * allow to compact them publications
+   */
+  setPublicationView(state) {
+    for (let publication of this.author.publications) {
+      publication.accordionState = state
+      for (let article of publication.articles) {
+        if (state === 'compact') {
+          article.accordionState = 'hidden'
+        }
       }
     }
   }
@@ -138,9 +143,64 @@ export class AuthorComponent implements OnInit, AfterViewInit {
 
   onDrop($event) {
     this.author.imageURL = this.ui.beingDragged.url
-    if (!this.author.new) { this.updateAuthor.next() }
+    // autosave?
+    if (!this.author.new) { this.updateAuthor() }
     $event.preventDefault()
     $event.stopPropagation()
   }
 
+  /**
+   * creates a new author, and navigates, again to this component
+   * in that case, our router subscription won't do anything (not create a new object, nor load from backend again)
+   */
+  createAuthor() {
+    this.backend.saveAuthor(this.author).subscribe(result => {
+      this.author = result.data.saveAuthor.author
+      this.router.navigate(['/', this.author.id])
+    })
+  }
+
+  /**
+   * same as create, just without the navigation
+   */
+  updateAuthor() {
+    this.backend.saveAuthor(this.author).subscribe(result => {
+      this.author = result.data.saveAuthor.author
+    })
+  }
+
+  deleteAuthor() {
+    const answer: any = confirm('are you sure you want to delte ' + this.author.name)
+    console.log(answer, 'answer')
+    if (answer) {
+        // go ahead
+        this.backend.deleteAuthor(this.author.id).subscribe(result => {
+          console.log('author page delete author', result)
+          if (result.data.deleteAuthor.success) {
+            console.log('deleted! neet to navigate somewhere:)')
+            this.backend.account.authors = this.backend.account.authors.filter(author => author.id !== this.author.id)
+            this.router.navigate(['/'])
+          }
+        })
+    }
+  }
+
+
+  /**
+   * start publication
+   */
+  startPublication() {
+    this.author.publications.unshift(
+      {
+        id: 'create-publication',
+        accordionState: 'expanded',
+        name: 'so new',
+        about: 'such about',
+        imageURL: '',
+        new: true,
+        position: 400000,
+        articles: []
+      }
+    )
+  }
 }

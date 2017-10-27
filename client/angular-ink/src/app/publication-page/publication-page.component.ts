@@ -38,6 +38,7 @@ export class PublicationPageComponent implements OnInit {
           about: '',
           imageURL: '',
           new: true,
+          position: 300, // review
         }
       } else if (this.publication && this.publication.id === publicationID) {
         // not reloading because we have this publication (after create)
@@ -56,7 +57,7 @@ export class PublicationPageComponent implements OnInit {
       if (res.data.savePublication.info.success) {
         this.publication = res.data.savePublication.publication
         // change route without re-loading
-        this.router.navigate(['/', this.authorID, this.publication.id])
+        // this.router.navigate(['/', this.authorID, this.publication.id])
       }
     })
   }

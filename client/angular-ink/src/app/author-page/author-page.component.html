@@ -1,3 +1,5 @@
+
+<!-- this needs to go -->
 <flex-col-center-center 
   style="position: fixed; top: 0; left: 0; height: 100%; width: 100%;" 
   *ngIf="!author">
@@ -13,9 +15,4 @@
       [editable]="backend.isOwner(author.id) || author.new"
       (updateAuthor)="updateAuthor()"
       ></app-author>
-      <!-- create / cancel if new -->
-      <app-content-width >
-        <button *ngIf="author.new" [ngStyle]="ui.styles.button()" (click)="createAuthor()">Create Author</button> &nbsp;
-      </app-content-width>
-
   </div>

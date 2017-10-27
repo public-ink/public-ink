@@ -30,6 +30,14 @@ const styles = {
     // 'transform': 'scaleY(0)',
     'height': '0px',
     'opacity': 0,
+  },
+  gone: {
+    'height': '0px',
+    'opacity': 0,
+  },
+  shown: {
+    height: '*',
+    opacity: 1
   }
 }
 
@@ -42,6 +50,11 @@ const timings = {
   templateUrl: './article.component.html',
   styleUrls: ['./article.component.css'],
   animations: [
+    trigger('goneAnimation', [
+      state('hidden', style(styles.gone)),
+      state('compact', style(styles.shown)),
+      transition('compact <=> hidden', animate(timings.background))
+    ]),
     trigger('hideAnimation', [
       state('expanded', style(styles.hideExtended)),
       state('compact', style(styles.hideCompact)),
@@ -52,7 +65,7 @@ const timings = {
         height: '*',
         opacity: 1,
       })),
-      state('collapsed',   style({
+      state('collapsed', style({
         height: 0,
         opacity: 0,
       })),
@@ -69,7 +82,8 @@ export class ArticleComponent implements OnInit, AfterViewInit {
   @Input('publication') publication
   @Input('article') article
 
-  @Input('editable') editable = false
+  // @Input('editable') editable = false
+  editable = true // article cmp is for editing
 
   // pre / postfold
   @Input('expanded') expanded = 'expanded'
@@ -118,30 +132,23 @@ export class ArticleComponent implements OnInit, AfterViewInit {
     // ink
     public backend: BackendService,
     public ui: UIService,
-  ) {}
+  ) { }
 
   ngOnInit() {
-
-    // editor setup
-    if (this.editable) {
-      // this.makeQuill()
-    }
   }
 
   ngAfterViewInit() {
-    if (this.editable) {
-      console.log('want to make quill cuz editable', this.editable, this.prefoldEditor)
-      this.makeQuill()
+    console.log('article after view init: make quill')
+    this.makeQuill()
 
-      Observable.merge(
-        Observable.fromEvent(this.prefoldEditor.nativeElement, 'keyup'),
-        Observable.fromEvent(this.postfoldEditor.nativeElement, 'keyup'),
-        Observable.fromEvent(this.title.nativeElement, 'keyup')
-      ).debounceTime(1000).subscribe(event => {
-        // emit event instead
-        this.autosave()
-      })
-    }
+    Observable.merge(
+      Observable.fromEvent(this.prefoldEditor.nativeElement, 'keyup'),
+      Observable.fromEvent(this.postfoldEditor.nativeElement, 'keyup'),
+      Observable.fromEvent(this.title.nativeElement, 'keyup')
+    ).debounceTime(1000).subscribe(event => {
+      // emit event instead
+      this.autosave()
+    })
   }
 
   autosave() {
@@ -152,12 +159,18 @@ export class ArticleComponent implements OnInit, AfterViewInit {
     })
   }
 
+  create() {
+    this.backend.saveArticle(this.author.id, this.publication.id, this.article).subscribe(res => {
+      console.log('article component created article', res)
+    })
+  }
+
 
   makeQuill() {
 
     // PREFOLD EDITOR
-    this.prefoldQuill = new Quill(this.prefoldEditor.nativeElement,  {
-      modules: { toolbar: { container: this.prefoldToolbar.nativeElement }},
+    this.prefoldQuill = new Quill(this.prefoldEditor.nativeElement, {
+      modules: { toolbar: { container: this.prefoldToolbar.nativeElement } },
       theme: 'snow',
       placeholder: 'above the fold...',
     })
@@ -177,8 +190,8 @@ export class ArticleComponent implements OnInit, AfterViewInit {
     })
 
     // POSTFOLD EDITOR
-    this.postfoldQuill = new Quill(this.postfoldEditor.nativeElement,  {
-      modules: { toolbar: { container: this.postfoldToolbar.nativeElement }},
+    this.postfoldQuill = new Quill(this.postfoldEditor.nativeElement, {
+      modules: { toolbar: { container: this.postfoldToolbar.nativeElement } },
       theme: 'snow',
       placeholder: 'below the fold...',
     })

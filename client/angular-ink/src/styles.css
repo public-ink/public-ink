@@ -11,11 +11,29 @@ html, body {
 }
 
 body {
-	font-family: 'Arial', 'Open Sans', sans-serif;
+	font-family: 'Open Sans', 'Open Sans', sans-serif;
 }
 
 textarea {
   background: transparent;
+}
+
+input {
+  margin-top: -1px;
+  outline: none;
+}
+input:focus {
+  border: 1px solid blue;
+}
+
+.prefoldHTML:first-letter {
+  /* color: #903;
+  float: left;
+  font-size: 60px;
+  line-height: 60px;
+  padding-top: 4px;
+  padding-right: 8px;
+  padding-left: 3px; */
 }
 
 
@@ -28,28 +46,42 @@ button {
 }
 
 ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
-  color: pink;
+  color: #aaa;
   font-weight: 300;
-  font-family: 'Zilla Slab';
+  // font-family: 'Zilla Slab';
 }
 ::-moz-placeholder { /* Firefox 19+ */
-  color: pink;
+  color: #aaa;
   font-weight: 300;
-  font-family: 'Zilla Slab';
+  // font-family: 'Zilla Slab';
 }
 :-ms-input-placeholder { /* IE 10+ */
-  color: pink;
+  color: #aaa;
   font-weight: 300;
-  font-family: 'Zilla Slab';
+  // font-family: 'Zilla Slab';
 }
 :-moz-placeholder { /* Firefox 18- */
-  color: pink;
+  color: #aaa;
   font-weight: 300;
-  font-family: 'Zilla Slab';
+  // font-family: 'Zilla Slab';
 }
 
 textarea {
     resize: none;
+}
+
+.testdivider {
+  width: 24px;
+  height: 11px;
+  transform: skewY(-12deg);
+  position: absolute;
+  top: 0px;
+  margin-left: auto;
+  margin-right: auto;
+  z-index: 1;
+  left: 48%;
+  background: linear-gradient(180deg,#32325d,#32325d 50%,#fff 0,#fff);
+  background-size: 100% 4px;
 }
 
 app-content-width {
@@ -216,6 +248,49 @@ flex-col-left-center {
     align-items: flex-start;
     justify-content: center;
 }
+
+
+.spinner {
+  border-radius:50%;
+  position: relative;
+  border-top: 5px solid black;
+  border-right: 5px solid black;
+  border-left: 5px solid black;
+  border-bottom: 5px solid transparent;
+
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-animation: spin 0.5s infinite linear;
+  animation: spin 0.5s infinite linear;
+  
+  width: 15px;
+  height: 15px;
+}
+
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+
+
+
 
 /** quill editor */
 /*!

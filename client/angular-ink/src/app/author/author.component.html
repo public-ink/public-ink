@@ -1,88 +1,96 @@
-<app-content-width
-  (dragover)="onDragOver($event)"
-  (drop)="onDrop()"
->
+<app-content-width (dragover)="onDragOver($event)" (drop)="onDrop()">
 
   <flex-col-center-center>
-    
-      <span style="border-radius: 100%; padding: 15px; border: 1px dotted #ccc;">
-        <img style="border-radius: 100%;" [src]="author.imageURL"/>
-      </span>
-      <h1>{{ author.name }}</h1>
+
+    <!-- author IMAGE -->
+    <span style="border-radius: 100%; padding: 15px; border: 1px dotted #ccc;">
+      <img *ngIf="author.imageURL" style="width: 200px; height: 200px; border-radius: 100%;" [src]="author.imageURL + '&w=200&h=200'"  />
+      <div *ngIf="!author.imageURL" style="background:linear-gradient(135deg, #f0944e 0%, #f0505c 100%); width: 200px; height: 200px; border-radius: 100%;"></div>
+    </span>
+
+
+    <flex-row style="font-weight: bold; font-style: italic; font-size: 40px; margin: 20px 0;">
+
+
+      <textarea appAutosize rows="1" [(ngModel)]="author.name" [ngStyle]="style.name()" placeholder="Author Name "></textarea>
+
+    </flex-row>
 
   </flex-col-center-center>
 
-  <!-- <div style="height: 50px; text-align:right; position:relative;">
-    <img style="position: absolute; top: 0; right: 50px; z-index: 2; border-radius: 100%;" src="http://localhost:8080/api/image/serve?key=22sExvnnmUr63sHzej777g==&w=150&h=150" />
-  </div>
+
+  <div style="border: 0px solid #ddd; padding: 20px 80px 80px 80px; border-top-left-radius: 20px; border-top-right-radius: 20px; ">
+
+    <div [@hideAnimation]="author.accordionState">
+      <!-- about -->
+      <flex-col>
+        <textarea #about rows="1" appAutosize [(ngModel)]="author.about" [disabled]="!editable" [ngStyle]="style.about()" placeholder="An introduction would be lovely but is optional :)"
+          style="background: transparent;"></textarea>
+      </flex-col>
+
+      <!-- linear-gradient(135deg,  rgba(81,99,103, 0.2) 0%, rgba(133,149,149, 0.1) 100%); -->
 
 
-  <flex-row>
-    <flex-row style="z-index: 1; font-size: 35px; margin-bottom: 10px; width: 100%; background-color: #333; color: white; padding: 10px 20px; transform: skew(-0deg);">
-      <div style="flex-grow: 1">{{ author.name }}</div> 
-      <app-arrow [color]="'rgba(255, 255, 255, 0.8)'" [accordionState]="author.accordionState" (click)="toggleAuthor()"></app-arrow>
-    </flex-row>
-  </flex-row> -->
+      <!-- create delete buttons -->
+      <!-- buttons -->
+      <!-- create / cancel if new (move to component itself -->
+      <app-content-width style="margin-top: 0px;">
+        <flex-row-center>
+          <button *ngIf="author.new" [ngStyle]="ui.styles.button()" (click)="createAuthor()">Create Author</button>
+        </flex-row-center>
 
 
-  <flex-row>
-    <!-- name -->
-    <!-- <textarea
-      #name 
-      rows="1" 
-      appAutosize 
-      style="flex-grow: 1;"
-      [(ngModel)]="author.name"
-      [disabled]="!author.new || !editable"
-      [ngStyle]="style.name()"
-      placeholder="Author Name" 
-    ></textarea> -->
-    
-  </flex-row>
+      </app-content-width>
 
-  <div style="height: 20px;"></div>
-  <div [@hideAnimation]="author.accordionState">
-    <!-- about -->
-    <flex-col>
-      <textarea 
-        #about 
-        rows="1"
-        appAutosize
-        [(ngModel)]="author.about" 
-        [disabled]="!editable"
-        [ngStyle]="style.about()"
-        placeholder="short about"
-        style="background-color: rgba(255, 255, 255,0.6);"
-      ></textarea>
-    </flex-col>
 
-    <flex-row-center>
+      <!-- message and subscribe -->
+      <flex-row-center *ngIf="author.id !== 'create-author'">
 
-      <span 
-      style="display: inline-block; border-radius: 0px; color: #333; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid #333;"
-      [routerLink]="['create-publication']">message</span>
+        <span style="display: inline-block; border-radius: 10px; color: #111; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;"
+          [routerLink]="['create-publication']">message</span>
+        &nbsp; &nbsp;
+        <span style="display: inline-block; border-radius: 10px; color: #111; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;"
+          [routerLink]="['create-publication']">subscribe</span>
+        &nbsp; &nbsp;
+        <!-- new publication -->
+        <span 
+          (click)="startPublication()"
+        style="display: inline-block; border-radius: 10px; color: #111; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;"
+        >new publication</span>
       &nbsp; &nbsp;
-      <span 
-      style="display: inline-block; border-radius: 0px; color: #333; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid #333;"
-      [routerLink]="['create-publication']">subscribe</span>
-    </flex-row-center>
-    
-    <!-- <span 
-    style="display: inline-block; border-radius: 0px; color: #333; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid #333;"
-    [routerLink]="['create-publication']">new publication</span>
+        <span (click)="deleteAuthor()" style="display: inline-block; border-radius: 10px; color: #111; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;">...</span>
+      </flex-row-center>
 
-  <span (click)="deleteAuthor()"
-  style="display: inline-block; border-radius: 3px; color: #333; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid #333;"
-[routerLink]="['create-publication']">x</span> -->
+
+      <div style="height:30px;"></div>
+
+
+      <!-- view changer -->
+      <flex-row-center>
+        <span (click)="setPublicationView('expanded')">
+          full view</span>&nbsp;|&nbsp;
+        <span (click)="setPublicationView('compact')">
+          compact view</span> 
+        <br>
+        <app-arrow *ngIf="author.publications && 0" [color]="'rgba(0, 0, 0, 0.5)'" [accordionState]="author.accordionState"></app-arrow>
+      </flex-row-center>
+
+    </div>
+
+
 
 
   </div>
+
+
+
+
 </app-content-width>
 
-<div style="height: 100px;"></div>
+<!-- PUBLICATIONS! -->
+
+<div style="height: 0px;"></div>
 
 <div *ngFor="let publication of author.publications">
-  <app-publication  [author]="author" [publication]="publication"
-  [editable]="false"
-  ></app-publication>
+  <app-publication [author]="author" [publication]="publication" [editable]="false"></app-publication>
 </div>

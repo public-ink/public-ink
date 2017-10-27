@@ -21,7 +21,9 @@ export class AuthorPageComponent implements OnInit {
     // ink
     public backend: BackendService,
     public ui: UIService,
-  ) { }
+  ) {
+    console.log('AUTHOR PAGE CONSTRUCTED!')
+  }
 
   ngOnInit() {
     this.activatedRoute.params.subscribe((params: Params) => {
@@ -30,6 +32,7 @@ export class AuthorPageComponent implements OnInit {
         // guard against unauthenticated
         if (!this.backend.account) {
           console.warn('cannot navigate to create-author: not authenticated')
+          // this needs to be more friendly. or just disabled explaining why.
           this.router.navigate(['/'])
         }
         // create a new author object
@@ -40,12 +43,16 @@ export class AuthorPageComponent implements OnInit {
           imageURL: '',
           new: true,
         }
+        // hide top authors (not ideals here?)
+        if (this.backend.account) { this.backend.account.accordionState = 'compact' }
       } else if (this.author && this.author.id === authorID) {
         // not reloading because we have this author (after create)
       } else {
         // load that author! (can skip the JSON stuff?) yep.
         this.backend.loadAuthor(authorID).subscribe((reply: any) => {
+          window.scrollTo(0, 0)
           this.author = reply.data.author
+          this.backend.account.accordionState = 'compact'
         })
       }
     });
@@ -72,16 +79,19 @@ export class AuthorPageComponent implements OnInit {
   }
 
   deleteAuthor() {
-    console.log('delete author', this.author)
-    this.backend.deleteAuthor(this.author.id).subscribe(result => {
-      console.log('author page delete author', result)
-      // remove from account!
-      if (result.data.deleteAuthor.success) {
-        console.log('deleted! neet to navigate somewhere:)')
-        this.backend.account.authors  = this.backend.account.authors.filter(author => author.id !== this.author.id)
-        this.router.navigate(['/'])
-      }
-    })
+    const answer: any = confirm('are you sure you want to delte ' + this.author.name)
+    console.log(answer, 'answer')
+    if (answer) {
+        // go ahead
+        this.backend.deleteAuthor(this.author.id).subscribe(result => {
+          console.log('author page delete author', result)
+          if (result.data.deleteAuthor.success) {
+            console.log('deleted! neet to navigate somewhere:)')
+            this.backend.account.authors = this.backend.account.authors.filter(author => author.id !== this.author.id)
+            this.router.navigate(['/'])
+          }
+        })
+    }
   }
 
 }

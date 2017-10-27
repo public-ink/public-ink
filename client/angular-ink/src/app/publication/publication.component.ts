@@ -64,8 +64,6 @@ export class PublicationComponent implements OnInit, AfterViewInit {
   @ViewChild('name') name: ElementRef
   @ViewChild('about') about: ElementRef
 
-  @Output() updatePublication = new EventEmitter()
-
   // cozy or compact! as string
   cozyState = 'cozy'
   // accordionState = 'expanded'
@@ -75,7 +73,7 @@ export class PublicationComponent implements OnInit, AfterViewInit {
     name: (transparent?) => {
       return {
         'font-size.px': this.ui.responsiveValue(40, 45),
-        'font-weight': 'normal',
+        'font-weight': 'bold',
         // 'font-weight': this.publication.accordionState === 'compact' ? 'normal' : 'bold',
         'color': transparent ? 'rgba(0,0,0,0)' : '#fff',
         'margin': '80px 0px 80px 0px',
@@ -134,6 +132,7 @@ export class PublicationComponent implements OnInit, AfterViewInit {
         about: '',
         imageURL: '',
         articles: [],
+        position: 600000
       }
     }
   }
@@ -147,7 +146,7 @@ export class PublicationComponent implements OnInit, AfterViewInit {
           Observable.fromEvent(this.about.nativeElement, 'keyup'),
         ).debounceTime(1000).subscribe(() => {
           if (this.publication.id !== 'create-publication') {
-            this.updatePublication.next()
+            this.updatePublication()
           }
         })
     }
@@ -162,7 +161,7 @@ export class PublicationComponent implements OnInit, AfterViewInit {
     console.log('publication drop')
     this.publication.imageURL = this.ui.beingDragged.url
     if (this.publication.id !== 'create-publication') {
-      this.updatePublication.next()
+      this.updatePublication()
     }
   }
 
@@ -171,5 +170,56 @@ export class PublicationComponent implements OnInit, AfterViewInit {
     return this.sanitizer.bypassSecurityTrustStyle(str)
   }
 
+  deletePublication() {
+    const answer = window.confirm('wanna delete this publications?')
+    if (answer) {
+      this.backend.deletePublication(this.author.id, this.publication.id).subscribe(res => {
+        console.log('delete publication?', res)
+        // hide, mark deleted or whatever.
+        if (res.data.deletePublication.success) {
+          // remove from account - with animation would be nice
+          // this.deleted = true
+          console.warn('todo: remove publication from account.')
+        }
+      })
+    }
+  }
+
+  updatePublication() {
+    this.backend.loading = true
+    this.backend.savePublication(this.author.id, this.publication).subscribe(res => {
+      console.log('publication saved publication!')
+      this.backend.loading = false
+    })
+  }
+
+
+  // todo: author id?
+  create() {
+    this.backend.loading = true
+    this.backend.savePublication(this.author.id, this.publication).subscribe((res: SavePublicationResponse) => {
+      if (res.data.savePublication.info.success) {
+        this.backend.loading = false
+        // you have to set the publication to expanded...
+        // do we still have expanded??
+        // console.log('saved publication')
+        // this.publication = res.data.savePublication.publication
+      }
+    })
+  }
+
+  startArticle() {
+    const newArticle = {
+      id: 'create-article',
+      title: 'such article',
+      prefoldJSON: '{}',
+      prefoldHTML: '',
+      postfoldJSON: '{}',
+      postfoldHTML: '',
+      position: 300,
+      new: true,
+    }
+    this.publication.articles.unshift(newArticle)
+  }
 
 }

@@ -20,6 +20,7 @@ import { HomePageComponent } from './home-page/home-page.component';
 import { ArticlePageComponent } from './article-page/article-page.component';
 import { PublicationComponent } from './publication/publication.component';
 import { ArticleComponent } from './article/article.component'
+import { EditorComponent } from './editor/editor.component'
 
 // animation examples
 import { DashboardComponent } from './dashboard'
@@ -44,11 +45,13 @@ import { AuthorAccordionComponent } from './author-accordion/author-accordion.co
 import { AnitestComponent } from './anitest/anitest.component';
 import { PublicationAccordionComponent } from './publication-accordion/publication-accordion.component';
 import { ArrowComponent } from './arrow/arrow.component';
+import { ArticleContainerComponent } from './article-container/article-container.component';
+
 
 // routes (ZERO)
 const appRoutes: Routes = [
   { path: ':authorID/:publicationID/:articleID', component: ArticlePageComponent },
-  { path: ':authorID/:publicationID', component: PublicationPageComponent },
+  { path: ':authorID/:publicationID', component: AuthorPageComponent },
   { path: ':authorID', component: AuthorPageComponent },
   { path: 'account', component: PaperTreeComponent},
   { path: '', component: HomePageComponent},
@@ -79,6 +82,8 @@ const appRoutes: Routes = [
     ProfileDetailsComponent,
     ProfileStatsComponent,
     ArrowComponent,
+    EditorComponent,
+    ArticleContainerComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),

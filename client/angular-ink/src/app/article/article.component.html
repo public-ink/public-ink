@@ -1,6 +1,8 @@
-<app-content-width >
+
+<app-content-width *ngIf="article" [@goneAnimation]="article.accordionState">
 
     <flex-row>
+
         <textarea 
         style="flex-grow: 1;"
         #title
@@ -16,12 +18,11 @@
       <h1 *ngIf="!editable"
         style="flex-grow: 1;"
         [ngStyle]="style.title()"
-        [routerLink]="['/', author.id, publication.id, article.id]"
       >{{ article.title }}</h1>
 
-      <!-- 
-      <app-arrow [accordionState]="article.accordionState" (click)="article.accordionState = article.accordionState === 'expanded' ? 'compact' : 'expanded'"></app-arrow>
- -->
+      
+      <app-arrow [color]="'rgba(0,0,0,0.2)'" [accordionState]="article.accordionState" (click)="article.accordionState = article.accordionState === 'expanded' ? 'compact' : 'expanded'"></app-arrow>
+
     </flex-row>
       <!-- article title -->
       
@@ -30,7 +31,7 @@
 
 
       <!-- META -->
-      <div *ngIf="!preview"
+      <div *ngIf="!preview && 0"
         [@hideAnimation]="article.accordionState"
       style="font-family: 'Zilla Slab'; color: #888;" [ngStyle]="{'font-size.px': ui.responsiveValue(16, 18), 'line-height.px': ui.responsiveValue(24, 26)}">By
           <a style="color: #888; text-decoration:none; border-bottom: 1px solid #aaa;" class="tabable" 
@@ -41,7 +42,7 @@
           <span *ngIf="article.publishedAt"> {{ article.publishedAt | date:'MMMM y' }}</span>
           <span *ngIf="!article.publishedAt" style="background: beige;"> draft </span>
       </div>
-      <div *ngIf="preview" style="color: #888;">{{ article.publishedAt | date:'MMMM y' }}</div>
+      <div [@hideAnimation]="article.accordionState" *ngIf="preview" style="color: #888;">{{ article.publishedAt | date:'MMMM y' }}</div>
 
       <!-- to be hidden -->
       <div [@hideAnimation]="article.accordionState">
@@ -52,17 +53,20 @@
 
 
       <!-- prefold editor -->
-      <div #prefoldEditor *ngIf="editable" [ngStyle]="style.body()"></div>
-      <div #prefoldHTML  *ngIf="!editable" [ngStyle]="style.body()" [innerHTML]="safeHTML(article.prefoldHTML)" ></div>
+      <div #prefoldEditor [ngStyle]="style.body()"></div>
+      
 
       <!-- read on -->
-      <flex-row style="margin:20px 0px;" *ngIf="expanded === 'collapsed' && article.postfoldHTML">
-        <span style="font-family: Zilla Slab; font-size: 20px; text-decoration: underline;"
+      <flex-row style="margin:0px 0px;" *ngIf="expanded === 'collapsed' && article.postfoldHTML">
+        <span style="font-family: Zilla Slab; font-size: 20px; text-decoration: none;"
         [style.color]="article.state === 'expanded' ? 'white' : 'black'"
         (click)="expanded = expanded === 'expanded' ? 'collapsed' : 'expanded'">
-        read on
+        continue reading >
         </span>
       </flex-row>
+
+      
+
       
       <div [@articleState]="expanded" style="overflow:hidden;">
         <!--  postfold editor -->
@@ -74,10 +78,17 @@
 
     </div><!-- to be hidden -->
 
+    <button *ngIf="article.new" (click)="create()">create draft</button>
+
     <!-- comments (todo) -->
 
     <!-- border -->
-    <div style="border-bottom: 2px dashed lightgray; margin:30px 0px;">&nbsp;</div>
+    <div style="display:block; border-bottom: 1px dashed lightgray; margin:30px 0px;">&nbsp;</div>
+    <div style="position:relative; display:none;">
+        <br><br>
+        <div class="testdivider"></div>
+        <br><br>
+      </div>
   </app-content-width>
 
 
@@ -87,7 +98,7 @@
 
   <!-- prefold toolbar-->
   <div #prefoldToolbar 
-  style="z-index: 2; background-color: rgba(255, 255, 255, 0.98); position:fixed; top: 47px; left: 0; width: 100%;" 
+  style="z-index: 2; background-color: rgba(255, 255, 255, 0.98); position:fixed; top: 36px; left: 0; width: 100%;" 
   [style.display]="prefoldQuill?.hasFocus() ? 'block' : 'none'"
 >
   <app-content-width style="">
@@ -97,7 +108,7 @@
 
 <!-- postfold toolbar -->
 <div #postfoldToolbar 
-  style="z-index: 2; background-color: rgba(255, 255, 255, 0.98); position:fixed; top: 47px; left: 0; width: 100%;" 
+  style="z-index: 2; background-color: rgba(255, 255, 255, 0.98); position:fixed; top: 36px; left: 0; width: 100%;" 
   [style.display]="postfoldQuill?.hasFocus() ? 'block' : 'none'"
 >
     <app-content-width>

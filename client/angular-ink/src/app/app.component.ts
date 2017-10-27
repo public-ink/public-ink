@@ -13,10 +13,16 @@ import { BackendService } from './backend.service'
   styleUrls: ['./app.component.css'],
   // changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
-    trigger('hideAnimation', [
-      state('expanded', style({'height': '*'})),
-      state('compact', style({'height': '0px'})),
+    trigger('topBarAnimation', [
+      state('expanded', style({'height': '*', opacity: 1})),
+      state('compact', style({'height': '0px', opacity: 0})),
       transition('compact <=> expanded', animate('300ms ease-in-out'))
+    ]),
+    // todo: use actual height of media bar.
+    trigger('mediaBar', [
+      state('no', style({'bottom': '-300px', 'opacity': 0})),
+      state('yes', style({'bottom': '0px', 'opacity': 1})),
+      transition('no <=> yes', animate('300ms ease-in-out'))
     ])
   ]
 })
@@ -28,6 +34,12 @@ export class AppComponent {
   ) { }
 
   styles = {
+    mediaBar: () => {
+      return {
+        'box-shadow': 'rgba(0, 0, 0, 0.12) 0px -2px 2px',
+        'padding': '20px'
+      }
+    },
     topBar: () => {
       return {
         'background-color': 'rgba(255, 255, 255, 0.98)',

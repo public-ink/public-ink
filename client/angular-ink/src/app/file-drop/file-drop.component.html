@@ -4,8 +4,11 @@
 (dragover)="onDragOver($event)"
 (drop)="onDrop($event)"
 (click)="clickFileinput()"
-style="width: 200px; height: 200px; border: 2px dotted gray; padding: 10px; background-color: #333; color:white; margin: 5px; box-sizing: border-box">
-drop files or<br> click here
+style="width: 200px; height: 200px; background-color: #333; color:red; font-size: 80px; font-weight: bold; margin-right: 20px;">
+
++
+
 <!-- hidden standard file input (because it's not pretty, we simulate a click on it) -->
 <input style="width:0; height:0;" (change)="fileinputChange($event)" type="file" multiple="multiple" name="fileinput"  id="fileinput" #fileinput />
+
 </flex-col-center-center>

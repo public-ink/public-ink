@@ -52,6 +52,7 @@ export class ArticlePageComponent implements OnInit {
             postfoldJSON: '{}',
             postfoldHTML: '',
             new: true,
+            position: 0,
           }
         })
 

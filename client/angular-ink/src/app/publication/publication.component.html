@@ -16,12 +16,12 @@
 
   <!-- background image -->
   <flex-col-left-center style="background-position: center center; background-size: cover;
-  background-repeat: no-repeat; opacity: 0.7; position:absolute; top: 0; left: 0; height: 100%; width: 100%;"
+  background-repeat: no-repeat; opacity: 0.5; position:absolute; top: 0; left: 0; height: 100%; width: 100%;"
     [style.background-image]="safeBG()">
   </flex-col-left-center>
 
   <!-- content -->
-  <app-content-width style="z-index: 2; position:absolute; top: 0; left: 0; height: 100%; width: 100%;">
+  <app-content-width style="position:absolute; top: 0; left: 0; height: 100%; width: 100%;">
     
     <!-- space -->
     <div [@hideAnimation]="publication.accordionState" style="overflow: hidden;">
@@ -29,22 +29,41 @@
         <!-- just space to hide :) -->
       </div>
     </div>
+
+    position: {{ publication.position }}
     
     <!-- publication NAME -->
-    <flex-row>
+    <flex-row-center>
       <textarea style="flex-grow: 1;" #name *ngIf="editable || 1" class="focus-bg" [(ngModel)]="publication.name" [ngStyle]="styles.name()" [style.cursor]="'default'"
       appAutosize rows="1" placeholder="publication name"></textarea>
-      <app-arrow [accordionState]="publication.accordionState" (click)="toggle()" [color]="'#fff'"></app-arrow>
-    </flex-row>
+      
+    </flex-row-center>
     <!-- publication ABOUT -->
-    <div [@hideAnimation]="publication.accordionState">
+    <div [@hideAnimation]="publication.accordionState" style="margin-top: -80px;">
       <textarea 
       
       #about *ngIf="editable || 1" class="focus-bg" placeholder="tell me why" [(ngModel)]="publication.about" [ngStyle]="styles.about()"
       appAutosize rows="1">
       </textarea>
 
-      <a style="color: white;" [routerLink]="['/', author.id, publication.id, 'create-article']">new article</a>
+
+      <!-- create! if new -->
+      <span style="background: rgba(0,0,0, 0.2); color: white; display: inline-block; border-radius: 10px; color: white; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;"
+      (click)="create()">create</span>
+
+
+      <span (click)="startArticle()" style="background: rgba(0,0,0, 0.2); color: white; display: inline-block; border-radius: 10px; color: white; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;"
+      >new article</span>
+    &nbsp; &nbsp;
+    <span style="background: rgba(0,0,0, 0.2); color: white; display: inline-block; border-radius: 10px; color: white; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;"
+    [routerLink]="['create-publication']">subscribe</span>
+  &nbsp; &nbsp;
+  <span (click)="deletePublication()" style="background: rgba(0,0,0, 0.2); color: white; display: inline-block; border-radius: 10px; color: white; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;"
+ >...</span>
+ 
+  
+ <!-- <app-arrow [accordionState]="publication.accordionState" (click)="toggle()" [color]="'#fff'"></app-arrow> -->
+      
       
     </div>
   </app-content-width>
@@ -53,11 +72,31 @@
 <!-- end of puvblication hero -->
 
 
-<!-- articles -->
-<app-article *ngFor="let article of publication.articles"
-  [article]="article"
-  [publication]="publication"
-  [author]="author"
-  [expanded]="'collapsed'"
-  [preview]="true"
-></app-article>
+<!-- ARTICLES -->
+<app-article-container
+  *ngFor="let article of publication.articles"  
+>
+
+  <!-- static stuff -->
+  static stuff
+  <h1>{{ article.title }}</h1>
+  <div class="prefoldHTML" #prefoldHTML  *ngIf="!editable" 
+    [innerHTML]="ui.safeHTML(article.prefoldHTML)" >
+</div>
+
+  <app-article *ngFor="let article of publication.articles"
+    [article]="article"
+    [publication]="publication"
+    [author]="author"
+    [expanded]="'collapsed'"
+    [preview]="false"
+  ></app-article>
+
+
+</app-article-container>
+
+
+
+
+<!-- space! -->
+<div style="height: 40px"></div>

@@ -9,6 +9,8 @@ import { Observable } from 'rxjs/Observable'
 const api_url = 'http://localhost:8080/api/graphql'
 const backendHost = 'http://localhost:8080'
 
+const backendDelayMS = 400
+
 
 const fragments = {
   article: `
@@ -28,6 +30,7 @@ const fragments = {
       name
       about
       imageURL
+      position
     }
   `,
   author: `
@@ -58,6 +61,7 @@ const fragments = {
             name
             about
             imageURL
+            position
             articles {
               id
               title
@@ -107,6 +111,7 @@ export interface Publication {
   name: string
   about: string
   imageURL: string
+  position: number
   articles?: Article[]
   author?: Author
   new?: boolean
@@ -122,6 +127,8 @@ export interface Article {
   postfoldJSON: string
   postfoldHTML: string
   publishedAt?: number
+  position: number
+
   author?: Author
   publication?: Publication
   // should not be on article itself, but passed to component
@@ -156,6 +163,7 @@ export interface SavePublicationResponse {
         name: string
         about: string
         imageURL: string
+        position: number
         articles: any[]
       }
     }
@@ -170,6 +178,7 @@ export interface LoadPublicationResponse {
       name: string
       about: string
       imageURL: string
+      position: number
       author: {
         id: string
         name: string
@@ -216,6 +225,7 @@ interface SaveArticleResponse {
         postfoldJSON
         postfoldHTML
         publishedAt
+        position
       }
     }
   }
@@ -237,6 +247,7 @@ interface PublishArticleResponse {
         postfoldJSON
         postfoldHTML
         publishedAt
+        position
       }
     }
   }
@@ -292,7 +303,7 @@ export class BackendService {
     }}`
     const variables = {email: email, password: password}
     this.loading = true
-    this.http.post(api_url, { query: query, variables: variables }).subscribe(result => {
+    this.http.post(api_url, { query: query, variables: variables }).delay(backendDelayMS).subscribe(result => {
       console.log('create account', result)
       this.loading = false
       const reply = result.json().data.createAccount
@@ -321,7 +332,7 @@ export class BackendService {
     }}`
     const variables = {email: email, password: password}
     this.loading = true
-    this.http.post(api_url, {query: query, variables: variables}).subscribe(result => {
+    this.http.post(api_url, {query: query, variables: variables}).delay(backendDelayMS).subscribe(result => {
       console.log('ep login', result)
       this.loading = false
       const reply = result.json().data.epLogin
@@ -355,7 +366,7 @@ export class BackendService {
     }}`
     const variables = {jwt: jwt}
     this.loading = true
-    this.http.post(api_url, {query: query, variables: variables}).subscribe(result => {
+    this.http.post(api_url, {query: query, variables: variables}).delay(backendDelayMS).subscribe(result => {
       this.loading = false
       console.log('jwt login', result)
       const reply = result.json().data.jwtLogin
@@ -406,7 +417,7 @@ export class BackendService {
         id
       }}
     `
-    this.http.post(api_url, {query: query}).subscribe(result => {
+    this.http.post(api_url, {query: query}).delay(backendDelayMS).subscribe(result => {
       const images = result.json().data.images
       this.account.images = images
       console.log('loaded images?', images)
@@ -461,7 +472,7 @@ export class BackendService {
       }
       // request an upload URL, then kick off upload!
       this.http.get(backendHost + '/api/image/upload-url').map(
-        res => res.json() ).subscribe(data => {
+        res => res.json() ).delay(backendDelayMS).subscribe(data => {
         xhr.open('POST', data.url, true)
         xhr.send(formData)
       })
@@ -495,7 +506,7 @@ export class BackendService {
     this.loading = true
     this.http.post(api_url, {query: query, variables: variables}).map(res => {
       return res.json()
-    }).subscribe((result: SaveArticleResponse) => {
+    }).delay(backendDelayMS).subscribe((result: SaveArticleResponse) => {
       this.loading = false
       console.log('save article?', result)
       saveSubject.next(result)
@@ -522,7 +533,7 @@ export class BackendService {
     this.loading = true
     this.http.post(api_url, {query: query, variables: variables}).map(res => {
       return res.json()
-    }).subscribe((result: PublishArticleResponse) => {
+    }).delay(backendDelayMS).subscribe((result: PublishArticleResponse) => {
       this.loading = false
       console.log('published article?', result)
       saveSubject.next(result)
@@ -554,7 +565,7 @@ export class BackendService {
     this.loading = true
     this.http.post(api_url, {query: query, variables: variables}).map(res => {
       return res.json()
-    }).subscribe(result => {
+    }).delay(backendDelayMS).subscribe(result => {
       this.loading = false
       console.log('be saved publication', result)
       saveSubject.next(result)
@@ -574,7 +585,7 @@ export class BackendService {
     const variables = {jwt: jwt, authorID: authorID, publicationID: publicationID}
     this.http.post(api_url, {query: query, variables}).map(res => {
       return res.json()
-    }).subscribe((result: DeletePublicationResponse) => {
+    }).delay(backendDelayMS).subscribe((result: DeletePublicationResponse) => {
       deleteSubject.next(result)
     })
     return deleteSubject
@@ -592,7 +603,7 @@ export class BackendService {
     const variables = {jwt: jwt, authorID: authorID, publicationID: publicationID, articleID: articleID}
     this.http.post(api_url, {query: query, variables}).map(res => {
       return res.json()
-    }).subscribe((result: DeleteArticleResponse) => {
+    }).delay(backendDelayMS).subscribe((result: DeleteArticleResponse) => {
       deleteSubject.next(result)
     })
     return deleteSubject
@@ -618,7 +629,7 @@ export class BackendService {
     this.loading = true
     this.http.post(api_url, {query: query, variables: variables}).map(res => {
       return res.json()
-    }).subscribe(result => {
+    }).delay(backendDelayMS).subscribe(result => {
       this.loading = false
       console.log('be saved author', result)
       saveSubject.next(result)
@@ -638,7 +649,7 @@ export class BackendService {
     const variables = {jwt: jwt, authorID: authorID}
     this.http.post(api_url, {query: query, variables}).map(res => {
       return res.json()
-    }).subscribe((result: DeleteAuthorResponse) => {
+    }).delay(backendDelayMS).subscribe((result: DeleteAuthorResponse) => {
       deleteSubject.next(result)
     })
     return deleteSubject
@@ -658,10 +669,13 @@ export class BackendService {
           about
           name
           imageURL
+          position
           articles {
             id
             title
+            prefoldJSON
             prefoldHTML
+            postfoldJSON
             postfoldHTML
             publishedAt
           }
@@ -669,9 +683,10 @@ export class BackendService {
       }
     }
     `
+    this.loading = true
     this.http.post(api_url, {query: query}).delay(500).map(res => {
       return res.json()
-    }).subscribe((result: any) => {
+    }).delay(backendDelayMS).subscribe((result: any) => {
       const author = result.data.author
       author.accordionState = 'expanded'
       for (const publication of author.publications) {
@@ -681,6 +696,7 @@ export class BackendService {
         }
       }
       loadSubject.next(result)
+      this.loading = false
     })
     return loadSubject
   }
@@ -705,7 +721,7 @@ export class BackendService {
     `
     this.http.post(api_url, {query: query}).delay(500).map(res => {
       return res.json()
-    }).subscribe((result: LoadPublicationResponse) => {
+    }).delay(backendDelayMS).subscribe((result: LoadPublicationResponse) => {
       loadSubject.next(result)
     })
     return loadSubject
@@ -739,7 +755,7 @@ export class BackendService {
     `
     this.http.post(api_url, {query: query}).delay(500).map(res => {
       return res.json()
-    }).subscribe((result: any) => {
+    }).delay(backendDelayMS).subscribe((result: any) => {
       loadSubject.next(result)
     })
     return loadSubject

@@ -252,7 +252,7 @@ class PublicationModel(InkModel):
     name = ndb.StringProperty()
     about = ndb.StringProperty()
     imageURL = ndb.StringProperty()
-    position = ndb.IntegerProperty()
+    position = ndb.IntegerProperty(default = int(time.time()))
 
 class PublicationSchema(graphene.ObjectType):
     """
@@ -264,6 +264,7 @@ class PublicationSchema(graphene.ObjectType):
     name = graphene.String()
     about = graphene.String()
     imageURL = graphene.String()
+    position = graphene.Int()
 
     def resolve_id(self, *args):
         return self.key.id()
@@ -295,7 +296,7 @@ class ArticleModel(InkModel):
     postfoldJSON = ndb.TextProperty()
     postfoldHTML = ndb.TextProperty()
     published_at = ndb.DateTimeProperty()
-    position = ndb.IntegerProperty()
+    position = ndb.IntegerProperty(default = int(time.time()))
 
     @timing
     def publish(self):
@@ -317,6 +318,7 @@ class ArticleSchema(graphene.ObjectType):
     postfoldJSON = graphene.String()
     postfoldHTML = graphene.String()
     published_at = graphene.Float()
+    position = graphene.Int()
 
     id = graphene.String()
     def resolve_id(self, *args):

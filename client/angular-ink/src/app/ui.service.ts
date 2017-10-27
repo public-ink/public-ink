@@ -1,9 +1,11 @@
 // angular
 import { Injectable } from '@angular/core'
+import { DomSanitizer } from '@angular/platform-browser'
 
 // rx
-import { Observable } from 'rxjs/Observable'
 import 'rxjs/Rx'
+import { Observable } from 'rxjs/Observable'
+import { Subject    } from 'rxjs/Subject'
 
 // ink (reconsider indicator)
 export enum Indicator {
@@ -36,8 +38,19 @@ export class UIService {
   overlayMessage: string
 
   mediaBar = false
+  // because animations are string based currently
+  mediaBarVisible = 'no'
 
   beingDragged
+
+  // confirm
+  confirmQuestion: string
+  confirmSubject = new Subject()
+
+  // selected article
+  selectedArticle
+  selectedPublication
+  selectedAuthor
 
 
   // styles
@@ -119,6 +132,7 @@ export class UIService {
 
   constructor(
     private backend: BackendService,
+    private sanitizer: DomSanitizer,
   ) {
     this.recordSize()
     Observable.fromEvent(window, 'resize').subscribe(() => {
@@ -131,12 +145,17 @@ export class UIService {
       if ((event.metaKey || event.ctrlKey) && event.keyCode === 77) {
         if (this.backend.account) {
           this.mediaBar = !this.mediaBar
+          this.mediaBarVisible = this.mediaBarVisible === 'no' ? 'yes' : 'no'
         }
         // prevents minimizing!
         event.preventDefault()
-      // ESCAPE => not in use
+      // ESCAPE => toggle top bar (or kill editor)
       } else if (event.keyCode === 27) {
-        // escape (not in use?)
+        if (this.selectedArticle) {
+          this.selectedArticle = undefined
+        } else {
+          this.backend.account.accordionState = this.backend.account.accordionState === 'compact' ? 'expanded' : 'compact'
+        }
       }
     })
   }
@@ -150,4 +169,9 @@ export class UIService {
     this.overlay = true
     this.overlayMessage = message
   }
+
+  safeHTML(html: string) {
+    return this.sanitizer.bypassSecurityTrustHtml(html)
+  }
+
 }
