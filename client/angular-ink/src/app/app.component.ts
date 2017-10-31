@@ -16,14 +16,49 @@ import { BackendService } from './backend.service'
     trigger('topBarAnimation', [
       state('expanded', style({'height': '*', opacity: 1})),
       state('compact', style({'height': '0px', opacity: 0})),
-      transition('compact <=> expanded', animate('300ms ease-in-out'))
+      transition('compact <=> expanded', animate('100ms ease-in-out'))
     ]),
+    // overlay
+    trigger('overlayAnimation', [
+      // state('yes', style({'height': '*', opacity: 1, 'background': 'red'})),
+      // state('no', style({'height': '*', opacity: 1, 'background': 'green'})),
+
+      // enter: start with 0 opacity, bit smaller
+      transition(':enter', [
+        style({opacity: 0.5, background: 'white', transform: 'scale(1)'}),
+        animate('300ms ease-in-out')
+      ]),
+
+      // leave: animate from where we are to 0 opacity
+      transition(':leave', [
+        animate('300ms ease-in-out'),
+        style({opacity: 0.5, 'background': 'white', transform: 'scale(1.5)'})
+      ]),
+    ]),
+
+    // Debug bar (enter, gone)
+    // enter buggy!
+    trigger('debugBarAnimation', [
+      // enter: start with 0 width
+      state(':enter', style({'margin-left.px': '-300px'})),
+
+      transition(':enter', [
+        animate('300ms ease-in-out'),
+        style({'margin-left': '0px'}),
+      ]),
+      // leave: got to 0 width
+      transition(':leave', [
+        animate('300ms ease-in-out'),
+        style({'margin-left': '-300px'})
+      ]),
+    ]),
+
     // todo: use actual height of media bar.
     trigger('mediaBar', [
       state('no', style({'bottom': '-300px', 'opacity': 0})),
       state('yes', style({'bottom': '0px', 'opacity': 1})),
       transition('no <=> yes', animate('300ms ease-in-out'))
-    ])
+    ]),
   ]
 })
 export class AppComponent {
@@ -48,6 +83,19 @@ export class AppComponent {
          top: 0,
          left: 0,
          'box-shadow': '0px 2px 4px rgba(0,0,0,.12)',
+      }
+    },
+    debugBar: () => {
+      return {
+        'background-color': 'rgba(255, 255, 255, 0.98)',
+        'overflow-y': 'scroll',
+        'width.px': 300,
+        'padding.px': 20,
+         'position': 'fixed',
+         'height.%': 100,
+         top: 0,
+         left: 0,
+         'box-shadow': '4px 2px 4px rgba(0,0,0,.12)',
       }
     },
     logo: () => {

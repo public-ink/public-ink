@@ -154,7 +154,9 @@ export class ArticleComponent implements OnInit, AfterViewInit {
   autosave() {
     // emit even instead
     if (this.article.new) { return }
+    this.ui.topspinnerShown = true
     this.backend.saveArticle(this.author.id, this.publication.id, this.article).subscribe(res => {
+      this.ui.topspinnerShown = false
       console.log('article component autosaved', res)
     })
   }

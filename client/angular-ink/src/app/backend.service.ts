@@ -6,6 +6,9 @@ import { Http } from '@angular/http'
 import { Subject } from 'rxjs/Subject'
 import { Observable } from 'rxjs/Observable'
 
+// ink
+import { LogService } from './log.service'
+
 const api_url = 'http://localhost:8080/api/graphql'
 const backendHost = 'http://localhost:8080'
 
@@ -45,6 +48,7 @@ const fragments = {
     info {
       success
       message
+      jwt
     }`,
   account: `
     account {
@@ -146,6 +150,7 @@ interface DeleteAuthorResponse {
     deleteAuthor: {
       success: boolean
       message: string
+      jwt: string
     }
   }
   errors: string[]
@@ -255,12 +260,13 @@ interface PublishArticleResponse {
 }
 
 
-interface SaveAuthorResponse {
+export interface SaveAuthorResponse {
   data: {
     saveAuthor: {
       info: {
         success: boolean
         message: string
+        jwt: string
       }
       author: {
         id
@@ -285,7 +291,8 @@ export class BackendService {
   loading = false
 
   constructor(
-    private http: Http
+    private http: Http,
+    private log: LogService,
   ) {
     this.jwtLogin()
   }
@@ -302,16 +309,16 @@ export class BackendService {
       ${fragments.account}
     }}`
     const variables = {email: email, password: password}
-    this.loading = true
     this.http.post(api_url, { query: query, variables: variables }).delay(backendDelayMS).subscribe(result => {
       console.log('create account', result)
-      this.loading = false
       const reply = result.json().data.createAccount
       const info: Info = reply.info
       const account: Account = reply.account
       if (info.success ) {
         this.account = account
         localStorage.setItem('jwt', this.account.jwt)
+        // this.log.info('set jwt from create account', this.account.jwt)
+        console.log('set jwt from create account', this.account.jwt)
         createAccountSubject.next(info)
       } else {
         createAccountSubject.error(info.message)
@@ -331,10 +338,8 @@ export class BackendService {
       ${fragments.info}
     }}`
     const variables = {email: email, password: password}
-    this.loading = true
     this.http.post(api_url, {query: query, variables: variables}).delay(backendDelayMS).subscribe(result => {
       console.log('ep login', result)
-      this.loading = false
       const reply = result.json().data.epLogin
       const info: Info = reply.info
       const account: Account = reply.account
@@ -342,6 +347,7 @@ export class BackendService {
       if (info.success ) {
         this.account = account
         localStorage.setItem('jwt', this.account.jwt)
+        console.log('jwt from email login', this.account.jwt)
         this.loadImages(this.account.jwt)
       }
       // even if it didn't work
@@ -365,31 +371,52 @@ export class BackendService {
       ${fragments.info}
     }}`
     const variables = {jwt: jwt}
-    this.loading = true
     this.http.post(api_url, {query: query, variables: variables}).delay(backendDelayMS).subscribe(result => {
-      this.loading = false
       console.log('jwt login', result)
       const reply = result.json().data.jwtLogin
+      console.log('jwt login', reply)
       const info: Info = reply.info
       const account: Account = reply.account
       if (info.success ) {
         account.accordionState = 'compact'
-        this.account = account
-        // set initial visibility state
-       /*  for (const author of this.account.authors) {
-          author.accordionState = 'expanded'
-          for (let publication of author.publications) {
-            publication.accordionState = 'compact'
+
+        for (const author of account.authors) {
+          console.log('add create publication')
+          author.publications.unshift(
+            {
+              id: 'create-publication',
+              accordionState: 'compact',
+              name: 'so new',
+              about: '',
+              imageURL: '',
+              new: false,
+              position: 400000,
+              articles: []
+            }
+          )
+          for (const publication of author.publications) {
+            publication.articles.unshift({
+              id: 'create-article',
+              title: 'such article',
+              prefoldJSON: '{}',
+              prefoldHTML: '',
+              postfoldJSON: '{}',
+              postfoldHTML: '',
+              position: 300,
+              new: true,
+            })
           }
-        } */
+        }
 
-
+        this.account = account
         localStorage.setItem('jwt', this.account.jwt)
+        console.log('jwt login returned jwt', this.account.jwt)
         loginSubject.next(info)
         // new: load images
         this.loadImages(this.account.jwt)
       } else {
         loginSubject.error(info.message)
+        alert('jwt login error')
       }
     })
     return loginSubject
@@ -503,11 +530,9 @@ export class BackendService {
       postfoldJSON: article.postfoldJSON,
       postfoldHTML: article.postfoldHTML,
     }
-    this.loading = true
     this.http.post(api_url, {query: query, variables: variables}).map(res => {
       return res.json()
     }).delay(backendDelayMS).subscribe((result: SaveArticleResponse) => {
-      this.loading = false
       console.log('save article?', result)
       saveSubject.next(result)
     })
@@ -530,11 +555,9 @@ export class BackendService {
       articleID: articleID,
       unpublish: unpublish,
     }
-    this.loading = true
     this.http.post(api_url, {query: query, variables: variables}).map(res => {
       return res.json()
     }).delay(backendDelayMS).subscribe((result: PublishArticleResponse) => {
-      this.loading = false
       console.log('published article?', result)
       saveSubject.next(result)
     })
@@ -562,11 +585,9 @@ export class BackendService {
       imageURL: publication.imageURL,
     }
 
-    this.loading = true
     this.http.post(api_url, {query: query, variables: variables}).map(res => {
       return res.json()
     }).delay(backendDelayMS).subscribe(result => {
-      this.loading = false
       console.log('be saved publication', result)
       saveSubject.next(result)
     })
@@ -626,12 +647,25 @@ export class BackendService {
       imageURL: author.imageURL,
     }
 
-    this.loading = true
     this.http.post(api_url, {query: query, variables: variables}).map(res => {
       return res.json()
-    }).delay(backendDelayMS).subscribe(result => {
-      this.loading = false
+    }).delay(backendDelayMS).subscribe((result: SaveAuthorResponse) => {
       console.log('be saved author', result)
+      if (!result.data.saveAuthor.info.success) {
+        // only report the error, the subscriber deals with the visuals
+        this.log.error('Backend Service', 'save author failed', result.data.saveAuthor.info.message)
+      }
+
+      // only do this if you actually got one!
+      if (!result.data.saveAuthor.info.jwt) {
+        // just no need for a new jwt
+        // alert('bad error, so jwt received')
+      }
+      if (result.data.saveAuthor.info.jwt) {
+        localStorage.setItem('jwt', result.data.saveAuthor.info.jwt)
+      }
+
+      console.log('save author jwt', result.data.saveAuthor.info.jwt)
       saveSubject.next(result)
     })
     return saveSubject
@@ -644,12 +678,15 @@ export class BackendService {
       {deleteAuthor {
         success
         message
+        jwt
       }}
     `
     const variables = {jwt: jwt, authorID: authorID}
     this.http.post(api_url, {query: query, variables}).map(res => {
       return res.json()
     }).delay(backendDelayMS).subscribe((result: DeleteAuthorResponse) => {
+      this.account.jwt = result.data.deleteAuthor.jwt
+      localStorage.setItem('jwt', result.data.deleteAuthor.jwt)
       deleteSubject.next(result)
     })
     return deleteSubject
@@ -683,20 +720,41 @@ export class BackendService {
       }
     }
     `
-    this.loading = true
     this.http.post(api_url, {query: query}).delay(500).map(res => {
       return res.json()
     }).delay(backendDelayMS).subscribe((result: any) => {
       const author = result.data.author
+      this.log.info(this, 'loaded author', author)
       author.accordionState = 'expanded'
-      for (const publication of author.publications) {
+      author.publications.unshift(
+        {
+          id: 'create-publication',
+          accordionState: 'compact',
+          name: 'so new',
+          about: '',
+          imageURL: '',
+          new: false,
+          position: 400000,
+          articles: []
+        }
+      )
+      for (const publication of author.publications.slice(1, author.publications.length)) {
         publication.accordionState = 'expanded'
         for (const article of publication.articles) {
           article.accordionState = 'expanded'
         }
+        publication.articles.unshift({
+          id: 'create-article',
+          title: 'new article',
+          prefoldJSON: '{}',
+          prefoldHTML: '',
+          postfoldJSON: '{}',
+          postfoldHTML: '',
+          position: 300,
+          new: true,
+        })
       }
       loadSubject.next(result)
-      this.loading = false
     })
     return loadSubject
   }
@@ -764,12 +822,11 @@ export class BackendService {
 
   /**
    * Checks if a given author id is one of the current user's authors
-   *
-   * @param authorID
    */
   isOwner(authorID: string): Boolean {
     if (!this.account) { return false }
     const authorIDs = this.account.authors.map(author => author.id )
+    // console.log(authorIDs, authorID)
     return authorIDs.includes(authorID)
   }
 

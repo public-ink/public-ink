@@ -73,12 +73,12 @@ export class PublicationComponent implements OnInit, AfterViewInit {
     name: (transparent?) => {
       return {
         'font-size.px': this.ui.responsiveValue(40, 45),
-        'font-weight': 'bold',
+        'font-weight': 600,
         // 'font-weight': this.publication.accordionState === 'compact' ? 'normal' : 'bold',
         'color': transparent ? 'rgba(0,0,0,0)' : '#fff',
         'margin': '80px 0px 80px 0px',
         // 'background-color': 'transparent',
-        'text-align': 'left',
+        'text-align': 'center',
         'width.%': 100,
         'outline': 'none',
         'border': 0,
@@ -89,7 +89,7 @@ export class PublicationComponent implements OnInit, AfterViewInit {
         'font-size.px': this.ui.responsiveValue(15, 20),
         'font-weight': 'normal',
         'color': '#fff',
-        'text-align': 'left',
+        'text-align': 'center',
         'outline': 'none',
         'border': 0,
         'width.%': 100,
@@ -98,6 +98,8 @@ export class PublicationComponent implements OnInit, AfterViewInit {
     button: () => {
       return {
         'color': 'white',
+        'text-align': 'center',
+        'width': '100%',
         'border-radius': '2px',
         'padding': '5px 20px',
         'font-size': '18px',
@@ -171,9 +173,14 @@ export class PublicationComponent implements OnInit, AfterViewInit {
   }
 
   deletePublication() {
-    const answer = window.confirm('wanna delete this publications?')
-    if (answer) {
+    console.log('jo')
+    this.ui.confirmQuestion = 'are you sure?'
+    this.ui.overlayShown = 'yes'
+    this.ui.confirmStream.subscribe(yes => {
+      this.ui.overlay('loading', 'deleting ' + this.publication.name)
       this.backend.deletePublication(this.author.id, this.publication.id).subscribe(res => {
+
+        this.ui.overlay('success', 'delete publication', 3000)
         console.log('delete publication?', res)
         // hide, mark deleted or whatever.
         if (res.data.deletePublication.success) {
@@ -182,7 +189,9 @@ export class PublicationComponent implements OnInit, AfterViewInit {
           console.warn('todo: remove publication from account.')
         }
       })
-    }
+    }, no => {
+
+    })
   }
 
   updatePublication() {
@@ -197,9 +206,13 @@ export class PublicationComponent implements OnInit, AfterViewInit {
   // todo: author id?
   create() {
     this.backend.loading = true
+
+    this.ui.overlay('loading')
     this.backend.savePublication(this.author.id, this.publication).subscribe((res: SavePublicationResponse) => {
       if (res.data.savePublication.info.success) {
         this.backend.loading = false
+
+        this.ui.overlay('success', '', 1000)
         // you have to set the publication to expanded...
         // do we still have expanded??
         // console.log('saved publication')

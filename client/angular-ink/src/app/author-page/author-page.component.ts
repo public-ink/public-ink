@@ -49,49 +49,16 @@ export class AuthorPageComponent implements OnInit {
         // not reloading because we have this author (after create)
       } else {
         // load that author! (can skip the JSON stuff?) yep.
+        if (this.backend.account) { this.backend.account.accordionState = 'compact'}
+
         this.backend.loadAuthor(authorID).subscribe((reply: any) => {
           window.scrollTo(0, 0)
           this.author = reply.data.author
-          this.backend.account.accordionState = 'compact'
         })
       }
     });
   }
 
-  /**
-   * creates a new author, and navigates, again to this component
-   * in that case, our router subscription won't do anything (not create a new object, nor load from backend again)
-   */
-  createAuthor() {
-    this.backend.saveAuthor(this.author).subscribe(result => {
-      this.author = result.data.saveAuthor.author
-      this.router.navigate(['/', this.author.id])
-    })
-  }
 
-  /**
-   * same as create, just without the navigation
-   */
-  updateAuthor() {
-    this.backend.saveAuthor(this.author).subscribe(result => {
-      this.author = result.data.saveAuthor.author
-    })
-  }
-
-  deleteAuthor() {
-    const answer: any = confirm('are you sure you want to delte ' + this.author.name)
-    console.log(answer, 'answer')
-    if (answer) {
-        // go ahead
-        this.backend.deleteAuthor(this.author.id).subscribe(result => {
-          console.log('author page delete author', result)
-          if (result.data.deleteAuthor.success) {
-            console.log('deleted! neet to navigate somewhere:)')
-            this.backend.account.authors = this.backend.account.authors.filter(author => author.id !== this.author.id)
-            this.router.navigate(['/'])
-          }
-        })
-    }
-  }
 
 }

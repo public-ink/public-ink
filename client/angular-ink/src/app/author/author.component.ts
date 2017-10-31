@@ -8,9 +8,10 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 import { Observable } from 'rxjs/Observable'
 
 // ink
-import { BackendService, Author } from '../backend.service'
+import { BackendService, Author, SaveAuthorResponse } from '../backend.service'
 import { UIService } from '../ui.service'
 import { AnimationService } from '../animation.service'
+import { LogService } from '../log.service'
 
 
 @Component({
@@ -49,8 +50,8 @@ export class AuthorComponent implements OnInit, AfterViewInit {
   @ViewChild('name') name: ElementRef
   @ViewChild('about') about: ElementRef
 
-  // @Output() updateAuthor = new EventEmitter()
-  // @Output() deleteAuthor = new EventEmitter()
+  window: Window = window
+
 
   badgeSize = 180
 
@@ -99,16 +100,22 @@ export class AuthorComponent implements OnInit, AfterViewInit {
     public backend: BackendService,
     public ui: UIService,
     public animation: AnimationService,
-  ) { }
+    public log: LogService,
+  ) {
+    this.window = window
+    console.log(window)
+  }
 
   ngOnInit() {
     // autosave on about edit
     if (!this.author.new) {
       // also observe drop
+      // also title? naah..
+      
+
       Observable.fromEvent(this.about.nativeElement, 'keyup').debounceTime(1000).subscribe(() => {
         if (this.author.id !== 'create-author') {
           this.updateAuthor()
-          //this.updateAuthor.next()
         }
       })
     }
@@ -154,35 +161,77 @@ export class AuthorComponent implements OnInit, AfterViewInit {
    * in that case, our router subscription won't do anything (not create a new object, nor load from backend again)
    */
   createAuthor() {
-    this.backend.saveAuthor(this.author).subscribe(result => {
+    this.ui.overlay('loading')
+    this.backend.saveAuthor(this.author).subscribe((result: SaveAuthorResponse) => {
+      const info = result.data.saveAuthor.info
+
+      if (!info.success) {
+        this.ui.overlay('error', info.message)
+        return
+      }
+      // stick into accounts
       this.author = result.data.saveAuthor.author
+      this.backend.account.authors.push(this.author)
+      this.backend.account.jwt = info.jwt
+
       this.router.navigate(['/', this.author.id])
+      this.ui.overlay('success', '', 500)
     })
   }
 
   /**
    * same as create, just without the navigation
+   * 
+   * This shows the trouble with the ui showing separate trees.
+   * 
+   * next step is to unify the tree!
    */
   updateAuthor() {
+    this.ui.topspinnerShown = true
     this.backend.saveAuthor(this.author).subscribe(result => {
+      
+      this.log.info(this, 'save author response')
+
       this.author = result.data.saveAuthor.author
+      // replace author in account.
+      this.backend.account.authors.map(author => {
+        if (author.id === this.author.id) {
+          // no, no. we don't reload all her content
+          author = this.author
+        }
+      })
+      // check for errors
+      this.ui.topspinnerShown = false
     })
   }
 
   deleteAuthor() {
-    const answer: any = confirm('are you sure you want to delte ' + this.author.name)
-    console.log(answer, 'answer')
-    if (answer) {
-        // go ahead
-        this.backend.deleteAuthor(this.author.id).subscribe(result => {
-          console.log('author page delete author', result)
-          if (result.data.deleteAuthor.success) {
-            console.log('deleted! neet to navigate somewhere:)')
-            this.backend.account.authors = this.backend.account.authors.filter(author => author.id !== this.author.id)
-            this.router.navigate(['/'])
-          }
-        })
-    }
+    console.log('delete clicked')
+    this.ui.confirmQuestion = 'are you sure?'
+    this.ui.overlay('confirm')
+
+    this.ui.confirmStream.take(1).subscribe((answer: 'yes' | 'no') => {
+
+      if (answer === 'no') {
+        this.ui.overlayShown = 'no'
+        return
+      }
+
+      // go ahead
+      this.ui.overlay('loading')
+      this.backend.deleteAuthor(this.author.id).subscribe(result => {
+
+        if (result.data.deleteAuthor.success) {
+          this.ui.overlay('success', '', 400)
+          this.backend.account.authors = this.backend.account.authors.filter(author => author.id !== this.author.id)
+          this.router.navigate(['/'])
+        } else {
+          this.ui.overlay('error', result.data.deleteAuthor.message)
+        }
+      }, error => {
+        alert('unexpected backend error')
+      })
+    })
   }
 
 
@@ -193,9 +242,9 @@ export class AuthorComponent implements OnInit, AfterViewInit {
     this.author.publications.unshift(
       {
         id: 'create-publication',
-        accordionState: 'expanded',
-        name: 'so new',
-        about: 'such about',
+        accordionState: 'compact',
+        name: '',
+        about: '',
         imageURL: '',
         new: true,
         position: 400000,

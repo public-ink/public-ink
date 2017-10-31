@@ -44,7 +44,7 @@ export class FileDropComponent {
       files = $event.target.files
     }
     // this.ui.message = `uploading ${files.length} images`
-    this.ui.show('loading', `uploading ${files.length} images`)
+    this.ui.overlay('loading', `uploading ${files.length} images`)
     new Observable(stream => {
       for (const file of files) {
 
@@ -85,7 +85,7 @@ export class FileDropComponent {
     }, () => {
       console.log('all the things are done!')
       //this.ui.flashMessage('all uploads done!')
-      this.ui.show('success', `${files.length} have been uploaded`, 1000)
+      this.ui.overlay('success', `${files.length} have been uploaded`, 1000)
     })
   }
 

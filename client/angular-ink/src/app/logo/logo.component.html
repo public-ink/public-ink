@@ -1,20 +1,32 @@
-<flex-row style="padding:10px 10px 10px 0px;"
-  [style.background-color]="negative"
+<!-- container -->
+<flex-row
+  (click)="randomColor()"
+  [style.background-color]=""
 >
 
+<!-- left padding -->
+<div 
+  [style.height.px]="totalHeight"
+  [style.width.px]="pad"
+  [style.background-color]="background"></div>
 
+<flex-col >
+  <!-- top padding -->
+  <div 
+  [style.height.px]="pad"
+  [style.width.px]="width"
+  [style.background-color]="background"></div>
 
-<flex-col (click)="randomColor()">
   <!-- top bar -->
   <div 
     [style.height.px]="thick"
     [style.width.px]="width"
-    [style.background-color]="bg"></div>
+    [style.background-color]="color"></div>
 
   <flex-row>
     <!-- left space -->
     <div 
-      [style.background-color]="negative"
+      [style.background-color]="background"
       [style.width.px]="thick"
       [style.height.px]="height - thick"></div>
   
@@ -22,12 +34,12 @@
     <div 
       [style.width.px]="thick"
       [style.height.px]="height - thick"
-      [style.background-color]="bg"
+      [style.background-color]="color"
     ></div>
 
     <!-- center space -->
     <div 
-    [style.background-color]="negative"
+    [style.background-color]="background"
     [style.width.px]="width - (thick * 4)"
     [style.height.px]="height - thick"></div>
 
@@ -35,18 +47,29 @@
     <div 
       [style.width.px]="thick"
       [style.height.px]="height - thick"
-      [style.background-color]="bg"
+      [style.background-color]="color"
     ></div>
 
     <!-- right space -->
     <div 
-    [style.background-color]="negative"
+    [style.background-color]="background"
     [style.width.px]="thick"
     [style.height.px]="height - thick"></div>
   
   
   </flex-row>
+
+  <div 
+  [style.height.px]="pad"
+  [style.width.px]="width"
+  [style.background-color]="background"></div>
   
 </flex-col>
+
+<!-- right padding -->
+<div 
+[style.height.px]="totalHeight"
+[style.width.px]="pad"
+[style.background-color]="background"></div>
 
 </flex-row>

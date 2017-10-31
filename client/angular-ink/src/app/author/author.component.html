@@ -1,19 +1,21 @@
-<app-content-width (dragover)="onDragOver($event)" (drop)="onDrop()">
+<app-content-width (dragover)="onDragOver($event)" (drop)="onDrop($event)">
 
   <flex-col-center-center>
 
+    
     <!-- author IMAGE -->
     <span style="border-radius: 100%; padding: 15px; border: 1px dotted #ccc;">
       <img *ngIf="author.imageURL" style="width: 200px; height: 200px; border-radius: 100%;" [src]="author.imageURL + '&w=200&h=200'"  />
       <div *ngIf="!author.imageURL" style="background:linear-gradient(135deg, #f0944e 0%, #f0505c 100%); width: 200px; height: 200px; border-radius: 100%;"></div>
     </span>
 
-
+    <!-- author NAME -->
     <flex-row style="font-weight: bold; font-style: italic; font-size: 40px; margin: 20px 0;">
-
-
-      <textarea appAutosize rows="1" [(ngModel)]="author.name" [ngStyle]="style.name()" placeholder="Author Name "></textarea>
-
+      <textarea 
+        appAutosize rows="1" 
+        [(ngModel)]="author.name" 
+        [ngStyle]="style.name()" 
+        placeholder="Author Name "></textarea>
     </flex-row>
 
   </flex-col-center-center>
@@ -35,24 +37,27 @@
       <!-- buttons -->
       <!-- create / cancel if new (move to component itself -->
       <app-content-width style="margin-top: 0px;">
-        <flex-row-center>
+        <flex-col-center>
           <button *ngIf="author.new" [ngStyle]="ui.styles.button()" (click)="createAuthor()">Create Author</button>
-        </flex-row-center>
+          <button *ngIf="author.new" (click)="window.history.back()">cancel</button>
+        </flex-col-center>
 
 
       </app-content-width>
 
-
-      <!-- message and subscribe -->
-      <flex-row-center *ngIf="author.id !== 'create-author'">
-
-        <span style="display: inline-block; border-radius: 10px; color: #111; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;"
+      <!-- message / subscribe for visitors -->
+      <flex-row-center *ngIf="!backend.isOwner(author.id) && !author.new">
+          <span style="display: inline-block; border-radius: 10px; color: #111; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;"
           [routerLink]="['create-publication']">message</span>
         &nbsp; &nbsp;
         <span style="display: inline-block; border-radius: 10px; color: #111; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;"
           [routerLink]="['create-publication']">subscribe</span>
         &nbsp; &nbsp;
-        <!-- new publication -->
+      </flex-row-center>
+
+
+      <!-- new publication and delete (for owner onlw) -->
+      <flex-row-center *ngIf="author.id !== 'create-author' && backend.isOwner(author.id)">
         <span 
           (click)="startPublication()"
         style="display: inline-block; border-radius: 10px; color: #111; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;"
@@ -66,7 +71,7 @@
 
 
       <!-- view changer -->
-      <flex-row-center>
+      <flex-row-center *ngIf="author.publications?.length > 0 && 1">
         <span (click)="setPublicationView('expanded')">
           full view</span>&nbsp;|&nbsp;
         <span (click)="setPublicationView('compact')">
@@ -88,9 +93,8 @@
 </app-content-width>
 
 <!-- PUBLICATIONS! -->
-
-<div style="height: 0px;"></div>
-
-<div *ngFor="let publication of author.publications">
-  <app-publication [author]="author" [publication]="publication" [editable]="false"></app-publication>
-</div>
+  <app-publication *ngFor="let publication of author.publications"
+    [author]="author" 
+    [publication]="publication" 
+    [editable]="false">
+  </app-publication>

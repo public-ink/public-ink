@@ -14,6 +14,7 @@ export enum Indicator {
   error,
 }
 
+declare function jwt_decode(jwt: string)
 
 import { BackendService } from './backend.service'
 
@@ -33,9 +34,17 @@ export class UIService {
   deviceWidth: number
   deviceHeight: number
 
-  overlay = false
+  topspinnerShown = false
+
+  overlayShown = 'no'
   overlayInidcator
   overlayMessage: string
+
+  // debug
+  debugBarShown = false
+
+  confirmShown = true
+  confirmStream = new Subject()
 
   mediaBar = false
   // because animations are string based currently
@@ -45,12 +54,8 @@ export class UIService {
 
   // confirm
   confirmQuestion: string
-  confirmSubject = new Subject()
 
-  // selected article
-  selectedArticle
-  selectedPublication
-  selectedAuthor
+
 
 
   // styles
@@ -138,9 +143,11 @@ export class UIService {
     Observable.fromEvent(window, 'resize').subscribe(() => {
       this.recordSize()
     })
+    // this.confirmStream
 
     // keyboard shortcuts
     Observable.fromEvent(window, 'keydown').subscribe((event: KeyboardEvent) => {
+      // console.log(event.keyCode)
       // CMS + M  => toggle media bar
       if ((event.metaKey || event.ctrlKey) && event.keyCode === 77) {
         if (this.backend.account) {
@@ -149,13 +156,14 @@ export class UIService {
         }
         // prevents minimizing!
         event.preventDefault()
-      // ESCAPE => toggle top bar (or kill editor)
+
+      // ESCAPE => toggle top bar
       } else if (event.keyCode === 27) {
-        if (this.selectedArticle) {
-          this.selectedArticle = undefined
-        } else {
-          this.backend.account.accordionState = this.backend.account.accordionState === 'compact' ? 'expanded' : 'compact'
-        }
+        if (!this.backend.account) {return}
+        this.backend.account.accordionState = this.backend.account.accordionState === 'compact' ? 'expanded' : 'compact'
+      } else if ((event.metaKey || event.ctrlKey) && event.keyCode === 68) {
+        this.debugBarShown = !this.debugBarShown
+        event.preventDefault()
       }
     })
   }
@@ -164,14 +172,37 @@ export class UIService {
   /**
    * show fullscreen (todo)
    */
-  show(indicator: any, message: string, seconds?: number) {
+  overlay(indicator: 'success' | 'error' | 'loading' | 'confirm', message?: string, ms?: number) {
     this.overlayInidcator = indicator
-    this.overlay = true
     this.overlayMessage = message
+    this.overlayShown = 'yes'
+
+    console.log('set overlayshow to yes', this.overlayShown)
+
+    // time
+    if (ms) {
+      setTimeout(() => {
+        this.overlayShown = 'no'
+        console.log('timout kill')
+      }, ms)
+    }
   }
 
   safeHTML(html: string) {
     return this.sanitizer.bypassSecurityTrustHtml(html)
+  }
+
+  decodeJWT(jwt: string) {
+    if (!jwt_decode) {return}
+    try {
+      const result = jwt_decode(jwt)
+      // console.log(result.authors)
+      return result
+    } catch (error) {
+      console.log('error decoding jwt', jwt, error)
+    } finally {
+      // pass
+    }
   }
 
 }

@@ -77,16 +77,16 @@ export class AccountComponent {
   doLogin() {
     const email = this.loginForm.value.email
     const password = this.loginForm.value.password
-    this.ui.show(Indicator.loading, 'logging in')
+    this.ui.overlay('loading', 'logging in')
     this.backend.epLogin(email, password).subscribe((info: any) => {
       console.log('ep lopgin', info)
       if (info.success) {
-        this.ui.show(Indicator.success, 'done!', 1000)
+        this.ui.overlay('success', 'done!', 1000)
       } else {
-        this.ui.show(Indicator.error, info.message, 1000)
+        this.ui.overlay('error', info.message, 1000)
       }
     }, error => {
-      this.ui.show(Indicator.error, 'an unexpected backend error')
+      this.ui.overlay('error', 'an unexpected backend error')
     })
   }
 
@@ -97,16 +97,16 @@ export class AccountComponent {
   createAccount() {
     const email = this.registrationForm.value.email
     const password = this.registrationForm.value.password
-    this.ui.show(Indicator.loading, 'creating account...')
+    this.ui.overlay('loading', 'creating account...')
     this.backend.createAccount(email, password).subscribe(
       (info: Info) => {
         if (info.success) {
-          this.ui.show(Indicator.success, 'account created!', 1000)
+          this.ui.overlay('success', 'account created!', 1000)
         } else {
-          this.ui.show(Indicator.error, 'could not create account: ' + info.message)
+          this.ui.overlay('error', 'could not create account: ' + info.message)
         }
       }, (error) => {
-        this.ui.show(Indicator.error, 'an unexpected backend error')
+        this.ui.overlay('error', 'an unexpected backend error')
       }
     )
   }
@@ -117,18 +117,18 @@ export class AccountComponent {
    */
   requestPasswordResetLink() {
     const email = this.resetPasswordForm.value.email
-    this.ui.show(Indicator.loading, 'generating link')
+    this.ui.overlay('loading', 'generating link')
     this.backend.requestResetPasswordLink(email).subscribe(
       (result: any) => {
         if (result.data.requestResetPasswordLink.success) {
-          this.ui.show(Indicator.success, 'Done, check your email.')
+          this.ui.overlay('success', 'Done, check your email.')
         } else {
           // sucess and error messages are the same so not to give away information
-          this.ui.show(Indicator.error, 'Done, check your email.')
+          this.ui.overlay('error', 'Done, check your email.')
           this.resetPasswordForm.reset()
         }
       }, (error) => {
-        this.ui.show(Indicator.error, 'unexpected backend error!')
+        this.ui.overlay('error', 'unexpected backend error!')
         this.resetPasswordForm.reset()
       })
   }

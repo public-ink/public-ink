@@ -31,6 +31,7 @@ import { ProfileStatsComponent } from './profile-stats'
 import { UIService } from './ui.service'
 import { BackendService } from './backend.service'
 import { AnimationService } from './animation.service'
+import { LogService } from './log.service'
 
 
 // ink pipes
@@ -46,10 +47,15 @@ import { AnitestComponent } from './anitest/anitest.component';
 import { PublicationAccordionComponent } from './publication-accordion/publication-accordion.component';
 import { ArrowComponent } from './arrow/arrow.component';
 import { ArticleContainerComponent } from './article-container/article-container.component';
+import { DesignComponent } from './design/design.component';
 
 
 // routes (ZERO)
 const appRoutes: Routes = [
+  // specials
+  { path: 'design', component: DesignComponent},
+
+  // content tree
   { path: ':authorID/:publicationID/:articleID', component: ArticlePageComponent },
   { path: ':authorID/:publicationID', component: AuthorPageComponent },
   { path: ':authorID', component: AuthorPageComponent },
@@ -84,6 +90,7 @@ const appRoutes: Routes = [
     ArrowComponent,
     EditorComponent,
     ArticleContainerComponent,
+    DesignComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes),
@@ -98,6 +105,7 @@ const appRoutes: Routes = [
     UIService,
     BackendService,
     AnimationService,
+    LogService,
   ],
   bootstrap: [AppComponent],
 

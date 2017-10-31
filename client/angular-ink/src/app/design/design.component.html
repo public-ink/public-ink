@@ -1,0 +1,41 @@
+
+<app-content-width>
+  <h1><i>public.ink</i></h1>
+    <flex-col style="width: 300px; background:linear-gradient(135deg, #f0944e 0%, #f0505c 100%);">
+      <app-logo 
+        [size]="100"
+        [color]="'transparent'" 
+        [background]="'white'">
+    </app-logo>
+    </flex-col>
+
+    <flex-col>
+      <h3>seriously different</h3>
+      <h3>highly editale</h3>
+      <h3>slick as fuck</h3>
+      <h3>by humans for humans</h3>
+      
+    </flex-col>
+
+
+    <h1>Animations</h1>
+    <p>Animation help understand the app. 
+      We can animate between different states.
+
+      Gone (by virtue of a loop or an ngIf), to present can also be animatate.
+    </p>
+
+    <div>
+      <h3>here below will appear a bar</h3>
+      <button (click)="toggle()">toggle {{testbarShown}} </button>
+      <div 
+      *ngIf="testbarShown === 'yes'" 
+      [@testAnimation]="testbarShown"
+      
+      >test bar</div>
+      <h1>jo</h1>
+    </div>
+
+
+
+</app-content-width>

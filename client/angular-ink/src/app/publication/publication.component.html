@@ -11,31 +11,39 @@
   style="position:relative; color: white;  background-color: black;">
 
   <app-content-width>
-    <div [ngStyle]="styles.name(true)">{{ publication.name }}</div>
+    <div [ngStyle]="styles.name(true)">&nbsp; {{ publication.name }}</div>
   </app-content-width>
 
   <!-- background image -->
   <flex-col-left-center style="background-position: center center; background-size: cover;
   background-repeat: no-repeat; opacity: 0.5; position:absolute; top: 0; left: 0; height: 100%; width: 100%;"
-    [style.background-image]="safeBG()">
+    [style.background-image]="publication.imageURL ? safeBG() : 'linear-gradient(135deg, #f0944e 0%, #f0505c 100%)'">
   </flex-col-left-center>
 
   <!-- content -->
   <app-content-width style="position:absolute; top: 0; left: 0; height: 100%; width: 100%;">
     
+    <flex-col-center-center style="position: relative;">
+
+    <!-- OWNER and NOT NEW: delete -->
+    <flex-col-center-center 
+      (click)="deletePublication()"
+      style="font-size: 40px; padding: 8px; position: absolute; top: 50px; right: 0px; height: 20px; width: 20px; border-radius: 100%; border: 1px solid rgba(255,255,255,0.2);">
+        <div style="width: 100%; border-top: 1px solid rgba(255, 255, 255, 0.3)"></div>
+    </flex-col-center-center>
+
     <!-- space -->
     <div [@hideAnimation]="publication.accordionState" style="overflow: hidden;">
-      <div style="height: 20vh;" >
+      <div style="height: 10vh;" >
         <!-- just space to hide :) -->
       </div>
     </div>
-
-    position: {{ publication.position }}
     
     <!-- publication NAME -->
     <flex-row-center>
-      <textarea style="flex-grow: 1;" #name *ngIf="editable || 1" class="focus-bg" [(ngModel)]="publication.name" [ngStyle]="styles.name()" [style.cursor]="'default'"
-      appAutosize rows="1" placeholder="publication name"></textarea>
+      <textarea style="flex-grow: 1;" #name *ngIf="editable || 1" class="focus-bg" [(ngModel)]="publication.name" 
+      [ngStyle]="styles.name()" [style.cursor]="'default'"
+      appAutosize rows="1" placeholder="new publication"></textarea>
       
     </flex-row-center>
     <!-- publication ABOUT -->
@@ -48,24 +56,26 @@
 
 
       <!-- create! if new -->
-      <span style="background: rgba(0,0,0, 0.2); color: white; display: inline-block; border-radius: 10px; color: white; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;"
-      (click)="create()">create</span>
+      <flex-row-center>
+        <span 
+          *ngIf="publication.id === 'create-publication'"
+        style="background: rgba(0,0,0, 0.2); color: white; display: inline-block; border-radius: 10px; color: white; font-weight: normal; font-size: 18px; padding: 10px 15px; border: 1px solid lightgray;"
+        (click)="create()">create publication</span>
+      </flex-row-center>
 
 
-      <span (click)="startArticle()" style="background: rgba(0,0,0, 0.2); color: white; display: inline-block; border-radius: 10px; color: white; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;"
-      >new article</span>
-    &nbsp; &nbsp;
-    <span style="background: rgba(0,0,0, 0.2); color: white; display: inline-block; border-radius: 10px; color: white; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;"
+      <!-- <span (click)="startArticle()" style="background: rgba(0,0,0, 0.2); color: white; display: inline-block; border-radius: 10px; color: white; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;"
+      >new article</span> -->
+
+    <!-- <span 
+        
+    style="background: rgba(0,0,0, 0.2); color: white; display: inline-block; border-radius: 10px; color: white; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;"
     [routerLink]="['create-publication']">subscribe</span>
-  &nbsp; &nbsp;
-  <span (click)="deletePublication()" style="background: rgba(0,0,0, 0.2); color: white; display: inline-block; border-radius: 10px; color: white; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;"
- >...</span>
- 
+  &nbsp; &nbsp; -->
   
- <!-- <app-arrow [accordionState]="publication.accordionState" (click)="toggle()" [color]="'#fff'"></app-arrow> -->
-      
-      
     </div>
+  </flex-col-center-center>
+
   </app-content-width>
 
 </div>
@@ -75,16 +85,27 @@
 <!-- ARTICLES -->
 <app-article-container
   *ngFor="let article of publication.articles"  
+  
 >
 
-  <!-- static stuff -->
-  static stuff
-  <h1>{{ article.title }}</h1>
-  <div class="prefoldHTML" #prefoldHTML  *ngIf="!editable" 
-    [innerHTML]="ui.safeHTML(article.prefoldHTML)" >
-</div>
+<button (click)="article.editing = !article.editing">toggle edit</button>
 
-  <app-article *ngFor="let article of publication.articles"
+  <!-- static article -->
+  <app-content-width>
+      <h1>{{ article.title }}</h1>
+      <div 
+      class="prefoldHTML" #prefoldHTML  *ngIf="!editable" 
+        [innerHTML]="ui.safeHTML(article.prefoldHTML)" >
+    </div>
+    <div 
+    class="postfoldHTML" #postfoldHTML  *ngIf="!editable" 
+      [innerHTML]="ui.safeHTML(article.postfoldHTML)" >
+  </div>
+  </app-content-width>
+ 
+
+  <!-- editor -->
+  <app-article *ngIf="article.editing"
     [article]="article"
     [publication]="publication"
     [author]="author"

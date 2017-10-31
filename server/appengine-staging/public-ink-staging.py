@@ -92,6 +92,7 @@ class InfoSchema(graphene.ObjectType):
     """
     success = graphene.Boolean()
     message = graphene.String()
+    jwt = graphene.String()
 
 
 """
@@ -599,6 +600,9 @@ class Query(graphene.ObjectType):
             )
 
         email = email_from_jwt(token)
+        new_jwt = ''
+        
+
         user_key = ndb.Key('UserModel', email)
 
         if authorID == 'create-author':
@@ -618,8 +622,12 @@ class Query(graphene.ObjectType):
                 user=user_key
             ).put()
             message = 'author_created'
+
+            # re-issue jwt with additional author
+            new_jwt = generate_jwt(email, slugify(name))
+
         else:
-            # authentication
+            # update after authentication
             if not is_owner(token, authorID):
                 return AuthorResponse(
                 InfoSchema(success=False, message='unauthorized')
@@ -633,7 +641,7 @@ class Query(graphene.ObjectType):
             message = 'author_updated'
 
         return AuthorResponse(
-            info=InfoSchema(success=True, message=message),
+            info=InfoSchema(success=True, message=message, jwt = new_jwt),
             author=author_key.get()
         )
 
@@ -976,12 +984,17 @@ class Query(graphene.ObjectType):
         
         # params
         token = args.get('jwt') or self.get('jwt')
+        email = email_from_jwt(token)
         author_id = args.get('authorID') or self.get('authorID')
         
         # authentication
         if is_owner(token, author_id):
             ndb.Key('AuthorModel', author_id).delete()
-            return InfoSchema(success=True, message='author_deleted')
+            return InfoSchema(
+                success=True, 
+                message='author_deleted',
+                jwt=generate_jwt(email)
+                )
         return InfoSchema(success=False, message='unauthorized')
 
 
@@ -1298,18 +1311,21 @@ def verify_password(hashed_password, user_password):
     return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
 
 @timing
-def generate_jwt(email):
+def generate_jwt(email, add_author_id = None):
     """ 
     Generates a jwt for a given email. The payload contains the email, 
     a comma separated string of author IDs, and an expiration date
     """    
     user_key = ndb.Key('UserModel', email)
     author_ids = AuthorModel.query(AuthorModel.user == user_key).map(lambda author: author.key.id())
+    if add_author_id:
+        author_ids.append(add_author_id)
     payload = {
         'email': email,
         'authors': ','.join(author_ids),
         'exp': datetime.utcnow() + timedelta(days=JWT_EXP_DELTA_DAYS)
     }
+    print ','.join(author_ids)
     jwt_token = jwt.encode(payload, JWT_SECRET, JWT_ALGORITHM)
     return jwt_token.decode('utf-8')
 
@@ -1394,6 +1410,7 @@ def is_owner(token, author_id):
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         author_ids = payload.get('authors').split(',')
+        print payload.get('authors')
         return True if author_id in author_ids else False
     except jwt.DecodeError:
         return False
