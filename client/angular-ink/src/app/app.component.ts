@@ -40,16 +40,11 @@ import { BackendService } from './backend.service'
     // enter buggy!
     trigger('debugBarAnimation', [
       // enter: start with 0 width
-      state(':enter', style({'margin-left.px': '-300px'})),
+      state('yes', style({transform: 'translateX(0%)'})),
+      state('no', style({transform: 'translateX(-100%)'})),
 
-      transition(':enter', [
+      transition('no <=> yes', [
         animate('300ms ease-in-out'),
-        style({'margin-left': '0px'}),
-      ]),
-      // leave: got to 0 width
-      transition(':leave', [
-        animate('300ms ease-in-out'),
-        style({'margin-left': '-300px'})
       ]),
     ]),
 

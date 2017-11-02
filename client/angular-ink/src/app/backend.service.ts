@@ -730,10 +730,10 @@ export class BackendService {
         {
           id: 'create-publication',
           accordionState: 'compact',
-          name: 'so new',
+          name: '',
           about: '',
           imageURL: '',
-          new: false,
+          new: true,
           position: 400000,
           articles: []
         }

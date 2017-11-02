@@ -76,6 +76,9 @@
         <div>
           <!-- loading -->
           <div *ngIf="ui.topspinnerShown" class="spinner"></div>
+
+          <!-- temp -->
+          
           
           <!-- logout -->
           <div *ngIf="backend.account?.accordionState === 'expanded'">
@@ -177,7 +180,6 @@
 
 <flex-col
 [@debugBarAnimation]="ui.debugBarShown"
-*ngIf="ui.debugBarShown"
 [ngStyle]="styles.debugBar()">
   <h2>ink insights</h2>
   <div *ngIf="backend.account?.authors">

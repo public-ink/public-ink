@@ -41,13 +41,15 @@
     
     <!-- publication NAME -->
     <flex-row-center>
-      <textarea style="flex-grow: 1;" #name *ngIf="editable || 1" class="focus-bg" [(ngModel)]="publication.name" 
+      <textarea 
+      (focus)="publication.accordionState = 'expanded'"
+      style="flex-grow: 1;" #name *ngIf="editable || 1" class="focus-bg" [(ngModel)]="publication.name" 
       [ngStyle]="styles.name()" [style.cursor]="'default'"
       appAutosize rows="1" placeholder="new publication"></textarea>
       
     </flex-row-center>
-    <!-- publication ABOUT -->
-    <div [@hideAnimation]="publication.accordionState" style="margin-top: -80px;">
+    <!-- publication ABOUT / HIDDEN-->
+    <div *ngIf="0" [@hideAnimation]="publication.accordionState" style="margin-top: -80px;">
       <textarea 
       
       #about *ngIf="editable || 1" class="focus-bg" placeholder="tell me why" [(ngModel)]="publication.about" [ngStyle]="styles.about()"
@@ -55,13 +57,7 @@
       </textarea>
 
 
-      <!-- create! if new -->
-      <flex-row-center>
-        <span 
-          *ngIf="publication.id === 'create-publication'"
-        style="background: rgba(0,0,0, 0.2); color: white; display: inline-block; border-radius: 10px; color: white; font-weight: normal; font-size: 18px; padding: 10px 15px; border: 1px solid lightgray;"
-        (click)="create()">create publication</span>
-      </flex-row-center>
+      
 
 
       <!-- <span (click)="startArticle()" style="background: rgba(0,0,0, 0.2); color: white; display: inline-block; border-radius: 10px; color: white; font-weight: normal; font-size: 16px; padding: 10px 10px; border: 1px solid lightgray;"
@@ -74,6 +70,15 @@
   &nbsp; &nbsp; -->
   
     </div>
+    <!-- create! if new -->
+    <flex-row-center 
+    [@hideAnimation]="publication.accordionState"
+      *ngIf="publication.id === 'create-publication'">
+      <span 
+      style="background: rgba(0,0,0, 0.2); color: white; display: inline-block; border-radius: 10px; color: white; font-weight: normal; font-size: 18px; padding: 10px 15px; border: 1px solid lightgray;"
+      (click)="create()">create publication</span>
+    </flex-row-center>
+
   </flex-col-center-center>
 
   </app-content-width>

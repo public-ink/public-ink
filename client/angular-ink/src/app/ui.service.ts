@@ -41,7 +41,7 @@ export class UIService {
   overlayMessage: string
 
   // debug
-  debugBarShown = false
+  debugBarShown = 'no'
 
   confirmShown = true
   confirmStream = new Subject()
@@ -162,7 +162,7 @@ export class UIService {
         if (!this.backend.account) {return}
         this.backend.account.accordionState = this.backend.account.accordionState === 'compact' ? 'expanded' : 'compact'
       } else if ((event.metaKey || event.ctrlKey) && event.keyCode === 68) {
-        this.debugBarShown = !this.debugBarShown
+        this.debugBarShown = this.debugBarShown === 'yes' ? 'no' : 'yes'
         event.preventDefault()
       }
     })
